@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Base>
+  <!-- Placeholder page: unstyled on purpose. Will be rebuilt from the Figma design. -->
+  <main>
+    <h1>Khalil Cader</h1>
+    <p>Product designer.</p>
+    <ul>
+      {work.map((item) => (
+        <li><a href={`${base}/work/${item.id}/`}>{item.data.title}</a></li>
+      ))}
+    </ul>
+  </main>
+</Base>

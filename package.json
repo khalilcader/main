@@ -1,0 +1,22 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khalilcader/main.git"
+  },
+  "bugs": {
+    "url": "https://github.com/khalilcader/main/issues"
+  },
+  "homepage": "https://github.com/khalilcader/main#readme",
+  "dependencies": {
+    "astro": "^7.3.8"
+  },
+  "type": "module",
+  "private": true
+}
