@@ -14,7 +14,7 @@
   --muted: #73736d;
   --line: #e3e3de;
   --panel: rgba(255, 255, 255, 0.92);
-  --scrim: rgba(36, 36, 33, 0.42);
+  --scrim: color-mix(in srgb, var(--bg) 72%, transparent);   /* fades toward the page in either theme */
   --shadow: rgba(22, 22, 20, 0.14);
   --focus: #2f5bd8;
   --grain-amt: 1;   /* one dial for every blur's grain; see the Values panel */
@@ -26,25 +26,25 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
-    --panel: rgba(28, 28, 26, 0.92); --scrim: rgba(0, 0, 0, 0.62);
+    --panel: rgba(28, 28, 26, 0.92);
     --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
-  --panel: rgba(28, 28, 26, 0.92); --scrim: rgba(0, 0, 0, 0.62);
+  --panel: rgba(28, 28, 26, 0.92);
   --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
 }
 /* The page's own theme toggle. Uses its own attribute so the viewer, which writes
    data-theme, can't override an explicit choice. Declared last so it wins. */
 :root[data-scheme="light"] {
   --bg: #fafafa; --ink: #161615; --muted: #73736d; --line: #e3e3de;
-  --panel: rgba(255, 255, 255, 0.92); --scrim: rgba(36, 36, 33, 0.42);
+  --panel: rgba(255, 255, 255, 0.92);
   --shadow: rgba(22, 22, 20, 0.14); --focus: #2f5bd8; color-scheme: light;
 }
 :root[data-scheme="dark"] {
   --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
-  --panel: rgba(28, 28, 26, 0.92); --scrim: rgba(0, 0, 0, 0.62);
+  --panel: rgba(28, 28, 26, 0.92);
   --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
 }
 
