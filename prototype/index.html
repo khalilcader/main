@@ -17,7 +17,7 @@
   --scrim: rgba(36, 36, 33, 0.42);
   --shadow: rgba(22, 22, 20, 0.14);
   --focus: #2f5bd8;
-  --grain-amt: 0.7;   /* one dial for every blur's grain; see the Values panel */
+  --grain-amt: 1;   /* one dial for every blur's grain; see the Values panel */
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='2.2' intercept='-0.6'/><feFuncG type='linear' slope='2.2' intercept='-0.6'/><feFuncB type='linear' slope='2.2' intercept='-0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 
   --f-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -184,6 +184,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   touch-action: auto;
 }
 #values h2 { margin: 0 0 8px; font: 500 12px/1 var(--f-ui); text-align: center; }
+.ctl-actions { display: flex; align-items: center; gap: 8px; padding-top: 10px; flex-wrap: wrap; }
+.ctl-actions span { color: var(--muted); }
+#copyText { width: 100%; margin-top: 8px; font: 400 11px/1.4 var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px; resize: vertical; }
 #values h3 { margin: 12px 0 4px; font: 500 10px/1 var(--f-mono); color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
 #values dl { margin: 0; display: grid; grid-template-columns: 1fr auto; }
 #values dt, #values dd { margin: 0; padding: 5px 0; border-bottom: 1px solid var(--line); }
@@ -242,6 +245,12 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   <div class="ctl"><label for="efIn">edge fade</label><output id="efOut"></output><input id="efIn" type="range" min="0" max="1" step="0.05"></div>
   <div class="ctl check"><input id="snapIn" type="checkbox"><label for="snapIn">snap row to covers</label></div>
   <div class="ctl check"><input id="slowIn" type="checkbox"><label for="slowIn">slow motion (¼ speed)</label></div>
+  <div class="ctl-actions">
+    <button class="tool" id="copyBtn" type="button">Copy settings</button>
+    <button class="tool" id="resetBtn" type="button">Reset</button>
+    <span id="copyOut" role="status"></span>
+  </div>
+  <textarea id="copyText" hidden readonly rows="8" aria-label="Settings as text"></textarea>
 </aside>
 
 <p class="hint" id="hint">Drag or scroll · tap or pull up to open · pull down to squish · G grid · T theme</p>
@@ -279,8 +288,24 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Tunable from the Values panel.
-  const P = { k: reduce ? 700 : 240, c: reduce ? 53 : 30, rubber: 0.55, decay: 4.5, brake: 1400, snapRow: false, time: 1, rippleDelay: reduce ? 0 : 30, falloff: 0.85,
-    edgeW: 20, edgeBlur: 14, edgeCurve: 2.6, edgeFade: 0.9, rubberD: 360, grain: 0.7, focusBlur: 48 };
+  // Defaults are Khalil's tuned values (Oct 12). Slider changes are saved per
+  // browser on top of these; "Reset" in the Values panel returns here.
+  const DEFAULTS = {
+    k: 240, c: 30, rubber: 0.55, rubberD: 360, decay: 4.5, brake: 1400,
+    rippleDelay: 30, falloff: 0.86, focusBlur: 56, grain: 1,
+    edges: true, edgeW: 16, edgeBlur: 7, edgeCurve: 5, edgeFade: 0.25, snapRow: false,
+  };
+  const TUNING_KEY = "work-strip-tuning";
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(TUNING_KEY) || "{}") || {}; } catch (e) {}
+  const P = { ...DEFAULTS, time: 1 };
+  for (const k of Object.keys(DEFAULTS)) if (typeof saved[k] === typeof DEFAULTS[k]) P[k] = saved[k];
+  if (reduce) Object.assign(P, { k: 700, c: 53, rippleDelay: 0 });
+  const saveTuning = () => {
+    const out = {};
+    for (const k of Object.keys(DEFAULTS)) if (P[k] !== DEFAULTS[k]) out[k] = P[k];
+    try { localStorage.setItem(TUNING_KEY, JSON.stringify(out)); } catch (e) {}
+  };
   const EDGE_K = 280, EDGE_C = 33;     // overscroll spring-back (critically damped, quick)
   const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under critical)
   const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
@@ -797,13 +822,15 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   });
 
   // Tuning controls
+  const resetters = [];
   const zeta = () => `${P.c.toFixed(0)}  ζ ${(P.c / (2 * Math.sqrt(P.k))).toFixed(2)}`;
   const bind = (id, key, fmt) => {
     const input = $("#" + id + "In"), out = $("#" + id + "Out");
     input.value = P[key];
     const show = () => { out.textContent = fmt(+input.value); };
-    on(input, "input", () => { P[key] = +input.value; show(); $("#cOut").textContent = zeta(); });
+    on(input, "input", () => { P[key] = +input.value; show(); $("#cOut").textContent = zeta(); saveTuning(); });
     show();
+    resetters.push(() => { input.value = P[key]; show(); });
   };
   bind("k", "k", (v) => v.toFixed(0));
   bind("c", "c", zeta);
@@ -819,9 +846,31 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   bind("ef", "edgeFade", (v) => v.toFixed(2));
   bind("gr", "grain", (v) => v.toFixed(2));
   bind("fb", "focusBlur", (v) => `${v.toFixed(0)}px`);
-  on($("#snapIn"), "change", (e) => { P.snapRow = e.target.checked; S.row.to = null; });
+  const snapIn = $("#snapIn"), edgeIn = $("#edgeIn");
+  const syncChecks = () => {
+    snapIn.checked = P.snapRow; edgeIn.checked = P.edges;
+    document.body.classList.toggle("no-edges", !P.edges);
+  };
+  syncChecks();
+  on(snapIn, "change", (e) => { P.snapRow = e.target.checked; S.row.to = null; saveTuning(); });
   for (const id of ["ew", "eb", "ec", "ef", "gr"]) on($("#" + id + "In"), "input", applyEdges);
-  on($("#edgeIn"), "change", (e) => { document.body.classList.toggle("no-edges", !e.target.checked); });
+  on(edgeIn, "change", (e) => { P.edges = e.target.checked; syncChecks(); saveTuning(); });
+
+  // Copy every tunable value as JSON (to paste back into chat), or reset to defaults.
+  const copyOut = $("#copyOut");
+  on($("#copyBtn"), "click", () => {
+    const text = JSON.stringify(Object.fromEntries(Object.keys(DEFAULTS).map((k) => [k, P[k]])), null, 2);
+    const done = (msg) => { copyOut.textContent = msg; clearTimeout(copyOut.t); copyOut.t = setTimeout(() => { copyOut.textContent = ""; }, 2500); };
+    const fallback = () => { $("#copyText").hidden = false; $("#copyText").value = text; $("#copyText").select(); done("Select all and copy"); };
+    try { navigator.clipboard.writeText(text).then(() => done("Copied"), fallback); } catch (e) { fallback(); }
+  });
+  on($("#resetBtn"), "click", () => {
+    Object.assign(P, DEFAULTS);
+    if (reduce) Object.assign(P, { k: 700, c: 53, rippleDelay: 0 });
+    try { localStorage.removeItem(TUNING_KEY); } catch (e) {}
+    resetters.forEach((f) => f()); syncChecks(); applyEdges(); S.row.to = null;
+    $("#cOut").textContent = zeta();
+  });
   on($("#slowIn"), "change", (e) => { P.time = e.target.checked ? 0.25 : 1; });
 
   // ---- edges ----
