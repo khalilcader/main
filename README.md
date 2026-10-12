@@ -21,7 +21,8 @@ single file with no build step; open it in a browser.
   together, with light grain on top. Each edge only shows when there is more
   row beyond it, and both slide away in focus view. Edge
   width, max blur, blur easing and fade are tunable in the Values panel.
-- Press G for a packed grid view.
+- Press G for a packed grid view, T (or the theme button) to cycle Auto / Light /
+  Dark.
 
 The covers are placeholder blocks in Apple system colors. The "Values" panel shows live spring state and
 has sliders for stiffness, damping, rubber band strength, deceleration, brake,
