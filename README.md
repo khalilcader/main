@@ -10,8 +10,9 @@ single file with no build step; open it in a browser.
 - Drag or scroll the row; it glides and rubber-bands at the ends, and the gaps
   between covers stretch and settle back like a spring.
 - Pull a cover up (or tap it) to scrub the whole row into a large strip that
-  pages one project at a time, with neighbors pushed just off screen. Drag the
-  focused cover in any direction (or flick it) to send it back to the row.
+  pages one project at a time, with neighbors pushed just off screen. Swipe
+  left or right to move between covers; drag up or down (or flick) to send the
+  focused cover back to the row.
 - Pull a cover down in the row and it squishes against a rubber band, with a
   chain reaction: each neighbor follows a beat later while the gaps stay even.
 - In the large strip, covers away from center dim, blur and pick up grain.

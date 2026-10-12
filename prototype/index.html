@@ -4,9 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Work Strip</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Geist:wght@400;500&family=Geist+Mono:wght@400&display=swap">
 <style>
 *,*::before,*::after{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}
 /* Layout: one full-bleed stage. Covers live on springs and move between a
@@ -23,9 +20,8 @@
   --veil: rgba(26, 26, 24, 0.42);
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 
-  --f-ui: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --f-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --f-serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --f-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -63,14 +59,15 @@ body {
 /* Progressive edge blur. Eight stacked backdrop blurs, each twice as strong as the
    last, each masked to its own overlapping band (transparent, opaque, opaque,
    transparent). Together they ramp from sharp on the inside to heavy blur at the
-   viewport edge with no visible steps. Grain fades in along the same ramp. */
+   viewport edge with no visible steps. Grain lives in a separate element on top:
+   a blend mode inside .edge would isolate it and leave the blurs nothing to blur. */
 .edge {
   position: fixed; top: 0; bottom: 0; z-index: 25; pointer-events: none;
   width: clamp(64px, 15vw, 220px);
 }
 .edge.l { left: 0; }
 .edge.r { right: 0; transform: scaleX(-1); }
-.edge i, .edge::before, .edge::after { position: absolute; inset: 0; }
+.edge i { position: absolute; inset: 0; }
 .edge i { display: block; -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
 .edge i:nth-child(1) { --b: 0.5px; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); }
 .edge i:nth-child(2) { --b: 1px; -webkit-mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); }
@@ -80,15 +77,16 @@ body {
 .edge i:nth-child(6) { --b: 14px; -webkit-mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); }
 .edge i:nth-child(7) { --b: 22px; -webkit-mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); }
 .edge i:nth-child(8) { --b: 32px; -webkit-mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); }
-.edge::before {
-  content: ""; background: linear-gradient(to left, transparent 30%, var(--bg) 100%); opacity: 0.25;
-}
-.edge::after {
-  content: ""; background-image: var(--grain); background-size: 200px 200px;
+.edge-grain {
+  position: fixed; top: 0; bottom: 0; z-index: 26; pointer-events: none;
+  width: clamp(64px, 15vw, 220px);
+  background-image: var(--grain); background-size: 200px 200px;
   mix-blend-mode: overlay; opacity: 0.7;
-  -webkit-mask-image: linear-gradient(to left, transparent 10%, #000 100%); mask-image: linear-gradient(to left, transparent 10%, #000 100%);
+  -webkit-mask-image: linear-gradient(to left, transparent 15%, #000 100%); mask-image: linear-gradient(to left, transparent 15%, #000 100%);
 }
-body.no-edges .edge { display: none; }
+.edge-grain.l { left: 0; }
+.edge-grain.r { right: 0; transform: scaleX(-1); }
+body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 
 /* Film grain over anything pushed out of focus. */
 #backdrop::after, .veil::after {
@@ -124,7 +122,7 @@ body.no-edges .edge { display: none; }
 }
 .bar > * { pointer-events: auto; }
 .who { display: grid; gap: 2px; }
-.who b { font: 400 17px/1.1 var(--f-serif); letter-spacing: -0.01em; }
+.who b { font: 600 15px/1.2 var(--f-ui); letter-spacing: -0.01em; }
 .who span { font: 400 11px/1.2 var(--f-mono); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
 .tools { display: flex; gap: 8px; }
 .tool {
@@ -180,6 +178,8 @@ body.no-edges .edge { display: none; }
 
 <div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="edge-grain l" aria-hidden="true"></div>
+<div class="edge-grain r" aria-hidden="true"></div>
 
 <header class="bar">
   <div class="who"><b>Khalil Cader</b><span>Selected work · placeholder covers</span></div>
@@ -489,12 +489,15 @@ body.no-edges .edge { display: none; }
 
   // ---- pointer ----
   let ptr = null;
-  const velocityOf = (samples) => {
-    const last = samples[samples.length - 1];
-    let first = last;
-    for (let i = samples.length - 1; i >= 0 && last[2] - samples[i][2] <= 100; i--) first = samples[i];
-    const dt = (last[2] - first[2]) / 1000;
-    return dt > 0 ? { x: (last[0] - first[0]) / dt, y: (last[1] - first[1]) / dt } : { x: 0, y: 0 };
+  // Release velocity from the last ~100ms of moves, using each event's own
+  // timestamp. A pause before letting go reads as zero.
+  const velocityOf = (samples, upT) => {
+    const n = samples.length, last = samples[n - 1];
+    if (n < 2 || upT - last[2] > 80) return { x: 0, y: 0 };
+    let j = n - 2;
+    while (j > 0 && last[2] - samples[j - 1][2] <= 100) j--;
+    const first = samples[j], dt = (last[2] - first[2]) / 1000;
+    return dt > 0.004 ? { x: (last[0] - first[0]) / dt, y: (last[1] - first[1]) / dt } : { x: 0, y: 0 };
   };
 
   stage.addEventListener("pointerdown", (e) => {
@@ -528,12 +531,13 @@ body.no-edges .edge { display: none; }
             c.held = true;
           }
         } else ptr.kind = "scroll";
-      } else if (p.t >= 0.5 && p.v > 0.9 && ptr.card && ptr.card.i === nearest(centerBig, S.big.to ?? S.big.pos)) {
-        // Focused cover: drag it anywhere; far enough or fast enough dismisses to the row.
-        ptr.kind = "fling"; anchor = ptr.card.i;
+      } else if (p.t >= 0.5 && !horiz) {
+        // Focus view: a vertical drag picks up the focused cover. It then follows the
+        // finger in any direction; far enough or fast enough dismisses it to the row.
+        ptr.kind = "fling"; anchor = nearest(centerBig, S.big.to ?? S.big.pos);
         S.big.to = centerBig(anchor);
         S.row.pos = rowSnap(anchor); S.row.vel = 0; S.row.to = null;
-        const c = ptr.card;
+        const c = cards[anchor];
         ptr.o0 = { x: c.ox.v, y: c.oy.v };
         c.held = true;
       } else if (horiz) {
@@ -596,8 +600,7 @@ body.no-edges .edge { display: none; }
 
   function endPointer(e, cancelled) {
     if (!ptr || e.pointerId !== ptr.id) return;
-    ptr.samples.push([e.clientX, e.clientY, e.timeStamp]);  // a pause before release reads as zero speed
-    const v = velocityOf(ptr.samples);
+    const v = velocityOf(ptr.samples, e.timeStamp);
     stats.release = Math.hypot(v.x, v.y) / 1000;
     stage.classList.remove("dragging");
 
@@ -717,7 +720,13 @@ body.no-edges .edge { display: none; }
     if (fn && s.to == null) {
       // Project where the glide would stop, then settle on the nearest snap point.
       let i = nearest(fn, s.pos + glideDist(s.vel));
-      if (s.from != null) i = clamp(i, s.from - 1, s.from + 1);  // large strip pages one project per flick
+      if (s.from != null && s === S.big) {
+        // Large strip pages like a native carousel: a flick, or a drag past ~a fifth
+        // of the screen, moves exactly one cover in that direction.
+        const moved = s.pos - fn(s.from);
+        const dir = Math.abs(s.vel) > 250 ? Math.sign(s.vel) : Math.abs(moved) > vw * 0.18 ? Math.sign(moved) : 0;
+        i = clamp(s.from + dir, 0, N - 1);
+      }
       s.from = null;
       const t = fn(i);
       if (Math.abs(t - s.pos) > 0.5 || Math.abs(s.vel) > 2) s.to = t;
@@ -783,7 +792,7 @@ body.no-edges .edge { display: none; }
     hintKey = key;
     hint.textContent = {
       row: "Drag or scroll the row · tap or pull a cover up to open · pull down to squish · G for grid",
-      big: "Drag the cover any direction to go back · swipe outside it or scroll to browse",
+      big: "Swipe left or right to browse · drag up or down to go back",
       g: "Drag or scroll the grid · tap a cover to open · G for row",
       go: "Pull the cover down or tap to close",
     }[key];
