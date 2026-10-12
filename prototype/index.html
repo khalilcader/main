@@ -6,7 +6,7 @@
 <title>Work Strip</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,800&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Geist:wght@400;500&family=Geist+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Geist:wght@400;500&family=Geist+Mono:wght@400&display=swap">
 <style>
 *,*::before,*::after{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}
 /* Layout: one full-bleed stage. Covers live on springs and move between a
@@ -26,7 +26,6 @@
   --f-ui: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --f-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --f-serif: "Fraunces", Georgia, "Times New Roman", serif;
-  --f-cond: "Archivo", "Arial Narrow", Impact, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -102,50 +101,18 @@ body.no-edges .edge { display: none; }
 
 .card {
   position: absolute; left: 0; top: 0; padding: 0; margin: 0;
-  border: 0; border-radius: 3px; background: none; color: inherit;
+  border: 0; border-radius: 12px; background: none; color: inherit;
   transform-origin: 0 0; will-change: transform, filter;
   box-shadow: 0 1px 2px var(--shadow), 0 8px 24px -12px var(--shadow);
   cursor: inherit; font: inherit; text-align: left;
 }
 .card:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 
-/* Covers scale with the card via container units, so type stays crisp. */
 .cover {
   position: absolute; inset: 0; overflow: hidden; border-radius: inherit;
-  container-type: size; background: var(--c-bg); color: var(--c-fg);
+  background: var(--c-bg);
   pointer-events: none;
 }
-.meta {
-  position: absolute; left: 5cqw; right: 5cqw; top: 4.5cqw;
-  display: flex; justify-content: space-between; gap: 2cqw;
-  font: 400 3.6cqw/1.2 var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase;
-}
-.look-stack .title {
-  position: absolute; left: 5cqw; right: 5cqw; bottom: 4cqw;
-  font: 800 17cqw/0.86 var(--f-cond); font-stretch: 62%;
-  text-transform: uppercase; letter-spacing: -0.01em;
-}
-.look-center .title {
-  position: absolute; inset: 0; display: grid; place-items: center; padding: 8cqw;
-  font: italic 400 14cqw/0.95 var(--f-serif); text-align: center;
-}
-.look-mono .orb {
-  position: absolute; width: 62cqw; height: 62cqw; right: -10cqw; bottom: -8cqw;
-  border-radius: 50%; background: var(--c-fg); opacity: 0.9;
-}
-.look-mono .title {
-  position: absolute; left: 5cqw; bottom: 5cqw; max-width: 55cqw;
-  font: 400 6cqw/1.1 var(--f-mono); text-transform: uppercase;
-}
-.look-frame .rule {
-  position: absolute; inset: 4cqw; border: 0.6cqw solid currentColor; opacity: 0.85;
-}
-.look-frame .title {
-  position: absolute; left: 9cqw; right: 9cqw; top: 14cqw;
-  font: 400 11cqw/0.98 var(--f-serif);
-}
-.look-frame .meta { top: auto; bottom: 8cqw; left: 9cqw; right: 9cqw; }
-
 /* Chrome */
 .bar {
   position: fixed; left: 0; right: 0; top: 0; z-index: 30;
@@ -242,22 +209,21 @@ body.no-edges .edge { display: none; }
 
 <script>
 (() => {
-  // Placeholder projects. Swap for real work: title, kind, year, aspect (w/h), colors, cover style.
+  // Placeholder covers: Apple system colors with varied aspect ratios (w/h).
+  // Swap for real work later: title, kind, year, aspect, image.
   const DATA = [
-    { t: "Lucent Room", k: "Identity", y: "2026", a: 0.82, bg: "#dcdad4", fg: "#161616", look: "stack" },
-    { t: "The Book of Cinema", k: "Editorial", y: "2025", a: 0.7, bg: "#7a3b22", fg: "#f3e6d6", look: "frame" },
-    { t: "Tide", k: "Magazine", y: "2025", a: 1.35, bg: "#e9c9a8", fg: "#7a1f12", look: "center" },
-    { t: "Summit", k: "Campaign", y: "2025", a: 0.78, bg: "#9c1458", fg: "#ffd3e6", look: "mono" },
-    { t: "Behind the Scenes", k: "Film", y: "2024", a: 0.8, bg: "#e3b49b", fg: "#3b1d12", look: "stack" },
-    { t: "Garden Salad", k: "Illustration", y: "2024", a: 0.92, bg: "#ecebd2", fg: "#d2502a", look: "mono" },
-    { t: "Dreamhouse", k: "Music", y: "2024", a: 1, bg: "#e0b51c", fg: "#1a1306", look: "center" },
-    { t: "Katalog 1935", k: "Archive", y: "2023", a: 0.68, bg: "#e2501c", fg: "#fbe3cf", look: "frame" },
-    { t: "Common Ground", k: "Community", y: "2023", a: 1.45, bg: "#6f9a4c", fg: "#f5f8e8", look: "stack" },
-    { t: "Useless & Fragile", k: "Poster", y: "2023", a: 0.8, bg: "#141414", fg: "#ff7a52", look: "center" },
-    { t: "Denim Patch", k: "Product", y: "2022", a: 0.9, bg: "#3f5f8c", fg: "#f2a33a", look: "mono" },
-    { t: "Agony Uncle", k: "Book", y: "2022", a: 1.1, bg: "#101418", fg: "#c9d7ff", look: "frame" },
-    { t: "Low Tide", k: "Photography", y: "2022", a: 1.5, bg: "#a8c3cf", fg: "#0f2b38", look: "stack" },
-    { t: "Soft Machine", k: "Type specimen", y: "2021", a: 0.75, bg: "#f1ece4", fg: "#d13b2a", look: "center" },
+    { t: "Red", bg: "#FF3B30", a: 0.8 },
+    { t: "Orange", bg: "#FF9500", a: 0.7 },
+    { t: "Yellow", bg: "#FFCC00", a: 1.35 },
+    { t: "Green", bg: "#34C759", a: 0.78 },
+    { t: "Mint", bg: "#00C7BE", a: 0.92 },
+    { t: "Teal", bg: "#30B0C7", a: 1 },
+    { t: "Cyan", bg: "#32ADE6", a: 0.68 },
+    { t: "Blue", bg: "#007AFF", a: 1.45 },
+    { t: "Indigo", bg: "#5856D6", a: 0.8 },
+    { t: "Purple", bg: "#AF52DE", a: 0.9 },
+    { t: "Pink", bg: "#FF2D55", a: 1.1 },
+    { t: "Brown", bg: "#A2845E", a: 0.75 },
   ];
 
   const $ = (s) => document.querySelector(s);
@@ -292,17 +258,11 @@ body.no-edges .edge { display: none; }
   const unrubberClamp = (pos, s, d) => pos < s.min ? s.min - unrubber(s.min - pos, d) : pos > s.max ? s.max + unrubber(pos - s.max, d) : pos;
 
   // ---- cards ----
-  const cover = (d) => {
-    const meta = `<div class="meta"><span>${d.k}</span><span>${d.y}</span></div>`;
-    if (d.look === "mono") return `<div class="orb"></div>` + meta + `<div class="title">${d.t}</div>`;
-    if (d.look === "frame") return `<div class="rule"></div><div class="title">${d.t}</div>` + meta;
-    return meta + `<div class="title">${d.t}</div>`;
-  };
   const cards = DATA.map((d, i) => {
     const el = document.createElement("button");
     el.type = "button"; el.className = "card"; el.dataset.i = i;
-    el.setAttribute("aria-label", `${d.t}, ${d.k}, ${d.y}`);
-    el.innerHTML = `<div class="cover look-${d.look}" style="--c-bg:${d.bg};--c-fg:${d.fg}">${cover(d)}</div><div class="veil"></div>`;
+    el.setAttribute("aria-label", `${d.t} placeholder`);
+    el.innerHTML = `<div class="cover" style="--c-bg:${d.bg}"></div><div class="veil"></div>`;
     stage.appendChild(el);
     return {
       d, i, el, veil: el.lastChild, W: 1, last: {},
@@ -378,7 +338,9 @@ body.no-edges .edge { display: none; }
     // size once and only ever scales down. Text and images stay crisp.
     for (const c of cards) {
       c.W = Math.max(c.big.w, lightboxRect(c).w);
+      // Corner radius is a share of the shorter side, so it scales with the cover.
       c.el.style.width = c.W + "px"; c.el.style.height = c.W / c.d.a + "px";
+      c.el.style.borderRadius = Math.min(c.W, c.W / c.d.a) * 0.055 + "px";
     }
     for (const s of Object.values(S)) { s.pos = clamp(s.pos, s.min, s.max); s.to = null; }
   }

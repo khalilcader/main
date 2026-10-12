@@ -16,6 +16,6 @@ single file with no build step; open it in a browser.
   the viewport edges blur progressively.
 - Press G for a packed grid view.
 
-The covers are placeholders. The "Values" panel shows live spring state and
+The covers are placeholder blocks in Apple system colors. The "Values" panel shows live spring state and
 has sliders for stiffness, damping, rubber band strength, deceleration, brake,
 and ripple delay and falloff, plus a toggle for snapping the row to covers.
