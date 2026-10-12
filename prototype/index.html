@@ -207,6 +207,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   <div class="ctl"><label for="kIn">stiffness</label><output id="kOut"></output><input id="kIn" type="range" min="60" max="700" step="10"></div>
   <div class="ctl"><label for="cIn">damping</label><output id="cOut"></output><input id="cIn" type="range" min="4" max="70" step="1"></div>
   <div class="ctl"><label for="rIn">rubber band</label><output id="rOut"></output><input id="rIn" type="range" min="0.15" max="1" step="0.05"></div>
+  <div class="ctl"><label for="rDIn">rubber distance</label><output id="rDOut"></output><input id="rDIn" type="range" min="80" max="900" step="10"></div>
   <div class="ctl"><label for="dIn">deceleration</label><output id="dOut"></output><input id="dIn" type="range" min="0.8" max="10" step="0.1"></div>
   <div class="ctl"><label for="bIn">brake</label><output id="bOut"></output><input id="bIn" type="range" min="0" max="4000" step="100"></div>
   <div class="ctl"><label for="rdIn">ripple delay</label><output id="rdOut"></output><input id="rdIn" type="range" min="0" max="140" step="5"></div>
@@ -256,8 +257,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 
   // Tunable from the Values panel.
   const P = { k: reduce ? 700 : 240, c: reduce ? 53 : 30, rubber: 0.55, decay: 4.5, brake: 1400, snapRow: false, time: 1, rippleDelay: reduce ? 0 : 30, falloff: 0.85,
-    edgeW: 20, edgeBlur: 14, edgeCurve: 2.6, edgeFade: 0.9 };
-  const EDGE_K = 170, EDGE_C = 26;     // overscroll spring-back (critically damped)
+    edgeW: 20, edgeBlur: 14, edgeCurve: 2.6, edgeFade: 0.9, rubberD: 360 };
+  const EDGE_K = 280, EDGE_C = 33;     // overscroll spring-back (critically damped, quick)
   const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under critical)
   const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
   const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
@@ -322,6 +323,10 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   const snapFn = (s) => (s === S.big ? centerBig : s === S.row && P.snapRow ? rowSnap : null);
   const layer = () => (mode === "grid" ? S.grid : p.t >= 0.5 ? S.big : S.row);
   const dimOf = (s) => (s === S.grid ? vh : vw);
+  // How far past an edge the strip can stretch before it stops giving. A fixed
+  // distance (capped on small screens) instead of the full viewport width, so
+  // overscroll pushes back firmly on wide screens too.
+  const rubberDim = (s) => Math.min(P.rubberD, dimOf(s) * 0.5);
 
   function layout() {
     vw = stage.clientWidth; vh = stage.clientHeight;
@@ -389,7 +394,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   // Where a card wants to be on screen right now.
   function targetRect(c) {
     if (mode === "row") {
-      const a = c.row, b = c.big, t = clamp(p.v, -0.05, 1.2);
+      const a = c.row, b = c.big, t = clamp(p.v, 0, 1.2);
       const rx = a.x - clamp(S.row.pos, S.row.min, S.row.max) - c.ovR.v;
       const bx = b.x - clamp(S.big.pos, S.big.min, S.big.max) - c.ovB.v;
       return { x: lerp(rx, bx, t), y: lerp(a.y, b.y, t), w: lerp(a.w, b.w, t), h: lerp(a.h, b.h, t) };
@@ -428,9 +433,11 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   function stretchWeight(c, lay, s) {
     const o = s.pos - clamp(s.pos, s.min, s.max);
     if (!o) return 0;
-    const r = c[lay], sx = r.x + r.w / 2 - clamp(s.pos, s.min, s.max);
-    const ref = ptr && ptr.kind === "scroll" && ptr.s === s ? ptr.lastX : vw / 2;
-    const d = Math.max(0, o < 0 ? ref - sx : sx - ref);
+    // Measured in content space from the point that was grabbed (or the screen
+    // center for wheel scrolling), so the grabbed cover tracks the rubber band 1:1.
+    const r = c[lay], cx = r.x + r.w / 2;
+    const ref = ptr && ptr.kind === "scroll" && ptr.s === s ? ptr.grabC : clamp(s.pos, s.min, s.max) + vw / 2;
+    const d = Math.max(0, o < 0 ? ref - cx : cx - ref);
     return o * (0.25 + 0.75 * Math.exp(-d / (vw * 0.3)));
   }
   // Safety net for the stretch: covers may spread apart but never close a gap
@@ -440,6 +447,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     const minGap = rowGap * 0.5 * (1 - clamp(p.v, 0, 1));
     for (let i = 1; i < N; i++) {
       const a = cards[i - 1], b = cards[i];
+      // Only between covers that have landed in the row. Covers still flying in from
+      // the grid sit in columns, out of row order, and must not be shoved.
+      if (!a.follow || !b.follow) continue;
       const over = a.x.v + a.w.v + minGap - b.x.v;
       if (over > 0 && p.v < 0.02) b.x.v += over;
     }
@@ -461,7 +471,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     if (m === mode) return;
     closeGrid();
     const now = performance.now();
-    const order = [...cards].sort((a, b) => a.x.v - b.x.v);
+    // Into the grid, release covers by where they are now; back to the row, release
+    // them in row order so the strip assembles from left to right.
+    const order = m === "row" ? [...cards] : [...cards].sort((a, b) => a.y.v - b.y.v || a.x.v - b.x.v);
     order.forEach((c, k) => {
       c.follow = false;
       c.hold = { x: c.x.v, y: c.y.v, w: c.w.v, h: c.h.v };
@@ -546,6 +558,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 
   on(stage, "pointermove", (e) => {
     if (!ptr || e.pointerId !== ptr.id) return;
+    // A mouse moving with no button held means we missed the release (it happened
+    // outside the window or frame): end the drag instead of sticking to the cursor.
+    if (e.pointerType === "mouse" && e.buttons === 0) { endPointer(e, false); return; }
     ptr.samples.push([e.clientX, e.clientY, e.timeStamp]);
     if (ptr.samples.length > 30) ptr.samples.shift();
     ptr.lastX = e.clientX;
@@ -583,6 +598,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
         if (p.v > 0.98) { S.row.pos = rowSnap(anchor); S.row.vel = 0; S.row.to = null; }
       } else if (ptr.card) {
         ptr.kind = "vert"; ptr.origin = "row";
+        // Lock the gesture to the direction it started in: down only squishes, up
+        // only opens. Mixing them let a tiny upward wobble scrub the whole layout.
+        ptr.lock = dy > 0 ? "down" : "up";
         anchor = ptr.card.i;
         if (p.v < 0.02) { S.big.pos = centerBig(anchor); S.big.vel = 0; S.big.to = null; }
       } else ptr.kind = "none";
@@ -590,7 +608,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
       if (ptr.kind === "scroll") {
         const s = layer();
         ptr.s = s; s.to = null; s.vel = 0;
-        ptr.raw0 = unrubberClamp(s.pos, s, dimOf(s));
+        ptr.raw0 = unrubberClamp(s.pos, s, rubberDim(s));
+        ptr.grabC = clamp(s.pos, s.min, s.max) + e.clientX;
         ptr.startIdx = s === S.big ? nearest(centerBig, s.pos) : null;
         stage.classList.add("dragging");
       }
@@ -600,13 +619,15 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 
     if (ptr.kind === "scroll") {
       const s = ptr.s;
-      s.pos = rubberClamp(ptr.raw0 - (s === S.grid ? dy : dx), s, dimOf(s));
+      s.pos = rubberClamp(ptr.raw0 - (s === S.grid ? dy : dx), s, rubberDim(s));
       stats.drag = Math.abs(s === S.grid ? dy : dx);
     } else if (ptr.kind === "vert") {
       // Up opens, down closes; past the closed end the cover squishes against a rubber band.
       let q = ptr.p0 - dy / PULL;
+      if (ptr.lock === "down") { setSquish(squishOf(Math.max(0, dy))); q = ptr.p0; }
+      else if (ptr.lock === "up") { setSquish(0); q = Math.max(ptr.p0, q); }
+      else if (q < 0) { setSquish(squishOf(-q * PULL)); q = 0; } else setSquish(0);
       if (q > 1) q = 1 + (rubber((q - 1) * PULL, PULL) / PULL) * 0.3;
-      if (q < 0) { setSquish(squishOf(-q * PULL)); q = 0; } else setSquish(0);
       p.snap(q);
       pull = ptr.origin === "big" ? clamp(1 - q, 0, 1) : 0;
       stats.drag = Math.abs(dy);
@@ -649,7 +670,10 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
         ? p.v > COMMIT_D || (v.y < -COMMIT_V && p.v > 0.02)
         : p.v < 1 - COMMIT_D || v.y > COMMIT_V;
       p.t = opening === commit ? 1 : 0;
-      p.vel = clamp(-v.y / PULL, -8, 8);
+      // Only an upward (opening) drag hands its speed to the open spring. A pull-down
+      // never moved it, so giving it the downward flick would shove the whole layout
+      // past "closed" and make every cover lurch sideways.
+      p.vel = ptr.lock === "down" ? 0 : clamp(-v.y / PULL, -8, 8);
       releaseSquish(v.y);
       pull = 0;
     } else if (ptr.kind === "fling") {
@@ -669,6 +693,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   }
   on(stage, "pointerup", (e) => endPointer(e, false));
   on(stage, "pointercancel", (e) => endPointer(e, true));
+  // Other ways a release can go missing: capture dropped, or the window lost focus.
+  on(stage, "lostpointercapture", (e) => endPointer(e, false));
+  on(window, "blur", () => { if (ptr) endPointer({ pointerId: ptr.id, timeStamp: performance.now(), clientX: ptr.lastX ?? ptr.x0, clientY: ptr.y0 }, true); });
 
   // Keyboard activation (pointer taps are handled above).
   on(stage, "click", (e) => {
@@ -695,8 +722,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     const s = layer();
     const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? dimOf(s) : 1;
     const d = (s !== S.grid && Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * unit;
-    if (!s.wheel) s.raw = unrubberClamp(s.pos, s, dimOf(s));
-    s.raw += d; s.pos = rubberClamp(s.raw, s, dimOf(s));
+    if (!s.wheel) s.raw = unrubberClamp(s.pos, s, rubberDim(s));
+    s.raw += d; s.pos = rubberClamp(s.raw, s, rubberDim(s));
     s.vel = 0; s.to = null; s.from = null; s.wheel = true;
     clearTimeout(s.wt); s.wt = setTimeout(() => { s.wheel = false; }, 140);
   }, { passive: false });
@@ -758,6 +785,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   bind("k", "k", (v) => v.toFixed(0));
   bind("c", "c", zeta);
   bind("r", "rubber", (v) => v.toFixed(2));
+  bind("rD", "rubberD", (v) => `${v.toFixed(0)}px`);
   bind("d", "decay", (v) => `${v.toFixed(1)}/s`);
   bind("b", "brake", (v) => `${v.toFixed(0)} px/s²`);
   bind("rd", "rippleDelay", (v) => `${v.toFixed(0)}ms`);
