@@ -60,31 +60,33 @@ body {
   -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   opacity: 0;
 }
-/* Progressive edge blur: stacked backdrop blurs, each stronger and narrower,
-   so focus falls off smoothly toward the viewport edges. Grain rides on top. */
+/* Progressive edge blur. Eight stacked backdrop blurs, each twice as strong as the
+   last, each masked to its own overlapping band (transparent, opaque, opaque,
+   transparent). Together they ramp from sharp on the inside to heavy blur at the
+   viewport edge with no visible steps. Grain fades in along the same ramp. */
 .edge {
   position: fixed; top: 0; bottom: 0; z-index: 25; pointer-events: none;
-  width: clamp(40px, 9vw, 140px);
+  width: clamp(64px, 15vw, 220px);
 }
 .edge.l { left: 0; }
 .edge.r { right: 0; transform: scaleX(-1); }
 .edge i, .edge::before, .edge::after { position: absolute; inset: 0; }
-.edge i { display: block; }
-.edge i:nth-child(1) { -webkit-backdrop-filter: blur(1px); backdrop-filter: blur(1px);
-  -webkit-mask-image: linear-gradient(to right, #000 45%, transparent 100%); mask-image: linear-gradient(to right, #000 45%, transparent 100%); }
-.edge i:nth-child(2) { -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
-  -webkit-mask-image: linear-gradient(to right, #000 25%, transparent 75%); mask-image: linear-gradient(to right, #000 25%, transparent 75%); }
-.edge i:nth-child(3) { -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
-  -webkit-mask-image: linear-gradient(to right, #000 8%, transparent 50%); mask-image: linear-gradient(to right, #000 8%, transparent 50%); }
-.edge i:nth-child(4) { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-  -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 28%); mask-image: linear-gradient(to right, #000 0%, transparent 28%); }
+.edge i { display: block; -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
+.edge i:nth-child(1) { --b: 0.5px; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); }
+.edge i:nth-child(2) { --b: 1px; -webkit-mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); }
+.edge i:nth-child(3) { --b: 2px; -webkit-mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); }
+.edge i:nth-child(4) { --b: 4px; -webkit-mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); }
+.edge i:nth-child(5) { --b: 8px; -webkit-mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); }
+.edge i:nth-child(6) { --b: 14px; -webkit-mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); }
+.edge i:nth-child(7) { --b: 22px; -webkit-mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); }
+.edge i:nth-child(8) { --b: 32px; -webkit-mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); }
 .edge::before {
-  content: ""; background: linear-gradient(to right, var(--bg), transparent 70%); opacity: 0.35;
+  content: ""; background: linear-gradient(to left, transparent 30%, var(--bg) 100%); opacity: 0.25;
 }
 .edge::after {
   content: ""; background-image: var(--grain); background-size: 200px 200px;
-  mix-blend-mode: overlay; opacity: 0.6;
-  -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 85%); mask-image: linear-gradient(to right, #000 0%, transparent 85%);
+  mix-blend-mode: overlay; opacity: 0.7;
+  -webkit-mask-image: linear-gradient(to left, transparent 10%, #000 100%); mask-image: linear-gradient(to left, transparent 10%, #000 100%);
 }
 body.no-edges .edge { display: none; }
 
@@ -176,8 +178,8 @@ body.no-edges .edge { display: none; }
   <div id="backdrop"></div>
 </div>
 
-<div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-<div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
 <header class="bar">
   <div class="who"><b>Khalil Cader</b><span>Selected work · placeholder covers</span></div>
@@ -240,6 +242,9 @@ body.no-edges .edge { display: none; }
   const SQUISH_D = 160, MAX_SQ = 0.6;  // squish resistance: 432px of pull lands near 0.56 scale
   const COMMIT_D = 0.3, COMMIT_V = 100; // commit thresholds: 90px of drag, or 0.10 px/ms
   const squishOf = (d) => 1 - 1 / (1 + d / SQUISH_D);
+  const OV_K = 320, OV_C = 20;         // per-cover overscroll lag (underdamped: gaps stretch, then settle)
+  const FLING_D = 230;                 // focused cover: drag this far (or flick) in any direction to dismiss
+  const soft = (x, d) => (1 - 1 / (x / d + 1)) * d;  // starts 1:1, resists more the further you go
 
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -268,6 +273,8 @@ body.no-edges .edge { display: none; }
       d, i, el, veil: el.lastChild, W: 1, last: {},
       x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
       sq: new Spring(0),
+      ox: new Spring(0), oy: new Spring(0), os: new Spring(1),   // free-drag offset from layout
+      ovR: new Spring(0), ovB: new Spring(0),                    // overscroll stretch, row + large strip
       row: null, big: null, grid: null,
       follow: false, held: false, delay: 0, hold: null,
     };
@@ -311,15 +318,18 @@ body.no-edges .edge { display: none; }
     S.row.min = 0; S.row.max = Math.max(0, x - gap + pad - vw);
 
     // Large strip: each cover as big as the viewport allows, centered vertically.
-    const vPad = vw < 640 ? 84 : 112, gapB = vw < 640 ? 20 : 56;
+    // Large strip: centers are spaced so that while one cover is centered its
+    // neighbors sit just past the viewport edges.
+    const vPad = vw < 640 ? 84 : 112;
     const maxH = vh - 2 * vPad, maxW = Math.min(vw - 2 * pad - (vw < 640 ? 0 : vw * 0.22), 980);
-    let bx = 0;
-    for (const c of cards) {
+    let cx = 0, prevW = 0;
+    cards.forEach((c, i) => {
       let h = maxH, w = h * c.d.a;
       if (w > maxW) { w = maxW; h = w / c.d.a; }
-      c.big = { x: bx, y: (vh - h) / 2, w, h };
-      bx += w + gapB;
-    }
+      if (i) cx += vw / 2 + Math.max(w, prevW) / 2 + 32;
+      c.big = { x: cx - w / 2, y: (vh - h) / 2, w, h };
+      prevW = w;
+    });
     S.big.min = centerBig(0); S.big.max = centerBig(N - 1);
 
     // Grid: shortest-column packing.
@@ -357,7 +367,9 @@ body.no-edges .edge { display: none; }
   function targetRect(c) {
     if (mode === "row") {
       const a = c.row, b = c.big, t = clamp(p.v, -0.05, 1.2);
-      return { x: lerp(a.x - S.row.pos, b.x - S.big.pos, t), y: lerp(a.y, b.y, t), w: lerp(a.w, b.w, t), h: lerp(a.h, b.h, t) };
+      const rx = a.x - clamp(S.row.pos, S.row.min, S.row.max) - c.ovR.v;
+      const bx = b.x - clamp(S.big.pos, S.big.min, S.big.max) - c.ovB.v;
+      return { x: lerp(rx, bx, t), y: lerp(a.y, b.y, t), w: lerp(a.w, b.w, t), h: lerp(a.h, b.h, t) };
     }
     if (c.i === gridOpen) return lightboxRect(c);
     const g = c.grid;
@@ -378,6 +390,25 @@ body.no-edges .edge { display: none; }
     anchor = i;
     if (p.v > 0.98) { S.row.pos = rowSnap(i); S.row.vel = 0; S.row.to = null; }
     p.t = 0;
+  }
+
+  // Focused cover released after a free drag: fly home to the row, or settle back.
+  function releaseFling(c, v, commit) {
+    c.held = false;
+    for (const [sp, vv] of [[c.ox, v.x], [c.oy, v.y]]) { sp.t = 0; sp.vel = vv; }
+    c.os.t = 1;
+    if (commit) closeRow();
+  }
+  // How much each cover moves with an overscroll. Covers under and behind the
+  // finger move fully; covers toward the stretched end trail behind, so the gaps
+  // open up like a spring and close again as it settles.
+  function stretchWeight(c, lay, s) {
+    const o = s.pos - clamp(s.pos, s.min, s.max);
+    if (!o) return 0;
+    const r = c[lay], sx = r.x + r.w / 2 - clamp(s.pos, s.min, s.max);
+    const ref = ptr && ptr.kind === "scroll" && ptr.s === s ? ptr.lastX : vw / 2;
+    const d = Math.max(0, o < 0 ? ref - sx : sx - ref);
+    return o * (0.25 + 0.75 * Math.exp(-d / (vw * 0.3)));
   }
 
   // ---- grid lightbox ----
@@ -480,6 +511,7 @@ body.no-edges .edge { display: none; }
     if (!ptr || e.pointerId !== ptr.id) return;
     ptr.samples.push([e.clientX, e.clientY, e.timeStamp]);
     if (ptr.samples.length > 30) ptr.samples.shift();
+    ptr.lastX = e.clientX;
     let dx = e.clientX - ptr.x0, dy = e.clientY - ptr.y0;
 
     if (!ptr.kind && Math.hypot(dx, dy) > 6) {
@@ -496,6 +528,14 @@ body.no-edges .edge { display: none; }
             c.held = true;
           }
         } else ptr.kind = "scroll";
+      } else if (p.t >= 0.5 && p.v > 0.9 && ptr.card && ptr.card.i === nearest(centerBig, S.big.to ?? S.big.pos)) {
+        // Focused cover: drag it anywhere; far enough or fast enough dismisses to the row.
+        ptr.kind = "fling"; anchor = ptr.card.i;
+        S.big.to = centerBig(anchor);
+        S.row.pos = rowSnap(anchor); S.row.vel = 0; S.row.to = null;
+        const c = ptr.card;
+        ptr.o0 = { x: c.ox.v, y: c.oy.v };
+        c.held = true;
       } else if (horiz) {
         ptr.kind = "scroll";
       } else if (p.t >= 0.5) {
@@ -517,7 +557,7 @@ body.no-edges .edge { display: none; }
         stage.classList.add("dragging");
       }
       if (ptr.kind === "vert") ptr.p0 = p.v;
-      if (ptr.kind === "scroll" || ptr.kind === "vert") { ptr.x0 = e.clientX; ptr.y0 = e.clientY; dx = dy = 0; }
+      if (ptr.kind === "scroll" || ptr.kind === "vert" || ptr.kind === "fling") { ptr.x0 = e.clientX; ptr.y0 = e.clientY; dx = dy = 0; }
     }
 
     if (ptr.kind === "scroll") {
@@ -532,6 +572,14 @@ body.no-edges .edge { display: none; }
       p.snap(q);
       pull = ptr.origin === "big" ? clamp(1 - q, 0, 1) : 0;
       stats.drag = Math.abs(dy);
+    } else if (ptr.kind === "fling") {
+      const c = cards[anchor];
+      const rx = ptr.o0.x + dx, ry = ptr.o0.y + dy, dist = Math.hypot(rx, ry);
+      const k = dist ? soft(dist, 1100) / dist : 1;
+      c.ox.snap(rx * k); c.oy.snap(ry * k);
+      c.os.snap(1 - 0.32 * (1 - 1 / (1 + dist / 320)));
+      pull = clamp(dist / FLING_D, 0, 1);
+      stats.drag = dist;
     } else if (ptr.kind === "card") {
       // Grid lightbox: follow the finger, shrink as you pull down.
       const c = cards[gridOpen], r = ptr.rect;
@@ -548,6 +596,7 @@ body.no-edges .edge { display: none; }
 
   function endPointer(e, cancelled) {
     if (!ptr || e.pointerId !== ptr.id) return;
+    ptr.samples.push([e.clientX, e.clientY, e.timeStamp]);  // a pause before release reads as zero speed
     const v = velocityOf(ptr.samples);
     stats.release = Math.hypot(v.x, v.y) / 1000;
     stage.classList.remove("dragging");
@@ -565,6 +614,12 @@ body.no-edges .edge { display: none; }
       p.t = opening === commit ? 1 : 0;
       p.vel = clamp(-v.y / PULL, -8, 8);
       releaseSquish(v.y);
+      pull = 0;
+    } else if (ptr.kind === "fling") {
+      const c = cards[anchor];
+      const ox = c.ox.v, oy = c.oy.v, dist = Math.hypot(ox, oy) || 1;
+      const outward = (v.x * ox + v.y * oy) / dist;  // release speed away from center
+      releaseFling(c, v, stats.drag > FLING_D || (outward > COMMIT_V && stats.drag > 24));
       pull = 0;
     } else if (ptr.kind === "card") {
       const c = cards[gridOpen];
@@ -711,8 +766,10 @@ body.no-edges .edge { display: none; }
       ["drag distance", `${fmt(stats.drag)} px`],
       ["release velocity", `${fmt(stats.release, 3)} px/ms`],
       ["pull progress q", fmt(pull, 4)],
+      ["vector offset x / y", `${fmt(cards[anchor].ox.v)} / ${fmt(cards[anchor].oy.v)}`],
+      ["vector velocity x / y", `${fmt(cards[anchor].ox.vel)} / ${fmt(cards[anchor].oy.vel)} px/s`],
       ["ripple delay", `${P.rippleDelay}ms / step`],
-      ["distance commit", `${fmt(COMMIT_D * PULL)} px`],
+      ["distance commit", `${fmt(COMMIT_D * PULL)} px · drag ${FLING_D} px`],
       ["velocity commit", `${fmt(COMMIT_V / 1000, 2)} px/ms`],
     ];
     readout.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
@@ -726,7 +783,7 @@ body.no-edges .edge { display: none; }
     hintKey = key;
     hint.textContent = {
       row: "Drag or scroll the row · tap or pull a cover up to open · pull down to squish · G for grid",
-      big: "Swipe between projects · pull down or tap to go back",
+      big: "Drag the cover any direction to go back · swipe outside it or scroll to browse",
       g: "Drag or scroll the grid · tap a cover to open · G for row",
       go: "Pull the cover down or tap to close",
     }[key];
@@ -738,7 +795,9 @@ body.no-edges .edge { display: none; }
     last = now;
 
     for (const c of cards) {
-      if (c.held) continue;
+      c.ovR.t = stretchWeight(c, "row", S.row);
+      c.ovB.t = stretchWeight(c, "big", S.big);
+      if (c.held && c.i === gridOpen) continue;
       const r = now < c.delay ? c.hold : targetRect(c);
       c.x.t = r.x; c.y.t = r.y; c.w.t = r.w; c.h.t = r.h;
     }
@@ -756,6 +815,8 @@ body.no-edges .edge { display: none; }
         if (!c.follow && !c.held) { c.x.step(h, P.k, P.c); c.y.step(h, P.k, P.c); c.w.step(h, P.k, P.c); c.h.step(h, P.k, P.c); }
         if (c.i !== anchor) c.sq.step(h, NB_K, NB_C);
         else if (!dragging) c.sq.step(h, SQ_K, SQ_C);
+        if (!c.held) { c.ox.step(h, P.k, P.c); c.oy.step(h, P.k, P.c); c.os.step(h, P.k, P.c); }
+        c.ovR.step(h, OV_K, OV_C); c.ovB.step(h, OV_K, OV_C);
       }
       if (!dragging) p.step(h, P.k, P.c);
       if (!(ptr && ptr.kind === "card")) gp.step(h, P.k, P.c);
@@ -767,7 +828,7 @@ body.no-edges .edge { display: none; }
 
     // Cards that have landed lock onto their layout; cards in flight stay on springs.
     for (const c of cards) {
-      if (c.held) continue;
+      if (c.held && c.i === gridOpen) continue;
       if (c.follow) { const r = targetRect(c); c.x.snap(r.x); c.y.snap(r.y); c.w.snap(r.w); c.h.snap(r.h); }
       else if (now >= c.delay && c.x.near() && c.y.near() && c.w.near() && c.h.near()) c.follow = true;
     }
@@ -778,20 +839,24 @@ body.no-edges .edge { display: none; }
     for (const c of cards) {
       // Squish shrinks toward the bottom center of the cover's slot.
       const w = Math.max(1, c.w.v) * sc[c.i], h = Math.max(1, c.h.v) * sc[c.i];
-      const x = c.x.v + flow[c.i] * fb + (c.w.v - w) / 2, y = c.y.v + c.h.v - h;
+      let x = c.x.v + flow[c.i] * fb + (c.w.v - w) / 2, y = c.y.v + c.h.v - h;
+      // Free-drag offset, scaled about the cover's center.
+      const os = c.os.v, w2 = w * os, h2 = h * os;
+      x += c.ox.v + (w - w2) / 2; y += c.oy.v + (h - h2) / 2;
       const st = c.el.style, L = c.last;
-      st.transform = `translate3d(${x}px, ${y}px, 0) scale(${w / c.W})`;
+      st.transform = `translate3d(${x}px, ${y}px, 0) scale(${w2 / c.W})`;
 
       // Focus: in the large strip, covers away from center dim, blur and pick up grain.
       let dim = 0;
-      if (mode === "row" && pv > 0.001) dim = pv * clamp((Math.abs(x + w / 2 - vw / 2) - w * 0.15) / (vw * 0.3), 0, 1);
+      if (mode === "row" && pv > 0.001 && !(ptr && ptr.kind === "fling" && c.i === anchor))
+        dim = pv * clamp((Math.abs(x + w2 / 2 - vw / 2) - w2 * 0.1) / (vw * 0.25), 0, 1);
       const dk = Math.round(dim * 200) / 200;
       if (L.dim !== dk) {
         L.dim = dk;
         c.veil.style.opacity = dk;
-        st.filter = dk > 0.005 ? `blur(${(dk * 7).toFixed(2)}px)` : "";
+        st.filter = dk > 0.005 ? `blur(${(dk * 18).toFixed(2)}px)` : "";
       }
-      const z = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 2 : 1;
+      const z = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = z; }
       const ti = mode === "grid" && gridOpen >= 0 && c.i !== gridOpen ? -1 : 0;
       if (L.ti !== ti) { L.ti = ti; c.el.tabIndex = ti; }

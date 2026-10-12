@@ -7,13 +7,16 @@ Portfolio site for Khalil Cader.
 `prototype/index.html` is an interaction prototype for the work strip. It's a
 single file with no build step; open it in a browser.
 
-- Drag or scroll the row; it glides and rubber-bands at the ends.
+- Drag or scroll the row; it glides and rubber-bands at the ends, and the gaps
+  between covers stretch and settle back like a spring.
 - Pull a cover up (or tap it) to scrub the whole row into a large strip that
-  pages one project at a time. Pull down or tap to go back.
+  pages one project at a time, with neighbors pushed just off screen. Drag the
+  focused cover in any direction (or flick it) to send it back to the row.
 - Pull a cover down in the row and it squishes against a rubber band, with a
   chain reaction: each neighbor follows a beat later while the gaps stay even.
-- In the large strip, covers away from center dim, blur and pick up grain;
-  the viewport edges blur progressively.
+- In the large strip, covers away from center dim, blur and pick up grain.
+  The viewport edges use a progressive blur: eight stacked backdrop blurs, each
+  masked to its own band, with grain on top.
 - Press G for a packed grid view.
 
 The covers are placeholder blocks in Apple system colors. The "Values" panel shows live spring state and
