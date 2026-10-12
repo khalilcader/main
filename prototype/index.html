@@ -20,6 +20,8 @@
   --scrim: rgba(36, 36, 33, 0.42);
   --shadow: rgba(22, 22, 20, 0.14);
   --focus: #2f5bd8;
+  --veil: rgba(26, 26, 24, 0.42);
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 
   --f-ui: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --f-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -30,13 +32,13 @@
   :root:not([data-theme="light"]) {
     --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
     --panel: rgba(28, 28, 26, 0.92); --scrim: rgba(0, 0, 0, 0.62);
-    --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
+    --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; --veil: rgba(0, 0, 0, 0.58); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
   --panel: rgba(28, 28, 26, 0.92); --scrim: rgba(0, 0, 0, 0.62);
-  --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
+  --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; --veil: rgba(0, 0, 0, 0.58); color-scheme: dark;
 }
 
 html, body { height: 100%; }
@@ -59,11 +61,49 @@ body {
   -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   opacity: 0;
 }
+/* Progressive edge blur: stacked backdrop blurs, each stronger and narrower,
+   so focus falls off smoothly toward the viewport edges. Grain rides on top. */
+.edge {
+  position: fixed; top: 0; bottom: 0; z-index: 25; pointer-events: none;
+  width: clamp(40px, 9vw, 140px);
+}
+.edge.l { left: 0; }
+.edge.r { right: 0; transform: scaleX(-1); }
+.edge i, .edge::before, .edge::after { position: absolute; inset: 0; }
+.edge i { display: block; }
+.edge i:nth-child(1) { -webkit-backdrop-filter: blur(1px); backdrop-filter: blur(1px);
+  -webkit-mask-image: linear-gradient(to right, #000 45%, transparent 100%); mask-image: linear-gradient(to right, #000 45%, transparent 100%); }
+.edge i:nth-child(2) { -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to right, #000 25%, transparent 75%); mask-image: linear-gradient(to right, #000 25%, transparent 75%); }
+.edge i:nth-child(3) { -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
+  -webkit-mask-image: linear-gradient(to right, #000 8%, transparent 50%); mask-image: linear-gradient(to right, #000 8%, transparent 50%); }
+.edge i:nth-child(4) { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 28%); mask-image: linear-gradient(to right, #000 0%, transparent 28%); }
+.edge::before {
+  content: ""; background: linear-gradient(to right, var(--bg), transparent 70%); opacity: 0.35;
+}
+.edge::after {
+  content: ""; background-image: var(--grain); background-size: 200px 200px;
+  mix-blend-mode: overlay; opacity: 0.6;
+  -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 85%); mask-image: linear-gradient(to right, #000 0%, transparent 85%);
+}
+body.no-edges .edge { display: none; }
+
+/* Film grain over anything pushed out of focus. */
+#backdrop::after, .veil::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background-image: var(--grain); background-size: 200px 200px;
+  mix-blend-mode: overlay; opacity: 0.55;
+}
+.veil {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: var(--veil); opacity: 0;
+}
 
 .card {
   position: absolute; left: 0; top: 0; padding: 0; margin: 0;
   border: 0; border-radius: 3px; background: none; color: inherit;
-  transform-origin: 50% 100%; will-change: transform, width, height;
+  transform-origin: 0 0; will-change: transform, filter;
   box-shadow: 0 1px 2px var(--shadow), 0 8px 24px -12px var(--shadow);
   cursor: inherit; font: inherit; text-align: left;
 }
@@ -169,6 +209,9 @@ body {
   <div id="backdrop"></div>
 </div>
 
+<div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
 <header class="bar">
   <div class="who"><b>Khalil Cader</b><span>Selected work · placeholder covers</span></div>
   <div class="tools">
@@ -190,6 +233,7 @@ body {
   <div class="ctl"><label for="bIn">brake</label><output id="bOut"></output><input id="bIn" type="range" min="0" max="4000" step="100"></div>
   <div class="ctl"><label for="rdIn">ripple delay</label><output id="rdOut"></output><input id="rdIn" type="range" min="0" max="140" step="5"></div>
   <div class="ctl"><label for="rfIn">ripple falloff</label><output id="rfOut"></output><input id="rfIn" type="range" min="0.4" max="1" step="0.02"></div>
+  <div class="ctl check"><input id="edgeIn" type="checkbox" checked><label for="edgeIn">edge blur</label></div>
   <div class="ctl check"><input id="snapIn" type="checkbox"><label for="snapIn">snap row to covers</label></div>
   <div class="ctl check"><input id="slowIn" type="checkbox"><label for="slowIn">slow motion (¼ speed)</label></div>
 </aside>
@@ -221,14 +265,14 @@ body {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Tunable from the Values panel.
-  const P = { k: reduce ? 700 : 300, c: reduce ? 53 : 35, rubber: 0.55, decay: 4.5, brake: 1400, snapRow: false, time: 1, rippleDelay: reduce ? 0 : 30, falloff: 0.85 };
+  const P = { k: reduce ? 700 : 240, c: reduce ? 53 : 30, rubber: 0.55, decay: 4.5, brake: 1400, snapRow: false, time: 1, rippleDelay: reduce ? 0 : 30, falloff: 0.85 };
   const EDGE_K = 170, EDGE_C = 26;     // overscroll spring-back (critically damped)
-  const SNAP_K = 260, SNAP_C = 32;     // settling onto a snap point (critically damped)
+  const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under critical)
   const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
   const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
-  const PULL = 380;                    // px of vertical drag for a full row <-> large scrub
+  const PULL = 300;                    // px of vertical drag for a full row <-> large scrub
   const SQUISH_D = 160, MAX_SQ = 0.6;  // squish resistance: 432px of pull lands near 0.56 scale
-  const COMMIT_D = 0.6, COMMIT_V = 100; // commit thresholds: ~230px of drag, or 0.10 px/ms
+  const COMMIT_D = 0.3, COMMIT_V = 100; // commit thresholds: 90px of drag, or 0.10 px/ms
   const squishOf = (d) => 1 - 1 / (1 + d / SQUISH_D);
 
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -258,10 +302,10 @@ body {
     const el = document.createElement("button");
     el.type = "button"; el.className = "card"; el.dataset.i = i;
     el.setAttribute("aria-label", `${d.t}, ${d.k}, ${d.y}`);
-    el.innerHTML = `<div class="cover look-${d.look}" style="--c-bg:${d.bg};--c-fg:${d.fg}">${cover(d)}</div>`;
+    el.innerHTML = `<div class="cover look-${d.look}" style="--c-bg:${d.bg};--c-fg:${d.fg}">${cover(d)}</div><div class="veil"></div>`;
     stage.appendChild(el);
     return {
-      d, i, el,
+      d, i, el, veil: el.lastChild, W: 1, last: {},
       x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
       sq: new Spring(0),
       row: null, big: null, grid: null,
@@ -329,6 +373,13 @@ body {
       hs[col] += h + gap;
     }
     S.grid.min = 0; S.grid.max = Math.max(0, Math.max(...hs) - gap + 56 - vh);
+
+    // Every layout keeps a cover's aspect ratio, so each card renders at its largest
+    // size once and only ever scales down. Text and images stay crisp.
+    for (const c of cards) {
+      c.W = Math.max(c.big.w, lightboxRect(c).w);
+      c.el.style.width = c.W + "px"; c.el.style.height = c.W / c.d.a + "px";
+    }
     for (const s of Object.values(S)) { s.pos = clamp(s.pos, s.min, s.max); s.to = null; }
   }
 
@@ -633,6 +684,7 @@ body {
   bind("rd", "rippleDelay", (v) => `${v.toFixed(0)}ms`);
   bind("rf", "falloff", (v) => v.toFixed(2));
   $("#snapIn").addEventListener("change", (e) => { P.snapRow = e.target.checked; S.row.to = null; });
+  $("#edgeIn").addEventListener("change", (e) => { document.body.classList.toggle("no-edges", !e.target.checked); });
   $("#slowIn").addEventListener("change", (e) => { P.time = e.target.checked ? 0.25 : 1; });
 
   // ---- simulation ----
@@ -720,7 +772,7 @@ body {
 
   let last = performance.now(), frame = 0;
   function tick(now) {
-    const dt = Math.min((now - last) / 1000, 1 / 30) * P.time;
+    const dt = Math.min((now - last) / 1000, 1 / 15) * P.time;
     last = now;
 
     for (const c of cards) {
@@ -759,14 +811,28 @@ body {
     }
     if (gridOpen < 0 && gridActive >= 0 && gp.v < 0.002 && cards[gridActive].follow) gridActive = -1;
 
-    const gpv = clamp(gp.v, 0, 1);
-    const sc = reflow(), fb = mode === "row" ? 1 - clamp(p.v, 0, 1) : 0;
+    const gpv = clamp(gp.v, 0, 1), pv = clamp(p.v, 0, 1);
+    const sc = reflow(), fb = mode === "row" ? 1 - pv : 0;
     for (const c of cards) {
-      const st = c.el.style;
-      st.transform = `translate3d(${c.x.v + flow[c.i] * fb}px, ${c.y.v}px, 0) scale(${sc[c.i]})`;
-      st.width = Math.max(1, c.w.v) + "px"; st.height = Math.max(1, c.h.v) + "px";
-      st.zIndex = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 2 : 1;
-      c.el.tabIndex = mode === "grid" && gridOpen >= 0 && c.i !== gridOpen ? -1 : 0;
+      // Squish shrinks toward the bottom center of the cover's slot.
+      const w = Math.max(1, c.w.v) * sc[c.i], h = Math.max(1, c.h.v) * sc[c.i];
+      const x = c.x.v + flow[c.i] * fb + (c.w.v - w) / 2, y = c.y.v + c.h.v - h;
+      const st = c.el.style, L = c.last;
+      st.transform = `translate3d(${x}px, ${y}px, 0) scale(${w / c.W})`;
+
+      // Focus: in the large strip, covers away from center dim, blur and pick up grain.
+      let dim = 0;
+      if (mode === "row" && pv > 0.001) dim = pv * clamp((Math.abs(x + w / 2 - vw / 2) - w * 0.15) / (vw * 0.3), 0, 1);
+      const dk = Math.round(dim * 200) / 200;
+      if (L.dim !== dk) {
+        L.dim = dk;
+        c.veil.style.opacity = dk;
+        st.filter = dk > 0.005 ? `blur(${(dk * 7).toFixed(2)}px)` : "";
+      }
+      const z = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 2 : 1;
+      if (L.z !== z) { L.z = z; st.zIndex = z; }
+      const ti = mode === "grid" && gridOpen >= 0 && c.i !== gridOpen ? -1 : 0;
+      if (L.ti !== ti) { L.ti = ti; c.el.tabIndex = ti; }
     }
     backdrop.style.opacity = mode === "grid" && gridActive >= 0 ? gpv.toFixed(3) : "0";
     updateHint();
