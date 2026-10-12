@@ -753,14 +753,26 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     }
     root.setProperty("--fade", `linear-gradient(to left, ${stops.join(", ")})`);
   }
-  let edgeShift = -1;
-  function slideEdges(amount) {
-    // Slide (not fade) the edges away in focus: opacity on a backdrop-filter
-    // parent would isolate it and switch the blur off mid-transition.
-    const a = Math.round(clamp(amount, 0, 1) * 1000) / 1000;
-    if (a === edgeShift) return;
-    edgeShift = a;
-    for (const el of edges) el.style.transform = `${el.classList.contains("r") ? "scaleX(-1) " : ""}translateX(${(-a * 100).toFixed(2)}%)`;
+  // Each edge slides out (0 = in place, 1 = fully off screen). Sliding instead of
+  // fading: opacity on a backdrop-filter parent would isolate it and switch the
+  // blur off mid-transition.
+  const edgeShift = { l: -1, r: -1 };
+  function slideEdges(l, r) {
+    for (const [side, amt] of [["l", l], ["r", r]]) {
+      const a = Math.round(clamp(amt, 0, 1) * 1000) / 1000;
+      if (a === edgeShift[side]) continue;
+      edgeShift[side] = a;
+      for (const el of edges) if (el.classList.contains(side))
+        el.style.transform = `${side === "r" ? "scaleX(-1) " : ""}translateX(${(-a * 100).toFixed(2)}%)`;
+    }
+  }
+  // An edge only shows when there is more of the row beyond it: at the start the
+  // left edge is gone, at the end the right one is.
+  function edgeAmounts(pv) {
+    if (mode === "grid") return [1, 1];
+    const s = S.row, ew = edges[0].offsetWidth || 1;
+    const l = 1 - clamp((s.pos - s.min) / ew, 0, 1), r = 1 - clamp((s.max - s.pos) / ew, 0, 1);
+    return [Math.max(l, pv), Math.max(r, pv)];
   }
 
   // ---- simulation ----
@@ -928,7 +940,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
       if (L.ti !== ti) { L.ti = ti; c.el.tabIndex = ti; }
     }
     backdrop.style.opacity = mode === "grid" && gridActive >= 0 ? gpv.toFixed(3) : "0";
-    slideEdges(mode === "row" ? pv : gpv);
+    slideEdges(...edgeAmounts(pv));
     updateHint();
     if (!panel.hidden && (frame++ % 2 === 0)) renderValues();
     requestAnimationFrame(tick);
@@ -939,11 +951,12 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   S.big.pos = S.big.min;
   const t0 = performance.now();
   for (const c of cards) {
-    // Entrance: covers rise into the row one after another.
-    const r = c.row;
-    c.x.snap(r.x); c.y.snap(r.y + 40); c.w.snap(r.w); c.h.snap(r.h);
-    c.hold = { ...r, y: r.y + 40 }; c.delay = t0 + (reduce ? 0 : 120 + c.i * 35);
-    c.el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduce ? 0 : 500, delay: reduce ? 0 : 120 + c.i * 35, fill: "both" })
+    // Entrance: covers start spread far apart and slide together into the row,
+    // the nearest ones first.
+    const r = c.row, spread = reduce ? 0 : (r.x - pad) * 1.6 + vw * 0.35;
+    c.x.snap(r.x + spread); c.y.snap(r.y); c.w.snap(r.w); c.h.snap(r.h);
+    c.hold = { ...r, x: r.x + spread }; c.delay = t0 + (reduce ? 0 : 150 + c.i * 40);
+    c.el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduce ? 0 : 600, delay: reduce ? 0 : 100 + c.i * 40, fill: "both" })
       .finished.then((an) => an.cancel());
   }
   addEventListener("resize", layout);

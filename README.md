@@ -18,7 +18,8 @@ single file with no build step; open it in a browser.
 - In the large strip, covers away from center dim, blur and pick up grain.
   The viewport edges use a progressive blur: eight stacked backdrop blurs, each
   masked to its own band, plus a fade to the page so covers blur and dissolve
-  together, with light grain on top. The edges slide away in focus view. Edge
+  together, with light grain on top. Each edge only shows when there is more
+  row beyond it, and both slide away in focus view. Edge
   width, max blur, blur easing and fade are tunable in the Values panel.
 - Press G for a packed grid view.
 
