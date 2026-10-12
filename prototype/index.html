@@ -241,8 +241,17 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     { t: "Brown", bg: "#A2845E", a: 0.75 },
   ];
 
+  // If the viewer re-runs this script in an already-open page (it updates open
+  // tabs in place), tear down the previous copy first so two loops never fight
+  // over the same covers and input.
+  window.__workStrip?.destroy?.();
+  const ac = new AbortController();
+  const on = (el, type, fn, opts = {}) => el.addEventListener(type, fn, { ...opts, signal: ac.signal });
+  let raf = 0;
+
   const $ = (s) => document.querySelector(s);
   const stage = $("#stage"), backdrop = $("#backdrop");
+  stage.querySelectorAll(".card").forEach((el) => el.remove());
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Tunable from the Values panel.
@@ -525,7 +534,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     return dt > 0.004 ? { x: (last[0] - first[0]) / dt, y: (last[1] - first[1]) / dt } : { x: 0, y: 0 };
   };
 
-  stage.addEventListener("pointerdown", (e) => {
+  on(stage, "pointerdown", (e) => {
     if (e.button !== 0 || ptr) return;
     const el = e.target.closest(".card");
     const c = el ? cards[+el.dataset.i] : null;
@@ -535,7 +544,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     if (s !== S.big) { s.vel = 0; s.to = null; }  // catch a moving strip; the large strip keeps settling
   });
 
-  stage.addEventListener("pointermove", (e) => {
+  on(stage, "pointermove", (e) => {
     if (!ptr || e.pointerId !== ptr.id) return;
     ptr.samples.push([e.clientX, e.clientY, e.timeStamp]);
     if (ptr.samples.length > 30) ptr.samples.shift();
@@ -658,16 +667,16 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     }
     ptr = null;
   }
-  stage.addEventListener("pointerup", (e) => endPointer(e, false));
-  stage.addEventListener("pointercancel", (e) => endPointer(e, true));
+  on(stage, "pointerup", (e) => endPointer(e, false));
+  on(stage, "pointercancel", (e) => endPointer(e, true));
 
   // Keyboard activation (pointer taps are handled above).
-  stage.addEventListener("click", (e) => {
+  on(stage, "click", (e) => {
     if (e.detail !== 0) return;
     const el = e.target.closest(".card");
     if (el) tap(cards[+el.dataset.i]);
   });
-  stage.addEventListener("focusin", (e) => {
+  on(stage, "focusin", (e) => {
     const el = e.target.closest(".card");
     if (!el) return;
     const c = cards[+el.dataset.i];
@@ -680,7 +689,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   });
 
   // Wheel and trackpad: scroll directly, rubber-band past the ends, settle once input stops.
-  stage.addEventListener("wheel", (e) => {
+  on(stage, "wheel", (e) => {
     e.preventDefault();
     if (mode === "grid" && gridOpen >= 0) { if (Math.abs(e.deltaY) > 24 && !ptr) closeGrid(); return; }
     const s = layer();
@@ -692,7 +701,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     clearTimeout(s.wt); s.wt = setTimeout(() => { s.wheel = false; }, 140);
   }, { passive: false });
 
-  addEventListener("keydown", (e) => {
+  on(window, "keydown", (e) => {
     if (e.target.closest && e.target.closest("#values")) return;
     if (e.key === "Escape") { if (mode === "grid") closeGrid(); else if (p.t >= 0.5) closeRow(); return; }
     if (e.key === "g" || e.key === "G") { setMode(mode === "row" ? "grid" : "row"); return; }
@@ -706,7 +715,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     else { s.vel += dir * 1400; s.to = null; }
   });
 
-  $("#gridBtn").addEventListener("click", () => setMode(mode === "row" ? "grid" : "row"));
+  on($("#gridBtn"), "click", () => setMode(mode === "row" ? "grid" : "row"));
 
   // Theme: auto follows the system; light and dark pin it. Remembered per browser.
   const THEMES = ["auto", "light", "dark"];
@@ -727,12 +736,12 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     try { localStorage.setItem("work-strip-theme", t); } catch (e) {}
   }
   const cycleTheme = () => setTheme(THEMES[(THEMES.indexOf(themeBtn.dataset.theme || "auto") + 1) % 3]);
-  themeBtn.addEventListener("click", cycleTheme);
+  on(themeBtn, "click", cycleTheme);
   let savedTheme = "auto";
   try { savedTheme = localStorage.getItem("work-strip-theme") || "auto"; } catch (e) {}
   setTheme(THEMES.includes(savedTheme) ? savedTheme : "auto");
   const panel = $("#values"), vBtn = $("#valuesBtn");
-  vBtn.addEventListener("click", () => {
+  on(vBtn, "click", () => {
     panel.hidden = !panel.hidden;
     vBtn.setAttribute("aria-pressed", String(!panel.hidden));
   });
@@ -743,7 +752,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     const input = $("#" + id + "In"), out = $("#" + id + "Out");
     input.value = P[key];
     const show = () => { out.textContent = fmt(+input.value); };
-    input.addEventListener("input", () => { P[key] = +input.value; show(); $("#cOut").textContent = zeta(); });
+    on(input, "input", () => { P[key] = +input.value; show(); $("#cOut").textContent = zeta(); });
     show();
   };
   bind("k", "k", (v) => v.toFixed(0));
@@ -757,10 +766,10 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   bind("eb", "edgeBlur", (v) => `${v.toFixed(0)}px`);
   bind("ec", "edgeCurve", (v) => v.toFixed(1));
   bind("ef", "edgeFade", (v) => v.toFixed(2));
-  $("#snapIn").addEventListener("change", (e) => { P.snapRow = e.target.checked; S.row.to = null; });
-  for (const id of ["ew", "eb", "ec", "ef"]) $("#" + id + "In").addEventListener("input", applyEdges);
-  $("#edgeIn").addEventListener("change", (e) => { document.body.classList.toggle("no-edges", !e.target.checked); });
-  $("#slowIn").addEventListener("change", (e) => { P.time = e.target.checked ? 0.25 : 1; });
+  on($("#snapIn"), "change", (e) => { P.snapRow = e.target.checked; S.row.to = null; });
+  for (const id of ["ew", "eb", "ec", "ef"]) on($("#" + id + "In"), "input", applyEdges);
+  on($("#edgeIn"), "change", (e) => { document.body.classList.toggle("no-edges", !e.target.checked); });
+  on($("#slowIn"), "change", (e) => { P.time = e.target.checked ? 0.25 : 1; });
 
   // ---- edges ----
   // Blur strength per band follows an ease-in curve, so the ramp starts almost
@@ -971,7 +980,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     slideEdges(...edgeAmounts(pv));
     updateHint();
     if (!panel.hidden && (frame++ % 2 === 0)) renderValues();
-    requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
   }
 
   layout();
@@ -987,8 +996,11 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     c.el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduce ? 0 : 600, delay: reduce ? 0 : 100 + c.i * 40, fill: "both" })
       .finished.then((an) => an.cancel());
   }
-  addEventListener("resize", layout);
-  requestAnimationFrame(tick);
+  on(window, "resize", layout);
+  raf = requestAnimationFrame(tick);
+  window.__workStrip = {
+    destroy() { ac.abort(); cancelAnimationFrame(raf); cards.forEach((c) => c.el.remove()); },
+  };
 })();
 </script>
 </body>
