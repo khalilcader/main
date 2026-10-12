@@ -35,6 +35,18 @@
   --panel: rgba(28, 28, 26, 0.92); --scrim: rgba(0, 0, 0, 0.62);
   --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
 }
+/* The page's own theme toggle. Uses its own attribute so the viewer, which writes
+   data-theme, can't override an explicit choice. Declared last so it wins. */
+:root[data-scheme="light"] {
+  --bg: #fafafa; --ink: #161615; --muted: #73736d; --line: #e3e3de;
+  --panel: rgba(255, 255, 255, 0.92); --scrim: rgba(36, 36, 33, 0.42);
+  --shadow: rgba(22, 22, 20, 0.14); --focus: #2f5bd8; color-scheme: light;
+}
+:root[data-scheme="dark"] {
+  --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
+  --panel: rgba(28, 28, 26, 0.92); --scrim: rgba(0, 0, 0, 0.62);
+  --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
+}
 
 html, body { height: 100%; }
 body {
@@ -101,16 +113,16 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   mix-blend-mode: overlay; opacity: min(1, calc(var(--grain-amt) * 1.3));
 }
 .veil {
-  /* Fades a blurred cover toward the page. It reaches past the cover by the blur's
-     spill (--f, set in script) and feathers over that band, so the soft halo fades
-     too instead of leaving a saturated rim. */
+  /* Grain only. The cover itself fades (opacity) and blurs its color, so there is
+     no second shape to misalign. The grain layer reaches past the cover by the
+     blur's spill (--f) and feathers over it, so it never shows a hard edge. */
   position: absolute; inset: calc(var(--f, 0px) * -1); border-radius: inherit; pointer-events: none;
-  background: var(--bg); opacity: 0;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 calc(var(--f, 0px) * 2), #000 calc(100% - var(--f, 0px) * 2), transparent),
-                      linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2), #000 calc(100% - var(--f, 0px) * 2), transparent);
+  opacity: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent),
+                      linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent);
   -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to right, transparent, #000 calc(var(--f, 0px) * 2), #000 calc(100% - var(--f, 0px) * 2), transparent),
-              linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2), #000 calc(100% - var(--f, 0px) * 2), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent),
+              linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent);
   mask-composite: intersect;
 }
 
@@ -754,7 +766,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 
   on($("#gridBtn"), "click", () => setMode(mode === "row" ? "grid" : "row"));
 
-  // Theme: auto follows the system; light and dark pin it. Remembered per browser.
+  // Theme: auto follows the viewer/system; light and dark pin it. Remembered per browser.
   const THEMES = ["auto", "light", "dark"];
   const themeBtn = $("#themeBtn");
   const ICONS = {
@@ -763,8 +775,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     dark: '<path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" fill="currentColor"/>',
   };
   function setTheme(t) {
-    if (t === "auto") document.documentElement.removeAttribute("data-theme");
-    else document.documentElement.setAttribute("data-theme", t);
+    if (t === "auto") document.documentElement.removeAttribute("data-scheme");
+    else document.documentElement.setAttribute("data-scheme", t);
     const label = t[0].toUpperCase() + t.slice(1);
     themeBtn.querySelector("svg").innerHTML = ICONS[t];
     themeBtn.setAttribute("aria-label", `Theme: ${label}`);
@@ -1008,10 +1020,11 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
       const dk = Math.round(dim * 200) / 200;
       if (L.dim !== dk) {
         L.dim = dk;
-        c.veil.style.opacity = (dk * 0.75).toFixed(3);
+        c.veil.style.opacity = dk.toFixed(3);
+        st.opacity = dk > 0.005 ? (1 - dk * 0.7).toFixed(3) : "";
         // Blur only the color layer, so the grain in the veil above stays sharp.
         c.cover.style.filter = dk > 0.005 ? `blur(${(dk * 18).toFixed(2)}px)` : "";
-        c.veil.style.setProperty("--f", `${(dk * 18 * 1.2).toFixed(1)}px`);
+        c.veil.style.setProperty("--f", `${(dk * 18).toFixed(1)}px`);
       }
       const z = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = z; }
