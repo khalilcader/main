@@ -17,7 +17,8 @@ single file with no build step; open it in a browser.
   chain reaction: each neighbor follows a beat later while the gaps stay even.
 - In the large strip, covers away from center dim, blur and pick up grain.
   The viewport edges use a progressive blur: eight stacked backdrop blurs, each
-  masked to its own band, with grain on top.
+  masked to its own band, plus a fade to the page so covers blur and dissolve
+  together, with light grain on top.
 - Press G for a packed grid view.
 
 The covers are placeholder blocks in Apple system colors. The "Values" panel shows live spring state and

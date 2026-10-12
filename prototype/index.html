@@ -63,26 +63,31 @@ body {
    a blend mode inside .edge would isolate it and leave the blurs nothing to blur. */
 .edge {
   position: fixed; top: 0; bottom: 0; z-index: 25; pointer-events: none;
-  width: clamp(64px, 15vw, 220px);
+  width: clamp(80px, 18vw, 260px);
 }
 .edge.l { left: 0; }
 .edge.r { right: 0; transform: scaleX(-1); }
 .edge i { position: absolute; inset: 0; }
+/* Fade to the page on top of the blur, so covers blur away and dissolve together. */
+.edge::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to left, transparent 25%, color-mix(in srgb, var(--bg) 55%, transparent) 70%, var(--bg) 100%);
+}
 .edge i { display: block; -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
 .edge i:nth-child(1) { --b: 0.5px; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); }
 .edge i:nth-child(2) { --b: 1px; -webkit-mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); }
-.edge i:nth-child(3) { --b: 2px; -webkit-mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); }
-.edge i:nth-child(4) { --b: 4px; -webkit-mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); }
-.edge i:nth-child(5) { --b: 8px; -webkit-mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); }
-.edge i:nth-child(6) { --b: 14px; -webkit-mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); }
-.edge i:nth-child(7) { --b: 22px; -webkit-mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); }
-.edge i:nth-child(8) { --b: 32px; -webkit-mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); }
+.edge i:nth-child(3) { --b: 1.5px; -webkit-mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); }
+.edge i:nth-child(4) { --b: 2.5px; -webkit-mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); }
+.edge i:nth-child(5) { --b: 4px; -webkit-mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); }
+.edge i:nth-child(6) { --b: 6px; -webkit-mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); }
+.edge i:nth-child(7) { --b: 9px; -webkit-mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); }
+.edge i:nth-child(8) { --b: 12px; -webkit-mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); }
 .edge-grain {
   position: fixed; top: 0; bottom: 0; z-index: 26; pointer-events: none;
-  width: clamp(64px, 15vw, 220px);
+  width: clamp(80px, 18vw, 260px);
   background-image: var(--grain); background-size: 200px 200px;
-  mix-blend-mode: overlay; opacity: 0.7;
-  -webkit-mask-image: linear-gradient(to left, transparent 15%, #000 100%); mask-image: linear-gradient(to left, transparent 15%, #000 100%);
+  mix-blend-mode: overlay; opacity: 0.32;
+  -webkit-mask-image: linear-gradient(to left, transparent 20%, #000 65%, transparent 100%); mask-image: linear-gradient(to left, transparent 20%, #000 65%, transparent 100%);
 }
 .edge-grain.l { left: 0; }
 .edge-grain.r { right: 0; transform: scaleX(-1); }
@@ -242,7 +247,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   const SQUISH_D = 160, MAX_SQ = 0.6;  // squish resistance: 432px of pull lands near 0.56 scale
   const COMMIT_D = 0.3, COMMIT_V = 100; // commit thresholds: 90px of drag, or 0.10 px/ms
   const squishOf = (d) => 1 - 1 / (1 + d / SQUISH_D);
-  const OV_K = 320, OV_C = 20;         // per-cover overscroll lag (underdamped: gaps stretch, then settle)
+  const OV_K = 320, OV_C = 36;         // per-cover overscroll lag (critically damped: gaps stretch, then relax)
   const FLING_D = 230;                 // focused cover: drag this far (or flick) in any direction to dismiss
   const soft = (x, d) => (1 - 1 / (x / d + 1)) * d;  // starts 1:1, resists more the further you go
 
@@ -409,6 +414,17 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     const ref = ptr && ptr.kind === "scroll" && ptr.s === s ? ptr.lastX : vw / 2;
     const d = Math.max(0, o < 0 ? ref - sx : sx - ref);
     return o * (0.25 + 0.75 * Math.exp(-d / (vw * 0.3)));
+  }
+  // Safety net for the stretch: covers may spread apart but never close a gap
+  // past half its width.
+  function keepGaps() {
+    if (mode !== "row") return;
+    const minGap = rowGap * 0.5 * (1 - clamp(p.v, 0, 1));
+    for (let i = 1; i < N; i++) {
+      const a = cards[i - 1], b = cards[i];
+      const over = a.x.v + a.w.v + minGap - b.x.v;
+      if (over > 0 && p.v < 0.02) b.x.v += over;
+    }
   }
 
   // ---- grid lightbox ----
@@ -841,6 +857,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
       if (c.follow) { const r = targetRect(c); c.x.snap(r.x); c.y.snap(r.y); c.w.snap(r.w); c.h.snap(r.h); }
       else if (now >= c.delay && c.x.near() && c.y.near() && c.w.near() && c.h.near()) c.follow = true;
     }
+    keepGaps();
     if (gridOpen < 0 && gridActive >= 0 && gp.v < 0.002 && cards[gridActive].follow) gridActive = -1;
 
     const gpv = clamp(gp.v, 0, 1), pv = clamp(p.v, 0, 1);
