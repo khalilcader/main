@@ -18,7 +18,8 @@
   --shadow: rgba(22, 22, 20, 0.14);
   --focus: #2f5bd8;
   --veil: rgba(26, 26, 24, 0.42);
-  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --grain-amt: 0.7;   /* one dial for every blur's grain; see the Values panel */
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='2.2' intercept='-0.6'/><feFuncG type='linear' slope='2.2' intercept='-0.6'/><feFuncB type='linear' slope='2.2' intercept='-0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 
   --f-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -86,9 +87,9 @@ body {
 .edge-grain {
   position: fixed; top: 0; bottom: 0; z-index: 26; pointer-events: none;
   width: var(--edge-w, 18vw);
-  background-image: var(--grain); background-size: 200px 200px;
-  mix-blend-mode: overlay; opacity: 0.32;
-  -webkit-mask-image: linear-gradient(to left, transparent 20%, #000 65%, transparent 100%); mask-image: linear-gradient(to left, transparent 20%, #000 65%, transparent 100%);
+  background-image: var(--grain); background-size: 160px 160px;
+  mix-blend-mode: overlay; opacity: var(--grain-amt);
+  -webkit-mask-image: linear-gradient(to left, transparent 10%, #000 55%, #000 85%, transparent 100%); mask-image: linear-gradient(to left, transparent 10%, #000 55%, #000 85%, transparent 100%);
 }
 .edge-grain.l { left: 0; }
 .edge-grain.r { right: 0; transform: scaleX(-1); }
@@ -97,18 +98,26 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 /* Film grain over anything pushed out of focus. */
 #backdrop::after, .veil::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit;
-  background-image: var(--grain); background-size: 200px 200px;
-  mix-blend-mode: overlay; opacity: 0.55;
+  background-image: var(--grain); background-size: 160px 160px;
+  mix-blend-mode: overlay; opacity: min(1, calc(var(--grain-amt) * 1.3));
 }
 .veil {
   position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   background: var(--veil); opacity: 0;
+  /* Feather the veil's edges by the blur radius (--f, set in script) so the dim and
+     grain soften along with the blurred color underneath. */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--f, 0px), #000 calc(100% - var(--f, 0px)), transparent),
+                      linear-gradient(to bottom, transparent, #000 var(--f, 0px), #000 calc(100% - var(--f, 0px)), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 var(--f, 0px), #000 calc(100% - var(--f, 0px)), transparent),
+              linear-gradient(to bottom, transparent, #000 var(--f, 0px), #000 calc(100% - var(--f, 0px)), transparent);
+  mask-composite: intersect;
 }
 
 .card {
   position: absolute; left: 0; top: 0; padding: 0; margin: 0;
   border: 0; border-radius: 12px; background: none; color: inherit;
-  transform-origin: 0 0; will-change: transform, filter;
+  transform-origin: 0 0; will-change: transform;
   box-shadow: 0 1px 2px var(--shadow), 0 8px 24px -12px var(--shadow);
   cursor: inherit; font: inherit; text-align: left;
 }
@@ -213,6 +222,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   <div class="ctl"><label for="rdIn">ripple delay</label><output id="rdOut"></output><input id="rdIn" type="range" min="0" max="140" step="5"></div>
   <div class="ctl"><label for="rfIn">ripple falloff</label><output id="rfOut"></output><input id="rfIn" type="range" min="0.4" max="1" step="0.02"></div>
   <div class="ctl check"><input id="edgeIn" type="checkbox" checked><label for="edgeIn">edge blur</label></div>
+  <div class="ctl"><label for="grIn">grain</label><output id="grOut"></output><input id="grIn" type="range" min="0" max="1" step="0.05"></div>
   <div class="ctl"><label for="ewIn">edge width</label><output id="ewOut"></output><input id="ewIn" type="range" min="6" max="35" step="1"></div>
   <div class="ctl"><label for="ebIn">edge max blur</label><output id="ebOut"></output><input id="ebIn" type="range" min="0" max="40" step="1"></div>
   <div class="ctl"><label for="ecIn">blur easing</label><output id="ecOut"></output><input id="ecIn" type="range" min="1" max="5" step="0.1"></div>
@@ -257,7 +267,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 
   // Tunable from the Values panel.
   const P = { k: reduce ? 700 : 240, c: reduce ? 53 : 30, rubber: 0.55, decay: 4.5, brake: 1400, snapRow: false, time: 1, rippleDelay: reduce ? 0 : 30, falloff: 0.85,
-    edgeW: 20, edgeBlur: 14, edgeCurve: 2.6, edgeFade: 0.9, rubberD: 360 };
+    edgeW: 20, edgeBlur: 14, edgeCurve: 2.6, edgeFade: 0.9, rubberD: 360, grain: 0.7 };
   const EDGE_K = 280, EDGE_C = 33;     // overscroll spring-back (critically damped, quick)
   const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under critical)
   const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
@@ -294,7 +304,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     el.innerHTML = `<div class="cover" style="--c-bg:${d.bg}"></div><div class="veil"></div>`;
     stage.appendChild(el);
     return {
-      d, i, el, veil: el.lastChild, W: 1, last: {},
+      d, i, el, cover: el.firstChild, veil: el.lastChild, W: 1, last: {},
       x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
       sq: new Spring(0),
       ox: new Spring(0), oy: new Spring(0), os: new Spring(1),   // free-drag offset from layout
@@ -794,8 +804,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   bind("eb", "edgeBlur", (v) => `${v.toFixed(0)}px`);
   bind("ec", "edgeCurve", (v) => v.toFixed(1));
   bind("ef", "edgeFade", (v) => v.toFixed(2));
+  bind("gr", "grain", (v) => v.toFixed(2));
   on($("#snapIn"), "change", (e) => { P.snapRow = e.target.checked; S.row.to = null; });
-  for (const id of ["ew", "eb", "ec", "ef"]) on($("#" + id + "In"), "input", applyEdges);
+  for (const id of ["ew", "eb", "ec", "ef", "gr"]) on($("#" + id + "In"), "input", applyEdges);
   on($("#edgeIn"), "change", (e) => { document.body.classList.toggle("no-edges", !e.target.checked); });
   on($("#slowIn"), "change", (e) => { P.time = e.target.checked ? 0.25 : 1; });
 
@@ -808,6 +819,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   function applyEdges() {
     const root = document.documentElement.style;
     root.setProperty("--edge-w", `clamp(64px, ${P.edgeW}vw, 480px)`);
+    root.setProperty("--grain-amt", P.grain);
     document.querySelectorAll(".edge").forEach((ed) =>
       [...ed.children].forEach((el, k) => el.style.setProperty("--b", (P.edgeBlur * Math.pow((k + 1) / 8, P.edgeCurve)).toFixed(2) + "px")));
     const stops = [];
@@ -997,7 +1009,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
       if (L.dim !== dk) {
         L.dim = dk;
         c.veil.style.opacity = dk;
-        st.filter = dk > 0.005 ? `blur(${(dk * 18).toFixed(2)}px)` : "";
+        // Blur only the color layer, so the grain in the veil above stays sharp.
+        c.cover.style.filter = dk > 0.005 ? `blur(${(dk * 18).toFixed(2)}px)` : "";
+        c.veil.style.setProperty("--f", `${(dk * 18 * 1.6).toFixed(1)}px`);
       }
       const z = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = z; }

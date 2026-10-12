@@ -27,4 +27,5 @@ single file with no build step; open it in a browser.
 The covers are placeholder blocks in Apple system colors. The "Values" panel shows live spring state and
 has sliders for stiffness, damping, rubber band strength and distance,
 deceleration, brake,
-and ripple delay and falloff, plus a toggle for snapping the row to covers.
+and ripple delay and falloff, edge blur and grain, plus a toggle for snapping
+the row to covers.
