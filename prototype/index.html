@@ -187,6 +187,8 @@ body {
   <div class="ctl"><label for="cIn">damping</label><output id="cOut"></output><input id="cIn" type="range" min="4" max="70" step="1"></div>
   <div class="ctl"><label for="rIn">rubber band</label><output id="rOut"></output><input id="rIn" type="range" min="0.15" max="1" step="0.05"></div>
   <div class="ctl"><label for="dIn">deceleration</label><output id="dOut"></output><input id="dIn" type="range" min="0.8" max="6" step="0.1"></div>
+  <div class="ctl"><label for="rdIn">ripple delay</label><output id="rdOut"></output><input id="rdIn" type="range" min="0" max="140" step="5"></div>
+  <div class="ctl"><label for="rfIn">ripple falloff</label><output id="rfOut"></output><input id="rfIn" type="range" min="0.4" max="1" step="0.02"></div>
   <div class="ctl check"><input id="snapIn" type="checkbox"><label for="snapIn">snap row to covers</label></div>
   <div class="ctl check"><input id="slowIn" type="checkbox"><label for="slowIn">slow motion (¼ speed)</label></div>
 </aside>
@@ -219,7 +221,7 @@ body {
   const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   // Tunable from the Values panel.
-  const P = { k: reduce ? 700 : 240, c: reduce ? 53 : 25, rubber: 0.55, decay: 2.2, snapRow: false, time: 1 };
+  const P = { k: reduce ? 700 : 240, c: reduce ? 53 : 25, rubber: 0.55, decay: 2.2, snapRow: false, time: 1, rippleDelay: reduce ? 0 : 45, falloff: 0.82 };
   const EDGE_K = 170, EDGE_C = 26;     // overscroll spring-back (critically damped)
   const SNAP_K = 140, SNAP_C = 24;     // settling onto a snap point
   const SQ_K = 380, SQ_C = 14;         // squish + ripple (underdamped, so it wobbles)
@@ -273,7 +275,9 @@ body {
   let anchor = 0, gridOpen = -1, gridActive = -1, hovered = -1, pull = 0;
   const mk = () => ({ pos: 0, vel: 0, min: 0, max: 0, wheel: false, to: null, raw: 0, wt: 0, from: null });
   const S = { row: mk(), big: mk(), grid: mk() };
-  let vw = 0, vh = 0, pad = 48;
+  let vw = 0, vh = 0, pad = 48, rowGap = 14;
+  let simT = 0;
+  const hist = [];  // recent [time, squish] samples of the anchor, replayed by neighbors
   const stats = { drag: 0, release: 0, tap: [0, 0] };
 
   const centerBig = (i) => cards[i].big.x + cards[i].big.w / 2 - vw / 2;
@@ -286,7 +290,7 @@ body {
   function layout() {
     vw = stage.clientWidth; vh = stage.clientHeight;
     pad = vw < 640 ? 16 : 48;
-    const gap = vw < 640 ? 10 : 14;
+    const gap = rowGap = vw < 640 ? 10 : 14;
 
     // Small row: equal-area covers on one baseline.
     const base = clamp(Math.min(vh * 0.28, vw * 0.42), 110, 250);
@@ -399,17 +403,42 @@ body {
     } else if (c) openRow(c);
   }
 
-  // Pull-down squish on the anchor, rippling out to its neighbors.
-  function setSquish(a) {
-    for (const c of cards) {
-      const d = Math.abs(c.i - anchor);
-      if (d === 0) c.sq.snap(a);
-      else c.sq.t = d <= 4 ? a * Math.pow(0.5, d) : 0;
-    }
-  }
+  // Pull-down squish. The finger drives the anchor; each neighbor replays the
+  // anchor's recent history, one ripple delay later per step out, so the shrink
+  // travels down the row as a chain reaction.
+  function setSquish(a) { cards[anchor].sq.snap(a); }
   function releaseSquish(vy) {
-    for (const c of cards) c.sq.t = 0;
-    cards[anchor].sq.vel = clamp(vy / SQUISH, -6, 6) * 0.5;
+    const c = cards[anchor];
+    c.sq.t = 0;
+    c.sq.vel = clamp(vy / SQUISH, -6, 6) * 0.5;
+  }
+  function sampleHist(t) {
+    if (!hist.length || t <= hist[0][0]) return hist.length ? hist[0][1] : 0;
+    for (let i = hist.length - 1; i > 0; i--) {
+      const [t1, v1] = hist[i], [t0, v0] = hist[i - 1];
+      if (t >= t0) return t1 === t0 ? v1 : lerp(v0, v1, (t - t0) / (t1 - t0));
+    }
+    return hist[0][1];
+  }
+  // Keep row gaps constant while covers shrink: re-flow outward from the anchor.
+  const flow = new Array(N).fill(0);
+  function reflow() {
+    const sc = cards.map((c) => 1 - 0.3 * clamp(c.sq.v, -0.25, 1));
+    const k = anchor, A = cards[k].row, cx = A.x + A.w / 2;
+    flow[k] = 0;
+    let edge = cx + (A.w * sc[k]) / 2;
+    for (let i = k + 1; i < N; i++) {
+      const r = cards[i].row, w = r.w * sc[i];
+      flow[i] = edge + rowGap + w / 2 - (r.x + r.w / 2);
+      edge += rowGap + w;
+    }
+    edge = cx - (A.w * sc[k]) / 2;
+    for (let i = k - 1; i >= 0; i--) {
+      const r = cards[i].row, w = r.w * sc[i];
+      flow[i] = edge - rowGap - w / 2 - (r.x + r.w / 2);
+      edge -= rowGap + w;
+    }
+    return sc;
   }
 
   // ---- pointer ----
@@ -606,6 +635,8 @@ body {
   bind("c", "c", zeta);
   bind("r", "rubber", (v) => v.toFixed(2));
   bind("d", "decay", (v) => `${v.toFixed(1)}/s · ${(1000 / v).toFixed(0)}ms`);
+  bind("rd", "rippleDelay", (v) => `${v.toFixed(0)}ms`);
+  bind("rf", "falloff", (v) => v.toFixed(2));
   $("#snapIn").addEventListener("change", (e) => { P.snapRow = e.target.checked; S.row.to = null; });
   $("#slowIn").addEventListener("change", (e) => { P.time = e.target.checked ? 0.25 : 1; });
 
@@ -663,6 +694,7 @@ body {
       ["drag distance", `${fmt(stats.drag)} px`],
       ["release velocity", `${fmt(stats.release, 3)} px/ms`],
       ["pull progress q", fmt(pull, 4)],
+      ["ripple delay", `${P.rippleDelay}ms / step`],
       ["distance commit", fmt(COMMIT_D, 2)],
       ["velocity commit", `${COMMIT_V} px/s`],
     ];
@@ -696,6 +728,12 @@ body {
       c.hv.t = mode === "row" && p.v < 0.02 && p.t === 0 && c.i === hovered && !ptr ? 1.045 : 1;
     }
 
+    // Neighbors chase the anchor's squish from a moment ago, scaled down with distance.
+    for (const c of cards) {
+      const d = Math.abs(c.i - anchor);
+      if (d) c.sq.t = sampleHist(simT - (d * P.rippleDelay) / 1000) * Math.pow(P.falloff, d);
+    }
+
     const n = Math.max(1, Math.ceil(dt / (1 / 240))), h = dt / n;
     const dragging = ptr && ptr.kind === "vert";
     for (let i = 0; i < n; i++) {
@@ -708,6 +746,9 @@ body {
       if (!(ptr && ptr.kind === "card")) gp.step(h, P.k, P.c);
       stepScroll(S.row, h); stepScroll(S.big, h); stepScroll(S.grid, h);
     }
+    simT += dt;
+    hist.push([simT, cards[anchor].sq.v]);
+    while (hist.length > 2 && hist[1][0] < simT - 1.5) hist.shift();
 
     // Cards that have landed lock onto their layout; cards in flight stay on springs.
     for (const c of cards) {
@@ -718,10 +759,10 @@ body {
     if (gridOpen < 0 && gridActive >= 0 && gp.v < 0.002 && cards[gridActive].follow) gridActive = -1;
 
     const gpv = clamp(gp.v, 0, 1);
+    const sc = reflow(), fb = mode === "row" ? 1 - clamp(p.v, 0, 1) : 0;
     for (const c of cards) {
       const st = c.el.style;
-      const a = clamp(c.sq.v, -0.25, 1);
-      st.transform = `translate3d(${c.x.v}px, ${c.y.v + a * 14}px, 0) scale(${(1 - 0.3 * a) * c.hv.v * c.pr.v})`;
+      st.transform = `translate3d(${c.x.v + flow[c.i] * fb}px, ${c.y.v}px, 0) scale(${sc[c.i] * c.hv.v * c.pr.v})`;
       st.width = Math.max(1, c.w.v) + "px"; st.height = Math.max(1, c.h.v) + "px";
       st.zIndex = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 2 : 1;
       c.el.tabIndex = mode === "grid" && gridOpen >= 0 && c.i !== gridOpen ? -1 : 0;
