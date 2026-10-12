@@ -186,7 +186,8 @@ body {
   <div class="ctl"><label for="kIn">stiffness</label><output id="kOut"></output><input id="kIn" type="range" min="60" max="700" step="10"></div>
   <div class="ctl"><label for="cIn">damping</label><output id="cOut"></output><input id="cIn" type="range" min="4" max="70" step="1"></div>
   <div class="ctl"><label for="rIn">rubber band</label><output id="rOut"></output><input id="rIn" type="range" min="0.15" max="1" step="0.05"></div>
-  <div class="ctl"><label for="dIn">deceleration</label><output id="dOut"></output><input id="dIn" type="range" min="0.8" max="6" step="0.1"></div>
+  <div class="ctl"><label for="dIn">deceleration</label><output id="dOut"></output><input id="dIn" type="range" min="0.8" max="10" step="0.1"></div>
+  <div class="ctl"><label for="bIn">brake</label><output id="bOut"></output><input id="bIn" type="range" min="0" max="4000" step="100"></div>
   <div class="ctl"><label for="rdIn">ripple delay</label><output id="rdOut"></output><input id="rdIn" type="range" min="0" max="140" step="5"></div>
   <div class="ctl"><label for="rfIn">ripple falloff</label><output id="rfOut"></output><input id="rfIn" type="range" min="0.4" max="1" step="0.02"></div>
   <div class="ctl check"><input id="snapIn" type="checkbox"><label for="snapIn">snap row to covers</label></div>
@@ -218,16 +219,17 @@ body {
   const $ = (s) => document.querySelector(s);
   const stage = $("#stage"), backdrop = $("#backdrop");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   // Tunable from the Values panel.
-  const P = { k: reduce ? 700 : 240, c: reduce ? 53 : 25, rubber: 0.55, decay: 2.2, snapRow: false, time: 1, rippleDelay: reduce ? 0 : 45, falloff: 0.82 };
+  const P = { k: reduce ? 700 : 300, c: reduce ? 53 : 35, rubber: 0.55, decay: 4.5, brake: 1400, snapRow: false, time: 1, rippleDelay: reduce ? 0 : 30, falloff: 0.85 };
   const EDGE_K = 170, EDGE_C = 26;     // overscroll spring-back (critically damped)
-  const SNAP_K = 140, SNAP_C = 24;     // settling onto a snap point
-  const SQ_K = 380, SQ_C = 14;         // squish + ripple (underdamped, so it wobbles)
-  const PULL = 280;                    // px of vertical drag for a full row <-> large scrub
-  const SQUISH = 260;                  // rubber band size for pull-down squish
-  const COMMIT_D = 0.3, COMMIT_V = 450; // commit thresholds: progress, px/s
+  const SNAP_K = 260, SNAP_C = 32;     // settling onto a snap point (critically damped)
+  const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
+  const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
+  const PULL = 380;                    // px of vertical drag for a full row <-> large scrub
+  const SQUISH_D = 160, MAX_SQ = 0.6;  // squish resistance: 432px of pull lands near 0.56 scale
+  const COMMIT_D = 0.6, COMMIT_V = 100; // commit thresholds: ~230px of drag, or 0.10 px/ms
+  const squishOf = (d) => 1 - 1 / (1 + d / SQUISH_D);
 
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -261,9 +263,9 @@ body {
     return {
       d, i, el,
       x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
-      sq: new Spring(0), hv: new Spring(1), pr: new Spring(1),
+      sq: new Spring(0),
       row: null, big: null, grid: null,
-      follow: false, held: false, pressed: false, delay: 0, hold: null,
+      follow: false, held: false, delay: 0, hold: null,
     };
   });
   const N = cards.length;
@@ -272,7 +274,7 @@ body {
   let mode = "row";                 // "row" (small strip + large strip) or "grid"
   const p = new Spring(0);          // row -> large progress
   const gp = new Spring(0);         // grid lightbox progress
-  let anchor = 0, gridOpen = -1, gridActive = -1, hovered = -1, pull = 0;
+  let anchor = 0, gridOpen = -1, gridActive = -1, pull = 0;
   const mk = () => ({ pos: 0, vel: 0, min: 0, max: 0, wheel: false, to: null, raw: 0, wt: 0, from: null });
   const S = { row: mk(), big: mk(), grid: mk() };
   let vw = 0, vh = 0, pad = 48, rowGap = 14;
@@ -410,7 +412,7 @@ body {
   function releaseSquish(vy) {
     const c = cards[anchor];
     c.sq.t = 0;
-    c.sq.vel = clamp(vy / SQUISH, -6, 6) * 0.5;
+    c.sq.vel = clamp((vy * (1 - c.sq.v) ** 2) / SQUISH_D, -8, 8);
   }
   function sampleHist(t) {
     if (!hist.length || t <= hist[0][0]) return hist.length ? hist[0][1] : 0;
@@ -423,7 +425,7 @@ body {
   // Keep row gaps constant while covers shrink: re-flow outward from the anchor.
   const flow = new Array(N).fill(0);
   function reflow() {
-    const sc = cards.map((c) => 1 - 0.3 * clamp(c.sq.v, -0.25, 1));
+    const sc = cards.map((c) => 1 - MAX_SQ * clamp(c.sq.v, -0.1, 1));
     const k = anchor, A = cards[k].row, cx = A.x + A.w / 2;
     flow[k] = 0;
     let edge = cx + (A.w * sc[k]) / 2;
@@ -457,7 +459,6 @@ body {
     const c = el ? cards[+el.dataset.i] : null;
     ptr = { id: e.pointerId, x0: e.clientX, y0: e.clientY, card: c, kind: null, samples: [[e.clientX, e.clientY, e.timeStamp]] };
     stage.setPointerCapture(e.pointerId);
-    if (c && (mode === "row" || gridOpen < 0 || c.i === gridOpen)) c.pressed = true;
     const s = layer();
     if (s !== S.big) { s.vel = 0; s.to = null; }  // catch a moving strip; the large strip keeps settling
   });
@@ -469,7 +470,6 @@ body {
     let dx = e.clientX - ptr.x0, dy = e.clientY - ptr.y0;
 
     if (!ptr.kind && Math.hypot(dx, dy) > 6) {
-      if (ptr.card) ptr.card.pressed = false;
       const horiz = Math.abs(dx) > Math.abs(dy);
       if (mode === "grid") {
         if (gridOpen >= 0) {
@@ -515,7 +515,7 @@ body {
       // Up opens, down closes; past the closed end the cover squishes against a rubber band.
       let q = ptr.p0 - dy / PULL;
       if (q > 1) q = 1 + (rubber((q - 1) * PULL, PULL) / PULL) * 0.3;
-      if (q < 0) { setSquish(rubber(-q * PULL, SQUISH) / SQUISH); q = 0; } else setSquish(0);
+      if (q < 0) { setSquish(squishOf(-q * PULL)); q = 0; } else setSquish(0);
       p.snap(q);
       pull = ptr.origin === "big" ? clamp(1 - q, 0, 1) : 0;
       stats.drag = Math.abs(dy);
@@ -537,7 +537,6 @@ body {
     if (!ptr || e.pointerId !== ptr.id) return;
     const v = velocityOf(ptr.samples);
     stats.release = Math.hypot(v.x, v.y) / 1000;
-    if (ptr.card) ptr.card.pressed = false;
     stage.classList.remove("dragging");
 
     if (!ptr.kind && !cancelled) tap(ptr.card);
@@ -565,11 +564,6 @@ body {
   }
   stage.addEventListener("pointerup", (e) => endPointer(e, false));
   stage.addEventListener("pointercancel", (e) => endPointer(e, true));
-
-  if (fine) {
-    stage.addEventListener("pointerover", (e) => { const el = e.target.closest(".card"); hovered = el ? +el.dataset.i : -1; });
-    stage.addEventListener("pointerleave", () => { hovered = -1; });
-  }
 
   // Keyboard activation (pointer taps are handled above).
   stage.addEventListener("click", (e) => {
@@ -634,19 +628,26 @@ body {
   bind("k", "k", (v) => v.toFixed(0));
   bind("c", "c", zeta);
   bind("r", "rubber", (v) => v.toFixed(2));
-  bind("d", "decay", (v) => `${v.toFixed(1)}/s · ${(1000 / v).toFixed(0)}ms`);
+  bind("d", "decay", (v) => `${v.toFixed(1)}/s`);
+  bind("b", "brake", (v) => `${v.toFixed(0)} px/s²`);
   bind("rd", "rippleDelay", (v) => `${v.toFixed(0)}ms`);
   bind("rf", "falloff", (v) => v.toFixed(2));
   $("#snapIn").addEventListener("change", (e) => { P.snapRow = e.target.checked; S.row.to = null; });
   $("#slowIn").addEventListener("change", (e) => { P.time = e.target.checked ? 0.25 : 1; });
 
   // ---- simulation ----
+  // Where a glide from velocity v comes to rest under dv/dt = -decay*v - brake.
+  function glideDist(v) {
+    const a = P.decay, b = Math.max(1, P.brake), u = Math.abs(v);
+    const T = Math.log(1 + (a * u) / b) / a;
+    return Math.sign(v) * (u / a - (b / a) * T);
+  }
   function stepScroll(s, dt) {
     if ((ptr && ptr.kind === "scroll" && ptr.s === s) || s.wheel) return;
     const fn = snapFn(s);
     if (fn && s.to == null) {
       // Project where the glide would stop, then settle on the nearest snap point.
-      let i = nearest(fn, s.pos + s.vel / P.decay);
+      let i = nearest(fn, s.pos + glideDist(s.vel));
       if (s.from != null) i = clamp(i, s.from - 1, s.from + 1);  // large strip pages one project per flick
       s.from = null;
       const t = fn(i);
@@ -662,8 +663,10 @@ body {
       s.vel += a * dt; s.pos += s.vel * dt;
       if (Math.abs(s.pos - b) < 0.1 && Math.abs(s.vel) < 2) { s.pos = b; s.vel = 0; }
     } else if (s.vel) {
-      s.pos += s.vel * dt; s.vel *= Math.exp(-P.decay * dt);
-      if (Math.abs(s.vel) < 4) s.vel = 0;
+      const sg = Math.sign(s.vel);
+      s.vel -= (P.decay * s.vel + sg * P.brake) * dt;
+      if (Math.sign(s.vel) !== sg || Math.abs(s.vel) < 4) s.vel = 0;
+      s.pos += s.vel * dt;
     }
   }
 
@@ -695,8 +698,8 @@ body {
       ["release velocity", `${fmt(stats.release, 3)} px/ms`],
       ["pull progress q", fmt(pull, 4)],
       ["ripple delay", `${P.rippleDelay}ms / step`],
-      ["distance commit", fmt(COMMIT_D, 2)],
-      ["velocity commit", `${COMMIT_V} px/s`],
+      ["distance commit", `${fmt(COMMIT_D * PULL)} px`],
+      ["velocity commit", `${fmt(COMMIT_V / 1000, 2)} px/ms`],
     ];
     readout.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
   }
@@ -724,8 +727,6 @@ body {
       if (c.held) continue;
       const r = now < c.delay ? c.hold : targetRect(c);
       c.x.t = r.x; c.y.t = r.y; c.w.t = r.w; c.h.t = r.h;
-      c.pr.t = c.pressed ? 0.965 : 1;
-      c.hv.t = mode === "row" && p.v < 0.02 && p.t === 0 && c.i === hovered && !ptr ? 1.045 : 1;
     }
 
     // Neighbors chase the anchor's squish from a moment ago, scaled down with distance.
@@ -739,8 +740,8 @@ body {
     for (let i = 0; i < n; i++) {
       for (const c of cards) {
         if (!c.follow && !c.held) { c.x.step(h, P.k, P.c); c.y.step(h, P.k, P.c); c.w.step(h, P.k, P.c); c.h.step(h, P.k, P.c); }
-        if (!(dragging && c.i === anchor)) c.sq.step(h, SQ_K, SQ_C);
-        c.hv.step(h, 420, 30); c.pr.step(h, 600, 34);
+        if (c.i !== anchor) c.sq.step(h, NB_K, NB_C);
+        else if (!dragging) c.sq.step(h, SQ_K, SQ_C);
       }
       if (!dragging) p.step(h, P.k, P.c);
       if (!(ptr && ptr.kind === "card")) gp.step(h, P.k, P.c);
@@ -762,7 +763,7 @@ body {
     const sc = reflow(), fb = mode === "row" ? 1 - clamp(p.v, 0, 1) : 0;
     for (const c of cards) {
       const st = c.el.style;
-      st.transform = `translate3d(${c.x.v + flow[c.i] * fb}px, ${c.y.v}px, 0) scale(${sc[c.i] * c.hv.v * c.pr.v})`;
+      st.transform = `translate3d(${c.x.v + flow[c.i] * fb}px, ${c.y.v}px, 0) scale(${sc[c.i]})`;
       st.width = Math.max(1, c.w.v) + "px"; st.height = Math.max(1, c.h.v) + "px";
       st.zIndex = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 2 : 1;
       c.el.tabIndex = mode === "grid" && gridOpen >= 0 && c.i !== gridOpen ? -1 : 0;

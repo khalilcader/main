@@ -15,6 +15,5 @@ single file with no build step; open it in a browser.
 - Press G for a packed grid view.
 
 The covers are placeholders. The "Values" panel shows live spring state and
-has sliders for stiffness, damping, rubber band strength, deceleration, and
-ripple delay and falloff,
-plus a toggle for snapping the row to covers.
+has sliders for stiffness, damping, rubber band strength, deceleration, brake,
+and ripple delay and falloff, plus a toggle for snapping the row to covers.
