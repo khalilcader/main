@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Work Strip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,800&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Geist:wght@400;500&family=Geist+Mono:wght@400&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}
+/* Layout: one full-bleed stage. Covers live on springs and move between a
+   bottom-aligned row, a packed grid, and a centered "open" view. */
+:root {
+  --bg: #f5f5f2;
+  --ink: #161615;
+  --muted: #73736d;
+  --line: #e3e3de;
+  --panel: rgba(255, 255, 255, 0.92);
+  --scrim: rgba(36, 36, 33, 0.42);
+  --shadow: rgba(22, 22, 20, 0.14);
+  --focus: #2f5bd8;
+
+  --f-ui: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --f-serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --f-cond: "Archivo", "Arial Narrow", Impact, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
+    --panel: rgba(28, 28, 26, 0.92); --scrim: rgba(0, 0, 0, 0.62);
+    --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
+  --panel: rgba(28, 28, 26, 0.92); --scrim: rgba(0, 0, 0, 0.62);
+  --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
+}
+
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-ui); overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#stage {
+  position: fixed; inset: 0; overflow: hidden;
+  touch-action: none; user-select: none; -webkit-user-select: none;
+  cursor: grab;
+}
+#stage.dragging { cursor: grabbing; }
+
+#backdrop {
+  position: absolute; inset: 0; z-index: 10; pointer-events: none;
+  background: var(--scrim);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  opacity: 0;
+}
+
+.card {
+  position: absolute; left: 0; top: 0; padding: 0; margin: 0;
+  border: 0; border-radius: 3px; background: none; color: inherit;
+  transform-origin: 50% 50%; will-change: transform, width, height;
+  box-shadow: 0 1px 2px var(--shadow), 0 8px 24px -12px var(--shadow);
+  cursor: inherit; font: inherit; text-align: left;
+}
+.card:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+
+/* Covers scale with the card via container units, so type stays crisp. */
+.cover {
+  position: absolute; inset: 0; overflow: hidden; border-radius: inherit;
+  container-type: size; background: var(--c-bg); color: var(--c-fg);
+  pointer-events: none;
+}
+.meta {
+  position: absolute; left: 5cqw; right: 5cqw; top: 4.5cqw;
+  display: flex; justify-content: space-between; gap: 2cqw;
+  font: 400 3.6cqw/1.2 var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase;
+}
+.look-stack .title {
+  position: absolute; left: 5cqw; right: 5cqw; bottom: 4cqw;
+  font: 800 17cqw/0.86 var(--f-cond); font-stretch: 62%;
+  text-transform: uppercase; letter-spacing: -0.01em;
+}
+.look-center .title {
+  position: absolute; inset: 0; display: grid; place-items: center; padding: 8cqw;
+  font: italic 400 14cqw/0.95 var(--f-serif); text-align: center;
+}
+.look-mono .orb {
+  position: absolute; width: 62cqw; height: 62cqw; right: -10cqw; bottom: -8cqw;
+  border-radius: 50%; background: var(--c-fg); opacity: 0.9;
+}
+.look-mono .title {
+  position: absolute; left: 5cqw; bottom: 5cqw; max-width: 55cqw;
+  font: 400 6cqw/1.1 var(--f-mono); text-transform: uppercase;
+}
+.look-frame .rule {
+  position: absolute; inset: 4cqw; border: 0.6cqw solid currentColor; opacity: 0.85;
+}
+.look-frame .title {
+  position: absolute; left: 9cqw; right: 9cqw; top: 14cqw;
+  font: 400 11cqw/0.98 var(--f-serif);
+}
+.look-frame .meta { top: auto; bottom: 8cqw; left: 9cqw; right: 9cqw; }
+
+/* Chrome */
+.bar {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 30;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) clamp(16px, 4vw, 48px) 0;
+  pointer-events: none;
+}
+.bar > * { pointer-events: auto; }
+.who { display: grid; gap: 2px; }
+.who b { font: 400 17px/1.1 var(--f-serif); letter-spacing: -0.01em; }
+.who span { font: 400 11px/1.2 var(--f-mono); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.tools { display: flex; gap: 8px; }
+.tool {
+  height: 32px; min-width: 32px; padding: 0 12px; border-radius: 16px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  font: 500 12px/1 var(--f-ui); cursor: pointer;
+  box-shadow: 0 1px 2px var(--shadow);
+}
+.tool.icon { padding: 0; width: 32px; }
+.tool[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tool:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.tool svg { width: 16px; height: 16px; }
+
+.hint {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 30;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  max-width: calc(100% - 32px); text-align: center;
+  font: 400 11px/1.4 var(--f-mono); color: var(--muted); letter-spacing: 0.03em;
+  pointer-events: none;
+}
+
+/* Values panel */
+#values {
+  position: fixed; z-index: 40; right: clamp(16px, 4vw, 48px);
+  top: calc(env(safe-area-inset-top, 0px) + 62px);
+  width: min(300px, calc(100% - 32px)); max-height: calc(100% - 120px); overflow: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px -16px var(--shadow);
+  padding: 12px 14px 14px; font: 400 11px/1.3 var(--f-mono);
+  touch-action: auto;
+}
+#values h2 { margin: 0 0 8px; font: 500 12px/1 var(--f-ui); text-align: center; }
+#values h3 { margin: 12px 0 4px; font: 500 10px/1 var(--f-mono); color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+#values dl { margin: 0; display: grid; grid-template-columns: 1fr auto; }
+#values dt, #values dd { margin: 0; padding: 5px 0; border-bottom: 1px solid var(--line); }
+#values dt { color: var(--muted); }
+#values dd { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ctl { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.ctl label { color: var(--muted); }
+.ctl output { font-variant-numeric: tabular-nums; }
+.ctl input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--ink); }
+.ctl.check { grid-template-columns: auto 1fr; }
+.ctl.check input { accent-color: var(--ink); margin: 0; }
+</style>
+
+</head>
+<body>
+<div id="stage" aria-label="Selected work">
+  <div id="backdrop"></div>
+</div>
+
+<header class="bar">
+  <div class="who"><b>Khalil Cader</b><span>Selected work · placeholder covers</span></div>
+  <div class="tools">
+    <button class="tool icon" id="gridBtn" type="button" aria-pressed="false" aria-label="Show as grid" title="Grid (G)">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg>
+    </button>
+    <button class="tool" id="valuesBtn" type="button" aria-pressed="false" aria-controls="values">Values</button>
+  </div>
+</header>
+
+<aside id="values" hidden aria-label="Spring values">
+  <h2>Values</h2>
+  <dl id="readout"></dl>
+  <h3>Tuning</h3>
+  <div class="ctl"><label for="kIn">stiffness</label><output id="kOut"></output><input id="kIn" type="range" min="60" max="700" step="10"></div>
+  <div class="ctl"><label for="cIn">damping</label><output id="cOut"></output><input id="cIn" type="range" min="4" max="70" step="1"></div>
+  <div class="ctl"><label for="rIn">rubber band</label><output id="rOut"></output><input id="rIn" type="range" min="0.15" max="1" step="0.05"></div>
+  <div class="ctl check"><input id="slowIn" type="checkbox"><label for="slowIn">slow motion (¼ speed)</label></div>
+</aside>
+
+<p class="hint" id="hint">Drag or scroll the row · tap a cover to open · pull it down to close · G for grid</p>
+
+<script>
+(() => {
+  // Placeholder projects. Swap for real work: title, kind, year, aspect (w/h), colors, cover style.
+  const DATA = [
+    { t: "Lucent Room", k: "Identity", y: "2026", a: 0.82, bg: "#dcdad4", fg: "#161616", look: "stack" },
+    { t: "The Book of Cinema", k: "Editorial", y: "2025", a: 0.7, bg: "#7a3b22", fg: "#f3e6d6", look: "frame" },
+    { t: "Tide", k: "Magazine", y: "2025", a: 1.35, bg: "#e9c9a8", fg: "#7a1f12", look: "center" },
+    { t: "Summit", k: "Campaign", y: "2025", a: 0.78, bg: "#9c1458", fg: "#ffd3e6", look: "mono" },
+    { t: "Behind the Scenes", k: "Film", y: "2024", a: 0.8, bg: "#e3b49b", fg: "#3b1d12", look: "stack" },
+    { t: "Garden Salad", k: "Illustration", y: "2024", a: 0.92, bg: "#ecebd2", fg: "#d2502a", look: "mono" },
+    { t: "Dreamhouse", k: "Music", y: "2024", a: 1, bg: "#e0b51c", fg: "#1a1306", look: "center" },
+    { t: "Katalog 1935", k: "Archive", y: "2023", a: 0.68, bg: "#e2501c", fg: "#fbe3cf", look: "frame" },
+    { t: "Common Ground", k: "Community", y: "2023", a: 1.45, bg: "#6f9a4c", fg: "#f5f8e8", look: "stack" },
+    { t: "Useless & Fragile", k: "Poster", y: "2023", a: 0.8, bg: "#141414", fg: "#ff7a52", look: "center" },
+    { t: "Denim Patch", k: "Product", y: "2022", a: 0.9, bg: "#3f5f8c", fg: "#f2a33a", look: "mono" },
+    { t: "Agony Uncle", k: "Book", y: "2022", a: 1.1, bg: "#101418", fg: "#c9d7ff", look: "frame" },
+    { t: "Low Tide", k: "Photography", y: "2022", a: 1.5, bg: "#a8c3cf", fg: "#0f2b38", look: "stack" },
+    { t: "Soft Machine", k: "Type specimen", y: "2021", a: 0.75, bg: "#f1ece4", fg: "#d13b2a", look: "center" },
+  ];
+
+  const $ = (s) => document.querySelector(s);
+  const stage = $("#stage"), backdrop = $("#backdrop");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const P = { k: reduce ? 700 : 240, c: reduce ? 53 : 25, rubber: 0.55, time: 1 };
+  const BOUNCE_K = 170, BOUNCE_C = 26, DECAY = 3.2;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  class Spring {
+    constructor(v) { this.v = v; this.t = v; this.vel = 0; }
+    step(dt, k, c) { const f = -k * (this.v - this.t) - c * this.vel; this.vel += f * dt; this.v += this.vel * dt; }
+    snap(v) { this.v = this.t = v; this.vel = 0; }
+    get resting() { return Math.abs(this.vel) < 0.05 && Math.abs(this.v - this.t) < 0.05; }
+  }
+
+  // Rubber banding: displacement past an edge grows ever more slowly.
+  const rubber = (x, d) => (1 - 1 / ((x * P.rubber) / d + 1)) * d;
+  const unrubber = (r, d) => (r * d) / ((d - r) * P.rubber);
+  const rubberClamp = (raw, max, d) => raw < 0 ? -rubber(-raw, d) : raw > max ? max + rubber(raw - max, d) : raw;
+  const unrubberClamp = (pos, max, d) => pos < 0 ? -unrubber(-pos, d) : pos > max ? max + unrubber(pos - max, d) : pos;
+
+  // ---- cards ----
+  const cover = (d) => {
+    const meta = `<div class="meta"><span>${d.k}</span><span>${d.y}</span></div>`;
+    if (d.look === "stack") return meta + `<div class="title">${d.t}</div>`;
+    if (d.look === "center") return meta + `<div class="title">${d.t}</div>`;
+    if (d.look === "mono") return `<div class="orb"></div>` + meta + `<div class="title">${d.t}</div>`;
+    return `<div class="rule"></div><div class="title">${d.t}</div>` + meta;
+  };
+  const cards = DATA.map((d, i) => {
+    const el = document.createElement("button");
+    el.type = "button"; el.className = "card"; el.dataset.i = i;
+    el.setAttribute("aria-label", `${d.t}, ${d.k}, ${d.y}`);
+    el.innerHTML = `<div class="cover look-${d.look}" style="--c-bg:${d.bg};--c-fg:${d.fg}">${cover(d)}</div>`;
+    stage.appendChild(el);
+    return { d, i, el, x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10), s: new Spring(1),
+             row: null, grid: null, held: false, pressed: false, delay: 0, hold: null };
+  });
+
+  // ---- state ----
+  let mode = "row";
+  let openIdx = -1, activeIdx = -1;     // active = open, or still flying home
+  const p = new Spring(0);              // open progress
+  let pull = 0;                         // pull-to-close progress q
+  const S = { row: { pos: 0, vel: 0, max: 0, wheel: false, to: null }, grid: { pos: 0, vel: 0, max: 0, wheel: false, to: null } };
+  let vw = 0, vh = 0, pad = 48;
+  const stats = { drag: 0, release: 0, tap: [0, 0] };
+
+  function layout() {
+    vw = stage.clientWidth; vh = stage.clientHeight;
+    pad = vw < 640 ? 16 : 48;
+    const gap = vw < 640 ? 10 : 14;
+
+    // Row: equal-area covers, bottom-aligned on one baseline.
+    const base = clamp(Math.min(vh * 0.28, vw * 0.42), 110, 250);
+    const baseline = vh * 0.5 + base * 0.6;
+    let x = pad;
+    for (const c of cards) {
+      let w = base * Math.sqrt(c.d.a), h = base / Math.sqrt(c.d.a);
+      if (h > base * 1.2) { w *= (base * 1.2) / h; h = base * 1.2; }
+      c.row = { x, y: baseline - h, w, h };
+      x += w + gap;
+    }
+    S.row.max = Math.max(0, x - gap + pad - vw);
+
+    // Grid: shortest-column packing.
+    const top = 84, cols = clamp(Math.round((vw - 2 * pad) / 230), 2, 6);
+    const cw = (vw - 2 * pad - (cols - 1) * gap) / cols;
+    const hs = new Array(cols).fill(top);
+    for (const c of cards) {
+      const col = hs.indexOf(Math.min(...hs));
+      const h = cw / c.d.a;
+      c.grid = { x: pad + col * (cw + gap), y: hs[col], w: cw, h };
+      hs[col] += h + gap;
+    }
+    S.grid.max = Math.max(0, Math.max(...hs) - gap + 56 - vh);
+    for (const m of ["row", "grid"]) S[m].pos = clamp(S[m].pos, 0, S[m].max);
+  }
+
+  const offset = (m = mode) => ({ x: m === "row" ? -S.row.pos : 0, y: m === "grid" ? -S.grid.pos : 0 });
+  const dim = () => (mode === "row" ? vw : vh);
+
+  function openRect(c) {
+    const vPad = vw < 640 ? 76 : 104;
+    const maxW = Math.min(vw - 2 * pad, 960), maxH = vh - 2 * vPad;
+    let w = maxW, h = w / c.d.a;
+    if (h > maxH) { h = maxH; w = h * c.d.a; }
+    return { x: (vw - w) / 2, y: (vh - h) / 2, w, h };
+  }
+
+  function setTargets(now) {
+    const o = offset();
+    for (const c of cards) {
+      if (c.held) continue;
+      let r;
+      if (c.i === openIdx) {
+        const s = openRect(c);
+        r = { x: s.x - o.x, y: s.y - o.y, w: s.w, h: s.h };
+      } else if (now < c.delay) r = c.hold;
+      else r = c[mode];
+      c.x.t = r.x; c.y.t = r.y; c.w.t = r.w; c.h.t = r.h;
+      c.s.t = c.pressed ? 0.965 : 1;
+    }
+  }
+
+  function open(c) {
+    if (openIdx >= 0) return;
+    S[mode].vel = 0; S[mode].to = null;
+    openIdx = activeIdx = c.i; p.t = 1; pull = 0;
+    document.body.dataset.open = "";
+  }
+  function close(vel) {
+    if (openIdx < 0) return;
+    const c = cards[openIdx];
+    openIdx = -1; p.t = 0;
+    if (vel) { c.x.vel = vel.x; c.y.vel = vel.y; }
+    delete document.body.dataset.open;
+  }
+  function toggle(c) { if (openIdx >= 0) close(); else open(c); }
+
+  function setMode(m) {
+    if (m === mode) return;
+    close();
+    const o0 = offset(mode), o1 = offset(m), now = performance.now();
+    const order = [...cards].sort((a, b) => (a.row.x + o0.x) - (b.row.x + o0.x));
+    mode = m;
+    order.forEach((c, k) => {
+      // Keep each card where it is on screen, then release it after a short stagger.
+      c.x.v += o0.x - o1.x; c.y.v += o0.y - o1.y;
+      c.hold = { x: c.x.v, y: c.y.v, w: c.w.v, h: c.h.v };
+      c.delay = now + (reduce ? 0 : k * 16);
+    });
+    $("#gridBtn").setAttribute("aria-pressed", String(m === "grid"));
+    $("#gridBtn").setAttribute("aria-label", m === "grid" ? "Show as row" : "Show as grid");
+    $("#hint").textContent = m === "grid"
+      ? "Drag or scroll the grid · tap a cover to open · G for row"
+      : "Drag or scroll the row · tap a cover to open · pull it down to close · G for grid";
+  }
+
+  // ---- pointer ----
+  let ptr = null;
+  const velocityOf = (samples) => {
+    const last = samples[samples.length - 1];
+    let first = last;
+    for (let i = samples.length - 1; i >= 0 && last[2] - samples[i][2] <= 100; i--) first = samples[i];
+    const dt = (last[2] - first[2]) / 1000;
+    return dt > 0 ? { x: (last[0] - first[0]) / dt, y: (last[1] - first[1]) / dt } : { x: 0, y: 0 };
+  };
+
+  stage.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0 || ptr) return;
+    const el = e.target.closest(".card");
+    const c = el ? cards[+el.dataset.i] : null;
+    ptr = { id: e.pointerId, x0: e.clientX, y0: e.clientY, card: c, kind: null, samples: [[e.clientX, e.clientY, e.timeStamp]] };
+    stage.setPointerCapture(e.pointerId);
+    if (c && (openIdx < 0 || c.i === openIdx)) c.pressed = true;
+    S[mode].vel = 0; S[mode].to = null;  // catch a moving strip
+  });
+
+  stage.addEventListener("pointermove", (e) => {
+    if (!ptr || e.pointerId !== ptr.id) return;
+    ptr.samples.push([e.clientX, e.clientY, e.timeStamp]);
+    if (ptr.samples.length > 30) ptr.samples.shift();
+    let dx = e.clientX - ptr.x0, dy = e.clientY - ptr.y0;
+
+    if (!ptr.kind && Math.hypot(dx, dy) > 6) {
+      if (ptr.card) ptr.card.pressed = false;
+      if (openIdx >= 0) {
+        const c = ptr.card && ptr.card.i === openIdx ? ptr.card : null;
+        ptr.kind = c ? "card" : "none";
+        if (c) {
+          const r = openRect(c);
+          ptr.rect = r;
+          ptr.fx = clamp((ptr.x0 - r.x) / r.w, 0, 1); ptr.fy = clamp((ptr.y0 - r.y) / r.h, 0, 1);
+          stats.tap = [ptr.fx, ptr.fy];
+          c.held = true;
+        }
+      } else {
+        ptr.kind = "scroll";
+        const s = S[mode];
+        ptr.raw0 = unrubberClamp(s.pos, s.max, dim());
+        ptr.x0 = e.clientX; ptr.y0 = e.clientY; dx = dy = 0;
+        stage.classList.add("dragging");
+      }
+    }
+
+    if (ptr.kind === "scroll") {
+      const s = S[mode];
+      s.pos = rubberClamp(ptr.raw0 - (mode === "row" ? dx : dy), s.max, dim());
+      stats.drag = Math.abs(mode === "row" ? dx : dy);
+    } else if (ptr.kind === "card") {
+      // Follow the finger. Down is free, up is rubber-banded, and the card shrinks as you pull.
+      const c = cards[openIdx], r = ptr.rect, o = offset();
+      const ey = dy >= 0 ? dy : -rubber(-dy, vh * 0.5);
+      pull = clamp(ey / (vh * 0.35), 0, 1);
+      const sc = 1 - 0.45 * pull;
+      const w = r.w * sc, h = r.h * sc;
+      const px = ptr.x0 + dx, py = ptr.y0 + ey;
+      c.x.snap(px - ptr.fx * w - o.x); c.y.snap(py - ptr.fy * h - o.y);
+      c.w.snap(w); c.h.snap(h);
+      p.snap(1 - pull * 0.9);
+      stats.drag = Math.hypot(dx, ey);
+    }
+  });
+
+  function endPointer(e, cancelled) {
+    if (!ptr || e.pointerId !== ptr.id) return;
+    const v = velocityOf(ptr.samples);
+    stats.release = Math.hypot(v.x, v.y) / 1000;
+    if (ptr.card) ptr.card.pressed = false;
+    stage.classList.remove("dragging");
+
+    if (!ptr.kind && !cancelled) {
+      if (openIdx >= 0) close();
+      else if (ptr.card) open(ptr.card);
+    } else if (ptr.kind === "scroll") {
+      S[mode].vel = -(mode === "row" ? v.x : v.y);
+    } else if (ptr.kind === "card") {
+      const c = cards[openIdx];
+      c.held = false;
+      if (pull > 0.28 || (v.y > 500 && pull > 0.04)) close(v);
+      else { c.x.vel = v.x; c.y.vel = v.y; p.t = 1; }
+      pull = 0;
+    }
+    ptr = null;
+  }
+  stage.addEventListener("pointerup", (e) => endPointer(e, false));
+  stage.addEventListener("pointercancel", (e) => endPointer(e, true));
+
+  // Keyboard activation (pointer taps are handled above).
+  stage.addEventListener("click", (e) => {
+    if (e.detail !== 0) return;
+    const el = e.target.closest(".card");
+    if (el) toggle(cards[+el.dataset.i]);
+  });
+  stage.addEventListener("focusin", (e) => {
+    const el = e.target.closest(".card");
+    if (!el || openIdx >= 0) return;
+    const c = cards[+el.dataset.i], s = S[mode], r = c[mode];
+    const lo = mode === "row" ? r.x - pad : r.y - 84, hi = mode === "row" ? r.x + r.w + pad - vw : r.y + r.h + 56 - vh;
+    if (s.pos > lo) s.to = clamp(lo, 0, s.max);
+    else if (s.pos < hi) s.to = clamp(hi, 0, s.max);
+  });
+
+  // Wheel and trackpad: scroll directly, rubber-band past the ends, settle once input stops.
+  stage.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    if (openIdx >= 0) { if (Math.abs(e.deltaY) > 24 && !ptr) close(); return; }
+    const s = S[mode];
+    const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? dim() : 1;
+    const d = (mode === "row" && Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * unit;
+    if (!s.wheel) s.wheelRaw = unrubberClamp(s.pos, s.max, dim());
+    s.wheelRaw += d; s.pos = rubberClamp(s.wheelRaw, s.max, dim());
+    s.vel = 0; s.to = null; s.wheel = true;
+    clearTimeout(s.wt); s.wt = setTimeout(() => { s.wheel = false; }, 140);
+  }, { passive: false });
+
+  addEventListener("keydown", (e) => {
+    if (e.target.closest && e.target.closest("#values")) return;
+    if (e.key === "Escape") close();
+    else if (e.key === "g" || e.key === "G") setMode(mode === "row" ? "grid" : "row");
+    else if (openIdx < 0) {
+      const fwd = mode === "row" ? "ArrowRight" : "ArrowDown", back = mode === "row" ? "ArrowLeft" : "ArrowUp";
+      if (e.key === fwd) { S[mode].vel += 1400; S[mode].to = null; e.preventDefault(); }
+      if (e.key === back) { S[mode].vel -= 1400; S[mode].to = null; e.preventDefault(); }
+    }
+  });
+
+  $("#gridBtn").addEventListener("click", () => setMode(mode === "row" ? "grid" : "row"));
+  const panel = $("#values"), vBtn = $("#valuesBtn");
+  vBtn.addEventListener("click", () => {
+    panel.hidden = !panel.hidden;
+    vBtn.setAttribute("aria-pressed", String(!panel.hidden));
+  });
+
+  // Tuning controls
+  const bind = (id, key, fmt) => {
+    const input = $("#" + id + "In"), out = $("#" + id + "Out");
+    input.value = P[key];
+    const show = () => { out.textContent = fmt(+input.value); };
+    input.addEventListener("input", () => { P[key] = +input.value; show(); });
+    show();
+  };
+  bind("k", "k", (v) => v.toFixed(0));
+  bind("c", "c", (v) => `${v.toFixed(0)}  ζ ${(v / (2 * Math.sqrt(P.k))).toFixed(2)}`);
+  bind("r", "rubber", (v) => v.toFixed(2));
+  $("#kIn").addEventListener("input", () => { $("#cOut").textContent = `${P.c.toFixed(0)}  ζ ${(P.c / (2 * Math.sqrt(P.k))).toFixed(2)}`; });
+  $("#slowIn").addEventListener("change", (e) => { P.time = e.target.checked ? 0.25 : 1; });
+
+  // ---- simulation ----
+  function stepScroll(s, dt) {
+    if ((ptr && ptr.kind === "scroll") || s.wheel) return;
+    if (s.to != null) {
+      const a = -BOUNCE_K * (s.pos - s.to) - BOUNCE_C * s.vel;
+      s.vel += a * dt; s.pos += s.vel * dt;
+      if (Math.abs(s.pos - s.to) < 0.1 && Math.abs(s.vel) < 2) { s.pos = s.to; s.vel = 0; s.to = null; }
+    } else if (s.pos < 0 || s.pos > s.max) {
+      const b = s.pos < 0 ? 0 : s.max;
+      const a = -BOUNCE_K * (s.pos - b) - BOUNCE_C * s.vel;
+      s.vel += a * dt; s.pos += s.vel * dt;
+      if (Math.abs(s.pos - b) < 0.1 && Math.abs(s.vel) < 2) { s.pos = b; s.vel = 0; }
+    } else if (s.vel) {
+      s.pos += s.vel * dt; s.vel *= Math.exp(-DECAY * dt);
+      if (Math.abs(s.vel) < 4) s.vel = 0;
+    }
+  }
+
+  const readout = $("#readout");
+  const fmt = (n, d = 1) => (Math.abs(n) < 1e-4 ? 0 : n).toFixed(d);
+  function renderValues() {
+    const c = cards[activeIdx >= 0 ? activeIdx : 0];
+    const src = c[mode], tgt = openIdx >= 0 ? openRect(c) : src, o = offset(), s = S[mode];
+    const over = s.pos < 0 ? s.pos : s.pos > s.max ? s.pos - s.max : 0;
+    const rows = [
+      ["mode", mode],
+      ["open progress p", fmt(p.v, 4)],
+      ["spring target", fmt(p.t, 4)],
+      ["spring velocity", `${fmt(p.vel, 4)} p/s`],
+      ["source w / h", `${fmt(src.w)} / ${fmt(src.h)}`],
+      ["target w / h", `${fmt(tgt.w)} / ${fmt(tgt.h)}`],
+      ["current x / y", `${fmt(c.x.v + o.x)} / ${fmt(c.y.v + o.y)}`],
+      ["current w / h", `${fmt(c.w.v)} / ${fmt(c.h.v)}`],
+      ["press scale", fmt(c.s.v, 4)],
+      ["scroll", `${fmt(s.pos)} / ${fmt(s.max)}`],
+      ["overscroll", `${fmt(over)} px`],
+      ["scroll velocity", `${fmt(s.vel)} px/s`],
+      ["tap origin x / y", `${fmt(stats.tap[0] * 100)}% / ${fmt(stats.tap[1] * 100)}%`],
+      ["drag distance", `${fmt(stats.drag)} px`],
+      ["release velocity", `${fmt(stats.release, 3)} px/ms`],
+      ["pull progress q", fmt(pull, 4)],
+    ];
+    readout.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+  }
+
+  let last = performance.now(), frame = 0;
+  function tick(now) {
+    const dt = Math.min((now - last) / 1000, 1 / 30) * P.time;
+    last = now;
+    setTargets(now);
+    const n = Math.max(1, Math.ceil(dt / (1 / 240))), h = dt / n;
+    for (let i = 0; i < n; i++) {
+      for (const c of cards) {
+        if (!c.held) { c.x.step(h, P.k, P.c); c.y.step(h, P.k, P.c); c.w.step(h, P.k, P.c); c.h.step(h, P.k, P.c); }
+        c.s.step(h, 600, 34);
+      }
+      if (!(ptr && ptr.kind === "card")) p.step(h, P.k, P.c);
+      stepScroll(S.row, h); stepScroll(S.grid, h);
+    }
+
+    // The flying card keeps its raised layer until it has landed.
+    if (openIdx < 0 && activeIdx >= 0) {
+      const c = cards[activeIdx];
+      if (p.v < 0.002 && c.x.resting && c.y.resting && c.w.resting && c.h.resting) activeIdx = -1;
+    }
+
+    const o = offset(), pv = clamp(p.v, 0, 1);
+    for (const c of cards) {
+      const st = c.el.style;
+      st.transform = `translate3d(${c.x.v + o.x}px, ${c.y.v + o.y}px, 0) scale(${c.s.v})`;
+      st.width = Math.max(1, c.w.v) + "px"; st.height = Math.max(1, c.h.v) + "px";
+      const isActive = c.i === activeIdx;
+      st.zIndex = isActive ? 20 : 1;
+      st.opacity = mode === "row" && activeIdx >= 0 && !isActive ? (1 - pv).toFixed(3) : "1";
+      c.el.tabIndex = openIdx >= 0 && c.i !== openIdx ? -1 : 0;
+    }
+    backdrop.style.opacity = mode === "grid" && activeIdx >= 0 ? pv.toFixed(3) : "0";
+    if (!panel.hidden && (frame++ % 2 === 0)) renderValues();
+    requestAnimationFrame(tick);
+  }
+
+  layout();
+  for (const c of cards) { const r = c.row; c.x.snap(r.x); c.y.snap(r.y + 40); c.w.snap(r.w); c.h.snap(r.h); c.delay = performance.now() + (reduce ? 0 : 120 + c.i * 35); c.hold = { ...r, y: r.y + 40 }; }
+  // Entrance: covers rise into the row one after another.
+  for (const c of cards) c.el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduce ? 0 : 500, delay: reduce ? 0 : 120 + c.i * 35, fill: "both" }).finished.then((a) => a.cancel());
+  addEventListener("resize", layout);
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
