@@ -15,7 +15,8 @@ single file with no build step; open it in a browser.
   focused cover back to the row.
 - Pull a cover down in the row and it squishes against a rubber band, with a
   chain reaction: each neighbor follows a beat later while the gaps stay even.
-- In the large strip, covers away from center dim, blur and pick up grain.
+- In the large strip, covers away from center blur, fade toward the page and
+  pick up grain.
   The viewport edges use a progressive blur: eight stacked backdrop blurs, each
   masked to its own band, plus a fade to the page so covers blur and dissolve
   together, with light grain on top. Each edge only shows when there is more
