@@ -234,6 +234,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   <div class="ctl"><label for="rdIn">ripple delay</label><output id="rdOut"></output><input id="rdIn" type="range" min="0" max="140" step="5"></div>
   <div class="ctl"><label for="rfIn">ripple falloff</label><output id="rfOut"></output><input id="rfIn" type="range" min="0.4" max="1" step="0.02"></div>
   <div class="ctl check"><input id="edgeIn" type="checkbox" checked><label for="edgeIn">edge blur</label></div>
+  <div class="ctl"><label for="fbIn">focus blur</label><output id="fbOut"></output><input id="fbIn" type="range" min="0" max="100" step="2"></div>
   <div class="ctl"><label for="grIn">grain</label><output id="grOut"></output><input id="grIn" type="range" min="0" max="1" step="0.05"></div>
   <div class="ctl"><label for="ewIn">edge width</label><output id="ewOut"></output><input id="ewIn" type="range" min="6" max="35" step="1"></div>
   <div class="ctl"><label for="ebIn">edge max blur</label><output id="ebOut"></output><input id="ebIn" type="range" min="0" max="40" step="1"></div>
@@ -279,7 +280,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 
   // Tunable from the Values panel.
   const P = { k: reduce ? 700 : 240, c: reduce ? 53 : 30, rubber: 0.55, decay: 4.5, brake: 1400, snapRow: false, time: 1, rippleDelay: reduce ? 0 : 30, falloff: 0.85,
-    edgeW: 20, edgeBlur: 14, edgeCurve: 2.6, edgeFade: 0.9, rubberD: 360, grain: 0.7 };
+    edgeW: 20, edgeBlur: 14, edgeCurve: 2.6, edgeFade: 0.9, rubberD: 360, grain: 0.7, focusBlur: 48 };
   const EDGE_K = 280, EDGE_C = 33;     // overscroll spring-back (critically damped, quick)
   const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under critical)
   const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
@@ -817,6 +818,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   bind("ec", "edgeCurve", (v) => v.toFixed(1));
   bind("ef", "edgeFade", (v) => v.toFixed(2));
   bind("gr", "grain", (v) => v.toFixed(2));
+  bind("fb", "focusBlur", (v) => `${v.toFixed(0)}px`);
   on($("#snapIn"), "change", (e) => { P.snapRow = e.target.checked; S.row.to = null; });
   for (const id of ["ew", "eb", "ec", "ef", "gr"]) on($("#" + id + "In"), "input", applyEdges);
   on($("#edgeIn"), "change", (e) => { document.body.classList.toggle("no-edges", !e.target.checked); });
@@ -1014,17 +1016,24 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
       st.transform = `translate3d(${x}px, ${y}px, 0) scale(${w2 / c.W})`;
 
       // Focus: in the large strip, covers away from center dim, blur and pick up grain.
+      // t runs from 0 at the center of the screen to 1 just as the cover has fully
+      // left it. Blur builds on an ease-in curve (gentle near center, heavy at the
+      // edge) and opacity eases all the way out to 0.
       let dim = 0;
-      if (mode === "row" && pv > 0.001 && !(ptr && ptr.kind === "fling" && c.i === anchor))
-        dim = pv * clamp((Math.abs(x + w2 / 2 - vw / 2) - w2 * 0.1) / (vw * 0.25), 0, 1);
-      const dk = Math.round(dim * 200) / 200;
+      if (mode === "row" && pv > 0.001 && !(ptr && ptr.kind === "fling" && c.i === anchor)) {
+        const t = clamp((Math.abs(x + w2 / 2 - vw / 2) - w2 * 0.08) / (vw / 2 + w2 * 0.42), 0, 1);
+        dim = pv * t;
+      }
+      const dk = Math.round(dim * 400) / 400;
       if (L.dim !== dk) {
         L.dim = dk;
-        c.veil.style.opacity = dk.toFixed(3);
-        st.opacity = dk > 0.005 ? (1 - dk * 0.7).toFixed(3) : "";
+        const blur = P.focusBlur * Math.pow(dk, 1.5);
+        const fade = dk * dk * (3 - 2 * dk);  // smoothstep
         // Blur only the color layer, so the grain in the veil above stays sharp.
-        c.cover.style.filter = dk > 0.005 ? `blur(${(dk * 18).toFixed(2)}px)` : "";
-        c.veil.style.setProperty("--f", `${(dk * 18).toFixed(1)}px`);
+        c.cover.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : "";
+        c.veil.style.setProperty("--f", `${blur.toFixed(1)}px`);
+        c.veil.style.opacity = Math.min(1, dk * 1.6).toFixed(3);
+        st.opacity = dk > 0.0025 ? (1 - fade).toFixed(3) : "";
       }
       const z = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = z; }
