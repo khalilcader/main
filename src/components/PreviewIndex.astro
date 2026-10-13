@@ -270,7 +270,9 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
       scale var(--duration-instant) var(--ease-in),
       opacity var(--duration-instant) var(--ease-in);
   }
-  .row[data-hover] .peek {
+  /* The selected project is already on the stage, so its row shows no card;
+     clicking a row makes its card shrink away. */
+  .row[data-hover]:not([data-active]) .peek {
     scale: 1;
     opacity: 1;
     /* in: visible almost at once, then the scale pops past 1 and settles */
@@ -390,6 +392,6 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
 
   @media (prefers-reduced-motion: reduce) {
     .stage__slide { transform: none; transition-duration: 1ms; }
-    .peek, .row[data-hover] .peek { scale: 1; transition: opacity var(--duration-fast) linear; }
+    .peek, .row[data-hover]:not([data-active]) .peek { scale: 1; transition: opacity var(--duration-fast) linear; }
   }
 </style>
