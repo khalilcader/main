@@ -77,7 +77,25 @@ body {
   position: fixed; top: 0; bottom: 0; z-index: 25; pointer-events: none;
   width: var(--edge-w, 18vw);
 }
-.edge, /* Edge grain comes from each cover's own grain layer, which ramps up as the cover
+.edge { will-change: transform; }
+.edge.l { left: 0; }
+.edge.r { right: 0; transform: scaleX(-1); }
+.edge i { position: absolute; inset: 0; }
+/* Fade to the page on top of the blur, so covers blur away and dissolve together. */
+.edge::after {
+  content: ""; position: absolute; inset: 0;
+  background: var(--fade, none);   /* eased fade to the page, built in script */
+}
+.edge i { display: block; -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
+.edge i:nth-child(1) { -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); }
+.edge i:nth-child(2) { -webkit-mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); }
+.edge i:nth-child(3) { -webkit-mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); }
+.edge i:nth-child(4) { -webkit-mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); }
+.edge i:nth-child(5) { -webkit-mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); }
+.edge i:nth-child(6) { -webkit-mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); }
+.edge i:nth-child(7) { -webkit-mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); }
+.edge i:nth-child(8) { -webkit-mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); }
+/* Edge grain comes from each cover's own grain layer, which ramps up as the cover
    moves out. A separate grain band over the edge (overlay blend) brightened mid-tone
    covers into a light streak, so there isn't one. */
 body.no-edges .edge { display: none; }
@@ -872,6 +890,8 @@ body.no-edges .edge { display: none; }
   bind("fb", "focusBlur", (v) => `${v.toFixed(0)}px`);
   bind("rb", "rowBlur", (v) => `${v.toFixed(0)}px`);
   bind("rfa", "rowFade", (v) => v.toFixed(2));
+  // Covers only recompute blur when they move; make these sliders apply immediately.
+  for (const id of ["rb", "rfa", "fb"]) on($("#" + id + "In"), "input", () => { for (const c of cards) c.last.dim = c.last.edge = undefined; });
   bind("cr", "cornerR", (v) => `${v.toFixed(0)}px`);
   bind("cs", "cornerS", (v) => `${Math.round(v * 100)}%`);
   for (const id of ["cr", "cs"]) on($("#" + id + "In"), "input", updateCorners);
