@@ -20,12 +20,13 @@ export interface PreviewItem {
 
 interface Props {
   items: PreviewItem[];
-  ripple?: number;   // px the stage edge breathes; 0 for a still edge
+  ripple?: number;   // px the stage edge ripples in and out; 0 for a still edge
   rowHighlight?: boolean;  // grey pill behind the hovered row (Figma 49:114)
 }
-const { items, ripple = 4, rowHighlight = true } = Astro.props;
+const { items, ripple = 10, rowHighlight = true } = Astro.props;
 ---
-<div class="preview-index" data-preview-index data-ripple={ripple} data-row-highlight={rowHighlight ? '' : undefined}>
+<div class="preview-index" data-preview-index data-ripple={ripple} data-row-highlight={rowHighlight ? '' : undefined}
+  style={`--stage-ripple: ${ripple}px`}>
   <div class="list-wrap">
     <ol class="list">
       {items.map((item, i) => {
@@ -368,14 +369,16 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
     position: fixed;
     inset: var(--stage-inset) var(--stage-inset) var(--stage-inset) 50%;
   }
-  /* The canvas spills past the stage by the feather, so the blur lands on the
-     stage's edge the way Figma's layer blur does. */
+  /* The canvas spills past the stage by the feather plus the ripple, so the
+     blur lands on the stage's edge the way Figma's layer blur does and the
+     edge ripples around Figma's rectangle rather than inside it. */
   .stage__canvas,
   .stage__fallback {
+    --spill: calc(var(--stage-feather) + var(--stage-ripple, 0px));
     position: absolute;
-    inset: calc(-1 * var(--stage-feather));
-    width: calc(100% + 2 * var(--stage-feather));
-    height: calc(100% + 2 * var(--stage-feather));
+    inset: calc(-1 * var(--spill));
+    width: calc(100% + 2 * var(--spill));
+    height: calc(100% + 2 * var(--spill));
   }
   .stage__fallback {
     display: none;
