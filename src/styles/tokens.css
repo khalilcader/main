@@ -3,17 +3,79 @@
   Placeholder values only. Replace these with the variables from the Figma file
   (colors, type scale, spacing, radii) before building any components.
 */
+
+/*
+  Söhne Breit (Klim), the face used in Figma. Only local() sources for now, so it
+  renders wherever the font is installed (Khalil's machine, incl. the Test
+  trial build). Shipping it publicly needs the Klim web licence and .woff2
+  files added here as url() sources.
+*/
+@font-face {
+  font-family: 'Sohne Breit';
+  src: local('Söhne Breit Kräftig'), local('SohneBreit-Kraftig'),
+       local('Test Söhne Breit Kräftig'), local('TestSohneBreit-Kraftig');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  /* Color */
-  --color-bg: #ffffff;
-  --color-fg: #111111;
-  --color-muted: #6b6b6b;
-  --color-accent: #111111;
+  /* Color (Figma: frame 43:2) */
+  --color-bg: #fafafa;
+  --color-fg: #000000;
+  --color-muted: rgba(0, 0, 0, 0.3);
+  --color-line: rgba(0, 0, 0, 0.15);
+  --color-accent: #000000;
+  --color-device-glass: rgba(255, 255, 255, 0.5);
+  --color-device-rim: rgba(255, 255, 255, 0.8);
+  --color-screen: #ffffff;
+  --shadow-device: 0 4px 50px 30px rgba(0, 0, 0, 0.1);
+
+  /*
+    Apple system palette (iOS 26, light). Figma's stage uses --apple-blue.
+    Each preview "vibe" picks a base colour (-1) plus two accents that drift
+    through it in the stage shader.
+  */
+  --apple-red: #ff383c;
+  --apple-orange: #ff8d28;
+  --apple-yellow: #ffcc00;
+  --apple-green: #34c759;
+  --apple-mint: #00c8b3;
+  --apple-teal: #00c3d0;
+  --apple-cyan: #00c0e8;
+  --apple-blue: #0088ff;
+  --apple-indigo: #6155f5;
+  --apple-purple: #cb30e0;
+  --apple-pink: #ff2d55;
+
+  --vibe-paper: var(--color-bg);
+  --vibe-sky-1: var(--apple-blue);
+  --vibe-sky-2: var(--apple-cyan);
+  --vibe-sky-3: var(--apple-indigo);
+  --vibe-ember-1: var(--apple-orange);
+  --vibe-ember-2: var(--apple-yellow);
+  --vibe-ember-3: var(--apple-red);
+  --vibe-bloom-1: var(--apple-pink);
+  --vibe-bloom-2: var(--apple-orange);
+  --vibe-bloom-3: var(--apple-purple);
+  --vibe-grove-1: var(--apple-green);
+  --vibe-grove-2: var(--apple-mint);
+  --vibe-grove-3: var(--apple-yellow);
+  --vibe-dusk-1: var(--apple-indigo);
+  --vibe-dusk-2: var(--apple-purple);
+  --vibe-dusk-3: var(--apple-blue);
+  --vibe-tide-1: var(--apple-teal);
+  --vibe-tide-2: var(--apple-blue);
+  --vibe-tide-3: var(--apple-mint);
 
   /* Type */
-  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-sans: 'Sohne Breit', system-ui, -apple-system, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: ui-monospace, monospace;
+  --text-sm: 16px;   /* name / title block */
+  --text-lg: 24px;   /* list rows */
+  --weight-medium: 500;
+  --tracking: 0.02em; /* 0.32px @16, 0.48px @24 */
 
   /* Spacing (base 4) */
   --space-1: 4px;
@@ -22,8 +84,25 @@
   --space-4: 24px;
   --space-5: 40px;
   --space-6: 64px;
+  --space-7: 80px;
+
+  /* Radii */
+  --radius-stage: 48px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-fast: 200ms;
+  --duration-slow: 600ms;
 
   /* Layout */
   --max-width: 1200px;
   --gutter: 16px;
+  --list-width: 500px;
+  --row-height: 64px;
+  --index-width: 40px;
+  --stage-inset: 44px;
+  --stage-feather: 36px;  /* soft edge of the stage */
+  --fade-height: 304px;   /* blur/fade over the bottom of the list */
+  --device-width: 390px;  /* Figma device frame: 390 × 816 */
+  --device-height: 816px;
 }

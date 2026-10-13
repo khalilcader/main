@@ -1,0 +1,57 @@
+---
+/*
+  Phone mock from Figma (node 43:64): frosted glass frame, white screen.
+  Pass `src` for an image or video (.mp4/.webm) to fill the screen.
+*/
+interface Props {
+  src?: string;
+  alt?: string;
+}
+const { src, alt = '' } = Astro.props;
+const isVideo = src ? /\.(mp4|webm)$/i.test(src) : false;
+---
+<div class="device">
+  <div class="device__frame">
+  <div class="device__screen">
+    {src && (isVideo
+      ? <video src={src} autoplay muted loop playsinline aria-label={alt}></video>
+      : <img src={src} alt={alt} loading="lazy" />)}
+    <slot />
+  </div>
+  </div>
+</div>
+
+<style>
+  /*
+    Sized by height so it always fits the stage; proportions from Figma
+    (frame 390 × 816, radius 61; screen inset 13, radius 48). cqw resolves
+    against .device, so 1cqw = 1/100 of the frame width.
+  */
+  .device {
+    container-type: inline-size;
+    position: relative;
+    flex: none;
+    height: min(var(--device-height), 100%);
+    aspect-ratio: 390 / 816;
+  }
+  .device__frame {
+    position: absolute;
+    inset: 0;
+    background: var(--color-device-glass);
+    border: 2px solid var(--color-device-rim);
+    border-radius: calc(61 / 390 * 100cqw);
+    box-shadow: var(--shadow-device);
+  }
+  .device__screen {
+    position: absolute;
+    inset: calc(13 / 390 * 100cqw - 2px);
+    overflow: hidden;
+    background: var(--color-screen);
+    border-radius: calc(48 / 390 * 100cqw);
+  }
+  .device__screen :is(img, video) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
