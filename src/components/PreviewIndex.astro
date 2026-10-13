@@ -21,11 +21,18 @@ export interface PreviewItem {
 interface Props {
   items: PreviewItem[];
   ripple?: number;   // px the stage edge ripples in and out; 0 for a still edge
+  /**
+   * rect: a soft rounded rectangle filling the stage (Figma 43:59).
+   * burst: a glow hugging the device, no container edge.
+   * mixed: rect side by side, burst when stacked on phones.
+   * While prototyping, #rect / #burst / #mixed in the URL overrides this.
+   */
+  stageShape?: 'rect' | 'burst' | 'mixed';
   rowHighlight?: boolean;  // grey pill behind the hovered row (Figma 49:114)
 }
-const { items, ripple = 10, rowHighlight = true } = Astro.props;
+const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.props;
 ---
-<div class="preview-index" data-preview-index data-ripple={ripple} data-row-highlight={rowHighlight ? '' : undefined}
+<div class="preview-index" data-preview-index data-ripple={ripple} data-stage-shape={stageShape} data-row-highlight={rowHighlight ? '' : undefined}
   style={`--stage-ripple: ${ripple}px`}>
   <div class="list-wrap">
     <ol class="list">
@@ -76,7 +83,7 @@ const { items, ripple = 10, rowHighlight = true } = Astro.props;
 </div>
 
 <script>
-  import { createStage } from '../scripts/stage-shader';
+  import { createStage, type StageShape } from '../scripts/stage-shader';
   import { clipSquircle } from '../scripts/squircle';
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-preview-index]')) {
@@ -87,16 +94,56 @@ const { items, ripple = 10, rowHighlight = true } = Astro.props;
     const fallback = root.querySelector<HTMLElement>('[data-stage-fallback]')!;
     const stageEl = root.querySelector<HTMLElement>('.stage')!;
     const css = getComputedStyle(root);
+
     const stacked = matchMedia('(max-width: 900px)');
+
+    // ── stage outline
+    const px = (name: string) => parseFloat(css.getPropertyValue(name)) || 0;
+    const feather = px('--stage-feather') || 36;
+    const ripple = Number(root.dataset.ripple) || 0;
+    const fromHash = location.hash.slice(1);
+    const mode = ['rect', 'burst', 'mixed'].includes(fromHash) ? fromHash : root.dataset.stageShape ?? 'mixed';
+    addEventListener('hashchange', () => location.reload());  // prototyping: switch shapes in place
+    const stageShape = (): StageShape => {
+      const c = canvas.getBoundingClientRect();
+      const hw = c.width / 2, hh = c.height / 2;
+      const small = stacked.matches;
+      const burst = mode === 'burst' || (mode === 'mixed' && small);
+      if (burst) {
+        // Hug the device: its size plus a margin, with a wide, soft falloff.
+        const d = root.querySelector('.stage__slide[data-active] .device')?.getBoundingClientRect();
+        const dw = d?.width || hw, dh = d?.height || hh;
+        const pad = small ? 16 : 28;
+        return {
+          halfWidth: dw / 2 + pad,
+          halfHeight: dh / 2 + pad,
+          radius: (px('--radius-device') / px('--device-width')) * dw + pad,
+          feather: small ? 40 : 70,
+          ripple: ripple * 1.2,
+        };
+      }
+      if (small) {
+        // The canvas is the whole stage here: keep a gutter, and scale the
+        // soft edge down so a narrow stage still reads as a rounded rectangle.
+        const r = Math.min(ripple, 6);
+        const g = px('--gutter');
+        return { halfWidth: hw - g - r, halfHeight: hh - g - r, radius: 32, feather: 20, ripple: r };
+      }
+      // Side by side: the canvas spills past the stage by feather + ripple
+      // (see CSS), so this lands exactly on the stage's rectangle.
+      return {
+        halfWidth: hw - feather - ripple,
+        halfHeight: hh - feather - ripple,
+        radius: px('--radius-stage') || 48,
+        feather,
+        ripple,
+      };
+    };
 
     // ── stage
     let stage: ReturnType<typeof createStage> = null;
     try {
-      stage = createStage(canvas, {
-        feather: parseFloat(css.getPropertyValue('--stage-feather')) || 36,
-        radius: parseFloat(css.getPropertyValue('--radius-stage')) || 48,
-        ripple: Number(root.dataset.ripple) || 0,
-      });
+      stage = createStage(canvas, stageShape);
     } catch (err) {
       console.warn('Stage shader unavailable, using CSS fallback', err);
     }
@@ -441,8 +488,9 @@ const { items, ripple = 10, rowHighlight = true } = Astro.props;
       margin: 0 calc(-1 * var(--gutter)) var(--space-3);
       background: var(--color-bg);
     }
-    .stage__canvas { inset: var(--gutter); width: calc(100% - 2 * var(--gutter)); height: calc(100% - 2 * var(--gutter)); }
-    .stage__slide { padding: calc(var(--gutter) + var(--space-5)) var(--space-4); }
+    /* the shader keeps its own gutter here (see stageShape) */
+    .stage__canvas { inset: 0; width: 100%; height: 100%; }
+    .stage__slide { padding: calc(var(--gutter) + var(--space-6)) var(--space-4); }
     .list { padding-bottom: 50svh; }
     .row__hit { padding-inline: 0; border-radius: 0; }
     .fade { width: 100%; height: calc(var(--fade-height) / 2); }

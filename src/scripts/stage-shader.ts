@@ -24,6 +24,7 @@ uniform vec2  uRes;
 uniform float uTime;
 uniform float uDpr;
 uniform vec3  uPaper;
+uniform vec2  uBox;      // half-size of the shape, CSS px, centred in the canvas
 uniform float uFeather;  // edge softness, CSS px
 uniform float uRadius;   // corner radius, CSS px
 uniform float uRipple;   // edge ripple amount, CSS px
@@ -81,11 +82,12 @@ void main() {
 
   // ── edge: feathered rounded rect, its boundary breathing a little
   vec2 px = (frag - 0.5 * uRes) / uDpr;          // CSS px from centre
-  vec2 hb = 0.5 * uRes / uDpr;
-  float ang = atan(px.y, px.x);
-  float rip = (vnoise(vec2(ang * 3.0, t * 0.35)) - 0.5) * 0.7
-            + (vnoise(vec2(ang * 9.0 + 4.0, t * 0.6)) - 0.5) * 0.3;
-  float d = sdRoundBox(px, hb - uFeather - uRipple, uRadius) + rip * uRipple * 2.0;
+  // Sample the noise on a circle around the centre (not by angle, which
+  // jumps from +pi to -pi on the left and would tear the edge there).
+  vec2 dir = px / max(length(px), 1e-3);
+  float rip = (vnoise(dir * 1.6 + vec2(t * 0.35, 0.0)) - 0.5) * 0.7
+            + (vnoise(dir * 4.8 + vec2(4.0, t * 0.6)) - 0.5) * 0.3;
+  float d = sdRoundBox(px, uBox, uRadius) + rip * uRipple * 2.0;
   float alpha = smoothstep(uFeather, -uFeather * 0.35, d);
   // stipple the feather so the edge reads noisy, not airbrushed
   alpha += (hash12(frag + floor(t * 12.0) * 13.0) - 0.5) * 0.35 * alpha * (1.0 - alpha) * 4.0;
@@ -150,9 +152,12 @@ function hexToRgb(hex: string): number[] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => v / 255);
 }
 
-export interface StageOptions {
-  feather: number;
+/** The stage's outline, in CSS px. Asked for every frame, so it can track layout. */
+export interface StageShape {
+  halfWidth: number;
+  halfHeight: number;
   radius: number;
+  feather: number;
   ripple: number;
 }
 
@@ -162,7 +167,7 @@ interface Layer {
   born: number;            // performance.now() in ms
 }
 
-export function createStage(canvas: HTMLCanvasElement, opts: StageOptions) {
+export function createStage(canvas: HTMLCanvasElement, shape: () => StageShape) {
   const gl = canvas.getContext('webgl2', { premultipliedAlpha: true, antialias: false });
   if (!gl) return null;
 
@@ -195,7 +200,7 @@ export function createStage(canvas: HTMLCanvasElement, opts: StageOptions) {
   const u = (n: string) => gl.getUniformLocation(prog, n);
   const U = {
     res: u('uRes'), time: u('uTime'), dpr: u('uDpr'), paper: u('uPaper'),
-    feather: u('uFeather'), radius: u('uRadius'), ripple: u('uRipple'),
+    box: u('uBox'), feather: u('uFeather'), radius: u('uRadius'), ripple: u('uRipple'),
     count: u('uCount'), pal: u('uPal'), age: u('uAge'),
   };
 
@@ -237,9 +242,11 @@ export function createStage(canvas: HTMLCanvasElement, opts: StageOptions) {
     gl.uniform1f(U.time, time);
     gl.uniform1f(U.dpr, dpr);
     gl.uniform3fv(U.paper, paper);
-    gl.uniform1f(U.feather, opts.feather);
-    gl.uniform1f(U.radius, opts.radius);
-    gl.uniform1f(U.ripple, reduced.matches ? 0 : opts.ripple);
+    const sh = shape();
+    gl.uniform2f(U.box, sh.halfWidth, sh.halfHeight);
+    gl.uniform1f(U.feather, sh.feather);
+    gl.uniform1f(U.radius, sh.radius);
+    gl.uniform1f(U.ripple, reduced.matches ? 0 : sh.ripple);
     gl.uniform1i(U.count, layers.length);
     gl.uniform3fv(U.pal, pal);
     gl.uniform1fv(U.age, age);
