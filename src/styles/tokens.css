@@ -86,8 +86,9 @@
   --space-6: 64px;
   --space-7: 80px;
 
-  /* Radii */
+  /* Radii. Figma uses 60% corner smoothing throughout; see scripts/squircle.ts */
   --radius-stage: 48px;
+  --corner-smoothing: 0.6;
 
   /* Motion */
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -103,6 +104,12 @@
   --stage-inset: 44px;
   --stage-feather: 36px;  /* soft edge of the stage */
   --fade-height: 304px;   /* blur/fade over the bottom of the list */
-  --device-width: 390px;  /* Figma device frame: 390 × 816 */
-  --device-height: 816px;
+  /* Device mock, in Figma px as plain numbers: it scales with the stage,
+     so these are proportions as much as sizes. */
+  --device-width: 390;    /* frame 390 × 816 */
+  --device-height: 816;
+  --device-bezel: 13;     /* frame edge to screen edge */
+  --device-rim: 2;        /* inside stroke on the frame */
+  --radius-device: 61;
+  --radius-screen: 48;
 }
