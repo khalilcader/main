@@ -1,0 +1,64 @@
+---
+/*
+  One project's content on the stage: a framed phone, window or media,
+  optionally cropped to focus on part of it. Sized to fit the stage (a size
+  container) at its aspect ratio. The outer element is the stage's subject:
+  the burst glow hugs it.
+*/
+import PhoneFrame from './PhoneFrame.astro';
+import WindowFrame from './WindowFrame.astro';
+import MediaFrame from './MediaFrame.astro';
+import { cropPlacement, subjectAspect, type Presentation } from '../../scripts/presentation';
+
+interface Props {
+  presentation: Presentation;
+}
+const { presentation: p } = Astro.props;
+const place = cropPlacement(p);
+// A whole phone never grows past Figma's size; everything else fills the stage.
+const maxWidth = p.frame === 'phone' && !p.crop ? 'calc(var(--device-width) * 1px)' : '100cqw';
+const Frame = p.frame === 'phone' ? PhoneFrame : p.frame === 'window' ? WindowFrame : MediaFrame;
+---
+<div class:list={['subject', { 'subject--crop': place }]} data-stage-subject
+  style={`--a: ${subjectAspect(p)}; --max-w: ${maxWidth}`}>
+  {place ? (
+    <>
+      <div class="crop__shadow"></div>
+      <div class="crop__body" data-squircle>
+        <div class="crop__inner" style={`width: ${place.width}; left: ${place.left}; top: ${place.top}`}>
+          <Frame aspect={p.aspect} src={p.src} alt={p.alt} />
+        </div>
+      </div>
+    </>
+  ) : (
+    <Frame aspect={p.aspect} src={p.src} alt={p.alt} />
+  )}
+</div>
+
+<script>
+  import { applySquircles } from '../../scripts/squircle';
+  applySquircles();
+</script>
+
+<style>
+  /* Largest box of aspect --a that fits the stage (an ancestor size container). */
+  .subject {
+    position: relative;
+    flex: none;
+    width: min(100cqw, calc(100cqh * var(--a)), var(--max-w));
+    aspect-ratio: var(--a);
+  }
+  .crop__shadow,
+  .crop__body {
+    position: absolute;
+    inset: 0;
+    border-radius: calc(var(--radius-crop) * 1px);
+  }
+  .crop__shadow { box-shadow: var(--shadow-window); }
+  .crop__body {
+    --squircle-radius: calc(var(--radius-crop) * 1px);
+    overflow: hidden;
+    background: var(--color-device-glass);
+  }
+  .crop__inner { position: absolute; }
+</style>

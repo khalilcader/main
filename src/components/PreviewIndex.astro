@@ -7,15 +7,16 @@
   selected row again opens its case study. On narrow screens the stage sits on
   top and the row nearest it as you scroll is selected.
 */
-import DeviceFrame from './DeviceFrame.astro';
+import StagePreview from './stage/StagePreview.astro';
+import { thumbAspect, type Presentation } from '../scripts/presentation';
 
 export interface PreviewItem {
   title: string;
   vibe: string;      // names a --vibe-<key>-1..3 colour set in tokens.css
   href?: string;     // case study link, when one exists
-  media?: string;    // image or video shown on the device screen
-  mediaAlt?: string;
-  thumb?: string;    // image for the hover card; falls back to the vibe's colours
+  presentation?: Presentation;  // what the stage shows; defaults to an empty phone
+  thumb?: string;    // image for the hover card; falls back to the vibe's colour
+  thumbAspect?: number;  // hover card shape; defaults to follow the presentation
 }
 
 interface Props {
@@ -23,7 +24,7 @@ interface Props {
   ripple?: number;   // px the stage edge ripples in and out; 0 for a still edge
   /**
    * rect: a soft rounded rectangle filling the stage (Figma 43:59).
-   * burst: a glow hugging the device, no container edge.
+   * burst: a glow hugging whatever's on stage, no container edge.
    * mixed: rect side by side, burst when stacked on phones.
    * While prototyping, #rect / #burst / #mixed in the URL overrides this.
    */
@@ -37,6 +38,7 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
   <div class="list-wrap">
     <ol class="list">
       {items.map((item, i) => {
+        const shown = item.presentation ?? { frame: 'phone' };
         const num = String(i + 1).padStart(2, '0');
         const inner = (
           <>
@@ -54,12 +56,11 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
             {item.href
               ? <a class="row__hit" href={item.href} aria-current={i === 0 ? 'true' : undefined}>{inner}</a>
               : <button class="row__hit" type="button" aria-pressed={i === 0 ? 'true' : 'false'}>{inner}</button>}
-            <div class="peek" aria-hidden="true">
+            <div class="peek" aria-hidden="true" style={`--thumb-aspect: ${item.thumbAspect ?? thumbAspect(shown)}`}>
               <div class="peek__shadow"></div>
-              <div class="peek__body" data-peek-body
-                style={`--v1: var(--vibe-${item.vibe}-1)`}>
+              <div class="peek__body" data-squircle style={`--v1: var(--vibe-${item.vibe}-1)`}>
                 {item.thumb && <img src={item.thumb} alt="" />}
-                <svg class="peek__rim"><path /></svg>
+                <svg class="peek__rim" data-squircle-rim><path /></svg>
               </div>
             </div>
           </li>
@@ -75,7 +76,7 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
     <canvas class="stage__canvas" data-stage-canvas></canvas>
     {items.map((item, i) => (
       <div class="stage__slide" data-slide data-active={i === 0 ? '' : undefined}>
-        <DeviceFrame src={item.media} alt={item.mediaAlt} />
+        <StagePreview presentation={item.presentation ?? { frame: 'phone' }} />
       </div>
     ))}
   </div>
@@ -84,7 +85,7 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
 
 <script>
   import { createStage, type StageShape } from '../scripts/stage-shader';
-  import { clipSquircle } from '../scripts/squircle';
+  import { applySquircles, squircleRadius } from '../scripts/squircle';
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-preview-index]')) {
     const rows = [...root.querySelectorAll<HTMLElement>('[data-row]')];
@@ -110,14 +111,16 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
       const small = stacked.matches;
       const burst = mode === 'burst' || (mode === 'mixed' && small);
       if (burst) {
-        // Hug the device: its size plus a margin, with a wide, soft falloff.
-        const d = root.querySelector('.stage__slide[data-active] .device')?.getBoundingClientRect();
+        // Hug what's on stage: its size plus a margin, with a wide, soft falloff.
+        const subject = root.querySelector<HTMLElement>('.stage__slide[data-active] [data-stage-subject]');
+        const shaped = subject?.matches('[data-squircle]') ? subject : subject?.querySelector<HTMLElement>('[data-squircle]');
+        const d = subject?.getBoundingClientRect();
         const dw = d?.width || hw, dh = d?.height || hh;
         const pad = small ? 16 : 28;
         return {
           halfWidth: dw / 2 + pad,
           halfHeight: dh / 2 + pad,
-          radius: (px('--radius-device') / px('--device-width')) * dw + pad,
+          radius: (shaped ? squircleRadius(shaped) : 0) + pad,
           feather: small ? 40 : 70,
           ripple: ripple * 1.2,
         };
@@ -176,15 +179,8 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
     });
 
     // ── hover: each row's card scales up as you enter and down as you leave
-    const cardRadius = parseFloat(css.getPropertyValue('--radius-card')) || 12;
-    const smoothing = parseFloat(css.getPropertyValue('--corner-smoothing')) || 0.6;
-    for (const body of root.querySelectorAll<HTMLElement>('[data-peek-body]')) {
-      const rim = body.querySelector('path')!;
-      clipSquircle(body, () => cardRadius, smoothing, (d, w, h) => {
-        rim.ownerSVGElement!.setAttribute('viewBox', `0 0 ${w} ${h}`);
-        rim.setAttribute('d', d);
-      });
-    }
+    applySquircles(root);
+
     // Where the card goes:
     // - It rests --peek-gap right of the label, centred on the row, when the
     //   cursor is at the row's left edge / vertical centre.
@@ -364,7 +360,7 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
     position: absolute;
     top: 0;
     left: 0;
-    width: var(--card-width);
+    width: clamp(var(--card-min-width), calc(var(--card-height) * var(--thumb-aspect, 1)), var(--card-max-width));
     height: var(--card-height);
     z-index: 1;
     pointer-events: none;
@@ -394,6 +390,7 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
   }
   .peek__shadow { box-shadow: var(--shadow-card); }  /* outside the clip */
   .peek__body {
+    --squircle-radius: calc(var(--radius-card) * 1px);
     overflow: hidden;
     /* placeholder until a project has a thumbnail: its stage base colour */
     background: var(--v1, var(--color-card));
@@ -441,12 +438,13 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
   .no-webgl .stage__canvas { display: none; }
 
   .stage__slide {
+    container-type: size;  /* subjects fit themselves to it (StagePreview) */
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-6) var(--space-4);
+    padding: var(--space-6);
     opacity: 0;
     transform: scale(0.98);
     transition:

@@ -12,3 +12,13 @@ body {
 }
 img, video { max-width: 100%; height: auto; display: block; }
 a { color: inherit; }
+
+/*
+  Smoothed corners (scripts/squircle.ts). An element with [data-squircle]
+  is clipped to Figma's corner shape; set one of these on it in CSS:
+  --squircle-ratio: radius as a fraction of the element's width (scales)
+  --squircle-radius: a fixed radius
+  Registered so getComputedStyle resolves calc() and var() to a value.
+*/
+@property --squircle-ratio { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --squircle-radius { syntax: '<length>'; inherits: false; initial-value: 0px; }

@@ -1,0 +1,39 @@
+---
+/* A bare image or video with smoothed corners, at `aspect` (width / height). */
+import Media from './Media.astro';
+
+interface Props {
+  aspect?: number;
+  src?: string;
+  alt?: string;
+}
+const { aspect = 16 / 9, src, alt } = Astro.props;
+---
+<div class="mediaframe" style={`--a: ${aspect}`}>
+  <div class="mediaframe__shadow"></div>
+  <div class="mediaframe__body" data-squircle>
+    <Media src={src} alt={alt} />
+    <slot />
+  </div>
+</div>
+
+<style>
+  .mediaframe {
+    container-type: inline-size;
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--a);
+  }
+  .mediaframe__shadow,
+  .mediaframe__body {
+    position: absolute;
+    inset: 0;
+    border-radius: calc(var(--radius-media) / var(--window-ref-width) * 100cqw);
+  }
+  .mediaframe__shadow { box-shadow: var(--shadow-window); }
+  .mediaframe__body {
+    --squircle-ratio: calc(var(--radius-media) / var(--window-ref-width));
+    overflow: hidden;
+    background: var(--color-screen);
+  }
+</style>

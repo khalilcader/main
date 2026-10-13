@@ -1,0 +1,83 @@
+---
+/*
+  A Mac-style app window: title bar with traffic lights over a content area.
+  Fills its container's width at `aspect` (width / height, whole window).
+*/
+import Media from './Media.astro';
+
+interface Props {
+  aspect?: number;
+  src?: string;
+  alt?: string;
+}
+const { aspect = 16 / 10, src, alt } = Astro.props;
+---
+<div class="window" style={`--a: ${aspect}`}>
+  <div class="window__shadow"></div>
+  <div class="window__body" data-squircle>
+    <div class="window__bar" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="window__content">
+      <Media src={src} alt={alt} />
+      <slot />
+    </div>
+    <svg class="window__rim" data-squircle-rim aria-hidden="true"><path /></svg>
+  </div>
+</div>
+
+<style>
+  /* Sizes are proportions of a --window-ref-width wide window, via cqw. */
+  .window {
+    container-type: inline-size;
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--a);
+  }
+  .window__shadow,
+  .window__body {
+    position: absolute;
+    inset: 0;
+    border-radius: calc(var(--radius-window) / var(--window-ref-width) * 100cqw);
+  }
+  .window__shadow { box-shadow: var(--shadow-window); }
+  .window__body {
+    --squircle-ratio: calc(var(--radius-window) / var(--window-ref-width));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--color-screen);
+  }
+  .window__bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--window-light-gap) / var(--window-ref-width) * 100cqw);
+    height: calc(var(--window-bar) / var(--window-ref-width) * 100cqw);
+    padding-inline: calc(var(--window-light-inset) / var(--window-ref-width) * 100cqw);
+    background: var(--color-window-bar);
+    border-bottom: 1px solid var(--color-window-line);
+  }
+  .window__bar i {
+    width: calc(var(--window-light) / var(--window-ref-width) * 100cqw);
+    aspect-ratio: 1;
+    border-radius: 50%;
+  }
+  .window__bar i:nth-child(1) { background: var(--color-light-close); }
+  .window__bar i:nth-child(2) { background: var(--color-light-minimize); }
+  .window__bar i:nth-child(3) { background: var(--color-light-zoom); }
+  .window__content {
+    position: relative;
+    flex: 1;
+  }
+  .window__rim {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .window__rim path {
+    fill: none;
+    stroke: var(--color-window-rim);
+    stroke-width: 2px;  /* half is clipped: a 1px inside border */
+  }
+</style>

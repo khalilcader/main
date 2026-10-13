@@ -28,3 +28,29 @@ export function clipSquircle(
   new ResizeObserver(update).observe(el);
   update();
 }
+
+/**
+ * Clip every [data-squircle] element under `scope`, reading its radius from
+ * CSS: --squircle-ratio (× width) or --squircle-radius. A direct child
+ * `svg[data-squircle-rim]` gets the same path, for drawing an inside stroke.
+ */
+export function applySquircles(scope: ParentNode = document) {
+  const smoothing =
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-smoothing')) || 0.6;
+  for (const el of scope.querySelectorAll<HTMLElement>('[data-squircle]:not([data-squircle-ready])')) {
+    el.setAttribute('data-squircle-ready', '');
+    const rim = el.querySelector<SVGPathElement>(':scope > svg[data-squircle-rim] path');
+    clipSquircle(el, () => squircleRadius(el), smoothing, (d, w, h) => {
+      if (!rim) return;
+      rim.ownerSVGElement!.setAttribute('viewBox', `0 0 ${w} ${h}`);
+      rim.setAttribute('d', d);
+    });
+  }
+}
+
+/** The radius an element's squircle uses right now, in px. */
+export function squircleRadius(el: HTMLElement) {
+  const css = getComputedStyle(el);
+  const ratio = parseFloat(css.getPropertyValue('--squircle-ratio')) || 0;
+  return ratio > 0 ? ratio * el.offsetWidth : parseFloat(css.getPropertyValue('--squircle-radius')) || 0;
+}

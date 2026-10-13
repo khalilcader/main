@@ -2,10 +2,12 @@
 /*
   Prototype of the list + stage homepage (Figma: khalilcader.com, frames 43:2
   and 49:108).
-  Project names come from the Figma frame; vibes and links are placeholders.
+  Project names come from the Figma frame; vibes, presentations and links are
+  placeholders. The presentations cycle through every kind the stage supports.
 */
 import Base from '../layouts/Base.astro';
 import PreviewIndex, { type PreviewItem } from '../components/PreviewIndex.astro';
+import type { Presentation } from '../scripts/presentation';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const vibes = ['sky', 'ember', 'bloom', 'grove', 'dusk', 'tide'];
@@ -13,9 +15,20 @@ const names = [
   'Anthropic', 'Figma', 'Instagram', 'Google', 'Google', 'Google', 'Google',
   'Google', 'Google', 'Google', 'Google', 'Google', 'Google',
 ];
+const presentations: Presentation[] = [
+  { frame: 'phone' },
+  { frame: 'window', aspect: 16 / 10 },
+  // top of a phone: status bar and header, with the frame's corners showing
+  { frame: 'phone', crop: { aspect: 4 / 5, zoom: 1.1, focus: [0.5, 0] } },
+  // top-left corner of a window: traffic lights and sidebar
+  { frame: 'window', aspect: 16 / 10, crop: { aspect: 1, zoom: 1.8, focus: [0, 0] } },
+  { frame: 'media', aspect: 16 / 9 },
+  { frame: 'media', aspect: 4 / 5 },
+];
 const items: PreviewItem[] = names.map((title, i) => ({
   title,
   vibe: vibes[i % vibes.length],
+  presentation: presentations[i % presentations.length],
   href: i === 0 ? `${base}/work/example-project/` : undefined,
 }));
 ---

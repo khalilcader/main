@@ -1,0 +1,22 @@
+---
+/* An image or video (by extension) that covers its box. Nothing if no src. */
+interface Props {
+  src?: string;
+  alt?: string;
+}
+const { src, alt = '' } = Astro.props;
+const isVideo = src ? /\.(mp4|webm|mov)$/i.test(src) : false;
+---
+{src && (isVideo
+  ? <video class="media-fill" src={src} autoplay muted loop playsinline aria-label={alt || undefined}></video>
+  : <img class="media-fill" src={src} alt={alt} loading="lazy" />)}
+
+<style>
+  .media-fill {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

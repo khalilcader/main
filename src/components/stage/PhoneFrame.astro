@@ -1,0 +1,68 @@
+---
+/*
+  Phone mock from Figma (node 43:64): frosted glass frame with a 2px inside
+  rim, white screen, Figma-smoothed corners. Fills its container's width at
+  the phone's aspect ratio; the parent decides the size.
+*/
+import Media from './Media.astro';
+
+interface Props {
+  aspect?: number;  // ignored: a phone has its own shape
+  src?: string;
+  alt?: string;
+}
+const { src, alt } = Astro.props;
+---
+<div class="phone">
+  <div class="phone__shadow"></div>
+  <div class="phone__frame" data-squircle>
+    <svg class="phone__rim" data-squircle-rim aria-hidden="true"><path /></svg>
+    <div class="phone__screen" data-squircle>
+      <Media src={src} alt={alt} />
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Tokens are Figma px as plain numbers; cqw resolves against .phone. */
+  .phone {
+    container-type: inline-size;
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--device-width) / var(--device-height);
+  }
+  .phone__shadow,
+  .phone__frame {
+    position: absolute;
+    inset: 0;
+    border-radius: calc(var(--radius-device) / var(--device-width) * 100cqw);
+  }
+  /* A clip path would cut off the shadow, so it lives on its own layer. */
+  .phone__shadow { box-shadow: var(--shadow-device); }
+  .phone__frame {
+    --squircle-ratio: calc(var(--radius-device) / var(--device-width));
+    background: var(--color-device-glass);
+  }
+  .phone__rim {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  /* Stroke is centred on the path and the frame clips the outer half,
+     leaving an inside stroke like Figma's. */
+  .phone__rim path {
+    fill: none;
+    stroke: var(--color-device-rim);
+    stroke-width: calc(var(--device-rim) * 2px);
+  }
+  .phone__screen {
+    --squircle-ratio: calc(var(--radius-screen) / (var(--device-width) - 2 * var(--device-bezel)));
+    position: absolute;
+    inset: calc(var(--device-bezel) / var(--device-width) * 100cqw);
+    overflow: hidden;
+    background: var(--color-screen);
+    border-radius: calc(var(--radius-screen) / var(--device-width) * 100cqw);
+  }
+</style>

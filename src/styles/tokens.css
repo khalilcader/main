@@ -29,6 +29,15 @@
   --color-card: #fafafa;
   --color-card-border: rgba(0, 0, 0, 0.2);
   --shadow-card: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-window: 0 10px 40px 8px rgba(0, 0, 0, 0.12);
+
+  /* Mac-style window chrome */
+  --color-window-bar: #f2f2f1;
+  --color-window-line: rgba(0, 0, 0, 0.08);
+  --color-window-rim: rgba(0, 0, 0, 0.12);
+  --color-light-close: #ff5f57;
+  --color-light-minimize: #febc2e;
+  --color-light-zoom: #28c840;
   --color-line: rgba(0, 0, 0, 0.15);
   --color-accent: #000000;
   --color-device-glass: rgba(255, 255, 255, 0.5);
@@ -113,8 +122,9 @@
   --row-height: 64px;
   /* Figma drew these at 24px type; scaled ×0.75 to match the 18px text. */
   --index-width: 22px;
-  --card-width: 89px;     /* hover preview card (Figma 119 × 118) */
-  --card-height: 88px;
+  --card-height: 88px;     /* width follows the content's aspect, within: */
+  --card-min-width: 66px;
+  --card-max-width: 140px;
   --eq-bar: 3px;          /* "now playing" bars on the selected row */
   --eq-gap: 2px;
   --eq-height: 13px;      /* about the cap height of 18px text */
@@ -135,4 +145,14 @@
   --device-rim: 2;        /* inside stroke on the frame */
   --radius-device: 61;
   --radius-screen: 48;
+
+  /* Window and bare media, as proportions of an 800-wide window. */
+  --window-ref-width: 800;
+  --window-bar: 36;
+  --window-light: 12;
+  --window-light-gap: 8;
+  --window-light-inset: 14;
+  --radius-window: 12;
+  --radius-media: 14;
+  --radius-crop: 28;      /* crop viewport on the stage, px */
 }
