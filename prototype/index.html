@@ -133,6 +133,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   box-shadow: 0 1px 2px var(--shadow), 0 8px 24px -12px var(--shadow);
   cursor: inherit; font: inherit; text-align: left;
 }
+@supports (corner-shape: squircle) {
+  .card, .cover, .veil { corner-shape: squircle; }
+}
 .card:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 
 .cover {
@@ -286,6 +289,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   const stage = $("#stage"), backdrop = $("#backdrop");
   stage.querySelectorAll(".card").forEach((el) => el.remove());
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const NATIVE_SQUIRCLE = CSS.supports("corner-shape", "squircle");
+  const SQUIRCLE_SCALE = 1.6;  // a squircle reads smaller than a circle of the same radius
 
   // Tunable from the Values panel.
   // Defaults are Khalil's tuned values (Oct 12). Slider changes are saved per
@@ -426,9 +431,36 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
       c.W = Math.max(c.big.w, lightboxRect(c).w);
       // Corner radius is a share of the shorter side, so it scales with the cover.
       c.el.style.width = c.W + "px"; c.el.style.height = c.W / c.d.a + "px";
-      c.el.style.borderRadius = Math.min(c.W, c.W / c.d.a) * 0.055 + "px";
+      // Continuous (iOS-style) corners: the curve eases into the straight edges with
+      // no kink. Native corner-shape where supported (Chrome/Edge); elsewhere the
+      // same squircle is drawn as a clip path on the cover.
+      const r = Math.min(c.W, c.W / c.d.a) * 0.055 * SQUIRCLE_SCALE;
+      // Without native support, keep the plain rounded corner small enough to sit
+      // inside the squircle (about half its extent), so the clip path sets the shape.
+      c.el.style.borderRadius = (NATIVE_SQUIRCLE ? r : r * 0.5) + "px";
+      c.clip = NATIVE_SQUIRCLE ? "" : `path("${squirclePath(c.W, c.W / c.d.a, r)}")`;
+      c.cover.style.clipPath = c.last.dim > 0.0025 ? "" : c.clip;
     }
     for (const s of Object.values(S)) { s.pos = clamp(s.pos, s.min, s.max); s.to = null; }
+  }
+
+  // A squircle (superellipse, n = 4) corner matches CSS corner-shape: squircle.
+  // Each corner is sampled as a quarter superellipse of the given extent, which
+  // meets the straight edges with zero curvature, so there is no visible join.
+  function squirclePath(w, h, e) {
+    e = Math.min(e, w / 2, h / 2);
+    const n = 4, steps = 14, pts = [];
+    const corner = (cx, cy, sx, sy, from) => {
+      for (let k = 0; k <= steps; k++) {
+        const th = (from ? k : steps - k) / steps * Math.PI / 2;
+        pts.push([cx + sx * e * Math.pow(Math.cos(th), 2 / n), cy + sy * e * Math.pow(Math.sin(th), 2 / n)]);
+      }
+    };
+    corner(w - e, e, 1, -1, false);      // top right: from top edge down to right edge
+    corner(w - e, h - e, 1, 1, true);    // bottom right
+    corner(e, h - e, -1, 1, false);      // bottom left
+    corner(e, e, -1, -1, true);          // top left
+    return "M" + pts.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join("L") + "Z";
   }
 
   function lightboxRect(c) {
@@ -1080,6 +1112,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
         const fade = dk * dk * (3 - 2 * dk);  // smoothstep
         // Blur only the color layer, so the grain in the veil above stays sharp.
         c.cover.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : "";
+        // Drop the clip-path fallback while blurred, or it would cut the soft edge.
+        if (!NATIVE_SQUIRCLE) c.cover.style.clipPath = dk > 0.0025 ? "" : c.clip;
         c.veil.style.setProperty("--f", `${blur.toFixed(1)}px`);
         c.veil.style.opacity = Math.min(1, dk * 1.6).toFixed(3);
         st.opacity = dk > 0.0025 ? (1 - fade).toFixed(3) : "";
