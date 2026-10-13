@@ -63,6 +63,9 @@
   --apple-pink: #ff2d55;
 
   --vibe-paper: var(--color-bg);
+  --vibe-idle-1: #ebebe9;   /* nothing selected: a quiet neutral stage */
+  --vibe-idle-2: #f4f4f2;
+  --vibe-idle-3: #e2e2df;
   --vibe-sky-1: var(--apple-blue);
   --vibe-sky-2: var(--apple-cyan);
   --vibe-sky-3: var(--apple-indigo);
@@ -102,7 +105,7 @@
   /* Radii. Figma uses 60% corner smoothing throughout; see scripts/squircle.ts */
   --radius-stage: 48px;
   --radius-row: 16px;     /* hover pill, no smoothing in Figma */
-  --radius-card: 20;      /* hover preview card, smoothed (Figma: 16 on a 119px card) */
+  --radius-card: 16;      /* hover preview card, smoothed (Figma 49:179) */
   --corner-smoothing: 0.6;
 
   /* Motion */
@@ -154,5 +157,4 @@
   --window-light-inset: 14;
   --radius-window: 12;
   --radius-media: 14;
-  --radius-crop: 28;      /* crop viewport on the stage, px */
 }

@@ -4,8 +4,9 @@
   (Figma frames 43:2, 49:108). Hovering a row pops a small thumbnail card
   out next to the cursor, which it then trails; leaving shrinks it away. Clicking
   a row selects it and the stage slowly crossfades to its colours. Clicking the
-  selected row again opens its case study. On narrow screens the stage sits on
-  top and the row nearest it as you scroll is selected.
+  selected row again opens its case study. Nothing is selected at first: the
+  stage rests in a neutral grey. On narrow screens the stage sits on top and
+  the row nearest it as you scroll is selected.
 */
 import StagePreview from './stage/StagePreview.astro';
 import { thumbAspect, type Presentation } from '../scripts/presentation';
@@ -51,11 +52,11 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
           </>
         );
         return (
-          <li class="row" data-row data-vibe={item.vibe} data-active={i === 0 ? '' : undefined}
+          <li class="row" data-row data-vibe={item.vibe}
             style={`--accent: var(--vibe-${item.vibe}-1)`}>
             {item.href
-              ? <a class="row__hit" href={item.href} aria-current={i === 0 ? 'true' : undefined}>{inner}</a>
-              : <button class="row__hit" type="button" aria-pressed={i === 0 ? 'true' : 'false'}>{inner}</button>}
+              ? <a class="row__hit" href={item.href}>{inner}</a>
+              : <button class="row__hit" type="button" aria-pressed="false">{inner}</button>}
             <div class="peek" aria-hidden="true" style={`--thumb-aspect: ${item.thumbAspect ?? thumbAspect(shown)}`}>
               <div class="peek__shadow"></div>
               <div class="peek__body" data-squircle style={`--v1: var(--vibe-${item.vibe}-1)`}>
@@ -75,7 +76,7 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
     <div class="stage__fallback" data-stage-fallback></div>
     <canvas class="stage__canvas" data-stage-canvas></canvas>
     {items.map((item, i) => (
-      <div class="stage__slide" data-slide data-active={i === 0 ? '' : undefined}>
+      <div class="stage__slide" data-slide>
         <StagePreview presentation={item.presentation ?? { frame: 'phone' }} />
       </div>
     ))}
@@ -109,7 +110,11 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
       const c = canvas.getBoundingClientRect();
       const hw = c.width / 2, hh = c.height / 2;
       const small = stacked.matches;
-      const burst = mode === 'burst' || (mode === 'mixed' && small);
+      // Crops fill the stage, and nothing selected has no subject: both use
+      // the rectangle whatever the mode.
+      const cropped = root.querySelector('.stage__slide[data-active] [data-crop]');
+      const empty = !root.querySelector('.stage__slide[data-active]');
+      const burst = !cropped && !empty && (mode === 'burst' || (mode === 'mixed' && small));
       if (burst) {
         // Hug what's on stage: its size plus a margin, with a wide, soft falloff.
         const subject = root.querySelector<HTMLElement>('.stage__slide[data-active] [data-stage-subject]');
@@ -153,7 +158,7 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
     if (!stage) root.classList.add('no-webgl');
 
     // ── selection: what the stage shows
-    let active = 0;
+    let active = -1;  // nothing selected until you pick a project
     const select = (i: number) => {
       if (i === active || i < 0) return;
       active = i;
@@ -167,9 +172,9 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
       stage?.setVibe(vibe);
       fallback.style.setProperty('--stage-color', `var(--vibe-${vibe}-1)`);
     };
-    const firstVibe = rows[0]?.dataset.vibe ?? 'sky';
-    stage?.setVibe(firstVibe);
-    fallback.style.setProperty('--stage-color', `var(--vibe-${firstVibe}-1)`);
+    // Resting state: a quiet neutral stage with nothing on it.
+    stage?.setVibe('idle');
+    fallback.style.setProperty('--stage-color', 'var(--vibe-idle-1)');
 
     // First click selects; clicking the selected row follows its link.
     hits.forEach((hit, i) => {
@@ -451,6 +456,18 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
       opacity var(--duration-slow) var(--ease-out),
       transform var(--duration-slow) var(--ease-out);
   }
+  /* A cropped subject bleeds to the stage's edges and fades out across the
+     soft edge, like the colour behind it. */
+  .stage__slide:has([data-crop]) {
+    --edge: var(--mask-inset, 0px);
+    --fade: calc(var(--edge) + var(--stage-feather));
+    padding: 0;
+    overflow: hidden;
+    mask-image:
+      linear-gradient(to right, transparent var(--edge), #000 var(--fade), #000 calc(100% - var(--fade)), transparent calc(100% - var(--edge))),
+      linear-gradient(to bottom, transparent var(--edge), #000 var(--fade), #000 calc(100% - var(--fade)), transparent calc(100% - var(--edge)));
+    mask-composite: intersect;
+  }
   .stage__slide[data-active] {
     opacity: 1;
     transform: none;
@@ -489,6 +506,7 @@ const { items, ripple = 10, rowHighlight = true, stageShape = 'mixed' } = Astro.
     /* the shader keeps its own gutter here (see stageShape) */
     .stage__canvas { inset: 0; width: 100%; height: 100%; }
     .stage__slide { padding: calc(var(--gutter) + var(--space-6)) var(--space-4); }
+    .stage__slide:has([data-crop]) { --mask-inset: var(--gutter); }
     .list { padding-bottom: 50svh; }
     .row__hit { padding-inline: 0; border-radius: 0; }
     .fade { width: 100%; height: calc(var(--fade-height) / 2); }

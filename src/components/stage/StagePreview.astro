@@ -1,38 +1,32 @@
 ---
 /*
-  One project's content on the stage: a framed phone, window or media,
-  optionally cropped to focus on part of it. Sized to fit the stage (a size
-  container) at its aspect ratio. The outer element is the stage's subject:
+  One project's content on the stage: a framed phone, window or media, sized
+  to fit the stage (a size container) at its aspect ratio. Cropped, it's
+  scaled up around a focus point and bleeds off the stage instead (the stage
+  fades it out at its soft edge). The outer element is the stage's subject:
   the burst glow hugs it.
 */
 import PhoneFrame from './PhoneFrame.astro';
 import WindowFrame from './WindowFrame.astro';
 import MediaFrame from './MediaFrame.astro';
-import { cropPlacement, subjectAspect, type Presentation } from '../../scripts/presentation';
+import { frameAspect, type Presentation } from '../../scripts/presentation';
 
 interface Props {
   presentation: Presentation;
 }
 const { presentation: p } = Astro.props;
-const place = cropPlacement(p);
+const crop = p.crop;
+const [fx, fy] = crop?.focus ?? [0.5, 0.5];
 // A whole phone never grows past Figma's size; everything else fills the stage.
-const maxWidth = p.frame === 'phone' && !p.crop ? 'calc(var(--device-width) * 1px)' : '100cqw';
+const maxWidth = p.frame === 'phone' ? 'calc(var(--device-width) * 1px)' : '100cqw';
 const Frame = p.frame === 'phone' ? PhoneFrame : p.frame === 'window' ? WindowFrame : MediaFrame;
+const vars = `--a: ${frameAspect(p)}; --max-w: ${maxWidth}` +
+  (crop ? `; --zoom: ${crop.zoom}; --fx: ${fx}; --fy: ${fy}` : '');
 ---
-<div class:list={['subject', { 'subject--crop': place }]} data-stage-subject
-  style={`--a: ${subjectAspect(p)}; --max-w: ${maxWidth}`}>
-  {place ? (
-    <>
-      <div class="crop__shadow"></div>
-      <div class="crop__body" data-squircle>
-        <div class="crop__inner" style={`width: ${place.width}; left: ${place.left}; top: ${place.top}`}>
-          <Frame aspect={p.aspect} src={p.src} alt={p.alt} />
-        </div>
-      </div>
-    </>
-  ) : (
-    <Frame aspect={p.aspect} src={p.src} alt={p.alt} />
-  )}
+<div class:list={['subject', { 'subject--crop': crop }]} data-stage-subject data-crop={crop ? '' : undefined} style={vars}>
+  {crop
+    ? <div class="crop__inner"><Frame aspect={p.aspect} src={p.src} alt={p.alt} /></div>
+    : <Frame aspect={p.aspect} src={p.src} alt={p.alt} />}
 </div>
 
 <script>
@@ -43,22 +37,25 @@ const Frame = p.frame === 'phone' ? PhoneFrame : p.frame === 'window' ? WindowFr
 <style>
   /* Largest box of aspect --a that fits the stage (an ancestor size container). */
   .subject {
+    --fit: min(100cqw, calc(100cqh * var(--a)), var(--max-w));
     position: relative;
     flex: none;
-    width: min(100cqw, calc(100cqh * var(--a)), var(--max-w));
+    width: var(--fit);
     aspect-ratio: var(--a);
   }
-  .crop__shadow,
-  .crop__body {
+  /* Cropped: the subject is the whole stage; the content is --zoom × its
+     fitted size, placed so its focus point sits at the stage's centre. */
+  .subject--crop {
     position: absolute;
     inset: 0;
-    border-radius: calc(var(--radius-crop) * 1px);
+    width: auto;
+    aspect-ratio: auto;
   }
-  .crop__shadow { box-shadow: var(--shadow-window); }
-  .crop__body {
-    --squircle-radius: calc(var(--radius-crop) * 1px);
-    overflow: hidden;
-    background: var(--color-device-glass);
+  .crop__inner {
+    --w: calc(var(--zoom) * var(--fit));
+    position: absolute;
+    width: var(--w);
+    left: calc(50cqw - var(--fx) * var(--w));
+    top: calc(50cqh - var(--fy) * var(--w) / var(--a));
   }
-  .crop__inner { position: absolute; }
 </style>

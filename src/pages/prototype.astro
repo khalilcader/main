@@ -18,10 +18,10 @@ const names = [
 const presentations: Presentation[] = [
   { frame: 'phone' },
   { frame: 'window', aspect: 16 / 10 },
-  // top of a phone: status bar and header, with the frame's corners showing
-  { frame: 'phone', crop: { aspect: 4 / 5, zoom: 1.1, focus: [0.5, 0] } },
-  // top-left corner of a window: traffic lights and sidebar
-  { frame: 'window', aspect: 16 / 10, crop: { aspect: 1, zoom: 1.8, focus: [0, 0] } },
+  // zoomed in on a phone's top-left: corner and status bar in view
+  { frame: 'phone', crop: { zoom: 2, focus: [0.17, 0.18] } },
+  // zoomed in on a window's top-left: traffic lights and sidebar
+  { frame: 'window', aspect: 16 / 10, crop: { zoom: 2.2, focus: [0.13, 0.25] } },
   { frame: 'media', aspect: 16 / 9 },
   { frame: 'media', aspect: 4 / 5 },
 ];
