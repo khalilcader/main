@@ -30,9 +30,19 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
     <ol class="list">
       {items.map((item, i) => {
         const num = String(i + 1).padStart(2, '0');
-        const inner = <><span class="row__num">{num}</span><span class="row__title">{item.title}</span></>;
+        const inner = (
+          <>
+            <span class="row__num">
+              <span class="row__digits">{num}</span>
+              {/* "now playing" bars, shown on the selected row instead of its number */}
+              <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+            </span>
+            <span class="row__title">{item.title}</span>
+          </>
+        );
         return (
-          <li class="row" data-row data-vibe={item.vibe} data-active={i === 0 ? '' : undefined}>
+          <li class="row" data-row data-vibe={item.vibe} data-active={i === 0 ? '' : undefined}
+            style={`--accent: var(--vibe-${item.vibe}-1)`}>
             {item.href
               ? <a class="row__hit" href={item.href} aria-current={i === 0 ? 'true' : undefined}>{inner}</a>
               : <button class="row__hit" type="button" aria-pressed={i === 0 ? 'true' : 'false'}>{inner}</button>}
@@ -127,32 +137,39 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
         rim.setAttribute('d', d);
       });
     }
-    // The card has a resting spot (--peek-gap right of the label, centred on
-    // the row) and moves only a fraction (--peek-pull) of the way from there
-    // toward the cursor, then eases after it: loosely tethered, not glued.
-    // It never comes closer to the label than its resting spot.
+    // Where the card goes:
+    // - It rests --peek-gap right of the label, centred on the row, when the
+    //   cursor is at the row's left edge / vertical centre.
+    // - From there it moves only a fraction (--peek-pull) of the cursor's
+    //   movement on both axes, and eases after it: tethered, not glued.
+    // - It stays right of the cursor: once the cursor gets within --peek-lead
+    //   of its left edge, the cursor pushes it along.
+    // - While easing it may lag, but never so far that it slides under the
+    //   cursor (--peek-clear).
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const gap = parseFloat(css.getPropertyValue('--peek-gap')) || 40;
     const pull = parseFloat(css.getPropertyValue('--peek-pull')) || 0.35;
     const ease = parseFloat(css.getPropertyValue('--peek-follow')) || 0.22;
+    const lead = parseFloat(css.getPropertyValue('--peek-lead')) || 24;
+    const clear = parseFloat(css.getPropertyValue('--peek-clear')) || 12;
 
     rows.forEach((row, i) => {
       const card = row.querySelector<HTMLElement>('.peek')!;
       const label = row.querySelector<HTMLElement>('.row__title')!;
-      let x = 0, y = 0, tx = 0, ty = 0, raf = 0;
+      let x = 0, y = 0, tx = 0, ty = 0, floorX = 0, raf = 0;
 
       const aim = (clientX: number, clientY: number) => {
         const r = row.getBoundingClientRect();
         const restX = label.getBoundingClientRect().right - r.left + gap;
         const restY = r.height / 2;
-        const maxX = Math.max(restX, r.width - card.offsetWidth);
-        const cx = clientX - r.left, cy = clientY - r.top;
-        tx = Math.min(restX + Math.max(0, cx - restX) * pull, maxX);
+        const cx = Math.max(0, clientX - r.left), cy = clientY - r.top;
+        tx = Math.max(restX + cx * pull, cx + lead);
+        floorX = cx + clear;
         ty = restY + (cy - restY) * pull - card.offsetHeight / 2;
       };
       const apply = () => { card.style.translate = `${x}px ${y}px`; };
       const tick = () => {
-        x += (tx - x) * ease;
+        x = Math.max(x + (tx - x) * ease, floorX);
         y += (ty - y) * ease;
         apply();
         raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(tick) : 0;
@@ -250,9 +267,47 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
   .row[data-active] :is(.row__num, .row__title),
   .row[data-hover] :is(.row__num, .row__title) { opacity: 1; }
   .row__num {
+    position: relative;
     flex: none;
     min-width: var(--index-width);
     color: var(--color-muted);
+  }
+  .row__digits { transition: opacity var(--duration-fast) var(--ease-out); }
+  .row[data-active] .row__digits { opacity: 0; }
+
+  /* ── selected row: three small bars bouncing in the project's stage colour */
+  .eq {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    gap: var(--eq-gap);
+    height: var(--eq-height);
+    margin-top: calc(var(--eq-height) / -2);
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+  .row[data-active] .eq { opacity: 1; }
+  .eq i {
+    width: var(--eq-bar);
+    height: 100%;
+    border-radius: var(--eq-bar);
+    background: var(--accent);
+    transform-origin: 50% 50%;
+    scale: 1 0.35;
+    animation: eq var(--eq-speed) ease-in-out infinite alternate paused;
+  }
+  .row[data-active] .eq i { animation-play-state: running; }
+  /* Different lengths and offsets so the three never fall into step. */
+  .eq i:nth-child(1) { animation-duration: calc(var(--eq-speed) * 1.0); animation-delay: -0.2s; }
+  .eq i:nth-child(2) { animation-duration: calc(var(--eq-speed) * 0.8); animation-delay: -0.5s; }
+  .eq i:nth-child(3) { animation-duration: calc(var(--eq-speed) * 1.15); animation-delay: -0.1s; }
+  @keyframes eq {
+    from { scale: 1 0.3; }
+    40%  { scale: 1 0.85; }
+    70%  { scale: 1 0.5; }
+    to   { scale: 1 1; }
   }
   .row__title { color: var(--color-fg); }
 
@@ -395,6 +450,10 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .eq i { animation: none; }
+    .eq i:nth-child(1) { scale: 1 0.55; }
+    .eq i:nth-child(2) { scale: 1 1; }
+    .eq i:nth-child(3) { scale: 1 0.7; }
     .stage__slide { transform: none; transition-duration: 1ms; }
     .peek, .row[data-hover]:not([data-active]) .peek { scale: 1; transition: opacity var(--duration-fast) linear; }
   }

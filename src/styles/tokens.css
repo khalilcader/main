@@ -115,8 +115,14 @@
   --index-width: 22px;
   --card-width: 89px;     /* hover preview card (Figma 119 × 118) */
   --card-height: 88px;
+  --eq-bar: 3px;          /* "now playing" bars on the selected row */
+  --eq-gap: 2px;
+  --eq-height: 13px;      /* about the cap height of 18px text */
+  --eq-speed: 0.9s;
   --peek-gap: 40px;       /* card never comes closer than this to the label */
   --peek-pull: 0.35;      /* card moves this fraction of the cursor's movement */
+  --peek-lead: 24px;      /* cursor pushes the card once this close to its left edge */
+  --peek-clear: 12px;     /* while lagging, the card never falls closer than this */
   --peek-follow: 0.22;    /* how quickly it catches the cursor per frame (0..1) */
   --stage-inset: 44px;
   --stage-feather: 36px;  /* soft edge of the stage */
