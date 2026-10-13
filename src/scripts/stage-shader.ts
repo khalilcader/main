@@ -1,16 +1,17 @@
 /*
   Stage shader: a soft, grainy, dreamy wash behind preview content.
   Borrows the grain, light streaks and gradient from the tree-shadow shader's
-  "Daylight" look. Underneath, slow liquid blobs merge and split in a warped
-  flow field. The motion runs continuously; switching projects changes only
-  the colours, which spread in like ink from where you pointed.
+  "Daylight" look. Underneath, a few broad, faint shapes of colour drift and
+  merge in a warped flow field, kept subtle so content on top stays the focus.
+  The motion runs continuously; switching projects only crossfades the
+  colours, slowly.
 
   Colours come from CSS tokens (--vibe-<name>-1..3, --vibe-paper): -1 is the
   base, -2 and -3 colour the blobs.
 */
 
-const WAVE = 1.4;      // seconds for a new palette to spread across the stage
-const MAX_LAYERS = 4;  // palettes mid-transition at once (rapid hovering)
+const FADE = 2.0;      // seconds to crossfade to a new palette
+const MAX_LAYERS = 4;  // palettes mid-fade at once (rapid switching)
 
 const VERT = `#version 300 es
 in vec2 aPos;
@@ -27,14 +28,16 @@ uniform float uFeather;  // edge softness, CSS px
 uniform float uRadius;   // corner radius, CSS px
 uniform float uRipple;   // edge ripple amount, CSS px
 // Palette layers, oldest first. Layer 0 is fully shown; each later one
-// spreads over the ones below from its origin, uAge seconds into its wave.
+// fades in over the ones below, uAge seconds into its fade.
 uniform int   uCount;
 uniform vec3  uPal[12];  // 3 colours per layer
 uniform float uAge[4];
-uniform vec2  uOrigin[4];
 out vec4 outColor;
 
-const float WAVE = ${WAVE.toFixed(2)};
+const float FADE = ${FADE.toFixed(2)};
+// Keep it quiet: the stage sits behind content.
+const float ACCENT = 0.22;  // how strongly the accent colours show (0..1)
+const float FLOW = 0.45;    // speed of the drifting shapes
 
 float hash12(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -55,15 +58,15 @@ float sdRoundBox(vec2 p, vec2 b, float r) {
   return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
 }
 
-// Metaballs drifting on slow Lissajous paths: where they meet they merge,
-// where they part they pinch off.
+// A few large, soft metaballs drifting on slow Lissajous paths. Broad and
+// low-contrast on purpose: they read as light moving, not as shapes.
 float blobs(vec2 q, float t, float seed) {
   float f = 0.0;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 3; i++) {
     float fi = float(i) + seed * 4.0;
     vec2 c = vec2(0.26 * sin(t * (0.11 + 0.03 * fi) + fi * 2.1),
                   0.38 * cos(t * (0.08 + 0.025 * fi) + fi * 1.7));
-    float r = 0.11 + 0.04 * sin(t * 0.2 + fi);
+    float r = 0.2 + 0.04 * sin(t * 0.2 + fi);
     vec2 d = q - c;
     f += r * r / (dot(d, d) + 1e-4);
   }
@@ -91,33 +94,27 @@ void main() {
 
   // ── shape: liquid blobs in a slowly turning flow field (palette-free,
   // so it never changes when the project does)
+  float tf = t * FLOW;
   vec2 q = p;
-  vec2 w1 = vec2(fbm(q * 1.5 + vec2(t * 0.04, 0.0)), fbm(q * 1.5 + vec2(5.2, -t * 0.035))) - 0.5;
-  vec2 w2 = vec2(fbm((q + w1) * 2.2 + vec2(1.7, t * 0.05)), fbm((q + w1) * 2.2 + vec2(8.3, 2.8))) - 0.5;
-  q += w1 * 0.35 + w2 * 0.12;
-  float b2 = blobs(q, t, 0.0);
-  float b3 = blobs(q * vec2(1.1, 0.9) + vec2(0.05, -0.03), t * 0.9 + 20.0, 1.0);
-  float f2 = smoothstep(0.7, 1.9, b2);        // soft-edged, dreamy rather than cartoon
-  float f3 = smoothstep(0.8, 2.1, b3) * (1.0 - 0.5 * f2);
-  float core = smoothstep(2.0, 5.0, max(b2, b3));  // glow where blobs are densest
+  vec2 w1 = vec2(fbm(q * 1.5 + vec2(tf * 0.04, 0.0)), fbm(q * 1.5 + vec2(5.2, -tf * 0.035))) - 0.5;
+  vec2 w2 = vec2(fbm((q + w1) * 2.2 + vec2(1.7, tf * 0.05)), fbm((q + w1) * 2.2 + vec2(8.3, 2.8))) - 0.5;
+  q += w1 * 0.2 + w2 * 0.06;
+  float b2 = blobs(q, tf, 0.0);
+  float b3 = blobs(q * vec2(1.1, 0.9) + vec2(0.05, -0.03), tf * 0.9 + 20.0, 1.0);
+  float f2 = smoothstep(0.5, 3.0, b2);        // very wide falloff: no visible edges
+  float f3 = smoothstep(0.6, 3.2, b3) * (1.0 - 0.5 * f2);
 
-  // ── colour: fold the palette layers, each spreading in like ink
+  // ── colour: fold the palette layers, each fading in over the last
   vec3 col = vec3(0.0);
   for (int i = 0; i < 4; i++) {
     if (i >= uCount) break;
     vec3 c = uPal[i * 3];
-    c = mix(c, uPal[i * 3 + 1], f2 * 0.6);
-    c = mix(c, uPal[i * 3 + 2], f3 * 0.55);
+    c = mix(c, uPal[i * 3 + 1], f2 * ACCENT);
+    c = mix(c, uPal[i * 3 + 2], f3 * ACCENT * 0.8);
     if (i == 0) { col = c; continue; }
-    float k = clamp(uAge[i] / WAVE, 0.0, 1.0);
-    k = 1.0 - pow(1.0 - k, 3.0);                                // ease out
-    float dist = length(p - uOrigin[i]) + (fbm(p * 3.0 + vec2(t * 0.3, float(i) * 7.0)) - 0.5) * 0.35;
-    float front = k * 1.9 - 0.15;                               // reaches the far corner
-    float m = smoothstep(front + 0.04, front - 0.16, dist);
-    m = max(m, step(1.0, uAge[i] / WAVE));
-    col = mix(col, c, m);
+    float k = clamp(uAge[i] / FADE, 0.0, 1.0);
+    col = mix(col, c, k * k * (3.0 - 2.0 * k));  // ease in-out
   }
-  col = mix(col, vec3(1.0), core * 0.18);
 
   // ── daylight: bright on the side the light comes from, dimmer away from it
   float a = radians(20.0);
@@ -135,7 +132,7 @@ void main() {
   float band = smoothstep(0.5, 0.85, r1);
   float dash = smoothstep(0.56, 0.8, r2 * 0.75 + r1 * 0.25);
   float fleck = max(band * 0.55, dash) * smoothstep(0.2, 0.65, r3);
-  col = mix(col, vec3(1.0), 0.5 * fleck * (0.2 + 0.8 * (1.0 - ramp)) * 0.3);
+  col = mix(col, vec3(1.0), 0.35 * fleck * (0.2 + 0.8 * (1.0 - ramp)) * 0.3);
 
   col = mix(col, uPaper, 0.04);
 
@@ -163,7 +160,6 @@ interface Layer {
   vibe: string;
   colors: number[];        // 9 floats: base, accent, accent
   born: number;            // performance.now() in ms
-  origin: [number, number];
 }
 
 export function createStage(canvas: HTMLCanvasElement, opts: StageOptions) {
@@ -200,7 +196,7 @@ export function createStage(canvas: HTMLCanvasElement, opts: StageOptions) {
   const U = {
     res: u('uRes'), time: u('uTime'), dpr: u('uDpr'), paper: u('uPaper'),
     feather: u('uFeather'), radius: u('uRadius'), ripple: u('uRipple'),
-    count: u('uCount'), pal: u('uPal'), age: u('uAge'), origin: u('uOrigin'),
+    count: u('uCount'), pal: u('uPal'), age: u('uAge'),
   };
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -222,22 +218,20 @@ export function createStage(canvas: HTMLCanvasElement, opts: StageOptions) {
     gl.viewport(0, 0, canvas.width, canvas.height);
   };
 
-  // Once a wave has covered the stage, everything under it is hidden: drop it.
+  // Once a palette has fully faded in, everything under it is hidden: drop it.
   const prune = (now: number) => {
     for (let i = layers.length - 1; i > 0; i--) {
-      if (now - layers[i].born >= WAVE * 1000) { layers = layers.slice(i); break; }
+      if (now - layers[i].born >= FADE * 1000) { layers = layers.slice(i); break; }
     }
-    return layers.length > 1;  // still spreading?
+    return layers.length > 1;  // still fading?
   };
 
   const draw = (now: number) => {
     const pal = new Float32Array(MAX_LAYERS * 9);
     const age = new Float32Array(MAX_LAYERS);
-    const origin = new Float32Array(MAX_LAYERS * 2);
     layers.forEach((l, i) => {
       pal.set(l.colors, i * 9);
       age[i] = (now - l.born) / 1000;
-      origin.set(l.origin, i * 2);
     });
     gl.uniform2f(U.res, canvas.width, canvas.height);
     gl.uniform1f(U.time, time);
@@ -249,7 +243,6 @@ export function createStage(canvas: HTMLCanvasElement, opts: StageOptions) {
     gl.uniform1i(U.count, layers.length);
     gl.uniform3fv(U.pal, pal);
     gl.uniform1fv(U.age, age);
-    gl.uniform2fv(U.origin, origin);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -258,11 +251,11 @@ export function createStage(canvas: HTMLCanvasElement, opts: StageOptions) {
   const frame = (now: number) => {
     const dt = Math.min((now - last) / 1000, 0.1);
     last = now;
-    const spreading = prune(now);
+    const fading = prune(now);
     if (!reduced.matches) time += dt;
     draw(now);
     // Under reduced motion, stop once the colour change has finished.
-    raf = visible && (spreading || !reduced.matches) ? requestAnimationFrame(frame) : 0;
+    raf = visible && (fading || !reduced.matches) ? requestAnimationFrame(frame) : 0;
   };
   const start = () => {
     if (!raf && visible) {
@@ -284,27 +277,17 @@ export function createStage(canvas: HTMLCanvasElement, opts: StageOptions) {
   resize();
 
   return {
-    /**
-     * Switch to a vibe's colours. `from` is the viewport point (client px)
-     * the new colour spreads out from; defaults to the stage's centre.
-     */
-    setVibe(name: string, from?: { x: number; y: number }) {
+    /** Crossfade to a vibe's colours. */
+    setVibe(name: string) {
       if (layers.at(-1)?.vibe === name) return;
       const now = performance.now();
-      const r = canvas.getBoundingClientRect();
-      const s = Math.max(r.width, r.height) || 1;
-      const x = from ? from.x : r.left + r.width / 2;
-      const y = from ? from.y : r.top + r.height / 2;
-      // Same space as the shader's p: centred, y up, scaled by the long side.
-      const origin: [number, number] = [(x - r.left - r.width / 2) / s, (r.top + r.height / 2 - y) / s];
-      const first = layers.length === 0;
-      // Reduced motion, or the very first paint: no spreading, just show it.
-      const born = first || reduced.matches ? now - WAVE * 1000 : now;
-      layers.push({ vibe: name, colors: colorsFor(name), born, origin });
-      // Very fast hovering: fold the oldest pending wave down so we stay in budget.
+      // Reduced motion, or the very first paint: no fade, just show it.
+      const born = layers.length === 0 || reduced.matches ? now - FADE * 1000 : now;
+      layers.push({ vibe: name, colors: colorsFor(name), born });
+      // Very fast switching: finish the oldest pending fade so we stay in budget.
       while (layers.length > MAX_LAYERS) {
         layers.shift();
-        layers[0].born = now - WAVE * 1000;
+        layers[0].born = now - FADE * 1000;
       }
       prune(now);
       start();

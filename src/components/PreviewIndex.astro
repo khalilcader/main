@@ -1,9 +1,9 @@
 ---
 /*
   Scrollable project list on the left, a soft shader "stage" on the right
-  (Figma frames 43:2, 49:108). Hovering a row highlights it and a small
-  preview card springs out of it, gliding between rows as you move. Clicking
-  a row selects it: the stage's colour spreads in from that row. Clicking the
+  (Figma frames 43:2, 49:108). Hovering a row scales a small preview card up
+  out of it; leaving scales it back down. Clicking
+  a row selects it and the stage slowly crossfades to its colours. Clicking the
   selected row again opens its case study. On narrow screens the stage sits on
   top and the row nearest it as you scroll is selected.
 */
@@ -21,10 +21,11 @@ export interface PreviewItem {
 interface Props {
   items: PreviewItem[];
   ripple?: number;   // px the stage edge breathes; 0 for a still edge
+  rowHighlight?: boolean;  // grey pill behind the hovered row (Figma 49:114); off for now
 }
-const { items, ripple = 4 } = Astro.props;
+const { items, ripple = 4, rowHighlight = false } = Astro.props;
 ---
-<div class="preview-index" data-preview-index data-ripple={ripple}>
+<div class="preview-index" data-preview-index data-ripple={ripple} data-row-highlight={rowHighlight ? '' : undefined}>
   <div class="list-wrap">
     <ol class="list">
       {items.map((item, i) => {
@@ -35,22 +36,18 @@ const { items, ripple = 4 } = Astro.props;
             {item.href
               ? <a class="row__hit" href={item.href} aria-current={i === 0 ? 'true' : undefined}>{inner}</a>
               : <button class="row__hit" type="button" aria-pressed={i === 0 ? 'true' : 'false'}>{inner}</button>}
+            <div class="peek" aria-hidden="true">
+              <div class="peek__shadow"></div>
+              <div class="peek__body" data-peek-body
+                style={`--v1: var(--vibe-${item.vibe}-1); --v2: var(--vibe-${item.vibe}-2); --v3: var(--vibe-${item.vibe}-3)`}>
+                {item.thumb && <img src={item.thumb} alt="" />}
+                <svg class="peek__rim"><path /></svg>
+              </div>
+            </div>
           </li>
         );
       })}
     </ol>
-
-    <div class="peek" data-peek aria-hidden="true">
-      <div class="peek__shadow"></div>
-      <div class="peek__body" data-peek-body>
-        {items.map((item) => (
-          <div class="peek__thumb" data-peek-thumb style={`--v1: var(--vibe-${item.vibe}-1); --v2: var(--vibe-${item.vibe}-2); --v3: var(--vibe-${item.vibe}-3)`}>
-            {item.thumb && <img src={item.thumb} alt="" />}
-          </div>
-        ))}
-        <svg class="peek__rim"><path data-peek-rim /></svg>
-      </div>
-    </div>
   </div>
 
   <div class="fade" aria-hidden="true"></div>
@@ -78,15 +75,8 @@ const { items, ripple = 4 } = Astro.props;
     const canvas = root.querySelector<HTMLCanvasElement>('[data-stage-canvas]')!;
     const fallback = root.querySelector<HTMLElement>('[data-stage-fallback]')!;
     const stageEl = root.querySelector<HTMLElement>('.stage')!;
-    const list = root.querySelector<HTMLElement>('.list')!;
-    const peek = root.querySelector<HTMLElement>('[data-peek]')!;
-    const thumbs = [...root.querySelectorAll<HTMLElement>('[data-peek-thumb]')];
     const css = getComputedStyle(root);
     const stacked = matchMedia('(max-width: 900px)');
-    const ms = (name: string) => {
-      const v = css.getPropertyValue(name).trim();
-      return (v.endsWith('ms') ? parseFloat(v) : parseFloat(v) * 1000) || 0;
-    };
 
     // ── stage
     let stage: ReturnType<typeof createStage> = null;
@@ -101,16 +91,6 @@ const { items, ripple = 4 } = Astro.props;
     }
     if (!stage) root.classList.add('no-webgl');
 
-    // Where the new colour spreads in from: the stage edge nearest the list,
-    // level with the row (side by side), or the bottom edge (stacked).
-    const originFor = (row: HTMLElement) => {
-      const s = stageEl.getBoundingClientRect();
-      if (stacked.matches) return { x: s.left + s.width / 2, y: s.bottom };
-      const r = row.getBoundingClientRect();
-      const y = Math.min(Math.max((r.top + r.bottom) / 2, s.top), s.bottom);
-      return { x: s.left, y };
-    };
-
     // ── selection: what the stage shows
     let active = 0;
     const select = (i: number) => {
@@ -123,7 +103,7 @@ const { items, ripple = 4 } = Astro.props;
       });
       slides.forEach((s, j) => s.toggleAttribute('data-active', j === i));
       const vibe = rows[i].dataset.vibe ?? 'sky';
-      stage?.setVibe(vibe, originFor(rows[i]));
+      stage?.setVibe(vibe);
       fallback.style.setProperty('--stage-color', `var(--vibe-${vibe}-1)`);
     };
     const firstVibe = rows[0]?.dataset.vibe ?? 'sky';
@@ -137,57 +117,24 @@ const { items, ripple = 4 } = Astro.props;
       });
     });
 
-    // ── hover: highlight the row and spring the preview card out of it
-    clipSquircle(
-      root.querySelector<HTMLElement>('[data-peek-body]')!,
-      () => parseFloat(css.getPropertyValue('--radius-card')) || 16,
-      parseFloat(css.getPropertyValue('--corner-smoothing')) || 0.6,
-      (d, w, h) => {
-        const rim = root.querySelector<SVGPathElement>('[data-peek-rim]')!;
+    // ── hover: each row's card scales up as you enter and down as you leave
+    const cardRadius = parseFloat(css.getPropertyValue('--radius-card')) || 12;
+    const smoothing = parseFloat(css.getPropertyValue('--corner-smoothing')) || 0.6;
+    for (const body of root.querySelectorAll<HTMLElement>('[data-peek-body]')) {
+      const rim = body.querySelector('path')!;
+      clipSquircle(body, () => cardRadius, smoothing, (d, w, h) => {
         rim.ownerSVGElement!.setAttribute('viewBox', `0 0 ${w} ${h}`);
         rim.setAttribute('d', d);
-      },
-    );
-
-    let hovered = -1;
-    let opening = 0;
-    const place = (i: number) => {
-      const row = rows[i];
-      peek.style.setProperty('--peek-y', `${row.offsetTop + row.offsetHeight / 2}px`);
-      thumbs.forEach((t, j) => t.toggleAttribute('data-show', j === i));
-    };
-    const hover = (i: number) => {
-      clearTimeout(opening);
-      if (hovered >= 0) rows[hovered].removeAttribute('data-hover');
-      hovered = i;
-      rows[i].setAttribute('data-hover', '');
-      if (peek.hasAttribute('data-open')) { place(i); return; }  // already out: glide
-      // Not out yet: wait for the pointer to settle, then jump into place
-      // (no glide) and spring open.
-      opening = window.setTimeout(() => {
-        peek.setAttribute('data-instant', '');
-        place(i);
-        peek.offsetWidth;  // commit the jump before animating
-        peek.removeAttribute('data-instant');
-        peek.setAttribute('data-open', '');
-      }, ms('--hover-intent'));
-    };
-    const unhover = () => {
-      clearTimeout(opening);
-      if (hovered >= 0) rows[hovered].removeAttribute('data-hover');
-      hovered = -1;
-      peek.removeAttribute('data-open');
-    };
-
-    rows.forEach((row, i) => {
-      row.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover(i); });
-      row.addEventListener('focusin', () => { if (hits[i].matches(':focus-visible')) hover(i); });
-      row.addEventListener('focusout', (e) => {
-        // Tabbing to another row should glide the card, not close it.
-        if (!list.contains(e.relatedTarget as Node | null)) unhover();
       });
+    }
+    rows.forEach((row, i) => {
+      const on = () => row.setAttribute('data-hover', '');
+      const off = () => row.removeAttribute('data-hover');
+      row.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') on(); });
+      row.addEventListener('pointerleave', off);
+      row.addEventListener('focusin', () => { if (hits[i].matches(':focus-visible')) on(); });
+      row.addEventListener('focusout', off);
     });
-    list.addEventListener('pointerleave', unhover);
 
     // ── narrow screens: the stage is stacked on top, so follow the scroll
     let ticking = false;
@@ -242,7 +189,8 @@ const { items, ripple = 4 } = Astro.props;
     cursor: pointer;
     transition: background-color var(--duration-fast) var(--ease-out);
   }
-  .row[data-hover] .row__hit { background: var(--color-row-hover); }
+  .row { position: relative; }
+  [data-row-highlight] .row[data-hover] .row__hit { background: var(--color-row-hover); }
   .row__hit:focus-visible { outline: 1px solid var(--color-fg); outline-offset: -1px; }
   /* Rest at 20%; the selected and hovered rows come up to full strength. */
   .row__num,
@@ -259,33 +207,33 @@ const { items, ripple = 4 } = Astro.props;
   }
   .row__title { color: var(--color-fg); }
 
-  /* ── hover card: sits at the row's right end, centred on it (Figma 49:179) */
+  /* ── hover card: at the row's right end, centred on it (Figma 49:179).
+     Scales up from the row on enter, back down on leave. */
   .peek {
     position: absolute;
-    top: 0;
+    top: 50%;
     right: var(--card-inset);
     width: var(--card-width);
     height: var(--card-height);
     margin-top: calc(var(--card-height) / -2);
+    z-index: 1;
     pointer-events: none;
-    translate: 0 var(--peek-y, 0px);
-    scale: 0.4;
+    scale: 0.5;
     opacity: 0;
     transform-origin: 0% 50%;  /* grows out of the row, toward the stage */
+    /* out: a quick shrink, gone before the next card lands */
     transition:
-      translate var(--duration-spawn) var(--ease-spring),
-      scale var(--duration-fast) var(--ease-out),
-      opacity var(--duration-fast) var(--ease-out);
+      scale var(--duration-fast) var(--ease-in),
+      opacity var(--duration-fast) var(--ease-in);
   }
-  .peek[data-open] {
+  .row[data-hover] .peek {
     scale: 1;
     opacity: 1;
+    /* in: visible almost at once, then the scale pops past 1 and settles */
     transition:
-      translate var(--duration-spawn) var(--ease-spring),
-      scale var(--duration-spawn) var(--ease-spring),
-      opacity var(--duration-fast) var(--ease-out);
+      scale var(--duration-pop) var(--ease-pop),
+      opacity var(--duration-instant) linear;
   }
-  .peek[data-instant] { transition: none; }
   .peek__shadow,
   .peek__body {
     position: absolute;
@@ -295,21 +243,13 @@ const { items, ripple = 4 } = Astro.props;
   .peek__shadow { box-shadow: var(--shadow-card); }  /* outside the clip */
   .peek__body {
     overflow: hidden;
-    background: var(--color-card);
-  }
-  .peek__thumb {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity var(--duration-fast) var(--ease-out);
     /* placeholder until a project has a thumbnail: its stage colours */
     background:
       radial-gradient(60% 55% at 28% 30%, var(--v2), transparent),
       radial-gradient(55% 60% at 75% 78%, var(--v3), transparent),
-      var(--v1);
+      var(--v1, var(--color-card));
   }
-  .peek__thumb[data-show] { opacity: 1; }
-  .peek__thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .peek__body img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .peek__rim {
     position: absolute;
     inset: 0;
@@ -406,6 +346,6 @@ const { items, ripple = 4 } = Astro.props;
 
   @media (prefers-reduced-motion: reduce) {
     .stage__slide { transform: none; transition-duration: 1ms; }
-    .peek, .peek[data-open] { scale: 1; transition: opacity var(--duration-fast) linear; }
+    .peek, .row[data-hover] .peek { scale: 1; transition: opacity var(--duration-fast) linear; }
   }
 </style>
