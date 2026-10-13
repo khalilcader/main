@@ -1,6 +1,7 @@
 ---
 /*
-  Prototype of the list + stage homepage (Figma: khalilcader.com, frame 43:2).
+  Prototype of the list + stage homepage (Figma: khalilcader.com, frames 43:2
+  and 49:108).
   Project names come from the Figma frame; vibes and links are placeholders.
 */
 import Base from '../layouts/Base.astro';
@@ -31,17 +32,17 @@ const items: PreviewItem[] = names.map((title, i) => ({
 <style>
   .page {
     padding: var(--space-6) var(--gutter) 0 var(--space-7);
-    font-weight: var(--weight-medium);
+    font-weight: var(--weight-regular);
   }
   .intro {
     padding: var(--space-3);
-    margin-bottom: var(--space-3);
-    font-size: var(--text-sm);
+    margin-bottom: var(--intro-gap);
+    font-size: var(--text-lg);
     letter-spacing: var(--tracking);
     line-height: normal;
   }
   .intro p { margin: 0; }
-  .intro__role { color: var(--color-muted); }
+  .intro__role { color: var(--color-subtle); }
 
   @media (max-width: 900px) {
     .page { padding: var(--space-4) var(--gutter) 0; }

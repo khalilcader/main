@@ -1,18 +1,21 @@
 ---
 /*
   Scrollable project list on the left, a soft shader "stage" on the right
-  (Figma frame 43:2). Hovering or focusing a row flips the stage to that
-  project's vibe and preview. On narrow screens the stage sits on top and the
-  row nearest it as you scroll becomes active.
+  (Figma frames 43:2, 49:108). Hovering a row highlights it and a small
+  preview card springs out of it, gliding between rows as you move. Clicking
+  a row selects it: the stage's colour spreads in from that row. Clicking the
+  selected row again opens its case study. On narrow screens the stage sits on
+  top and the row nearest it as you scroll is selected.
 */
 import DeviceFrame from './DeviceFrame.astro';
 
 export interface PreviewItem {
   title: string;
-  vibe: string;      // a key of VIBES in stage-shader.ts, with --vibe-<key>-1..3 tokens
+  vibe: string;      // names a --vibe-<key>-1..3 colour set in tokens.css
   href?: string;     // case study link, when one exists
   media?: string;    // image or video shown on the device screen
   mediaAlt?: string;
+  thumb?: string;    // image for the hover card; falls back to the vibe's colours
 }
 
 interface Props {
@@ -22,19 +25,33 @@ interface Props {
 const { items, ripple = 4 } = Astro.props;
 ---
 <div class="preview-index" data-preview-index data-ripple={ripple}>
-  <ol class="list">
-    {items.map((item, i) => {
-      const num = String(i + 1).padStart(2, '0');
-      const inner = <><span class="row__num">{num}</span><span class="row__title">{item.title}</span></>;
-      return (
-        <li class="row" data-row data-vibe={item.vibe} data-active={i === 0 ? '' : undefined}>
-          {item.href
-            ? <a class="row__hit" href={item.href}>{inner}</a>
-            : <button class="row__hit" type="button">{inner}</button>}
-        </li>
-      );
-    })}
-  </ol>
+  <div class="list-wrap">
+    <ol class="list">
+      {items.map((item, i) => {
+        const num = String(i + 1).padStart(2, '0');
+        const inner = <><span class="row__num">{num}</span><span class="row__title">{item.title}</span></>;
+        return (
+          <li class="row" data-row data-vibe={item.vibe} data-active={i === 0 ? '' : undefined}>
+            {item.href
+              ? <a class="row__hit" href={item.href} aria-current={i === 0 ? 'true' : undefined}>{inner}</a>
+              : <button class="row__hit" type="button" aria-pressed={i === 0 ? 'true' : 'false'}>{inner}</button>}
+          </li>
+        );
+      })}
+    </ol>
+
+    <div class="peek" data-peek aria-hidden="true">
+      <div class="peek__shadow"></div>
+      <div class="peek__body" data-peek-body>
+        {items.map((item) => (
+          <div class="peek__thumb" data-peek-thumb style={`--v1: var(--vibe-${item.vibe}-1); --v2: var(--vibe-${item.vibe}-2); --v3: var(--vibe-${item.vibe}-3)`}>
+            {item.thumb && <img src={item.thumb} alt="" />}
+          </div>
+        ))}
+        <svg class="peek__rim"><path data-peek-rim /></svg>
+      </div>
+    </div>
+  </div>
 
   <div class="fade" aria-hidden="true"></div>
 
@@ -52,14 +69,26 @@ const { items, ripple = 4 } = Astro.props;
 
 <script>
   import { createStage } from '../scripts/stage-shader';
+  import { clipSquircle } from '../scripts/squircle';
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-preview-index]')) {
     const rows = [...root.querySelectorAll<HTMLElement>('[data-row]')];
+    const hits = rows.map((r) => r.querySelector<HTMLElement>('.row__hit')!);
     const slides = [...root.querySelectorAll<HTMLElement>('[data-slide]')];
     const canvas = root.querySelector<HTMLCanvasElement>('[data-stage-canvas]')!;
     const fallback = root.querySelector<HTMLElement>('[data-stage-fallback]')!;
+    const stageEl = root.querySelector<HTMLElement>('.stage')!;
+    const list = root.querySelector<HTMLElement>('.list')!;
+    const peek = root.querySelector<HTMLElement>('[data-peek]')!;
+    const thumbs = [...root.querySelectorAll<HTMLElement>('[data-peek-thumb]')];
     const css = getComputedStyle(root);
+    const stacked = matchMedia('(max-width: 900px)');
+    const ms = (name: string) => {
+      const v = css.getPropertyValue(name).trim();
+      return (v.endsWith('ms') ? parseFloat(v) : parseFloat(v) * 1000) || 0;
+    };
 
+    // ── stage
     let stage: ReturnType<typeof createStage> = null;
     try {
       stage = createStage(canvas, {
@@ -72,32 +101,100 @@ const { items, ripple = 4 } = Astro.props;
     }
     if (!stage) root.classList.add('no-webgl');
 
+    // Where the new colour spreads in from: the stage edge nearest the list,
+    // level with the row (side by side), or the bottom edge (stacked).
+    const originFor = (row: HTMLElement) => {
+      const s = stageEl.getBoundingClientRect();
+      if (stacked.matches) return { x: s.left + s.width / 2, y: s.bottom };
+      const r = row.getBoundingClientRect();
+      const y = Math.min(Math.max((r.top + r.bottom) / 2, s.top), s.bottom);
+      return { x: s.left, y };
+    };
+
+    // ── selection: what the stage shows
     let active = 0;
-    const setActive = (i: number) => {
+    const select = (i: number) => {
       if (i === active || i < 0) return;
       active = i;
       rows.forEach((r, j) => r.toggleAttribute('data-active', j === i));
+      hits.forEach((h, j) => {
+        if (h.tagName === 'A') h.toggleAttribute('aria-current', j === i);
+        else h.setAttribute('aria-pressed', String(j === i));
+      });
       slides.forEach((s, j) => s.toggleAttribute('data-active', j === i));
       const vibe = rows[i].dataset.vibe ?? 'sky';
-      stage?.setVibe(vibe);
+      stage?.setVibe(vibe, originFor(rows[i]));
       fallback.style.setProperty('--stage-color', `var(--vibe-${vibe}-1)`);
     };
-    stage?.setVibe(rows[0]?.dataset.vibe ?? 'sky');
-    fallback.style.setProperty('--stage-color', `var(--vibe-${rows[0]?.dataset.vibe ?? 'sky'}-1)`);
+    const firstVibe = rows[0]?.dataset.vibe ?? 'sky';
+    stage?.setVibe(firstVibe);
+    fallback.style.setProperty('--stage-color', `var(--vibe-${firstVibe}-1)`);
 
-    // Pointer and keyboard: whatever row you're on is the preview.
-    rows.forEach((row, i) => {
-      row.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') setActive(i); });
-      row.addEventListener('focusin', () => setActive(i));
+    // First click selects; clicking the selected row follows its link.
+    hits.forEach((hit, i) => {
+      hit.addEventListener('click', (e) => {
+        if (i !== active) { e.preventDefault(); select(i); }
+      });
     });
 
-    // Narrow screens: the stage is stacked on top, so follow the scroll instead.
-    const stacked = matchMedia('(max-width: 900px)');
+    // ── hover: highlight the row and spring the preview card out of it
+    clipSquircle(
+      root.querySelector<HTMLElement>('[data-peek-body]')!,
+      () => parseFloat(css.getPropertyValue('--radius-card')) || 16,
+      parseFloat(css.getPropertyValue('--corner-smoothing')) || 0.6,
+      (d, w, h) => {
+        const rim = root.querySelector<SVGPathElement>('[data-peek-rim]')!;
+        rim.ownerSVGElement!.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        rim.setAttribute('d', d);
+      },
+    );
+
+    let hovered = -1;
+    let opening = 0;
+    const place = (i: number) => {
+      const row = rows[i];
+      peek.style.setProperty('--peek-y', `${row.offsetTop + row.offsetHeight / 2}px`);
+      thumbs.forEach((t, j) => t.toggleAttribute('data-show', j === i));
+    };
+    const hover = (i: number) => {
+      clearTimeout(opening);
+      if (hovered >= 0) rows[hovered].removeAttribute('data-hover');
+      hovered = i;
+      rows[i].setAttribute('data-hover', '');
+      if (peek.hasAttribute('data-open')) { place(i); return; }  // already out: glide
+      // Not out yet: wait for the pointer to settle, then jump into place
+      // (no glide) and spring open.
+      opening = window.setTimeout(() => {
+        peek.setAttribute('data-instant', '');
+        place(i);
+        peek.offsetWidth;  // commit the jump before animating
+        peek.removeAttribute('data-instant');
+        peek.setAttribute('data-open', '');
+      }, ms('--hover-intent'));
+    };
+    const unhover = () => {
+      clearTimeout(opening);
+      if (hovered >= 0) rows[hovered].removeAttribute('data-hover');
+      hovered = -1;
+      peek.removeAttribute('data-open');
+    };
+
+    rows.forEach((row, i) => {
+      row.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover(i); });
+      row.addEventListener('focusin', () => { if (hits[i].matches(':focus-visible')) hover(i); });
+      row.addEventListener('focusout', (e) => {
+        // Tabbing to another row should glide the card, not close it.
+        if (!list.contains(e.relatedTarget as Node | null)) unhover();
+      });
+    });
+    list.addEventListener('pointerleave', unhover);
+
+    // ── narrow screens: the stage is stacked on top, so follow the scroll
     let ticking = false;
     const follow = () => {
       ticking = false;
       if (!stacked.matches) return;
-      const stageBottom = root.querySelector('.stage')!.getBoundingClientRect().bottom;
+      const stageBottom = stageEl.getBoundingClientRect().bottom;
       const line = stageBottom + (innerHeight - stageBottom) * 0.3;
       let best = 0, bestDist = Infinity;
       rows.forEach((r, i) => {
@@ -105,7 +202,7 @@ const { items, ripple = 4 } = Astro.props;
         const d = Math.abs((b.top + b.bottom) / 2 - line);
         if (d < bestDist) { bestDist = d; best = i; }
       });
-      setActive(best);
+      select(best);
     };
     addEventListener('scroll', () => {
       if (!ticking) { ticking = true; requestAnimationFrame(follow); }
@@ -115,14 +212,16 @@ const { items, ripple = 4 } = Astro.props;
 
 <style>
   /* ── list */
-  .list {
+  .list-wrap {
+    position: relative;
     /* never runs under the stage, which starts at 50% */
     width: min(var(--list-width), calc(50vw - var(--space-7) - var(--space-5)));
+  }
+  .list {
     margin: 0;
     padding: 0 0 var(--fade-height);
     list-style: none;
   }
-  .row + .row { border-top: 1px solid var(--color-line); }
   .row__hit {
     display: flex;
     align-items: center;
@@ -131,7 +230,8 @@ const { items, ripple = 4 } = Astro.props;
     min-height: var(--row-height);
     padding: var(--space-3);
     border: 0;
-    background: none;
+    border-radius: var(--radius-row);
+    background: transparent;
     color: inherit;
     font: inherit;
     font-size: var(--text-lg);
@@ -140,17 +240,87 @@ const { items, ripple = 4 } = Astro.props;
     text-align: left;
     text-decoration: none;
     cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+  .row[data-hover] .row__hit { background: var(--color-row-hover); }
+  .row__hit:focus-visible { outline: 1px solid var(--color-fg); outline-offset: -1px; }
+  /* Rest at 20%; the selected and hovered rows come up to full strength. */
+  .row__num,
+  .row__title {
     opacity: 0.2;
     transition: opacity var(--duration-fast) var(--ease-out);
   }
-  .row[data-active] .row__hit { opacity: 1; }
-  .row__hit:focus-visible { outline: 1px solid var(--color-fg); outline-offset: -1px; }
+  .row[data-active] :is(.row__num, .row__title),
+  .row[data-hover] :is(.row__num, .row__title) { opacity: 1; }
   .row__num {
     flex: none;
-    width: var(--index-width);
+    min-width: var(--index-width);
     color: var(--color-muted);
   }
   .row__title { color: var(--color-fg); }
+
+  /* ── hover card: sits at the row's right end, centred on it (Figma 49:179) */
+  .peek {
+    position: absolute;
+    top: 0;
+    right: var(--card-inset);
+    width: var(--card-width);
+    height: var(--card-height);
+    margin-top: calc(var(--card-height) / -2);
+    pointer-events: none;
+    translate: 0 var(--peek-y, 0px);
+    scale: 0.4;
+    opacity: 0;
+    transform-origin: 0% 50%;  /* grows out of the row, toward the stage */
+    transition:
+      translate var(--duration-spawn) var(--ease-spring),
+      scale var(--duration-fast) var(--ease-out),
+      opacity var(--duration-fast) var(--ease-out);
+  }
+  .peek[data-open] {
+    scale: 1;
+    opacity: 1;
+    transition:
+      translate var(--duration-spawn) var(--ease-spring),
+      scale var(--duration-spawn) var(--ease-spring),
+      opacity var(--duration-fast) var(--ease-out);
+  }
+  .peek[data-instant] { transition: none; }
+  .peek__shadow,
+  .peek__body {
+    position: absolute;
+    inset: 0;
+    border-radius: calc(var(--radius-card) * 1px);
+  }
+  .peek__shadow { box-shadow: var(--shadow-card); }  /* outside the clip */
+  .peek__body {
+    overflow: hidden;
+    background: var(--color-card);
+  }
+  .peek__thumb {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    /* placeholder until a project has a thumbnail: its stage colours */
+    background:
+      radial-gradient(60% 55% at 28% 30%, var(--v2), transparent),
+      radial-gradient(55% 60% at 75% 78%, var(--v3), transparent),
+      var(--v1);
+  }
+  .peek__thumb[data-show] { opacity: 1; }
+  .peek__thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .peek__rim {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .peek__rim path {
+    fill: none;
+    stroke: var(--color-card-border);
+    stroke-width: 2px;  /* half is clipped: a 1px inside border */
+  }
 
   /* ── stage */
   .stage {
@@ -216,7 +386,8 @@ const { items, ripple = 4 } = Astro.props;
   /* ── narrow: stage on top, list scrolls under it */
   @media (max-width: 900px) {
     .preview-index { display: flex; flex-direction: column; }
-    .list { width: 100%; }
+    .list-wrap { width: 100%; }
+    .peek { display: none; }
     .stage {
       order: -1;
       position: sticky;
@@ -229,11 +400,12 @@ const { items, ripple = 4 } = Astro.props;
     .stage__canvas { inset: var(--gutter); width: calc(100% - 2 * var(--gutter)); height: calc(100% - 2 * var(--gutter)); }
     .stage__slide { padding: calc(var(--gutter) + var(--space-5)) var(--space-4); }
     .list { padding-bottom: 50svh; }
-    .row__hit { padding-inline: 0; }
+    .row__hit { padding-inline: 0; border-radius: 0; }
     .fade { width: 100%; height: calc(var(--fade-height) / 2); }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .stage__slide { transform: none; transition-duration: 1ms; }
+    .peek, .peek[data-open] { scale: 1; transition: opacity var(--duration-fast) linear; }
   }
 </style>

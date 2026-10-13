@@ -5,25 +5,30 @@
 */
 
 /*
-  Söhne Breit (Klim), the face used in Figma. Only local() sources for now, so it
+  Söhne Buch (Klim), the face used in Figma. Only local() sources for now, so it
   renders wherever the font is installed (Khalil's machine, incl. the Test
   trial build). Shipping it publicly needs the Klim web licence and .woff2
   files added here as url() sources.
 */
 @font-face {
-  font-family: 'Sohne Breit';
-  src: local('Söhne Breit Kräftig'), local('SohneBreit-Kraftig'),
-       local('Test Söhne Breit Kräftig'), local('TestSohneBreit-Kraftig');
-  font-weight: 500;
+  font-family: 'Sohne';
+  src: local('Söhne Buch'), local('Sohne-Buch'),
+       local('Test Söhne Buch'), local('TestSohne-Buch');
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 :root {
-  /* Color (Figma: frame 43:2) */
+  /* Color (Figma: frames 43:2, 49:108) */
   --color-bg: #fafafa;
   --color-fg: #000000;
-  --color-muted: rgba(0, 0, 0, 0.3);
+  --color-muted: rgba(0, 0, 0, 0.3);   /* row numbers */
+  --color-subtle: rgba(0, 0, 0, 0.4);  /* "Product Designer" */
+  --color-row-hover: #efefef;
+  --color-card: #fafafa;
+  --color-card-border: rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 4px 8px rgba(0, 0, 0, 0.08);
   --color-line: rgba(0, 0, 0, 0.15);
   --color-accent: #000000;
   --color-device-glass: rgba(255, 255, 255, 0.5);
@@ -69,13 +74,12 @@
   --vibe-tide-3: var(--apple-mint);
 
   /* Type */
-  --font-sans: 'Sohne Breit', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Sohne', system-ui, -apple-system, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: ui-monospace, monospace;
-  --text-sm: 16px;   /* name / title block */
-  --text-lg: 24px;   /* list rows */
-  --weight-medium: 500;
-  --tracking: 0.02em; /* 0.32px @16, 0.48px @24 */
+  --text-lg: 24px;   /* name block and list rows */
+  --weight-regular: 400;
+  --tracking: 0;
 
   /* Spacing (base 4) */
   --space-1: 4px;
@@ -88,19 +92,28 @@
 
   /* Radii. Figma uses 60% corner smoothing throughout; see scripts/squircle.ts */
   --radius-stage: 48px;
+  --radius-row: 16px;     /* hover pill, no smoothing in Figma */
+  --radius-card: 16;      /* hover preview card, smoothed */
   --corner-smoothing: 0.6;
 
   /* Motion */
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   --duration-fast: 200ms;
   --duration-slow: 600ms;
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);  /* slight overshoot */
+  --duration-spawn: 450ms;
+  --hover-intent: 80ms;   /* pointer rests this long before the first card appears */
 
   /* Layout */
   --max-width: 1200px;
   --gutter: 16px;
-  --list-width: 500px;
+  --list-width: 547px;
+  --intro-gap: 51px;      /* name block to list */
   --row-height: 64px;
-  --index-width: 40px;
+  --index-width: 29px;
+  --card-width: 119px;    /* hover preview card */
+  --card-height: 118px;
+  --card-inset: 22px;     /* card's right edge to the row's right edge */
   --stage-inset: 44px;
   --stage-feather: 36px;  /* soft edge of the stage */
   --fade-height: 304px;   /* blur/fade over the bottom of the list */
