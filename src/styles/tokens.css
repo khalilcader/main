@@ -115,7 +115,9 @@
   --index-width: 22px;
   --card-width: 89px;     /* hover preview card (Figma 119 × 118) */
   --card-height: 88px;
-  --card-inset: 22px;     /* card's right edge to the row's right edge */
+  --peek-gap: 40px;       /* card never comes closer than this to the label */
+  --peek-lead: 24px;      /* card's left edge sits this far right of the cursor */
+  --peek-follow: 0.22;    /* how quickly it catches the cursor per frame (0..1) */
   --stage-inset: 44px;
   --stage-feather: 36px;  /* soft edge of the stage */
   --fade-height: 304px;   /* blur/fade over the bottom of the list */

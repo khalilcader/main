@@ -1,8 +1,8 @@
 ---
 /*
   Scrollable project list on the left, a soft shader "stage" on the right
-  (Figma frames 43:2, 49:108). Hovering a row scales a small preview card up
-  out of it; leaving scales it back down. Clicking
+  (Figma frames 43:2, 49:108). Hovering a row pops a small thumbnail card
+  out next to the cursor, which it then trails; leaving shrinks it away. Clicking
   a row selects it and the stage slowly crossfades to its colours. Clicking the
   selected row again opens its case study. On narrow screens the stage sits on
   top and the row nearest it as you scroll is selected.
@@ -21,9 +21,9 @@ export interface PreviewItem {
 interface Props {
   items: PreviewItem[];
   ripple?: number;   // px the stage edge breathes; 0 for a still edge
-  rowHighlight?: boolean;  // grey pill behind the hovered row (Figma 49:114); off for now
+  rowHighlight?: boolean;  // grey pill behind the hovered row (Figma 49:114)
 }
-const { items, ripple = 4, rowHighlight = false } = Astro.props;
+const { items, ripple = 4, rowHighlight = true } = Astro.props;
 ---
 <div class="preview-index" data-preview-index data-ripple={ripple} data-row-highlight={rowHighlight ? '' : undefined}>
   <div class="list-wrap">
@@ -127,12 +127,57 @@ const { items, ripple = 4, rowHighlight = false } = Astro.props;
         rim.setAttribute('d', d);
       });
     }
+    // The card trails the cursor, but never closer than --peek-gap to the
+    // right of the row's label, and never past the row's right edge.
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const gap = parseFloat(css.getPropertyValue('--peek-gap')) || 40;
+    const lead = parseFloat(css.getPropertyValue('--peek-lead')) || 24;
+    const ease = parseFloat(css.getPropertyValue('--peek-follow')) || 0.22;
+
     rows.forEach((row, i) => {
-      const on = () => row.setAttribute('data-hover', '');
+      const card = row.querySelector<HTMLElement>('.peek')!;
+      const label = row.querySelector<HTMLElement>('.row__title')!;
+      let x = 0, y = 0, tx = 0, ty = 0, raf = 0;
+
+      const aim = (clientX: number, clientY: number) => {
+        const r = row.getBoundingClientRect();
+        const minX = label.getBoundingClientRect().right - r.left + gap;
+        const maxX = Math.max(minX, r.width - card.offsetWidth);
+        tx = Math.min(Math.max(clientX - r.left + lead, minX), maxX);
+        ty = clientY - r.top - card.offsetHeight / 2;
+      };
+      const apply = () => { card.style.translate = `${x}px ${y}px`; };
+      const tick = () => {
+        x += (tx - x) * ease;
+        y += (ty - y) * ease;
+        apply();
+        raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(tick) : 0;
+      };
+      const chase = () => {
+        if (reduced.matches) { x = tx; y = ty; apply(); return; }
+        if (!raf) raf = requestAnimationFrame(tick);
+      };
+      // Appear right where it should be, then follow from there.
+      const on = (clientX: number, clientY: number) => {
+        aim(clientX, clientY);
+        x = tx; y = ty; apply();
+        row.setAttribute('data-hover', '');
+      };
       const off = () => row.removeAttribute('data-hover');
-      row.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') on(); });
+
+      row.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') on(e.clientX, e.clientY); });
+      row.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse' || !row.hasAttribute('data-hover')) return;
+        aim(e.clientX, e.clientY);
+        chase();
+      });
       row.addEventListener('pointerleave', off);
-      row.addEventListener('focusin', () => { if (hits[i].matches(':focus-visible')) on(); });
+      // Keyboard: park it just right of the label, centred on the row.
+      row.addEventListener('focusin', () => {
+        if (!hits[i].matches(':focus-visible')) return;
+        const r = row.getBoundingClientRect();
+        on(label.getBoundingClientRect().right + gap, r.top + r.height / 2);
+      });
       row.addEventListener('focusout', off);
     });
 
@@ -207,24 +252,23 @@ const { items, ripple = 4, rowHighlight = false } = Astro.props;
   }
   .row__title { color: var(--color-fg); }
 
-  /* ── hover card: at the row's right end, centred on it (Figma 49:179).
-     Scales up from the row on enter, back down on leave. */
+  /* ── hover card (Figma 49:179). Positioned by script: it trails the cursor
+     but stays clear of the label. Pops in on enter, shrinks away on leave. */
   .peek {
     position: absolute;
-    top: 50%;
-    right: var(--card-inset);
+    top: 0;
+    left: 0;
     width: var(--card-width);
     height: var(--card-height);
-    margin-top: calc(var(--card-height) / -2);
     z-index: 1;
     pointer-events: none;
-    scale: 0.5;
+    scale: 0.6;
     opacity: 0;
-    transform-origin: 0% 50%;  /* grows out of the row, toward the stage */
-    /* out: a quick shrink, gone before the next card lands */
+    transform-origin: 0% 50%;  /* grows out toward the stage */
+    /* out: quick, so it's gone before the next card lands */
     transition:
-      scale var(--duration-fast) var(--ease-in),
-      opacity var(--duration-fast) var(--ease-in);
+      scale var(--duration-instant) var(--ease-in),
+      opacity var(--duration-instant) var(--ease-in);
   }
   .row[data-hover] .peek {
     scale: 1;
