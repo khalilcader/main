@@ -127,11 +127,13 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
         rim.setAttribute('d', d);
       });
     }
-    // The card trails the cursor, but never closer than --peek-gap to the
-    // right of the row's label, and never past the row's right edge.
+    // The card has a resting spot (--peek-gap right of the label, centred on
+    // the row) and moves only a fraction (--peek-pull) of the way from there
+    // toward the cursor, then eases after it: loosely tethered, not glued.
+    // It never comes closer to the label than its resting spot.
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const gap = parseFloat(css.getPropertyValue('--peek-gap')) || 40;
-    const lead = parseFloat(css.getPropertyValue('--peek-lead')) || 24;
+    const pull = parseFloat(css.getPropertyValue('--peek-pull')) || 0.35;
     const ease = parseFloat(css.getPropertyValue('--peek-follow')) || 0.22;
 
     rows.forEach((row, i) => {
@@ -141,10 +143,12 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
 
       const aim = (clientX: number, clientY: number) => {
         const r = row.getBoundingClientRect();
-        const minX = label.getBoundingClientRect().right - r.left + gap;
-        const maxX = Math.max(minX, r.width - card.offsetWidth);
-        tx = Math.min(Math.max(clientX - r.left + lead, minX), maxX);
-        ty = clientY - r.top - card.offsetHeight / 2;
+        const restX = label.getBoundingClientRect().right - r.left + gap;
+        const restY = r.height / 2;
+        const maxX = Math.max(restX, r.width - card.offsetWidth);
+        const cx = clientX - r.left, cy = clientY - r.top;
+        tx = Math.min(restX + Math.max(0, cx - restX) * pull, maxX);
+        ty = restY + (cy - restY) * pull - card.offsetHeight / 2;
       };
       const apply = () => { card.style.translate = `${x}px ${y}px`; };
       const tick = () => {
