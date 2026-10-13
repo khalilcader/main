@@ -118,7 +118,7 @@
   --eq-bar: 3px;          /* "now playing" bars on the selected row */
   --eq-gap: 2px;
   --eq-height: 13px;      /* about the cap height of 18px text */
-  --eq-speed: 0.9s;
+  --eq-speed: 1.6s;
   --peek-gap: 40px;       /* card never comes closer than this to the label */
   --peek-pull: 0.35;      /* card moves this fraction of the cursor's movement */
   --peek-lead: 24px;      /* cursor pushes the card once this close to its left edge */
