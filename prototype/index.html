@@ -77,34 +77,10 @@ body {
   position: fixed; top: 0; bottom: 0; z-index: 25; pointer-events: none;
   width: var(--edge-w, 18vw);
 }
-.edge, .edge-grain { will-change: transform; }
-.edge.l { left: 0; }
-.edge.r { right: 0; transform: scaleX(-1); }
-.edge i { position: absolute; inset: 0; }
-/* Fade to the page on top of the blur, so covers blur away and dissolve together. */
-.edge::after {
-  content: ""; position: absolute; inset: 0;
-  background: var(--fade, none);   /* eased fade to the page, built in script */
-}
-.edge i { display: block; -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
-.edge i:nth-child(1) { -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); }
-.edge i:nth-child(2) { -webkit-mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); }
-.edge i:nth-child(3) { -webkit-mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); }
-.edge i:nth-child(4) { -webkit-mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); }
-.edge i:nth-child(5) { -webkit-mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); }
-.edge i:nth-child(6) { -webkit-mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); }
-.edge i:nth-child(7) { -webkit-mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); }
-.edge i:nth-child(8) { -webkit-mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); }
-.edge-grain {
-  position: fixed; top: 0; bottom: 0; z-index: 26; pointer-events: none;
-  width: var(--edge-w, 18vw);
-  background-image: var(--grain); background-size: 160px 160px;
-  mix-blend-mode: overlay; opacity: var(--grain-amt);
-  -webkit-mask-image: linear-gradient(to left, transparent 10%, #000 55%, #000 85%, transparent 100%); mask-image: linear-gradient(to left, transparent 10%, #000 55%, #000 85%, transparent 100%);
-}
-.edge-grain.l { left: 0; }
-.edge-grain.r { right: 0; transform: scaleX(-1); }
-body.no-edges .edge, body.no-edges .edge-grain { display: none; }
+.edge, /* Edge grain comes from each cover's own grain layer, which ramps up as the cover
+   moves out. A separate grain band over the edge (overlay blend) brightened mid-tone
+   covers into a light streak, so there isn't one. */
+body.no-edges .edge { display: none; }
 
 /* Film grain over anything pushed out of focus. */
 #backdrop::after, .veil::after {
@@ -209,8 +185,6 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 
 <div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-<div class="edge-grain l" aria-hidden="true"></div>
-<div class="edge-grain r" aria-hidden="true"></div>
 
 <header class="bar">
   <div class="who"><b>Khalil Cader</b><span>Selected work · placeholder covers</span></div>
@@ -933,7 +907,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   // imperceptibly and only gets heavy right at the edge. The fade to the page uses
   // a smootherstep ramp sampled into many stops, which avoids the visible "knee"
   // a two-stop linear gradient has.
-  const edges = [...document.querySelectorAll(".edge, .edge-grain")];
+  const edges = [...document.querySelectorAll(".edge")];
   function applyEdges() {
     const root = document.documentElement.style;
     root.setProperty("--edge-w", `clamp(64px, ${P.edgeW}vw, 480px)`);
@@ -1151,7 +1125,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
         const blurred = blur > 3;
         if (blurred !== !!c.blurred) { c.blurred = blurred; c.cover.style.clipPath = blurred ? "" : c.clip; }
         c.veil.style.setProperty("--f", `${blur.toFixed(1)}px`);
-        c.veil.style.opacity = Math.min(1, grainK * 1.6).toFixed(3);
+        // Grain arrives with the blur, not ahead of it, so sharp covers stay clean.
+        c.veil.style.opacity = Math.min(1, Math.pow(grainK, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : "";
       }
       const z = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
