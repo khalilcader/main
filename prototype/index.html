@@ -240,6 +240,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   <div class="ctl"><label for="crIn">corner radius</label><output id="crOut"></output><input id="crIn" type="range" min="0" max="60" step="1"></div>
   <div class="ctl"><label for="csIn">corner smoothing</label><output id="csOut"></output><input id="csIn" type="range" min="0" max="1" step="0.05"></div>
   <div class="ctl check"><input id="edgeIn" type="checkbox" checked><label for="edgeIn">edge blur</label></div>
+  <div class="ctl"><label for="rbIn">row blur</label><output id="rbOut"></output><input id="rbIn" type="range" min="0" max="80" step="1"></div>
+  <div class="ctl"><label for="rfaIn">row fade</label><output id="rfaOut"></output><input id="rfaIn" type="range" min="0" max="1" step="0.05"></div>
   <div class="ctl"><label for="fbIn">focus blur</label><output id="fbOut"></output><input id="fbIn" type="range" min="0" max="100" step="2"></div>
   <div class="ctl"><label for="grIn">grain</label><output id="grOut"></output><input id="grIn" type="range" min="0" max="1" step="0.05"></div>
   <div class="ctl"><label for="ewIn">edge width</label><output id="ewOut"></output><input id="ewIn" type="range" min="6" max="35" step="1"></div>
@@ -297,7 +299,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     k: 240, c: 30, rubber: 0.55, rubberD: 360, decay: 4.5, brake: 1400,
     rippleDelay: 30, falloff: 0.86, focusBlur: 56, grain: 1,
     edges: true, edgeW: 16, edgeBlur: 7, edgeCurve: 5, edgeFade: 0.25, snapRow: false,
-    cornerR: 24, cornerS: 0.8,
+    cornerR: 24, cornerS: 0.8, rowBlur: 28, rowFade: 0.35,
   };
   const TUNING_KEY = "work-strip-tuning";
   let saved = {};
@@ -894,6 +896,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   bind("ef", "edgeFade", (v) => v.toFixed(2));
   bind("gr", "grain", (v) => v.toFixed(2));
   bind("fb", "focusBlur", (v) => `${v.toFixed(0)}px`);
+  bind("rb", "rowBlur", (v) => `${v.toFixed(0)}px`);
+  bind("rfa", "rowFade", (v) => v.toFixed(2));
   bind("cr", "cornerR", (v) => `${v.toFixed(0)}px`);
   bind("cs", "cornerS", (v) => `${Math.round(v * 100)}%`);
   for (const id of ["cr", "cs"]) on($("#" + id + "In"), "input", updateCorners);
@@ -1105,6 +1109,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
 
     const gpv = clamp(gp.v, 0, 1), pv = clamp(p.v, 0, 1);
     const sc = reflow(), fb = mode === "row" ? 1 - pv : 0;
+    const [eL, eR] = edgeAmounts(pv), edgeZone = edges[0].offsetWidth || vw * 0.16;
     for (const c of cards) {
       // Squish shrinks toward the bottom center of the cover's slot.
       const w = Math.max(1, c.w.v) * sc[c.i], h = Math.max(1, c.h.v) * sc[c.i];
@@ -1119,16 +1124,26 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
       // t runs from 0 at the center of the screen to 1 just as the cover has fully
       // left it. Blur builds on an ease-in curve (gentle near center, heavy at the
       // edge) and opacity eases all the way out to 0.
-      let dim = 0;
+      let dim = 0, edge = 0;
       if (mode === "row" && pv > 0.001 && !(ptr && ptr.kind === "fling" && c.i === anchor)) {
         const t = clamp((Math.abs(x + w2 / 2 - vw / 2) - w2 * 0.08) / (vw / 2 + w2 * 0.42), 0, 1);
         dim = pv * t;
       }
-      const dk = Math.round(dim * 400) / 400;
-      if (L.dim !== dk) {
-        L.dim = dk;
-        const blur = P.focusBlur * Math.pow(dk, 1.5);
-        const fade = dk * dk * (3 - 2 * dk);  // smoothstep
+      // Row view: a cover blurs as it slides into the edge zone, from sharp while
+      // fully clear of it to heaviest once it is half off screen. Only on a side where
+      // the row continues, so the first and last covers stay sharp at rest.
+      if (mode === "row" && pv < 0.999) {
+        const zone = edgeZone + w2 * 0.5, cx = x + w2 / 2;
+        const tl = clamp((zone - cx) / zone, 0, 1) * (1 - eL);
+        const tr = clamp((zone - (vw - cx)) / zone, 0, 1) * (1 - eR);
+        edge = (1 - pv) * Math.max(tl, tr);
+      }
+      const dk = Math.round(dim * 400) / 400, ek = Math.round(edge * 400) / 400;
+      if (L.dim !== dk || L.edge !== ek) {
+        L.dim = dk; L.edge = ek;
+        const blur = Math.max(P.focusBlur * Math.pow(dk, 1.5), P.rowBlur * Math.pow(ek, 1.6));
+        const fade = Math.max(dk * dk * (3 - 2 * dk), P.rowFade * ek * ek * (3 - 2 * ek));  // smoothstep
+        const grainK = Math.max(dk, ek);
         // Blur only the color layer, so the grain in the veil above stays sharp.
         c.cover.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : "";
         // Keep the squircle clip while the blur is small; drop it once the blur is big
@@ -1136,8 +1151,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
         const blurred = blur > 3;
         if (blurred !== !!c.blurred) { c.blurred = blurred; c.cover.style.clipPath = blurred ? "" : c.clip; }
         c.veil.style.setProperty("--f", `${blur.toFixed(1)}px`);
-        c.veil.style.opacity = Math.min(1, dk * 1.6).toFixed(3);
-        st.opacity = dk > 0.0025 ? (1 - fade).toFixed(3) : "";
+        c.veil.style.opacity = Math.min(1, grainK * 1.6).toFixed(3);
+        st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : "";
       }
       const z = mode === "grid" ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = z; }
@@ -1145,7 +1160,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
       if (L.ti !== ti) { L.ti = ti; c.el.tabIndex = ti; }
     }
     backdrop.style.opacity = mode === "grid" && gridActive >= 0 ? gpv.toFixed(3) : "0";
-    slideEdges(...edgeAmounts(pv));
+    slideEdges(eL, eR);
     updateHint();
     if (!panel.hidden && (frame++ % 2 === 0)) renderValues();
     raf = requestAnimationFrame(tick);

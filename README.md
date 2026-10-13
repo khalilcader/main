@@ -39,7 +39,8 @@ on Oct 12: stiffness 240, damping 30, rubber band 0.55 / 360px, deceleration
 4.5/s, brake 1400 px/s², ripple 30ms / 0.86, focus blur 56px, grain 1.0, edge
 width 16vw, edge max blur 7px, blur easing 5.0, edge fade 0.25. Corners use
 Figma-style smoothing (same math as figma-squircle): radius 24px at row size,
-smoothing 80%.
+smoothing 80%. In the row, covers blur up to 28px (row blur) and fade up to 35%
+(row fade) as they slide out past the edges.
 
 Slider changes are saved in the browser on top of those defaults. "Copy
 settings" copies every value as JSON (paste it back to update the defaults);
