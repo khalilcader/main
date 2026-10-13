@@ -291,11 +291,10 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
   .row[data-active] .eq { opacity: 1; }
   .eq i {
     width: var(--eq-bar);
-    height: 100%;
+    height: 60%;
     border-radius: var(--eq-bar);
     background: var(--accent);
-    transform-origin: 50% 50%;
-    scale: 1 0.6;
+    /* height, not scale: scaling would squash the round ends flat */
     animation: eq var(--eq-speed) ease-in-out infinite alternate paused;
   }
   .row[data-active] .eq i { animation-play-state: running; }
@@ -305,9 +304,9 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
   .eq i:nth-child(3) { animation-duration: calc(var(--eq-speed) * 1.15); animation-delay: -0.1s; }
   /* A gentle breath, not a meter: bars stay between half and ~¾ height. */
   @keyframes eq {
-    from { scale: 1 0.5; }
-    50%  { scale: 1 0.72; }
-    to   { scale: 1 0.6; }
+    from { height: 50%; }
+    50%  { height: 72%; }
+    to   { height: 60%; }
   }
   .row__title { color: var(--color-fg); }
 
@@ -448,9 +447,9 @@ const { items, ripple = 4, rowHighlight = true } = Astro.props;
 
   @media (prefers-reduced-motion: reduce) {
     .eq i { animation: none; }
-    .eq i:nth-child(1) { scale: 1 0.55; }
-    .eq i:nth-child(2) { scale: 1 1; }
-    .eq i:nth-child(3) { scale: 1 0.7; }
+    .eq i:nth-child(1) { height: 50%; }
+    .eq i:nth-child(2) { height: 72%; }
+    .eq i:nth-child(3) { height: 60%; }
     .stage__slide { transform: none; transition-duration: 1ms; }
     .peek, .row[data-hover]:not([data-active]) .peek { scale: 1; transition: opacity var(--duration-fast) linear; }
   }
