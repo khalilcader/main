@@ -130,11 +130,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   position: absolute; left: 0; top: 0; padding: 0; margin: 0;
   border: 0; border-radius: 12px; background: none; color: inherit;
   transform-origin: 0 0; will-change: transform;
-  box-shadow: 0 1px 2px var(--shadow), 0 8px 24px -12px var(--shadow);
+  /* drop-shadow (not box-shadow) so the shadow follows the squircle clip */
+  filter: drop-shadow(0 6px 10px var(--shadow));
   cursor: inherit; font: inherit; text-align: left;
-}
-@supports (corner-shape: squircle) {
-  .card, .cover, .veil { corner-shape: squircle; }
 }
 .card:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 
@@ -239,6 +237,8 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   <div class="ctl"><label for="bIn">brake</label><output id="bOut"></output><input id="bIn" type="range" min="0" max="4000" step="100"></div>
   <div class="ctl"><label for="rdIn">ripple delay</label><output id="rdOut"></output><input id="rdIn" type="range" min="0" max="140" step="5"></div>
   <div class="ctl"><label for="rfIn">ripple falloff</label><output id="rfOut"></output><input id="rfIn" type="range" min="0.4" max="1" step="0.02"></div>
+  <div class="ctl"><label for="crIn">corner radius</label><output id="crOut"></output><input id="crIn" type="range" min="0" max="60" step="1"></div>
+  <div class="ctl"><label for="csIn">corner smoothing</label><output id="csOut"></output><input id="csIn" type="range" min="0" max="1" step="0.05"></div>
   <div class="ctl check"><input id="edgeIn" type="checkbox" checked><label for="edgeIn">edge blur</label></div>
   <div class="ctl"><label for="fbIn">focus blur</label><output id="fbOut"></output><input id="fbIn" type="range" min="0" max="100" step="2"></div>
   <div class="ctl"><label for="grIn">grain</label><output id="grOut"></output><input id="grIn" type="range" min="0" max="1" step="0.05"></div>
@@ -289,8 +289,6 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   const stage = $("#stage"), backdrop = $("#backdrop");
   stage.querySelectorAll(".card").forEach((el) => el.remove());
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const NATIVE_SQUIRCLE = CSS.supports("corner-shape", "squircle");
-  const SQUIRCLE_SCALE = 1.6;  // a squircle reads smaller than a circle of the same radius
 
   // Tunable from the Values panel.
   // Defaults are Khalil's tuned values (Oct 12). Slider changes are saved per
@@ -299,6 +297,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     k: 240, c: 30, rubber: 0.55, rubberD: 360, decay: 4.5, brake: 1400,
     rippleDelay: 30, falloff: 0.86, focusBlur: 56, grain: 1,
     edges: true, edgeW: 16, edgeBlur: 7, edgeCurve: 5, edgeFade: 0.25, snapRow: false,
+    cornerR: 24, cornerS: 0.8,
   };
   const TUNING_KEY = "work-strip-tuning";
   let saved = {};
@@ -429,38 +428,55 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     // size once and only ever scales down. Text and images stay crisp.
     for (const c of cards) {
       c.W = Math.max(c.big.w, lightboxRect(c).w);
-      // Corner radius is a share of the shorter side, so it scales with the cover.
       c.el.style.width = c.W + "px"; c.el.style.height = c.W / c.d.a + "px";
-      // Continuous (iOS-style) corners: the curve eases into the straight edges with
-      // no kink. Native corner-shape where supported (Chrome/Edge); elsewhere the
-      // same squircle is drawn as a clip path on the cover.
-      const r = Math.min(c.W, c.W / c.d.a) * 0.055 * SQUIRCLE_SCALE;
-      // Without native support, keep the plain rounded corner small enough to sit
-      // inside the squircle (about half its extent), so the clip path sets the shape.
-      c.el.style.borderRadius = (NATIVE_SQUIRCLE ? r : r * 0.5) + "px";
-      c.clip = NATIVE_SQUIRCLE ? "" : `path("${squirclePath(c.W, c.W / c.d.a, r)}")`;
-      c.cover.style.clipPath = c.last.dim > 0.0025 ? "" : c.clip;
     }
+    updateCorners();
     for (const s of Object.values(S)) { s.pos = clamp(s.pos, s.min, s.max); s.to = null; }
   }
 
-  // A squircle (superellipse, n = 4) corner matches CSS corner-shape: squircle.
-  // Each corner is sampled as a quarter superellipse of the given extent, which
-  // meets the straight edges with zero curvature, so there is no visible join.
-  function squirclePath(w, h, e) {
-    e = Math.min(e, w / 2, h / 2);
-    const n = 4, steps = 14, pts = [];
-    const corner = (cx, cy, sx, sy, from) => {
-      for (let k = 0; k <= steps; k++) {
-        const th = (from ? k : steps - k) / steps * Math.PI / 2;
-        pts.push([cx + sx * e * Math.pow(Math.cos(th), 2 / n), cy + sy * e * Math.pow(Math.sin(th), 2 / n)]);
-      }
-    };
-    corner(w - e, e, 1, -1, false);      // top right: from top edge down to right edge
-    corner(w - e, h - e, 1, 1, true);    // bottom right
-    corner(e, h - e, -1, 1, false);      // bottom left
-    corner(e, e, -1, -1, true);          // top left
-    return "M" + pts.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join("L") + "Z";
+  // Figma-style smoothed corners (the "corner smoothing" setting), drawn as a
+  // clip-path so every browser renders the same shape. Same math as the
+  // figma-squircle library: each corner is a curve, a short circular arc, then a
+  // curve, spread over p = (1 + smoothing) * radius.
+  function figmaSquirclePath(w, h, r, s) {
+    const budget = Math.min(w, h) / 2;
+    r = Math.min(r, budget);
+    let p = (1 + s) * r;
+    s = Math.min(s, budget / Math.max(r, 1e-6) - 1);
+    p = Math.min(p, budget);
+    const rad = (deg) => (deg * Math.PI) / 180;
+    const arcMeasure = 90 * (1 - s);
+    const arc = Math.sin(rad(arcMeasure / 2)) * r * Math.SQRT2;
+    const alpha = (90 - arcMeasure) / 2;
+    const p34 = r * Math.tan(rad(alpha / 2));
+    const beta = 45 * s;
+    const c = p34 * Math.cos(rad(beta));
+    const d = c * Math.tan(rad(beta));
+    const b = (p - arc - c - d) / 3, a = 2 * b;
+    const f = (n) => +n.toFixed(2);
+    const [A, AB, ABC, C, D, BC, ARC, R] = [a, a + b, a + b + c, c, d, b + c, arc, r].map(f);
+    return [
+      `M ${f(w - p)} 0`,
+      `c ${A} 0 ${AB} 0 ${ABC} ${D} a ${R} ${R} 0 0 1 ${ARC} ${ARC} c ${D} ${C} ${D} ${BC} ${D} ${ABC}`,
+      `L ${w} ${f(h - p)}`,
+      `c 0 ${A} 0 ${AB} ${-D} ${ABC} a ${R} ${R} 0 0 1 ${-ARC} ${ARC} c ${-C} ${D} ${-BC} ${D} ${-ABC} ${D}`,
+      `L ${f(p)} ${h}`,
+      `c ${-A} 0 ${-AB} 0 ${-ABC} ${-D} a ${R} ${R} 0 0 1 ${-ARC} ${-ARC} c ${-D} ${-C} ${-D} ${-BC} ${-D} ${-ABC}`,
+      `L 0 ${f(p)}`,
+      `c 0 ${-A} 0 ${-AB} ${D} ${-ABC} a ${R} ${R} 0 0 1 ${ARC} ${-ARC} c ${C} ${-D} ${BC} ${-D} ${ABC} ${-D}`,
+      "Z",
+    ].join(" ");
+  }
+  // The radius is set in row pixels (what you'd type on a same-size Figma frame);
+  // covers are drawn at their largest size and scaled, so convert to that size.
+  function updateCorners() {
+    for (const c of cards) {
+      if (!c.row) continue;
+      const k = c.W / c.row.w, h = c.W / c.d.a, r = P.cornerR * k;
+      c.clip = `path("${figmaSquirclePath(c.W, h, r, P.cornerS)}")`;
+      c.el.style.borderRadius = r * 0.6 + "px";  // fallback under the clip, and the focus ring
+      c.cover.style.clipPath = c.blurred ? "" : c.clip;
+    }
   }
 
   function lightboxRect(c) {
@@ -878,6 +894,9 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
   bind("ef", "edgeFade", (v) => v.toFixed(2));
   bind("gr", "grain", (v) => v.toFixed(2));
   bind("fb", "focusBlur", (v) => `${v.toFixed(0)}px`);
+  bind("cr", "cornerR", (v) => `${v.toFixed(0)}px`);
+  bind("cs", "cornerS", (v) => `${Math.round(v * 100)}%`);
+  for (const id of ["cr", "cs"]) on($("#" + id + "In"), "input", updateCorners);
   const snapIn = $("#snapIn"), edgeIn = $("#edgeIn");
   const syncChecks = () => {
     snapIn.checked = P.snapRow; edgeIn.checked = P.edges;
@@ -900,7 +919,7 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
     Object.assign(P, DEFAULTS);
     if (reduce) Object.assign(P, { k: 700, c: 53, rippleDelay: 0 });
     try { localStorage.removeItem(TUNING_KEY); } catch (e) {}
-    resetters.forEach((f) => f()); syncChecks(); applyEdges(); S.row.to = null;
+    resetters.forEach((f) => f()); syncChecks(); applyEdges(); updateCorners(); S.row.to = null;
     $("#cOut").textContent = zeta();
   });
   on($("#slowIn"), "change", (e) => { P.time = e.target.checked ? 0.25 : 1; });
@@ -1112,8 +1131,10 @@ body.no-edges .edge, body.no-edges .edge-grain { display: none; }
         const fade = dk * dk * (3 - 2 * dk);  // smoothstep
         // Blur only the color layer, so the grain in the veil above stays sharp.
         c.cover.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : "";
-        // Drop the clip-path fallback while blurred, or it would cut the soft edge.
-        if (!NATIVE_SQUIRCLE) c.cover.style.clipPath = dk > 0.0025 ? "" : c.clip;
+        // Keep the squircle clip while the blur is small; drop it once the blur is big
+        // enough that a clip would cut the soft edge (the round fallback takes over).
+        const blurred = blur > 3;
+        if (blurred !== !!c.blurred) { c.blurred = blurred; c.cover.style.clipPath = blurred ? "" : c.clip; }
         c.veil.style.setProperty("--f", `${blur.toFixed(1)}px`);
         c.veil.style.opacity = Math.min(1, dk * 1.6).toFixed(3);
         st.opacity = dk > 0.0025 ? (1 - fade).toFixed(3) : "";
