@@ -3,6 +3,10 @@
 Khalil Cader's personal site, built with Astro.
 
 - `npm install` then `npm run dev` to run locally at http://localhost:4321
+- The dev server keeps running in the background (Ctrl+C doesn't stop it).
+  `npx astro dev stop` stops it and `npx astro dev status` shows if one is
+  running. Restart it after pulling changes to `src/content.config.ts`, or the
+  old settings stay cached.
 - Case studies: add a markdown file to `src/content/work/`. Its `cover` field
   sets the cover in the home page's work strip (aspect, plus a video or image).
 - Design tokens: `src/styles/tokens.css`
