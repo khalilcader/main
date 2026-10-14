@@ -11,7 +11,12 @@ const TUNING = {
   rubber: 0.55, rubberD: 360,       // overscroll strength / distance
   decay: 4.5, brake: 1400,          // glide: exponential decay (/s) + constant brake (px/s²)
   rippleDelay: 30, falloff: 0.86,   // squish chain reaction: ms per step, falloff per step
-  focusBlur: 56, rowBlur: 28, rowFade: 0.35,
+  focusBlur: 56, rowFade: 0.35,
+  // Row edge blur and grain, in on-screen px at row size. The prototype's row
+  // was drawn at ~0.35 of each cover's full size, so its 28px blur showed as
+  // ~10px and its 160px grain as ~56px; these keep that look at Figma's size.
+  rowBlur: 10, rowGrain: 56, focusGrain: 160,
+  edgeStart: 0.33,                  // a row cover starts to blur when its inner edge is this share of the screen from the edge
   edgeW: 8, edgeBlur: 7, edgeCurve: 5, edgeFade: 0.25,
 };
 const EDGE_K = 280, EDGE_C = 33;     // overscroll spring-back (critically damped, quick)
@@ -68,7 +73,7 @@ function init(stage: HTMLElement) {
     cover: el.querySelector<HTMLElement>('.cover')!,
     outline: el.querySelector<SVGPathElement>('.outline path')!,
     veil: el.querySelector<HTMLElement>('.veil')!,
-    W: 1, clip: '', rBlur: 0, blurred: false,
+    W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
@@ -159,6 +164,7 @@ function init(stage: HTMLElement) {
     // largest size and only ever scales down. Text and images stay crisp.
     for (const c of cards) {
       c.W = Math.max(c.big.w, lightboxRect(c).w, c.row.w);
+      c.kRow = c.row.w / c.W;
       c.el.style.width = c.W + 'px'; c.el.style.height = c.W / c.a + 'px';
     }
     updateCorners();
@@ -710,22 +716,24 @@ function init(stage: HTMLElement) {
         const t = clamp((Math.abs(x + w2 / 2 - vw / 2) - w2 * 0.08) / (vw / 2 + w2 * 0.42), 0, 1);
         dim = pv * t;
       }
-      // Row: a cover blurs as it slides into the edge zone, from sharp while its
-      // outer edge is clear of the zone to heaviest as it fully leaves the
-      // screen. (At Figma's cover size, ramping to "half off screen" as the
-      // prototype did put grain on covers that were still mostly in view.)
-      // Only on a side where the row continues, so the first and last covers
-      // stay sharp at rest.
+      // Row: a cover blurs by where its inner edge (the side facing the middle)
+      // is: sharp until it's within edgeStart of the screen edge, fully blurred
+      // once it reaches the edge zone. Measured in screen space, not cover
+      // widths, so Figma's large covers blur in the same strip of screen the
+      // prototype's small ones did. Only on a side where the row continues, so
+      // the first and last covers stay sharp at rest.
       if (mode === 'row' && pv < 0.999) {
-        const zone = edgeZone + w2;
-        const tl = clamp((edgeZone - x) / zone, 0, 1) * (1 - eL);
-        const tr = clamp((x + w2 - (vw - edgeZone)) / zone, 0, 1) * (1 - eR);
+        const start = vw * P.edgeStart, span = Math.max(1, start - edgeZone);
+        const tl = clamp((start - (x + w2)) / span, 0, 1) * (1 - eL);
+        const tr = clamp((start - (vw - x)) / span, 0, 1) * (1 - eR);
         edge = (1 - pv) * Math.max(tl, tr);
       }
       const dk = Math.round(dim * 400) / 400, ek = Math.round(edge * 400) / 400;
       if (L.dim !== dk || L.edge !== ek) {
         L.dim = dk; L.edge = ek;
-        const blur = Math.max(P.focusBlur * Math.pow(dk, 1.5), P.rowBlur * Math.pow(ek, 1.6));
+        // Row values are on-screen px; the card is scaled by kRow in the row.
+        const rowBlur = (P.rowBlur / c.kRow) * Math.pow(ek, 1.6);
+        const blur = Math.max(P.focusBlur * Math.pow(dk, 1.5), rowBlur);
         const fade = Math.max(dk * dk * (3 - 2 * dk), P.rowFade * ek * ek * (3 - 2 * ek));  // smoothstep
         const grainK = Math.max(dk, ek);
         // Blur only the cover layer, so the grain in the veil above stays sharp.
@@ -739,6 +747,7 @@ function init(stage: HTMLElement) {
           c.cover.style.borderRadius = blurred ? c.rBlur + 'px' : '';
         }
         c.veil.style.setProperty('--f', `${blur.toFixed(1)}px`);
+        c.veil.style.setProperty('--grain-size', `${(ek > dk ? P.rowGrain / c.kRow : P.focusGrain).toFixed(1)}px`);
         // Grain arrives with the blur, not ahead of it, so sharp covers stay clean.
         c.veil.style.opacity = Math.min(1, Math.pow(grainK, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
