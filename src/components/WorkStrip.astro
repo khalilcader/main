@@ -65,18 +65,14 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
 
   /* Open cover: its edges dissolve into the page. --feather-mask (set in
      script, cycling through grain frames) is the cover's rounded shape,
-     blurred and grainy; --breathe grows and shrinks it slowly. A solid layer
+     blurred and grainy. A solid layer
      that fades out as --feather rises blends it in as the cover opens. */
   .card[data-feathered] :global(.cover) {
     -webkit-mask-image: var(--feather-mask), linear-gradient(rgb(0 0 0 / calc(1 - var(--feather))), rgb(0 0 0 / calc(1 - var(--feather))));
-    -webkit-mask-size: calc(100% + var(--breathe, 0px) * 2) calc(100% + var(--breathe, 0px) * 2), 100% 100%;
-    -webkit-mask-position: center;
-    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
     -webkit-mask-composite: source-over;
     mask-image: var(--feather-mask), linear-gradient(rgb(0 0 0 / calc(1 - var(--feather))), rgb(0 0 0 / calc(1 - var(--feather))));
-    mask-size: calc(100% + var(--breathe, 0px) * 2) calc(100% + var(--breathe, 0px) * 2), 100% 100%;
-    mask-position: center;
-    mask-repeat: no-repeat;
+    mask-size: 100% 100%;
     mask-composite: add;
   }
   .card[data-feathered] :global(.outline) { opacity: calc(1 - var(--feather)); }

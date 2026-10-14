@@ -18,9 +18,8 @@ const TUNING = {
   // rounded shape, so attention goes to what's inside. Width is a share of
   // the cover's shorter side; grain breaks up the soft edge. 0 turns it off.
   focusFeather: 0.16, featherGrain: 0.6,
-  // The soft edge stays alive: grain cycles through a few frames, and the
-  // edge breathes in and out by this share of its width.
-  featherFps: 8, featherBreathe: 0.12,
+  // The soft edge stays alive: its grain cycles through a few frames.
+  featherFps: 8,
   // Row edge: kept subtle. A light blur (on-screen px at row size) and fade,
   // no grain, and covers keep their smoothed corners.
   rowBlur: 3, rowFade: 0.2,
@@ -85,7 +84,7 @@ function init(stage: HTMLElement) {
     video: el.querySelector<HTMLVideoElement>('video'),
     playing: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false, shadow: '', feather: 0,
-    featherMasks: [] as string[], featherFrame: -1, featherPx: 0,
+    featherMasks: [] as string[], featherFrame: -1,
     // Covers with an animated backdrop stay feathered in every view; others
     // only while open.
     alwaysFeather: !!el.querySelector('canvas[data-shader]'),
@@ -231,7 +230,6 @@ function init(stage: HTMLElement) {
       c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
       if (P.focusFeather > 0) {
         c.featherMasks = [1, 2, 3, 4].map((seed) => featherMask(c.W, h, r, smoothing, seed));
-        c.featherPx = P.focusFeather * Math.min(c.W, h);
         c.featherFrame = -1;
       }
       c.cover.style.clipPath = c.blurred ? '' : c.clip;
@@ -245,10 +243,9 @@ function init(stage: HTMLElement) {
   // from feComposite arithmetic steps.
   function featherMask(w: number, h: number, r: number, smoothing: number, seed: number) {
     // The fade must reach fully clear before the cover's own edge, or the
-    // edge shows as a hard seam: keep 2.6σ of margin, plus room for the
-    // breathing to push the shape outward.
+    // edge shows as a hard seam: keep 2.6σ of margin.
     const F = P.focusFeather * Math.min(w, h), sigma = F / 4, g = P.featherGrain;
-    const inset = 2.6 * sigma + P.featherBreathe * F;
+    const inset = 2.6 * sigma;
     const shape = squirclePath(w - 2 * inset, h - 2 * inset, r + inset * 0.6, smoothing);  // rounder than the cover, so the corners read as round under the blur
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w.toFixed(0)}" height="${h.toFixed(0)}">`
       + `<filter id="f" filterUnits="userSpaceOnUse" x="${-inset.toFixed(1)}" y="${-inset.toFixed(1)}" width="${w.toFixed(0)}" height="${h.toFixed(0)}" color-interpolation-filters="sRGB">`
@@ -841,17 +838,15 @@ function init(stage: HTMLElement) {
           st.filter = 'none';
         } else {
           delete c.el.dataset.feathered;
-          st.removeProperty('--feather'); st.removeProperty('--feather-mask'); st.removeProperty('--breathe');
+          st.removeProperty('--feather'); st.removeProperty('--feather-mask');
           st.filter = c.shadow;
           c.featherFrame = -1;
         }
       }
       if (c.feather > 0 && c.featherMasks.length) {
-        // Grain flickers through the mask frames; the edge breathes slowly.
+        // Grain flickers through the mask frames.
         const frame = reduce ? 0 : Math.floor(now / (1000 / P.featherFps)) % c.featherMasks.length;
         if (frame !== c.featherFrame) { c.featherFrame = frame; st.setProperty('--feather-mask', c.featherMasks[frame]); }
-        const breathe = reduce ? 0 : Math.sin(now / 1000 * 1.1) * c.featherPx * P.featherBreathe;
-        st.setProperty('--breathe', `${breathe.toFixed(1)}px`);
       }
       const z = mode === 'grid' ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = String(z); }
