@@ -11,11 +11,10 @@ const TUNING = {
   rubber: 0.55, rubberD: 360,       // overscroll strength / distance
   decay: 4.5, brake: 1400,          // glide: exponential decay (/s) + constant brake (px/s²)
   rippleDelay: 30, falloff: 0.86,   // squish chain reaction: ms per step, falloff per step
-  focusBlur: 56, rowFade: 0.35,
-  // Row edge blur and grain, in on-screen px at row size. The prototype's row
-  // was drawn at ~0.35 of each cover's full size, so its 28px blur showed as
-  // ~10px and its 160px grain as ~56px; these keep that look at Figma's size.
-  rowBlur: 10, rowGrain: 56, focusGrain: 160,
+  focusBlur: 56,
+  // Row edge: kept subtle. A light blur (on-screen px at row size) and fade,
+  // no grain, and covers keep their smoothed corners.
+  rowBlur: 3, rowFade: 0.2,
   edgeStart: 0.33,                  // a row cover starts to blur when its inner edge is this share of the screen from the edge
   edgeW: 8, edgeBlur: 7, edgeCurve: 5, edgeFade: 0.25,
 };
@@ -71,6 +70,7 @@ function init(stage: HTMLElement) {
   const cards = [...stage.querySelectorAll<HTMLElement>('.card')].map((el, i) => ({
     i, el, a: parseFloat(el.dataset.aspect || '1'),
     cover: el.querySelector<HTMLElement>('.cover')!,
+    content: el.querySelector<HTMLElement>('.cover .content')!,
     outline: el.querySelector<SVGPathElement>('.outline path')!,
     veil: el.querySelector<HTMLElement>('.veil')!,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
@@ -731,25 +731,30 @@ function init(stage: HTMLElement) {
       const dk = Math.round(dim * 400) / 400, ek = Math.round(edge * 400) / 400;
       if (L.dim !== dk || L.edge !== ek) {
         L.dim = dk; L.edge = ek;
-        // Row values are on-screen px; the card is scaled by kRow in the row.
+        // Row blur is in on-screen px; the card is scaled by kRow in the row.
         const rowBlur = (P.rowBlur / c.kRow) * Math.pow(ek, 1.6);
-        const blur = Math.max(P.focusBlur * Math.pow(dk, 1.5), rowBlur);
+        const focusBlur = P.focusBlur * Math.pow(dk, 1.5);
+        const blur = Math.max(focusBlur, rowBlur);
         const fade = Math.max(dk * dk * (3 - 2 * dk), P.rowFade * ek * ek * (3 - 2 * ek));  // smoothstep
-        const grainK = Math.max(dk, ek);
-        // Blur only the cover layer, so the grain in the veil above stays sharp.
-        c.cover.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : '';
-        // Past a small blur the squircle clip would cut the soft edge, so a round
-        // corner a little larger stands in; corners never tighten as a cover blurs.
-        const blurred = blur > 3;
+        // Focus blurs the whole cover (shape included) as it drifts away; the
+        // row's light edge blur only softens the media inside, so the cover's
+        // smoothed corners, border and background stay crisp. Either way the
+        // grain in the veil above stays sharp.
+        const whole = focusBlur >= rowBlur;
+        c.cover.style.filter = whole && blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : '';
+        c.content.style.filter = !whole && blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : '';
+        // In focus, a heavy blur would be cut hard by the squircle clip, so a
+        // round corner a little larger stands in. The row's light blur keeps the
+        // clip, so its corners stay smoothed.
+        const blurred = focusBlur > 3;
         if (blurred !== c.blurred) {
           c.blurred = blurred;
           c.cover.style.clipPath = blurred ? '' : c.clip;
           c.cover.style.borderRadius = blurred ? c.rBlur + 'px' : '';
         }
         c.veil.style.setProperty('--f', `${blur.toFixed(1)}px`);
-        c.veil.style.setProperty('--grain-size', `${(ek > dk ? P.rowGrain / c.kRow : P.focusGrain).toFixed(1)}px`);
-        // Grain arrives with the blur, not ahead of it, so sharp covers stay clean.
-        c.veil.style.opacity = Math.min(1, Math.pow(grainK, 1.4) * 1.5).toFixed(3);
+        // Grain only in focus, arriving with the blur so sharp covers stay clean.
+        c.veil.style.opacity = Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
       }
       const z = mode === 'grid' ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
