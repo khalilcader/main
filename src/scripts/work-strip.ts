@@ -86,6 +86,9 @@ function init(stage: HTMLElement) {
     playing: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false, shadow: '', feather: 0,
     featherMasks: [] as string[], featherFrame: -1, featherPx: 0,
+    // Covers with an animated backdrop stay feathered in every view; others
+    // only while open.
+    alwaysFeather: !!el.querySelector('canvas[data-shader]'),
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
@@ -826,8 +829,9 @@ function init(stage: HTMLElement) {
         c.veil.style.opacity = Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
       }
-      // Open cover: feather its edges in as it opens (focus strip or lightbox).
-      const open = mode === 'row' ? (c.i === anchor ? pv : 0) : c.i === gridActive ? gpv : 0;
+      // Feather the cover's edges: always for backdrop covers, otherwise in
+      // as it opens (focus strip or lightbox).
+      const open = c.alwaysFeather ? 1 : mode === 'row' ? (c.i === anchor ? pv : 0) : c.i === gridActive ? gpv : 0;
       const fk = P.focusFeather > 0 ? Math.round(open * 100) / 100 : 0;
       if (fk !== c.feather) {
         c.feather = fk;

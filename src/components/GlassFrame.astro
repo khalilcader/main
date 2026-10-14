@@ -29,7 +29,7 @@ const { webm, mp4, poster, start = 0 } = Astro.props;
 <style>
   .glass-frame {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    height: 86%; aspect-ratio: 390 / 816;
+    height: var(--glass-height); aspect-ratio: 390 / 816;
   }
   /* The shadow sits behind the clipped glass (a clip would cut it off). Its
      blur is wide enough that a round corner reads the same as the smoothed one. */
