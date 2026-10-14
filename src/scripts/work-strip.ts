@@ -14,6 +14,9 @@ const TUNING = {
   decay: 4.5, brake: 1400,          // glide: exponential decay (/s) + constant brake (px/s²)
   rippleDelay: 30, falloff: 0.86,   // squish chain reaction: ms per step, falloff per step
   focusBlur: 56,
+  // Experiment: the open cover's edges dissolve into the page, as a share of
+  // its shorter side, so attention goes to what's inside. 0 turns it off.
+  focusFeather: 0.09,
   // Row edge: kept subtle. A light blur (on-screen px at row size) and fade,
   // no grain, and covers keep their smoothed corners.
   rowBlur: 3, rowFade: 0.2,
@@ -77,7 +80,7 @@ function init(stage: HTMLElement) {
     veil: el.querySelector<HTMLElement>('.veil')!,
     video: el.querySelector<HTMLVideoElement>('video'),
     playing: false,
-    W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
+    W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false, shadow: '', feather: 0,
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
@@ -215,7 +218,8 @@ function init(stage: HTMLElement) {
       c.outline.setAttribute('d', path);
       c.outline.style.strokeWidth = String(border * k * 2);   // half falls outside the clip
       c.el.style.borderRadius = r * 0.6 + 'px';               // sits inside the clip; also the focus ring
-      c.el.style.filter = `drop-shadow(0 ${shY * k}px ${shB * k}px var(--color-cover-shadow))`;
+      c.shadow = `drop-shadow(0 ${shY * k}px ${shB * k}px var(--color-cover-shadow))`;
+      c.el.style.filter = c.feather > 0 ? 'none' : c.shadow;
       c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
       c.cover.style.clipPath = c.blurred ? '' : c.clip;
       c.cover.style.borderRadius = c.blurred ? c.rBlur + 'px' : '';
@@ -786,6 +790,22 @@ function init(stage: HTMLElement) {
         // Grain only in focus, arriving with the blur so sharp covers stay clean.
         c.veil.style.opacity = Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
+      }
+      // Open cover: feather its edges in as it opens (focus strip or lightbox).
+      const open = mode === 'row' ? (c.i === anchor ? pv : 0) : c.i === gridActive ? gpv : 0;
+      const fk = P.focusFeather > 0 ? Math.round(open * 100) / 100 : 0;
+      if (fk !== c.feather) {
+        c.feather = fk;
+        if (fk > 0) {
+          c.el.dataset.feathered = '';
+          st.setProperty('--feather', String(fk));
+          st.setProperty('--feather-size', `${(fk * P.focusFeather * Math.min(c.W, c.W / c.a)).toFixed(1)}px`);
+          st.filter = 'none';
+        } else {
+          delete c.el.dataset.feathered;
+          st.removeProperty('--feather'); st.removeProperty('--feather-size');
+          st.filter = c.shadow;
+        }
       }
       const z = mode === 'grid' ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = String(z); }
