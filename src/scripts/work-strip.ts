@@ -14,9 +14,10 @@ const TUNING = {
   decay: 4.5, brake: 1400,          // glide: exponential decay (/s) + constant brake (px/s²)
   rippleDelay: 30, falloff: 0.86,   // squish chain reaction: ms per step, falloff per step
   focusBlur: 56,
-  // Experiment: the open cover's edges dissolve into the page, as a share of
-  // its shorter side, so attention goes to what's inside. 0 turns it off.
-  focusFeather: 0.09,
+  // Experiment: the open cover's edges dissolve into the page, keeping its
+  // rounded shape, so attention goes to what's inside. Width is a share of
+  // the cover's shorter side; grain breaks up the soft edge. 0 turns it off.
+  focusFeather: 0.09, featherGrain: 0.6,
   // Row edge: kept subtle. A light blur (on-screen px at row size) and fade,
   // no grain, and covers keep their smoothed corners.
   rowBlur: 3, rowFade: 0.2,
@@ -221,9 +222,31 @@ function init(stage: HTMLElement) {
       c.shadow = `drop-shadow(0 ${shY * k}px ${shB * k}px var(--color-cover-shadow))`;
       c.el.style.filter = c.feather > 0 ? 'none' : c.shadow;
       c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
+      if (P.focusFeather > 0) c.cover.style.setProperty('--feather-mask', featherMask(c.W, h, r, smoothing));
       c.cover.style.clipPath = c.blurred ? '' : c.clip;
       c.cover.style.borderRadius = c.blurred ? c.rBlur + 'px' : '';
     }
+  }
+
+  // Mask for the open cover's soft edge: the cover's own smoothed shape, inset
+  // and blurred, so corners stay rounded. Grain is added only in the soft band
+  // (where alpha is between 0 and 1): alpha + 4g·a(1−a)·(noise − ½), built
+  // from feComposite arithmetic steps.
+  function featherMask(w: number, h: number, r: number, smoothing: number) {
+    const F = P.focusFeather * Math.min(w, h), inset = F * 0.6, sigma = F / 3, g = P.featherGrain;
+    const shape = squirclePath(w - 2 * inset, h - 2 * inset, Math.max(r - inset, r * 0.6), smoothing);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w.toFixed(0)}" height="${h.toFixed(0)}">`
+      + `<filter id="f" filterUnits="userSpaceOnUse" x="${-inset.toFixed(1)}" y="${-inset.toFixed(1)}" width="${w.toFixed(0)}" height="${h.toFixed(0)}" color-interpolation-filters="sRGB">`
+      + `<feGaussianBlur in="SourceGraphic" stdDeviation="${sigma.toFixed(1)}" result="b"/>`
+      + `<feComposite in="b" in2="b" operator="arithmetic" k1="-1" k2="1" k3="0" k4="0" result="m"/>`
+      + `<feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="t"/>`
+      + `<feColorMatrix in="t" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="n"/>`
+      + `<feComposite in="m" in2="n" operator="arithmetic" k1="${4 * g}" k2="${-2 * g}" k3="0" k4="0.5" result="d"/>`
+      + `<feComposite in="b" in2="d" operator="arithmetic" k1="0" k2="1" k3="1" k4="-0.5"/>`
+      + `</filter>`
+      + `<path transform="translate(${inset.toFixed(1)} ${inset.toFixed(1)})" d="${shape}" filter="url(#f)"/>`
+      + `</svg>`;
+    return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   }
 
   function lightboxRect(c: Card): Rect {
@@ -799,11 +822,10 @@ function init(stage: HTMLElement) {
         if (fk > 0) {
           c.el.dataset.feathered = '';
           st.setProperty('--feather', String(fk));
-          st.setProperty('--feather-size', `${(fk * P.focusFeather * Math.min(c.W, c.W / c.a)).toFixed(1)}px`);
           st.filter = 'none';
         } else {
           delete c.el.dataset.feathered;
-          st.removeProperty('--feather'); st.removeProperty('--feather-size');
+          st.removeProperty('--feather');
           st.filter = c.shadow;
         }
       }
