@@ -1,21 +1,37 @@
 /*
-  Design tokens — the single source of truth for the visual system.
-  Placeholder values only. Replace these with the variables from the Figma file
-  (colors, type scale, spacing, radii) before building any components.
+  Design tokens: the single source of truth for the visual system.
+  Values come from the Figma file "khalilcader.com" (layout frame 53:253, glass
+  frame 43:66). The file has no Figma variables yet, so these are read from the
+  layers. Dark values are not in Figma; they carry over from the prototype.
 */
 :root {
   /* Color */
-  --color-bg: #ffffff;
-  --color-fg: #111111;
-  --color-muted: #6b6b6b;
-  --color-accent: #111111;
+  --color-bg: #fafafa;
+  --color-fg: #000000;
+  --color-focus: #2f5bd8;
+  --color-cover-bg: #ffffff;
+  --color-cover-border: rgba(0, 0, 0, 0.15);
+  --color-cover-shadow: rgba(0, 0, 0, 0.03);
+  --color-photo-border: rgba(0, 0, 0, 0.2);
+  --color-button-bg: rgba(255, 255, 255, 0.8);
+  --color-button-border: rgba(0, 0, 0, 0.2);
+  --color-button-shadow: rgba(0, 0, 0, 0.05);
+  --color-glass-bg: rgba(255, 255, 255, 0.5);
+  --color-glass-border: rgba(255, 255, 255, 0.8);
+  --color-glass-shadow: rgba(0, 0, 0, 0.1);
+  --color-scrim: color-mix(in srgb, var(--color-bg) 72%, transparent);
 
   /* Type */
-  --font-sans: system-ui, -apple-system, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: ui-monospace, monospace;
+  /* Season Sans is only in the stack by name: it renders where it's installed
+     locally. Everyone else gets the system font until a licensed webfont ships. */
+  --font-sans: "Season Sans TRIAL", "Season Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-name-size: 16px;
+  --text-name-weight: 500;
+  --text-name-tracking: 0.16px;
+  --text-secondary-opacity: 0.4;
 
-  /* Spacing (base 4) */
+  /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 16px;
@@ -23,7 +39,99 @@
   --space-5: 40px;
   --space-6: 64px;
 
-  /* Layout */
-  --max-width: 1200px;
+  /* Layout (Figma frame is 1440 × 1024) */
+  --page-pad: clamp(16px, 7.15vw, 103px);    /* 103px at 1440 */
+  --header-top: 64px;
+  --header-pad: 16px;
+  --row-gap-below-header: 72px;             /* header ends at 152, covers start at 224 */
+  --row-height: 617px;                      /* max cover height in the row */
+  --row-gap: 24px;
   --gutter: 16px;
+
+  /* Header */
+  --photo-width: 50px;
+  --photo-height: 56px;
+  --photo-radius: 14px;
+  --photo-shadow: 0 4px 16px 0 var(--color-cover-shadow);
+  --button-size: 40px;
+  --button-pad: 8px;
+  --button-radius: 10px;
+  --button-blur: 20px;
+  --button-border-width: 0.5px;
+  --button-shadow: 0 1px 3.5px 0 var(--color-button-shadow);
+  --icon-size: 24px;
+  --icon-opacity: 0.4;
+
+  /* Covers */
+  --cover-radius: 48px;                     /* at row height */
+  --cover-smoothing: 0.8;                   /* Figma corner smoothing */
+  --cover-border-width: 1px;
+  --cover-shadow-y: 4px;
+  --cover-shadow-blur: 16px;
+
+  /* Glass device frame (Figma 43:66: 390 × 816) */
+  --glass-radius-x: 15.6%;                  /* 61px of 390 */
+  --glass-radius-y: 7.5%;                   /* 61px of 816 */
+  --glass-pad: 3.6%;                        /* 14px bezel at 390 */
+  --glass-border-width: 2px;
+  --glass-blur: 20px;
+  --glass-shadow: 0 4px 50px 30px var(--color-glass-shadow);
+  --glass-screen-radius-x: 13%;
+  --glass-screen-radius-y: 6%;
+  --ambient-opacity: 0.55;
+
+  /* Effects */
+  --grain-amount: 1;
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='2.2' intercept='-0.6'/><feFuncG type='linear' slope='2.2' intercept='-0.6'/><feFuncB type='linear' slope='2.2' intercept='-0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --grain-size: 160px;
+  --backdrop-blur: 14px;
+
+  color-scheme: light;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --header-top: 16px;
+    --row-gap-below-header: 32px;
+    --row-gap: 12px;
+  }
+}
+
+/* Dark: follows the system unless the theme button pins light. The button
+   writes data-scheme on <html>. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-scheme="light"]) {
+    --color-bg: #121211;
+    --color-fg: #ecece8;
+    --color-focus: #8fa9ff;
+    --color-cover-bg: #1c1c1e;
+    --color-cover-border: rgba(255, 255, 255, 0.12);
+    --color-cover-shadow: rgba(0, 0, 0, 0.3);
+    --color-photo-border: rgba(255, 255, 255, 0.2);
+    --color-button-bg: rgba(40, 40, 38, 0.8);
+    --color-button-border: rgba(255, 255, 255, 0.16);
+    --color-button-shadow: rgba(0, 0, 0, 0.3);
+    --color-glass-bg: rgba(255, 255, 255, 0.07);
+    --color-glass-border: rgba(255, 255, 255, 0.16);
+    --color-glass-shadow: rgba(0, 0, 0, 0.45);
+    --ambient-opacity: 0.3;
+    color-scheme: dark;
+  }
+}
+:root[data-scheme="dark"] {
+  --color-bg: #121211;
+  --color-fg: #ecece8;
+  --color-focus: #8fa9ff;
+  --color-cover-bg: #1c1c1e;
+  --color-cover-border: rgba(255, 255, 255, 0.12);
+  --color-cover-shadow: rgba(0, 0, 0, 0.3);
+  --color-photo-border: rgba(255, 255, 255, 0.2);
+  --color-button-bg: rgba(40, 40, 38, 0.8);
+  --color-button-border: rgba(255, 255, 255, 0.16);
+  --color-button-shadow: rgba(0, 0, 0, 0.3);
+  --color-glass-bg: rgba(255, 255, 255, 0.07);
+  --color-glass-border: rgba(255, 255, 255, 0.16);
+  --color-glass-shadow: rgba(0, 0, 0, 0.45);
+  --ambient-opacity: 0.3;
+  color-scheme: dark;
 }

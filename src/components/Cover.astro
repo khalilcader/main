@@ -1,0 +1,43 @@
+---
+import GlassFrame from './GlassFrame.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  cover: CollectionEntry<'work'>['data']['cover'];
+}
+const { cover } = Astro.props;
+const url = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+---
+<div class:list={['cover', { media: cover.video }]}>
+  {cover.video && (
+    <>
+      <img class="ambient" src={url(cover.video.poster)} alt="" />
+      <GlassFrame
+        webm={cover.video.webm && url(cover.video.webm)}
+        mp4={url(cover.video.mp4)}
+        poster={url(cover.video.poster)}
+      />
+    </>
+  )}
+  {cover.image && <img class="still" src={url(cover.image)} alt="" />}
+  <!-- 1px border that follows the smoothed corners; the path is set in script. -->
+  <svg class="outline" aria-hidden="true"><path /></svg>
+</div>
+
+<style>
+  .cover {
+    position: absolute; inset: 0; overflow: hidden;
+    border-radius: inherit;
+    background: var(--color-cover-bg);
+    pointer-events: none;
+  }
+  .ambient {
+    position: absolute; inset: -12%; width: 124%; height: 124%; max-width: none;
+    object-fit: cover; filter: blur(40px) saturate(1.3); opacity: var(--ambient-opacity);
+  }
+  .still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .outline {
+    position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
+    fill: none; stroke: var(--color-cover-border);
+  }
+</style>

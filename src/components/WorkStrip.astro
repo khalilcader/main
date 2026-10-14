@@ -1,0 +1,115 @@
+---
+import Cover from './Cover.astro';
+import { getCollection } from 'astro:content';
+
+// The work strip (Figma 53:324): a row of covers you can drag, pull up into a
+// large focus strip, or switch to a grid. The motion lives in
+// src/scripts/work-strip.ts; without JavaScript the covers sit in a plain
+// scrolling row.
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+---
+<div class="stage" id="stage" aria-label="Selected work">
+  <div class="backdrop" id="backdrop"></div>
+  {work.map((item, i) => (
+    <button
+      class="card"
+      type="button"
+      data-i={i}
+      data-aspect={item.data.cover.aspect}
+      aria-label={`${item.data.title}. ${item.data.cover.alt}`}
+      style={`--aspect: ${item.data.cover.aspect}`}
+    >
+      <Cover cover={item.data.cover} />
+      <div class="veil"></div>
+    </button>
+  ))}
+</div>
+
+<div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+<script>
+  import '../scripts/work-strip';
+</script>
+
+<style>
+  /* No JavaScript: a plain horizontal row under the header. */
+  .stage {
+    position: fixed; inset: 0; overflow-x: auto; overflow-y: hidden;
+    display: flex; gap: var(--row-gap); align-items: flex-start;
+    padding: calc(var(--header-top) + var(--header-pad) * 2 + var(--photo-height) + var(--row-gap-below-header)) var(--page-pad) 0;
+  }
+  .card {
+    position: relative; flex: none;
+    height: min(var(--row-height), 60vh); aspect-ratio: var(--aspect);
+    padding: 0; margin: 0; border: 0; background: none; color: inherit;
+    border-radius: var(--cover-radius);
+    font: inherit; text-align: left; cursor: pointer;
+  }
+  .card :global(.cover) { border: var(--cover-border-width) solid var(--color-cover-border); }
+
+  /* With JavaScript: one full-bleed stage; covers are placed with transforms. */
+  :global(.js) .stage {
+    display: block; overflow: hidden; padding: 0;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+    cursor: grab;
+  }
+  :global(.js) .stage.dragging { cursor: grabbing; }
+  :global(.js) .card {
+    position: absolute; left: 0; top: 0; height: auto; aspect-ratio: auto;
+    transform-origin: 0 0; will-change: transform;
+    cursor: inherit;
+  }
+  :global(.js) .card :global(.cover) { border: 0; }
+  .card:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+
+  /* Grain over anything pushed out of focus. The cover itself fades and blurs;
+     this layer reaches past it by the blur's spill (--f) and feathers over it,
+     so it never shows a hard edge. */
+  .veil {
+    position: absolute; inset: calc(var(--f, 0px) * -1); border-radius: inherit;
+    pointer-events: none; opacity: 0;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent),
+                        linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to right, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent),
+                linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent);
+    mask-composite: intersect;
+  }
+  .veil::after, .backdrop::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
+    mix-blend-mode: overlay; opacity: min(1, calc(var(--grain-amount) * 1.3));
+  }
+
+  /* Grid lightbox: everything else fades to the page. */
+  .backdrop {
+    position: absolute; inset: 0; z-index: 10; pointer-events: none;
+    background: var(--color-scrim);
+    -webkit-backdrop-filter: blur(var(--backdrop-blur)); backdrop-filter: blur(var(--backdrop-blur));
+    opacity: 0;
+  }
+
+  /* Progressive edge blur: eight stacked backdrop blurs, strength rising along
+     an eased curve (set in script), each masked to its own overlapping band, plus
+     a fade to the page on top. No blend-mode grain in or over the edge: inside it
+     isolates the backdrop blur, over it brightens mid-tones into a streak. */
+  .edge {
+    display: none;
+    position: fixed; top: 0; bottom: 0; z-index: 25; pointer-events: none;
+    width: var(--edge-w, 8vw); will-change: transform;
+  }
+  :global(.js) .edge { display: block; }
+  .edge.l { left: 0; }
+  .edge.r { right: 0; transform: scaleX(-1); }
+  .edge i { position: absolute; inset: 0; display: block; -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
+  .edge::after { content: ""; position: absolute; inset: 0; background: var(--fade, none); }
+  .edge i:nth-child(1) { -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); mask-image: linear-gradient(to left, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%); }
+  .edge i:nth-child(2) { -webkit-mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); mask-image: linear-gradient(to left, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%); }
+  .edge i:nth-child(3) { -webkit-mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); mask-image: linear-gradient(to left, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%); }
+  .edge i:nth-child(4) { -webkit-mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); mask-image: linear-gradient(to left, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%); }
+  .edge i:nth-child(5) { -webkit-mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); mask-image: linear-gradient(to left, transparent 50%, #000 62.5%, #000 75%, transparent 87.5%); }
+  .edge i:nth-child(6) { -webkit-mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); mask-image: linear-gradient(to left, transparent 62.5%, #000 75%, #000 87.5%, transparent 100%); }
+  .edge i:nth-child(7) { -webkit-mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 75%, #000 87.5%, #000 100%); }
+  .edge i:nth-child(8) { -webkit-mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); mask-image: linear-gradient(to left, transparent 87.5%, #000 100%); }
+</style>
