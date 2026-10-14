@@ -17,6 +17,7 @@
   --scrim: color-mix(in srgb, var(--bg) 72%, transparent);   /* fades toward the page in either theme */
   --shadow: rgba(22, 22, 20, 0.14);
   --focus: #2f5bd8;
+  --media-bg: #ececef; --glass-bg: rgba(255, 255, 255, 0.5); --glass-line: rgba(255, 255, 255, 0.8); --glass-shadow: rgba(0, 0, 0, 0.1); --ambient: 0.55;
   --grain-amt: 1;   /* one dial for every blur's grain; see the Values panel */
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='2.2' intercept='-0.6'/><feFuncG type='linear' slope='2.2' intercept='-0.6'/><feFuncB type='linear' slope='2.2' intercept='-0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 
@@ -27,25 +28,25 @@
   :root:not([data-theme="light"]) {
     --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
     --panel: rgba(28, 28, 26, 0.92);
-    --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
+    --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; --media-bg: #1c1c1e; --glass-bg: rgba(255, 255, 255, 0.07); --glass-line: rgba(255, 255, 255, 0.16); --glass-shadow: rgba(0, 0, 0, 0.45); --ambient: 0.3; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
   --panel: rgba(28, 28, 26, 0.92);
-  --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
+  --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; --media-bg: #1c1c1e; --glass-bg: rgba(255, 255, 255, 0.07); --glass-line: rgba(255, 255, 255, 0.16); --glass-shadow: rgba(0, 0, 0, 0.45); --ambient: 0.3; color-scheme: dark;
 }
 /* The page's own theme toggle. Uses its own attribute so the viewer, which writes
    data-theme, can't override an explicit choice. Declared last so it wins. */
 :root[data-scheme="light"] {
   --bg: #fafafa; --ink: #161615; --muted: #73736d; --line: #e3e3de;
   --panel: rgba(255, 255, 255, 0.92);
-  --shadow: rgba(22, 22, 20, 0.14); --focus: #2f5bd8; color-scheme: light;
+  --shadow: rgba(22, 22, 20, 0.14); --focus: #2f5bd8; --media-bg: #ececef; --glass-bg: rgba(255, 255, 255, 0.5); --glass-line: rgba(255, 255, 255, 0.8); --glass-shadow: rgba(0, 0, 0, 0.1); --ambient: 0.55; color-scheme: light;
 }
 :root[data-scheme="dark"] {
   --bg: #121211; --ink: #ecece8; --muted: #8d8d86; --line: #2a2a27;
   --panel: rgba(28, 28, 26, 0.92);
-  --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; color-scheme: dark;
+  --shadow: rgba(0, 0, 0, 0.55); --focus: #8fa9ff; --media-bg: #1c1c1e; --glass-bg: rgba(255, 255, 255, 0.07); --glass-line: rgba(255, 255, 255, 0.16); --glass-shadow: rgba(0, 0, 0, 0.45); --ambient: 0.3; color-scheme: dark;
 }
 
 html, body { height: 100%; }
@@ -135,6 +136,29 @@ body.no-edges .edge { display: none; }
   background: var(--c-bg);
   pointer-events: none;
 }
+/* Media cover: a video in a glassy device frame (from the Figma file: 390×816,
+   61px corners, 50% white fill, 2px white border, 0 4 50 30 shadow). Sized in
+   percentages so it scales with the cover. A blurred still of the video fills
+   the cover behind it, so the glass has something to frost. */
+.cover.media { background: var(--media-bg); }
+.cover.media .ambient {
+  position: absolute; inset: -12%; width: 124%; height: 124%; max-width: none;
+  object-fit: cover; filter: blur(40px) saturate(1.3); opacity: var(--ambient);
+}
+.cover.media .glass {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  height: 86%; aspect-ratio: 390 / 816; box-sizing: border-box;
+  padding: 3.6%;                                   /* 14px bezel at 390px wide */
+  border-radius: 15.6% / 7.5%;                     /* 61px corners at 390×816 */
+  background: var(--glass-bg); border: 2px solid var(--glass-line);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  box-shadow: 0 4px 50px 30px var(--glass-shadow);
+}
+.cover.media video, .cover.media .glass img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  border-radius: 13% / 6%;
+}
+
 /* Chrome */
 .bar {
   position: fixed; left: 0; right: 0; top: 0; z-index: 30;
@@ -257,7 +281,7 @@ body.no-edges .edge { display: none; }
   // Placeholder covers: Apple system colors with varied aspect ratios (w/h).
   // Swap for real work later: title, kind, year, aspect, image.
   const DATA = [
-    { t: "Red", bg: "#FF3B30", a: 0.8 },
+    { t: "Mobile spotlight", bg: "var(--media-bg)", a: 0.8, media: { webm: "media/spotlight.webm", mp4: "media/spotlight.mp4", poster: "media/spotlight.jpg" } },
     { t: "Orange", bg: "#FF9500", a: 0.7 },
     { t: "Yellow", bg: "#FFCC00", a: 1.35 },
     { t: "Green", bg: "#34C759", a: 0.78 },
@@ -337,7 +361,9 @@ body.no-edges .edge { display: none; }
     const el = document.createElement("button");
     el.type = "button"; el.className = "card"; el.dataset.i = i;
     el.setAttribute("aria-label", `${d.t} placeholder`);
-    el.innerHTML = `<div class="cover" style="--c-bg:${d.bg}"></div><div class="veil"></div>`;
+    el.innerHTML = d.media
+      ? `<div class="cover media"><img class="ambient" src="${d.media.poster}" alt=""><div class="glass"><video poster="${d.media.poster}" muted loop playsinline ${reduce ? "" : "autoplay"} preload="auto"><source src="${d.media.webm}" type="video/webm"><source src="${d.media.mp4}" type="video/mp4"></video></div></div><div class="veil"></div>`
+      : `<div class="cover" style="--c-bg:${d.bg}"></div><div class="veil"></div>`;
     stage.appendChild(el);
     return {
       d, i, el, cover: el.firstChild, veil: el.lastChild, W: 1, last: {},
@@ -468,8 +494,10 @@ body.no-edges .edge { display: none; }
       if (!c.row) continue;
       const k = c.W / c.row.w, h = c.W / c.d.a, r = P.cornerR * k;
       c.clip = `path("${figmaSquirclePath(c.W, h, r, P.cornerS)}")`;
-      c.el.style.borderRadius = r * 0.6 + "px";  // fallback under the clip, and the focus ring
+      c.el.style.borderRadius = r * 0.6 + "px";  // sits inside the clip; also the focus ring
+      c.rBlur = r * 1.2;                          // round stand-in for the squircle while blurred
       c.cover.style.clipPath = c.blurred ? "" : c.clip;
+      c.cover.style.borderRadius = c.blurred ? c.rBlur + "px" : "";
     }
   }
 
@@ -1143,7 +1171,13 @@ body.no-edges .edge { display: none; }
         // Keep the squircle clip while the blur is small; drop it once the blur is big
         // enough that a clip would cut the soft edge (the round fallback takes over).
         const blurred = blur > 3;
-        if (blurred !== !!c.blurred) { c.blurred = blurred; c.cover.style.clipPath = blurred ? "" : c.clip; }
+        // While blurred, a plain round corner a little larger than the squircle's
+        // radius stands in for it, so corners never tighten as a cover blurs.
+        if (blurred !== !!c.blurred) {
+          c.blurred = blurred;
+          c.cover.style.clipPath = blurred ? "" : c.clip;
+          c.cover.style.borderRadius = blurred ? c.rBlur + "px" : "";
+        }
         c.veil.style.setProperty("--f", `${blur.toFixed(1)}px`);
         // Grain arrives with the blur, not ahead of it, so sharp covers stay clean.
         c.veil.style.opacity = Math.min(1, Math.pow(grainK, 1.4) * 1.5).toFixed(3);
