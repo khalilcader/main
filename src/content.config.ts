@@ -20,10 +20,13 @@ const work = defineCollection({
         webm: z.string().optional(),
         mp4: z.string(),
         poster: z.string(),
+        // Seconds into the video the cover rests on; it plays from here on
+        // hover or when the cover is open.
+        start: z.number().min(0).default(0),
       }).optional(),
-      // An animated background behind the media: "tree-shadow" is the tree
-      // shadow shader (src/scripts/tree-shadow).
-      shader: z.enum(['tree-shadow']).optional(),
+      // An animated background behind the media: "backdrop" is a grainy
+      // studio-backdrop shader (src/scripts/backdrop-shader.ts).
+      shader: z.enum(['backdrop']).optional(),
       // A still image filling the cover.
       image: z.string().optional(),
       // Describes the cover for screen readers.

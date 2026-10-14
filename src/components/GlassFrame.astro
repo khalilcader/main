@@ -7,14 +7,16 @@ interface Props {
   webm?: string;
   mp4: string;
   poster: string;
+  start?: number;   // seconds; the frame the cover rests on
 }
-const { webm, mp4, poster } = Astro.props;
+const { webm, mp4, poster, start = 0 } = Astro.props;
 ---
 <div class="glass-frame">
   <div class="glass-shadow"></div>
   <div class="glass">
     <div class="screen">
-      <video poster={poster} muted loop playsinline autoplay preload="metadata">
+      <!-- Paused on `start` until the cover is hovered or opened (see work-strip.ts). -->
+      <video poster={poster} muted loop playsinline preload="auto" data-start={start}>
         {webm && <source src={webm} type="video/webm" />}
         <source src={mp4} type="video/mp4" />
       </video>

@@ -6,7 +6,7 @@
 // this file are motion tuning, dialed in on the prototype.
 import { squirclePath } from './squircle';
 import { shapeGlassFrames } from './glass-frame';
-import { mountTreeShadow } from './tree-shadow';
+import { mountBackdrop } from './backdrop-shader';
 
 const TUNING = {
   k: 240, c: 30,                    // layout spring stiffness / damping
@@ -75,6 +75,8 @@ function init(stage: HTMLElement) {
     content: el.querySelector<HTMLElement>('.cover .content')!,
     outline: el.querySelector<SVGPathElement>('.outline path')!,
     veil: el.querySelector<HTMLElement>('.veil')!,
+    video: el.querySelector<HTMLVideoElement>('video'),
+    playing: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
@@ -87,7 +89,32 @@ function init(stage: HTMLElement) {
   type Card = (typeof cards)[number];
   const N = cards.length;
   if (!N) return;
-  if (reduce) stage.querySelectorAll('video').forEach((v) => { v.autoplay = false; v.pause(); });
+  // Videos rest paused on their start frame, and play while their cover is
+  // hovered (mouse) or open in the focus strip or grid lightbox.
+  const restOn = (v: HTMLVideoElement) => {
+    const start = parseFloat(v.dataset.start || '0');
+    const seek = () => { v.currentTime = Math.min(start, Math.max(0, (v.duration || start) - 0.1)); };
+    if (v.readyState >= 1) seek(); else v.addEventListener('loadedmetadata', seek, { once: true });
+  };
+  let hovered = -1;
+  for (const c of cards) {
+    if (!c.video) continue;
+    restOn(c.video);
+    c.el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hovered = c.i; });
+    c.el.addEventListener('pointerleave', () => { if (hovered === c.i) hovered = -1; });
+  }
+  function syncVideos() {
+    for (const c of cards) {
+      if (!c.video) continue;
+      const open = mode === 'row' ? p.t >= 0.5 && c.i === anchor : c.i === gridOpen;
+      const hover = c.i === hovered && !reduce && !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
+      const want = open || hover;
+      if (want === c.playing) continue;
+      c.playing = want;
+      if (want) c.video.play().catch(() => {});
+      else { c.video.pause(); restOn(c.video); }
+    }
+  }
 
   // ---- state ----
   let mode: 'row' | 'grid' = 'row';
@@ -770,13 +797,14 @@ function init(stage: HTMLElement) {
     const wo = Math.round((1 - pv) * 100) / 100;
     if (wo !== whoOpacity) { whoOpacity = wo; who.style.opacity = wo < 1 ? String(wo) : ''; who.style.visibility = wo < 0.01 ? 'hidden' : ''; }
     slideEdges(eL, eR);
+    syncVideos();
     requestAnimationFrame(tick);
   }
 
   layout();
   applyEdges();
-  stage.querySelectorAll<HTMLCanvasElement>('canvas[data-shader="tree-shadow"]').forEach((cv) => {
-    try { mountTreeShadow(cv); } catch (err) { console.warn('Tree shadow shader failed', err); }
+  stage.querySelectorAll<HTMLCanvasElement>('canvas[data-shader="backdrop"]').forEach((cv) => {
+    try { mountBackdrop(cv); } catch (err) { console.warn('Backdrop shader failed', err); }
   });
   S.big.pos = S.big.min;
   const t0 = performance.now();
