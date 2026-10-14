@@ -17,7 +17,7 @@ const TUNING = {
   // Experiment: the open cover's edges dissolve into the page, keeping its
   // rounded shape, so attention goes to what's inside. Width is a share of
   // the cover's shorter side; grain breaks up the soft edge. 0 turns it off.
-  focusFeather: 0.12, featherGrain: 0.6,
+  focusFeather: 0.09, featherGrain: 0.6,
   // The soft edge stays alive: grain cycles through a few frames, and the
   // edge breathes in and out by this share of its width.
   featherFps: 8, featherBreathe: 0.12,
@@ -241,8 +241,11 @@ function init(stage: HTMLElement) {
   // (where alpha is between 0 and 1): alpha + 4g·a(1−a)·(noise − ½), built
   // from feComposite arithmetic steps.
   function featherMask(w: number, h: number, r: number, smoothing: number, seed: number) {
-    // Inset little and blur less, so the fade sits at the outer edge and most of the backdrop shows.
-    const F = P.focusFeather * Math.min(w, h), inset = F * 0.35, sigma = F / 3.5, g = P.featherGrain;
+    // The fade must reach fully clear before the cover's own edge, or the
+    // edge shows as a hard seam: keep 2.6σ of margin, plus room for the
+    // breathing to push the shape outward.
+    const F = P.focusFeather * Math.min(w, h), sigma = F / 4, g = P.featherGrain;
+    const inset = 2.6 * sigma + P.featherBreathe * F;
     const shape = squirclePath(w - 2 * inset, h - 2 * inset, r + inset * 0.6, smoothing);  // rounder than the cover, so the corners read as round under the blur
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w.toFixed(0)}" height="${h.toFixed(0)}">`
       + `<filter id="f" filterUnits="userSpaceOnUse" x="${-inset.toFixed(1)}" y="${-inset.toFixed(1)}" width="${w.toFixed(0)}" height="${h.toFixed(0)}" color-interpolation-filters="sRGB">`
