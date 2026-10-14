@@ -61,7 +61,7 @@ void main() {
   float tooth = vnoise(c * 0.9) * 0.55 + vnoise(c * vec2(0.1, 0.75)) * 0.45;
   col *= 1.0 + (tooth - 0.5) * 0.05;
   float grain = hash12(floor(c * 1.2)) - 0.5;
-  float flicker = hash12(floor(c * 1.2) + floor(t * 8.0) * 37.0) - 0.5;
+  float flicker = hash12(floor(c * 1.2) + floor(t * 3.2) * 37.0) - 0.5;  // ~8 changes a second at SPEED 2.5
   col += grain * 0.075 + flicker * 0.02;
 
   gl_FragColor = vec4(col, 1.0);
@@ -69,6 +69,7 @@ void main() {
 
 const MAX_DPR = 1.5;  // the cover is large; this keeps the shader light
 const FPS = 30;       // the motion is slow, so 30fps is plenty
+const SPEED = 2.5;    // how fast the folds and colour waves drift
 
 // Any CSS colour → [0..1, 0..1, 0..1]
 const probe = document.createElement('canvas').getContext('2d')!;
@@ -126,7 +127,7 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
     if (!running) draw();
   };
   const frame = (now: number) => {
-    time += Math.min(0.1, (now - last) / 1000);
+    time += Math.min(0.1, (now - last) / 1000) * SPEED;
     last = now;
     if (now - lastDraw >= 1000 / FPS - 1) { lastDraw = now; draw(); }
     if (running) raf = requestAnimationFrame(frame);
