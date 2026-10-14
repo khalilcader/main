@@ -5,6 +5,8 @@
 // Visual values (sizes, radii, colors) come from tokens.css. The numbers in
 // this file are motion tuning, dialed in on the prototype.
 import { squirclePath } from './squircle';
+import { shapeGlassFrames } from './glass-frame';
+import { mountTreeShadow } from './tree-shadow';
 
 const TUNING = {
   k: 240, c: 30,                    // layout spring stiffness / damping
@@ -168,6 +170,7 @@ function init(stage: HTMLElement) {
       c.el.style.width = c.W + 'px'; c.el.style.height = c.W / c.a + 'px';
     }
     updateCorners();
+    shapeGlassFrames(stage);
     for (const s of Object.values(S)) { s.pos = clamp(s.pos, s.min, s.max); s.to = null; }
   }
 
@@ -772,6 +775,9 @@ function init(stage: HTMLElement) {
 
   layout();
   applyEdges();
+  stage.querySelectorAll<HTMLCanvasElement>('canvas[data-shader="tree-shadow"]').forEach((cv) => {
+    try { mountTreeShadow(cv); } catch (err) { console.warn('Tree shadow shader failed', err); }
+  });
   S.big.pos = S.big.min;
   const t0 = performance.now();
   for (const c of cards) {

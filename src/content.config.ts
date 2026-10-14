@@ -21,6 +21,9 @@ const work = defineCollection({
         mp4: z.string(),
         poster: z.string(),
       }).optional(),
+      // An animated background behind the media: "tree-shadow" is the tree
+      // shadow shader (src/scripts/tree-shadow).
+      shader: z.enum(['tree-shadow']).optional(),
       // A still image filling the cover.
       image: z.string().optional(),
       // Describes the cover for screen readers.

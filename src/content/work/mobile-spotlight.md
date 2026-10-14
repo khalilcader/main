@@ -10,6 +10,7 @@ cover:
     webm: images/work/mobile-spotlight.webm
     mp4: images/work/mobile-spotlight.mp4
     poster: images/work/mobile-spotlight.jpg
+  shader: tree-shadow
   alt: Screen recording of Mobile spotlight on a phone
 ---
 

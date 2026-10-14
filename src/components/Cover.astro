@@ -12,9 +12,10 @@ const url = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, 
   <!-- Media sits in its own layer so the row's edge blur can soften it while
        the cover's shape, border and background stay crisp. -->
   <div class="content">
+    {cover.shader && <canvas class="shader" data-shader={cover.shader}></canvas>}
     {cover.video && (
       <>
-        <img class="ambient" src={url(cover.video.poster)} alt="" />
+        {!cover.shader && <img class="ambient" src={url(cover.video.poster)} alt="" />}
         <GlassFrame
           webm={cover.video.webm && url(cover.video.webm)}
           mp4={url(cover.video.mp4)}
@@ -36,6 +37,7 @@ const url = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, 
     pointer-events: none;
   }
   .content { position: absolute; inset: 0; }
+  .shader { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: var(--color-shader-paper); }
   .ambient {
     position: absolute; inset: -12%; width: 124%; height: 124%; max-width: none;
     object-fit: cover; filter: blur(40px) saturate(1.3); opacity: var(--ambient-opacity);

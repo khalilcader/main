@@ -74,13 +74,22 @@
   /* Glass device frame (Figma 43:66: 390 × 816) */
   --glass-radius-x: 15.6%;                  /* 61px of 390 */
   --glass-radius-y: 7.5%;                   /* 61px of 816 */
-  --glass-pad: 3.6%;                        /* 14px bezel at 390 */
+  --glass-pad: 2%;                          /* bezel: ~8px at 390 wide */
   --glass-border-width: 2px;
   --glass-blur: 20px;
   --glass-shadow: 0 4px 50px 30px var(--color-glass-shadow);
-  --glass-screen-radius-x: 13%;
-  --glass-screen-radius-y: 6%;
+  --glass-screen-radius-x: 12%;             /* fallback before script shapes the corners */
+  --glass-screen-radius-y: 5.6%;
+  --screen-radius: 0.12;                    /* screen corner as a share of its width (iPhone: ~47pt of 390) */
+  --screen-smoothing: 0.6;                  /* corner smoothing for the screen and frame */
   --ambient-opacity: 0.55;
+
+  /* Tree shadow shader behind the device frame (Mobile spotlight cover):
+     the artifact's "daylight" preset in a saturated sky blue instead of its
+     grey "bone" palette. (Warm pairs turn khaki where the shader dims the
+     shadow side.) */
+  --color-shader-paper: #e8f2ff;
+  --color-shader-shadow: #4a7de0;
 
   /* Effects */
   --grain-amount: 1;
@@ -117,6 +126,8 @@
     --color-glass-border: rgba(255, 255, 255, 0.16);
     --color-glass-shadow: rgba(0, 0, 0, 0.45);
     --ambient-opacity: 0.3;
+    --color-shader-paper: #1f2636;
+    --color-shader-shadow: #0b1020;
     color-scheme: dark;
   }
 }
@@ -135,5 +146,7 @@
   --color-glass-border: rgba(255, 255, 255, 0.16);
   --color-glass-shadow: rgba(0, 0, 0, 0.45);
   --ambient-opacity: 0.3;
+  --color-shader-paper: #1f2636;
+  --color-shader-shadow: #0b1020;
   color-scheme: dark;
 }
