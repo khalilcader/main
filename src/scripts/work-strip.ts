@@ -17,7 +17,7 @@ const TUNING = {
   // Experiment: the open cover's edges dissolve into the page, keeping its
   // rounded shape, so attention goes to what's inside. Width is a share of
   // the cover's shorter side; grain breaks up the soft edge. 0 turns it off.
-  focusFeather: 0.09, featherGrain: 0.6,
+  focusFeather: 0.16, featherGrain: 0.6,
   // The soft edge stays alive: grain cycles through a few frames, and the
   // edge breathes in and out by this share of its width.
   featherFps: 8, featherBreathe: 0.12,
