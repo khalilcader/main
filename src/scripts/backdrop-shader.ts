@@ -40,11 +40,13 @@ void main() {
   float t = uTime;
 
   // Soft folds of the backdrop: domain-warped noise that drifts very slowly.
-  vec2 q = vec2(fbm(p * 0.9 + vec2(0.0, t * 0.012)), fbm(p * 0.9 + vec2(5.2, 1.3) - t * 0.010));
-  float folds = fbm(p * 1.3 + q * 1.4 + vec2(t * 0.006, 0.0));
-  // Long, gentle waves of colour rolling across, bent by the folds.
-  float wave = 0.5 + 0.5 * sin(dot(p, vec2(0.9, 1.4)) * 1.6 + folds * 3.0 + t * 0.05);
-  float tone = clamp(mix(folds, wave, 0.3) * 1.15 - 0.05, 0.0, 1.0);
+  vec2 q = vec2(fbm(p * 0.9 + vec2(0.0, t * 0.03)), fbm(p * 0.9 + vec2(5.2, 1.3) - t * 0.025));
+  float folds = fbm(p * 1.3 + q * 1.6 + vec2(t * 0.02, 0.0));
+  // Long waves of colour rolling across, bent by the folds.
+  float wave = 0.5 + 0.5 * sin(dot(p, vec2(0.9, 1.4)) * 1.6 + folds * 3.5 + t * 0.12);
+  // Stretch the contrast so the moving light and dark patches carry the
+  // texture, rather than the still grain on top.
+  float tone = clamp((mix(folds, wave, 0.45) - 0.5) * 1.9 + 0.55, 0.0, 1.0);
 
   // Lit like a studio backdrop: brighter up top, falling off to one corner.
   float light = 1.0 - 0.35 * smoothstep(0.15, 1.15, length(uv - vec2(0.3, 0.85)));
@@ -56,7 +58,8 @@ void main() {
   // mottling, a faint paper tooth, then film grain (mostly still, with a
   // whisper of movement).
   vec2 c = frag / uScale;
-  float mottle = vnoise(c * 0.035) * 0.6 + vnoise(c * 0.11) * 0.4;
+  vec2 drift = vec2(t * 2.0, t * -1.2);   // the mottling drifts too, in CSS px
+  float mottle = vnoise((c + drift) * 0.035) * 0.6 + vnoise((c - drift) * 0.11) * 0.4;
   col *= 1.0 + (mottle - 0.5) * 0.10;
   float tooth = vnoise(c * 0.9) * 0.55 + vnoise(c * vec2(0.1, 0.75)) * 0.45;
   col *= 1.0 + (tooth - 0.5) * 0.05;
