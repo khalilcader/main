@@ -79,17 +79,17 @@
   --photo-back-icon-opacity: 0.6;
 
   /* About card (opens from the avatar) */
-  --about-width: 440px;
-  --about-radius: 24px;
-  --about-pad: 32px;
-  --about-text-size: 15px;
+  --about-height: 760px;                    /* portrait, avatar proportions */
+  --about-radius: var(--cover-radius);      /* same corners as the cards */
+  --about-pad: 48px;
+  --about-text-size: 18px;
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
   --about-blur: 16px;                       /* background blur behind the card */
   --about-grain: 0.6;
 
   /* Tooltips */
   --tip-gap: 8px;
-  --tip-pad-y: 6px;
+  --tip-pad-y: 8px;                         /* around cap height to baseline */
   --tip-pad-x: 10px;
   --tip-radius: 8px;
   --tip-size: 13px;

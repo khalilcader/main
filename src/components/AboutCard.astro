@@ -64,8 +64,11 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     padding: var(--gutter);
     pointer-events: none;
   }
+  /* Portrait, in the avatar's proportions (50 × 56), as tall as fits. */
   .about-card {
-    position: relative; width: min(var(--about-width), 100%);
+    position: relative;
+    height: min(var(--about-height), calc(100dvh - 2 * var(--gutter)), calc((100vw - 2 * var(--gutter)) * 56 / 50));
+    aspect-ratio: 50 / 56;
     transform-style: preserve-3d;
     border-radius: var(--about-radius);
     pointer-events: auto;
@@ -77,7 +80,10 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     box-shadow: var(--about-shadow);
     -webkit-backface-visibility: hidden; backface-visibility: hidden;
   }
-  .about-front { position: relative; padding: var(--about-pad); }
+  .about-front {
+    position: relative; height: 100%; padding: var(--about-pad);
+    display: flex; flex-direction: column; overflow: auto;
+  }
   .about-back {
     position: absolute; inset: 0; transform: rotateY(180deg);
     display: flex; align-items: center; justify-content: center;
