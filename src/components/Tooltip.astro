@@ -4,10 +4,11 @@
 // positions it. An optional shortcut key shows dimmed after the text.
 interface Props {
   shortcut?: string;
+  below?: boolean;   // show under the control (e.g. inside a clipped card)
 }
-const { shortcut } = Astro.props;
+const { shortcut, below = false } = Astro.props;
 ---
-<span class="tip" role="tooltip" aria-hidden="true" data-smooth="surface"><slot />{shortcut && <kbd>{shortcut}</kbd>}</span>
+<span class:list={['tip', { below }]} role="tooltip" aria-hidden="true" data-smooth="surface"><slot />{shortcut && <kbd>{shortcut}</kbd>}</span>
 
 <style>
   :global(.has-tip) { position: relative; }
@@ -30,6 +31,7 @@ const { shortcut } = Astro.props;
     /* Hide at once. */
     transition: opacity 0.08s ease-in, transform 0.08s ease-in;
   }
+  .tip.below { bottom: auto; top: calc(100% + var(--tip-gap)); transform-origin: 50% 0; transform: translate(-50%, -3px) scale(0.96); }
   kbd { font: inherit; opacity: 0.5; }
   /* Show after a short pause, quickly and softly. */
   :global(.has-tip:focus-visible) > .tip,

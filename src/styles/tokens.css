@@ -105,9 +105,9 @@
   --label-rise: 6px;                        /* drifts up this far as it appears */
   --label-grow: 0.1;                        /* and grows from 90%, popping just past full size */
   --label-shadow: 0 4px 16px 0 var(--color-label-shadow);
-  --tools-inset: 4px;                       /* padding around and between the header buttons */
+  --tools-inset: 4px;                       /* padding around the header buttons (no gap between them) */
   --close-inset: 32px;                      /* focus-mode close button, from the top-left corner */
-  --tool-size: 31px;                        /* 40 tall: 4 + 31 + 4 + 0.5px border each side */
+  --tool-size: 31px;                        /* 40 tall: 4 + 31 + 4 + 0.5px border each side; tiles touch */
 
   /* Covers */
   --cover-radius: 48px;                     /* at row height */

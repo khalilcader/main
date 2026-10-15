@@ -76,6 +76,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     padding: var(--label-pad-y) var(--label-pad-x);
     --surface-bg: var(--color-button-bg);
     --surface-border: var(--color-button-border);
+    --surface-border-top: 0.35;   /* lit from above: darker underneath */
     --surface-blur: blur(var(--button-blur));
     border: var(--button-border-width) solid var(--surface-border);
     border-radius: 999px;

@@ -1,7 +1,8 @@
 // The About card (AboutCard.astro). Clicking the avatar grows the card out of
-// the avatar's About side: it moves and scales from the avatar to the centre of
-// the screen while turning 180° in 3D, so the book side turns away and the
-// card's front comes round. Closing runs the same path back with the same
+// it: it moves and scales from the avatar to the centre of the screen while
+// turning 180° in 3D, so the photo side turns away and the card's front comes
+// round. The perspective is centred on the card itself (it comes after the
+// translate), so the turn doesn't shear as it travels. Closing runs the same path back with the same
 // ease-out (not a reversed playback, which would turn it into an ease-in), and
 // either can be interrupted mid-way, turning around from where it is.
 
@@ -23,9 +24,9 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
   let state: 'closed' | 'opening' | 'open' | 'closing' = 'closed';
   let anims: Animation[] = [];
 
-  const faces = [...card.querySelectorAll<HTMLElement>('.about-face')];
+  const faces = [...card.querySelectorAll<HTMLElement>('.about-surface')];
 
-  // The two end states. Small: on the avatar, book side up. Big: the open card.
+  // The two end states. Small: on the avatar, photo side up. Big: the open card.
   // Each is a set of styles per element; the faces' smoothed-corner clips are
   // animated too, so the corners stay in proportion as the card scales.
   type State = { card: Keyframe; faces: Keyframe; scrim: Keyframe };
@@ -37,8 +38,6 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
     const sx = a.width / c.width, sy = a.height / c.height;
     const dx = a.left + a.width / 2 - (c.left + c.width / 2);
     const dy = a.top + a.height / 2 - (c.top + c.height / 2);
-    // The book side's icon matches the avatar's 24px at the small end.
-    card!.style.setProperty('--about-back-icon', `${(24 / sx).toFixed(1)}px`);
     const root = getComputedStyle(document.documentElement);
     const rSmall = parseFloat(root.getPropertyValue('--photo-radius')) || 14;
     const rBig = parseFloat(root.getPropertyValue('--cover-radius')) || 48;
@@ -53,12 +52,12 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
     }
     return {
       small: {
-        card: { transform: `perspective(${PERSPECTIVE}px) translate(${dx}px, ${dy}px) scale(${sx}, ${sy}) rotateY(-180deg)`, borderRadius: `${rSmall / sx}px / ${rSmall / sy}px` },
+        card: { transform: `translate(${dx}px, ${dy}px) perspective(${PERSPECTIVE}px) rotateY(-180deg) scale(${sx}, ${sy})`, borderRadius: `${rSmall / sx}px / ${rSmall / sy}px` },
         faces: { clipPath: clip(rSmall / sx) },
         scrim: { opacity: 0 },
       },
       big: {
-        card: { transform: `perspective(${PERSPECTIVE}px) translate(0px, 0px) scale(1, 1) rotateY(0deg)`, borderRadius: `${rBig}px / ${rBig}px` },
+        card: { transform: `translate(0px, 0px) perspective(${PERSPECTIVE}px) rotateY(0deg) scale(1, 1)`, borderRadius: `${rBig}px / ${rBig}px` },
         faces: { clipPath: clip(rBig) },
         scrim: { opacity: 1 },
       },

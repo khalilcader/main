@@ -26,9 +26,13 @@ const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (n
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
 const HV_K = 600, HV_C = 44;         // hover lift: quick and smooth (ζ ≈ 0.9, no visible overshoot)
 const FOCUS_FADE = 2.2;
-// Experiment: in focus mode the neighbouring covers peek in at the sides by
-// FOCUS_PEEK px, dimmed by PEEK_DIM and blurred by PEEK_BLUR px; further ones
-// fade out. FOCUS_PEEK = 0 puts neighbours just off screen instead.
+// Focus-mode spacing (experiment):
+//   'row'       a zoomed-in row: the row's gap scaled up with the covers, so
+//               neighbours sit right beside the open cover
+//   'peek'      neighbours peek in FOCUS_PEEK px at the sides
+//   'offscreen' neighbours just past the screen edges (the original)
+// Neighbours are dimmed by PEEK_DIM and blurred PEEK_BLUR px; further ones fade.
+const FOCUS_SPACING: 'row' | 'peek' | 'offscreen' = 'row';
 const FOCUS_PEEK = 72, FOCUS_GAP = 24, PEEK_DIM = 0.5, PEEK_BLUR = 6;              // background covers fade this much faster in focus mode
 const HOVER_SCALE = 1.025;           // covers grow this much under the cursor
 const LB_K = 900, LB_C = 34;         // title pill: quick, underdamped (ζ ≈ 0.57) for a little pop
@@ -138,7 +142,7 @@ function init(stage: HTMLElement) {
   let anchor = 0, gridOpen = -1, gridActive = -1, pull = 0;
   const mk = (): Scroll => ({ pos: 0, vel: 0, min: 0, max: 0, wheel: false, to: null, raw: 0, wt: 0, from: null });
   const S = { row: mk(), big: mk(), grid: mk() };
-  let vw = 0, vh = 0, pad = 16, rowGap = 24, gridTop = 0, dragDist = 0;
+  let vw = 0, vh = 0, pad = 16, rowGap = 24, focusGap = 24, gridTop = 0, dragDist = 0;
   let simT = 0;
   const hist: [number, number][] = [];  // recent [time, squish] samples of the anchor, replayed by neighbors
 
@@ -181,16 +185,18 @@ function init(stage: HTMLElement) {
     // its neighbors peek in FOCUS_PEEK px at the sides (or, with no peek, sit
     // just past the viewport edges).
     const vPad = mobile ? 72 : 40;
-    const peek = mobile ? Math.min(FOCUS_PEEK, 24) : FOCUS_PEEK;
+    const peek = FOCUS_SPACING === 'peek' ? (mobile ? Math.min(FOCUS_PEEK, 24) : FOCUS_PEEK) : 0;
     const maxH = vh - 2 * vPad, maxW = peek ? vw - 2 * (peek + FOCUS_GAP) : vw - 2 * pad;
+    const zoomGap = rowGap * (maxH / H);   // the row's gap, scaled up like the covers
+    focusGap = zoomGap;
     let cx = 0, prevW = 0;
     cards.forEach((c, i) => {
       let h = maxH, w = h * c.a;
       if (w > maxW) { w = maxW; h = w / c.a; }
       // With a peek: the narrower of two neighbours shows exactly `peek` px
       // beside the other, and the two never get closer than FOCUS_GAP.
-      if (i) cx += peek
-        ? Math.max(vw / 2 - peek + Math.min(w, prevW) / 2, prevW / 2 + FOCUS_GAP + w / 2)
+      if (i) cx += FOCUS_SPACING === 'row' ? prevW / 2 + zoomGap + w / 2
+        : peek ? Math.max(vw / 2 - peek + Math.min(w, prevW) / 2, prevW / 2 + FOCUS_GAP + w / 2)
         : vw / 2 + Math.max(w, prevW) / 2 + 32;
       c.big = { x: cx - w / 2, y: (vh - h) / 2, w, h };
       prevW = w;
@@ -804,9 +810,9 @@ function init(stage: HTMLElement) {
       // 0 at the center of the screen to 1 as the cover has fully left it.
       let dim = 0, edge = 0;
       if (mode === 'row' && pv > 0.001 && !(ptr && ptr.kind === 'fling' && c.i === anchor)) {
-        if (FOCUS_PEEK) {
-          // 0 centred, 0.5 at a peeking neighbour's spot, 1 one cover further out.
-          const slot = vw / 2 - FOCUS_PEEK + w2 / 2;
+        if (FOCUS_SPACING !== 'offscreen') {
+          // 0 centred, 0.5 at a neighbour's spot, 1 one cover further out.
+          const slot = FOCUS_SPACING === 'row' ? w2 + focusGap : vw / 2 - FOCUS_PEEK + w2 / 2;
           dim = pv * clamp(Math.abs(x + w2 / 2 - vw / 2) / slot, 0, 2) / 2;
         } else {
           const t = clamp((Math.abs(x + w2 / 2 - vw / 2) - w2 * 0.08) / (vw / 2 + w2 * 0.42), 0, 1);
@@ -831,8 +837,8 @@ function init(stage: HTMLElement) {
         // Row blur is in on-screen px; the card is scaled by kRow in the row.
         const rowBlur = (P.rowBlur / c.kRow) * Math.pow(ek, 1.6);
         let focusBlur: number, focusFade: number;
-        if (FOCUS_PEEK) {
-          // Up to a peeking neighbour: a light dim and blur. Beyond: fade away.
+        if (FOCUS_SPACING !== 'offscreen') {
+          // Up to a neighbour: a light dim and blur. Beyond: fade away.
           const a = clamp(dk / 0.5, 0, 1), b = clamp((dk - 0.5) / 0.5, 0, 1);
           focusFade = PEEK_DIM * a + (1 - PEEK_DIM) * b * b * (3 - 2 * b);
           focusBlur = PEEK_BLUR * a + (P.focusBlur - PEEK_BLUR) * Math.pow(b, 1.5);

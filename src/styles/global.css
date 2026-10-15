@@ -36,7 +36,12 @@ a { color: inherit; }
   backdrop-filter: var(--surface-blur, none);
   transition: background-color 0.12s ease-out;
 }
-.smooth-clip { border-color: transparent !important; }
+.smooth-clip {
+  border-color: transparent !important;
+  /* The smoothed clip does the clipping. overflow: hidden would also cut the
+     redrawn border, which sits in the border area. */
+  overflow: visible !important;
+}
 .smooth-border {
   position: absolute; inset: calc(-1 * var(--smooth-bw, 0px));
   width: calc(100% + 2 * var(--smooth-bw, 0px)); height: calc(100% + 2 * var(--smooth-bw, 0px));

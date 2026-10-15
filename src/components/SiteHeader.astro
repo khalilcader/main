@@ -18,16 +18,16 @@ const { tools = true } = Astro.props;
     <!-- Flips over in 3D on hover to show the About side. -->
     <span class="photo has-tip">
       <span class="flip">
-        <span class="face front" data-smooth="clip">
+        <span class="face front"><span class="surface" data-smooth="clip">
           {photo && <img src={photo} alt="Khalil Cader" width="50" height="56" />}
-        </span>
-        <span class="face back" aria-hidden="true" data-smooth="clip">
+        </span></span>
+        <span class="face back" aria-hidden="true"><span class="surface" data-smooth="clip">
           <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6.75 18.25V5.75a1.5 1.5 0 0 1 1.5-1.5h8.5a1.5 1.5 0 0 1 1.5 1.5v12.5" />
             <path d="M6.75 18.25a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5v0a1.5 1.5 0 0 0-1.5-1.5h-8.5a1.5 1.5 0 0 0-1.5 1.5Z" />
             <path d="M9.75 7.75h4.5M9.75 10.75h2.5" />
           </svg>
-        </span>
+        </span></span>
       </span>
       <Tooltip>About</Tooltip>
     </span>
@@ -120,13 +120,19 @@ const { tools = true } = Astro.props;
     transition: transform var(--photo-flip-duration) var(--photo-flip-ease),
                 box-shadow var(--photo-hover-duration) var(--photo-flip-ease);
   }
+  /* A face takes part in the 3D flip; its surface inside carries the shape.
+     (Chrome ignores clip-path on elements inside a 3D scene, so the smoothed
+     clip has to sit one level down.) */
   .face {
+    position: absolute; inset: 0; display: block;
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  }
+  .surface {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     --surface-border: var(--color-photo-border);
     border: 1px solid var(--surface-border); border-radius: var(--photo-radius);
     background: var(--color-cover-bg);
     overflow: hidden;
-    -webkit-backface-visibility: hidden; backface-visibility: hidden;
   }
   .face img { width: 100%; height: 100%; object-fit: cover; }
   .back { transform: rotateY(180deg); color: var(--color-fg); }
@@ -153,7 +159,7 @@ const { tools = true } = Astro.props;
   /* One glass container, 10px corners: square button tiles with 4px around
      and between them, so a tile's corners sit concentric with the container. */
   .tools {
-    display: flex; align-items: center; gap: var(--tools-inset);
+    display: flex; align-items: center;
     height: var(--button-size); padding: var(--tools-inset);
     --surface-bg: var(--color-button-bg);
     --surface-border: var(--color-button-border);

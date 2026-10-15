@@ -36,13 +36,13 @@ function setup(el: HTMLElement) {
   svg.setAttribute('aria-hidden', 'true');
   const path = document.createElementNS(SVGNS, 'path');
   path.setAttribute('stroke-width', String(bw * 2));
-  // Lit from above: the border fades from light along the top to full
-  // strength underneath (--surface-border is the strong end).
+  // Uniform by default. Set --surface-border-top below 1 to light it from
+  // above: lighter along the top, full strength underneath.
   const id = `smooth-${++uid}`;
   const grad = document.createElementNS(SVGNS, 'linearGradient');
   grad.id = id;
   grad.setAttribute('x1', '0'); grad.setAttribute('y1', '0'); grad.setAttribute('x2', '0'); grad.setAttribute('y2', '1');
-  for (const [offset, opacity] of [['0', 'var(--surface-border-top, 0.35)'], ['1', '1']]) {
+  for (const [offset, opacity] of [['0', 'var(--surface-border-top, 1)'], ['1', '1']]) {
     const stop = document.createElementNS(SVGNS, 'stop');
     stop.setAttribute('offset', offset);
     stop.setAttribute('style', `stop-color: var(--surface-border, transparent); stop-opacity: ${opacity}`);
