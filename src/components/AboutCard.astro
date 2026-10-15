@@ -32,10 +32,15 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
         <p>Where you've worked, and what you're looking for next.</p>
       </div>
     </div></div>
-    <!-- The small side: your photo, matching the avatar, so the card opens out
-         of it and closes back into it. -->
+    <!-- The small side matches whatever the avatar shows: the book it has
+         flipped to on hover when the card opens, your photo when it closes back. -->
     <div class="about-face about-back" aria-hidden="true"><div class="about-surface" data-smooth="clip">
       {photo && <img class="about-back-photo" src={photo} alt="" />}
+      <svg class="about-back-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.75 18.25V5.75a1.5 1.5 0 0 1 1.5-1.5h8.5a1.5 1.5 0 0 1 1.5 1.5v12.5" />
+        <path d="M6.75 18.25a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5v0a1.5 1.5 0 0 0-1.5-1.5h-8.5a1.5 1.5 0 0 0-1.5 1.5Z" />
+        <path d="M9.75 7.75h4.5M9.75 10.75h2.5" />
+      </svg>
     </div></div>
   </div>
 </div>
@@ -96,6 +101,10 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     color: var(--color-fg);
   }
   .about-back-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* Sized by script to match the avatar's 24px icon at the small end. */
+  .about-back-book { display: none; width: var(--about-back-icon, 24px); height: var(--about-back-icon, 24px); opacity: var(--photo-back-icon-opacity); }
+  .about-card[data-small="book"] .about-back-photo { display: none; }
+  .about-card[data-small="book"] .about-back-book { display: block; }
 
   .about-close {
     position: absolute; top: var(--space-3); right: var(--space-3);

@@ -36,6 +36,7 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
     const c = card!.getBoundingClientRect();
     card!.style.transform = '';
     const sx = a.width / c.width, sy = a.height / c.height;
+    card!.style.setProperty('--about-back-icon', `${(24 / sx).toFixed(1)}px`);
     const dx = a.left + a.width / 2 - (c.left + c.width / 2);
     const dy = a.top + a.height / 2 - (c.top + c.height / 2);
     const root = getComputedStyle(document.documentElement);
@@ -107,6 +108,10 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
 
   function open() {
     if (state === 'open' || state === 'opening') return;
+    // Start from the side the avatar is showing (the book, if it has flipped on
+    // hover or focus), so the card turns once rather than flipping back first.
+    const flipped = avatar!.matches(':hover') || who!.matches(':focus-visible') || avatar!.classList.contains('peek');
+    card!.dataset.small = flipped ? 'book' : 'photo';
     if (state === 'closed') {
       dialog!.hidden = false; scrim!.hidden = false;
       avatar!.style.visibility = 'hidden';   // the card takes its place
@@ -117,6 +122,7 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
   }
   function close() {
     if (state === 'closed' || state === 'closing') return;
+    card!.dataset.small = 'photo';   // lands back on the avatar's photo side
     scrim!.style.opacity = '';
     animateTo('small');
   }
