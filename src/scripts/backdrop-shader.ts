@@ -83,10 +83,9 @@ function rgb(css: string): number[] {
   return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
 }
 
-// Returns a handle to pause it (e.g. while it's faded out), or null without WebGL.
 export function mountBackdrop(canvas: HTMLCanvasElement) {
   const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
-  if (!gl) return null;  // no WebGL: the canvas's CSS background (the base tone) shows instead
+  if (!gl) return;  // no WebGL: the canvas's CSS background (the base tone) shows instead
 
   const compile = (type: number, src: string) => {
     const s = gl.createShader(type)!;
@@ -147,12 +146,7 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   applyColors();
   new ResizeObserver(() => { if (!running) draw(); }).observe(canvas);
-  let visible = false, paused = false;
-  const update = () => setRunning(visible && !paused && !still);
-  new IntersectionObserver(([e]) => { visible = e.isIntersecting; update(); }).observe(canvas);
+  new IntersectionObserver(([e]) => setRunning(e.isIntersecting && !still)).observe(canvas);
   new MutationObserver(applyColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scheme'] });
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyColors);
-  return {
-    setPaused(p: boolean) { if (p !== paused) { paused = p; update(); } },
-  };
 }
