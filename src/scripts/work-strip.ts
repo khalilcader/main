@@ -14,23 +14,6 @@ const TUNING = {
   decay: 4.5, brake: 1400,          // glide: exponential decay (/s) + constant brake (px/s²)
   rippleDelay: 30, falloff: 0.86,   // squish chain reaction: ms per step, falloff per step
   focusBlur: 56,
-  // Experiment: the open cover's edges dissolve into the page, keeping its
-  // rounded shape, so attention goes to what's inside. Width is a share of
-  // the cover's shorter side; grain breaks up the soft edge. 0 turns it off.
-  focusFeather: 0.13, featherGrain: 0.6,
-  // Covers with an animated backdrop always sit opened up: the cover is drawn
-  // `backdropExpand` times its slot around a same-size device, with a wide,
-  // airy soft edge (`backdropFeather`). It runs into the gaps, where it fades out.
-  backdropExpand: 1.25, backdropFeather: 0.22,
-  // Opened (focus strip or lightbox), the backdrop grows until it fills the
-  // screen, its soft edge firming up as it goes, and shrinks back as it
-  // leaves. Drawn this many times its slot so it stays sharp when grown.
-  backdropRender: 1.6,
-  // As it grows the soft edge narrows (stepping through prebuilt widths) so
-  // it ends up just off screen instead of fading across it.
-  backdropFeatherOpen: 0.03, backdropFeatherLevels: 5,
-  // The soft edge stays alive: its grain cycles through a few frames.
-  featherFps: 8,
   // Row edge: kept subtle. A light blur (on-screen px at row size) and fade,
   // no grain, and covers keep their smoothed corners.
   rowBlur: 3, rowFade: 0.2,
@@ -94,13 +77,7 @@ function init(stage: HTMLElement) {
     veil: el.querySelector<HTMLElement>('.veil')!,
     video: el.querySelector<HTMLVideoElement>('video'),
     playing: false,
-    W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false, shadow: '', feather: 0,
-    featherMasks: [] as string[][], featherFrame: '',   // [edge width level][grain frame]
-    // Covers with an animated backdrop stay feathered in every view; others
-    // only while open.
-    alwaysFeather: !!el.querySelector('canvas[data-shader]'),
-    glassFrame: el.querySelector<HTMLElement>('.glass-frame'),
-    exLast: -1, opened: 0,   // last device scale applied; how far the backdrop has opened (0..1)
+    W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
@@ -215,11 +192,8 @@ function init(stage: HTMLElement) {
     // Every layout keeps a cover's aspect ratio, so each card renders once at its
     // largest size and only ever scales down. Text and images stay crisp.
     for (const c of cards) {
-      // Backdrop covers draw past their slot (and grow further when opened), so
-      // render them bigger. The device inside is scaled back every frame.
-      c.W = Math.max(c.big.w, lightboxRect(c).w, c.row.w) * (c.alwaysFeather ? P.backdropRender : 1);
-      c.kRow = c.row.w * (c.alwaysFeather ? P.backdropExpand : 1) / c.W;   // on-screen scale in the row
-      c.exLast = -1;
+      c.W = Math.max(c.big.w, lightboxRect(c).w, c.row.w);
+      c.kRow = c.row.w / c.W;
       c.el.style.width = c.W + 'px'; c.el.style.height = c.W / c.a + 'px';
     }
     updateCorners();
@@ -241,46 +215,11 @@ function init(stage: HTMLElement) {
       c.outline.setAttribute('d', path);
       c.outline.style.strokeWidth = String(border * k * 2);   // half falls outside the clip
       c.el.style.borderRadius = r * 0.6 + 'px';               // sits inside the clip; also the focus ring
-      c.shadow = `drop-shadow(0 ${shY * k}px ${shB * k}px var(--color-cover-shadow))`;
-      c.el.style.filter = c.feather > 0 ? 'none' : c.shadow;
+      c.el.style.filter = `drop-shadow(0 ${shY * k}px ${shB * k}px var(--color-cover-shadow))`;
       c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
-      if (P.focusFeather > 0) {
-        const levels = c.alwaysFeather ? P.backdropFeatherLevels : 1;
-        c.featherMasks = Array.from({ length: levels }, (_, l) => {
-          const share = !c.alwaysFeather ? P.focusFeather
-            : lerp(P.backdropFeather, P.backdropFeatherOpen, levels > 1 ? l / (levels - 1) : 0);
-          return [1, 2, 3, 4].map((seed) => featherMask(c.W, h, r, smoothing, seed, share));
-        });
-        c.featherFrame = '';
-        if (c.alwaysFeather) c.outline.style.display = 'none';   // its edge is always soft
-      }
       c.cover.style.clipPath = c.blurred ? '' : c.clip;
       c.cover.style.borderRadius = c.blurred ? c.rBlur + 'px' : '';
     }
-  }
-
-  // Mask for the open cover's soft edge: the cover's own smoothed shape, inset
-  // and blurred, so corners stay rounded. Grain is added only in the soft band
-  // (where alpha is between 0 and 1): alpha + 4g·a(1−a)·(noise − ½), built
-  // from feComposite arithmetic steps.
-  function featherMask(w: number, h: number, r: number, smoothing: number, seed: number, share: number) {
-    // The fade must reach fully clear before the cover's own edge, or the
-    // edge shows as a hard seam: keep 2.6σ of margin.
-    const F = share * Math.min(w, h), sigma = F / 4, g = P.featherGrain;
-    const inset = 2.6 * sigma;
-    const shape = squirclePath(w - 2 * inset, h - 2 * inset, r + inset * 0.6, smoothing);  // rounder than the cover, so the corners read as round under the blur
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w.toFixed(0)}" height="${h.toFixed(0)}">`
-      + `<filter id="f" filterUnits="userSpaceOnUse" x="${-inset.toFixed(1)}" y="${-inset.toFixed(1)}" width="${w.toFixed(0)}" height="${h.toFixed(0)}" color-interpolation-filters="sRGB">`
-      + `<feGaussianBlur in="SourceGraphic" stdDeviation="${sigma.toFixed(1)}" result="b"/>`
-      + `<feComposite in="b" in2="b" operator="arithmetic" k1="-1" k2="1" k3="0" k4="0" result="m"/>`
-      + `<feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="${seed}" result="t"/>`
-      + `<feColorMatrix in="t" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="n"/>`
-      + `<feComposite in="m" in2="n" operator="arithmetic" k1="${4 * g}" k2="${-2 * g}" k3="0" k4="0.5" result="d"/>`
-      + `<feComposite in="b" in2="d" operator="arithmetic" k1="0" k2="1" k3="1" k4="-0.5"/>`
-      + `</filter>`
-      + `<path transform="translate(${inset.toFixed(1)} ${inset.toFixed(1)})" d="${shape}" filter="url(#f)"/>`
-      + `</svg>`;
-    return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   }
 
   function lightboxRect(c: Card): Rect {
@@ -798,30 +737,7 @@ function init(stage: HTMLElement) {
       const os = c.os.v, w2 = w * os, h2 = h * os;
       x += c.ox.v + (w - w2) / 2; y += c.oy.v + (h - h2) / 2;
       const st = c.el.style, L = c.last;
-      // Backdrop covers grow around their centre: past their slot at rest, and
-      // out to fill the screen when opened, shrinking back as they move off
-      // centre or are pulled away. The device scales back to stay the same size.
-      let E = 1;
-      if (c.alwaysFeather) {
-        let open = 0;
-        if (mode === 'row') {
-          const t = clamp((Math.abs(x + w2 / 2 - vw / 2) - w2 * 0.08) / (vw / 2 + w2 * 0.42), 0, 1);
-          open = pv * (1 - t) * (c.i === anchor ? 1 - pull : 1);
-        } else if (c.i === gridActive) open = gpv;
-        open = clamp(open, 0, 1);
-        c.opened = open * open * (3 - 2 * open);   // smoothstep
-        // Big enough to cover the screen from the cover's centre, with room for its corners.
-        const cx = x + w2 / 2, cy = y + h2 / 2;
-        const full = Math.max(2 * Math.max(cx, vw - cx) / w2, 2 * Math.max(cy, vh - cy) / h2) * 1.15;
-        E = lerp(P.backdropExpand, Math.max(P.backdropExpand, full), c.opened);
-        const ek = Math.round(E * 1000) / 1000;
-        if (ek !== c.exLast && c.glassFrame) {
-          c.exLast = ek;
-          c.glassFrame.style.transform = `translate(-50%, -50%) scale(${(1 / E).toFixed(4)})`;
-        }
-      }
-      const tw = w2 * E, tx = x - (tw - w2) / 2, ty = y - (h2 * E - h2) / 2;
-      st.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${tw / c.W})`;
+      st.transform = `translate3d(${x}px, ${y}px, 0) scale(${w2 / c.W})`;
 
       // Focus: covers away from center blur, fade and pick up grain. t runs from
       // 0 at the center of the screen to 1 as the cover has fully left it.
@@ -868,35 +784,8 @@ function init(stage: HTMLElement) {
         }
         c.veil.style.setProperty('--f', `${blur.toFixed(1)}px`);
         // Grain only in focus, arriving with the blur so sharp covers stay clean.
-        // Feathered backdrop covers carry their own grain, and this layer sits
-        // outside their soft edge, where it would show as a grey box.
-        c.veil.style.opacity = c.alwaysFeather ? '0' : Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
+        c.veil.style.opacity = Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
-      }
-      // Feather the cover's edges: always for backdrop covers, otherwise in
-      // as it opens (focus strip or lightbox).
-      const open = c.alwaysFeather ? 1 : mode === 'row' ? (c.i === anchor ? pv : 0) : c.i === gridActive ? gpv : 0;
-      const fk = P.focusFeather > 0 ? Math.round(open * 100) / 100 : 0;
-      if (fk !== c.feather) {
-        c.feather = fk;
-        if (fk > 0) {
-          c.el.dataset.feathered = '';
-          st.setProperty('--feather', String(fk));
-          st.filter = 'none';
-        } else {
-          delete c.el.dataset.feathered;
-          st.removeProperty('--feather'); st.removeProperty('--feather-mask');
-          st.filter = c.shadow;
-          c.featherFrame = '';
-        }
-      }
-      if (c.feather > 0 && c.featherMasks.length) {
-        // Grain flickers through the mask frames; a growing backdrop's edge narrows.
-        const lv = Math.round(c.opened * (c.featherMasks.length - 1));
-        const frames = c.featherMasks[lv];
-        const fr = reduce ? 0 : Math.floor(now / (1000 / P.featherFps)) % frames.length;
-        const key = lv + ':' + fr;
-        if (key !== c.featherFrame) { c.featherFrame = key; st.setProperty('--feather-mask', frames[fr]); }
       }
       const z = mode === 'grid' ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = String(z); }

@@ -63,20 +63,6 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   :global(.js) .card :global(.cover) { border: 0; }
   .card:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
 
-  /* Open cover: its edges dissolve into the page. --feather-mask (set in
-     script, cycling through grain frames) is the cover's rounded shape,
-     blurred and grainy. A solid layer
-     that fades out as --feather rises blends it in as the cover opens. */
-  .card[data-feathered] :global(.cover) {
-    -webkit-mask-image: var(--feather-mask), linear-gradient(rgb(0 0 0 / calc(1 - var(--feather))), rgb(0 0 0 / calc(1 - var(--feather))));
-    -webkit-mask-size: 100% 100%;
-    -webkit-mask-composite: source-over;
-    mask-image: var(--feather-mask), linear-gradient(rgb(0 0 0 / calc(1 - var(--feather))), rgb(0 0 0 / calc(1 - var(--feather))));
-    mask-size: 100% 100%;
-    mask-composite: add;
-  }
-  .card[data-feathered] :global(.outline) { opacity: calc(1 - var(--feather)); }
-
   /* Grain over anything pushed out of focus. The cover itself fades and blurs;
      this layer reaches past it by the blur's spill (--f) and feathers over it,
      so it never shows a hard edge. */
