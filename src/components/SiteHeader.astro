@@ -73,6 +73,24 @@ const { tools = true } = Astro.props;
   </div>}
 </header>
 
+{tools && (
+  <script>
+    // On the home page, once per visit: after the covers have come in, the
+    // avatar flips to its About side and back, hinting that it can be opened.
+    const photo = document.querySelector<HTMLElement>('.site-header .photo');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let seen = false;
+    try { seen = sessionStorage.getItem('about-peek') === '1'; sessionStorage.setItem('about-peek', '1'); } catch (e) {}
+    if (photo && !reduce && !seen) {
+      setTimeout(() => {
+        if (photo.matches(':hover')) return;   // already being explored
+        photo.classList.add('peek');
+        setTimeout(() => photo.classList.remove('peek'), 1100);
+      }, 1400);
+    }
+  </script>
+)}
+
 <style>
   .site-header {
     position: fixed; z-index: 30;
@@ -112,7 +130,7 @@ const { tools = true } = Astro.props;
   .back { transform: rotateY(180deg); color: var(--color-fg); }
   .back .icon { opacity: var(--photo-back-icon-opacity); }
   /* Flip on hover (mouse) or keyboard focus. */
-  .who:focus-visible .flip { transform: rotateY(180deg); }
+  .who:focus-visible .flip, .photo.peek .flip { transform: rotateY(180deg); }
   @media (hover: hover) {
     .photo:hover .flip { transform: rotateY(180deg); }
   }
