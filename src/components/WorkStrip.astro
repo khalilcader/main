@@ -96,6 +96,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
      so it never shows a hard edge. */
   .veil {
     position: absolute; inset: calc(var(--f, 0px) * -1); border-radius: inherit;
+    background: var(--veil-tint);   /* dark mode: leaving covers darken under their grain */
     pointer-events: none; opacity: 0;
     -webkit-mask-image: linear-gradient(to right, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent),
                         linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent);
@@ -107,7 +108,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   .veil::after, .backdrop::after {
     content: ""; position: absolute; inset: 0; border-radius: inherit;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
-    mix-blend-mode: overlay; opacity: min(1, calc(var(--grain-amount) * 1.3));
+    mix-blend-mode: var(--grain-blend); opacity: min(1, calc(var(--grain-amount) * var(--grain-strength)));
   }
 
   /* Grid lightbox: everything else fades to the page. */

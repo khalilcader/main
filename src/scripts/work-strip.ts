@@ -33,11 +33,11 @@ const FOCUS_FADE = 2.2;
 //   'offscreen' neighbours just past the screen edges (the original)
 // Neighbours are dimmed by PEEK_DIM and blurred PEEK_BLUR px; further ones fade.
 const FOCUS_SPACING: 'row' | 'peek' | 'offscreen' = 'row';
-const FOCUS_PEEK = 72, FOCUS_GAP = 24, PEEK_DIM = 0.2, PEEK_BLUR = 0;
+const FOCUS_PEEK = 72, FOCUS_GAP = 24, PEEK_DIM = 0.45, PEEK_BLUR = 0;
 // In focus mode the progressive edge blur slides back in, widened to the space
 // beside the open cover, so neighbours blur, dim and pick up grain gradually
 // toward the screen edge instead of all at once.
-const FOCUS_EDGE = { blur: 24, curve: 2, fade: 0.55 };              // background covers fade this much faster in focus mode
+const FOCUS_EDGE = { blur: 24, curve: 2, fade: 0.75 };              // background covers fade this much faster in focus mode
 const HOVER_SCALE = 1.025;           // covers grow this much under the cursor
 const LB_K = 900, LB_C = 34;         // title pill: quick, underdamped (ζ ≈ 0.57) for a little pop
 const OV_K = 320, OV_C = 36;         // per-cover overscroll lag (gaps stretch, then relax)
