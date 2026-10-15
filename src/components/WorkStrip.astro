@@ -19,6 +19,11 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       aria-label={`${item.data.title}. ${item.data.cover.alt}`}
       style={`--aspect: ${item.data.cover.aspect}`}
     >
+      <!-- Shadows: plain layers behind the cover (a drop-shadow filter on the
+           card was recomputed from its live content every frame). The hover
+           one cross-fades in. -->
+      <span class="shadow rest" aria-hidden="true"></span>
+      <span class="shadow lift" aria-hidden="true"></span>
       <Cover cover={item.data.cover} />
       <span class="label" aria-hidden="true" data-smooth="surface">{item.data.title}</span>
       <div class="veil"></div>
@@ -64,6 +69,14 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   :global(.js) .card :global(.cover) { border: 0; }
   /* No focus ring: a focused cover lifts and shows its title, like hover (script). */
   .card:focus-visible { outline: none; }
+
+  .shadow {
+    position: absolute; inset: 0; border-radius: var(--shadow-r, var(--cover-radius));
+    pointer-events: none;
+  }
+  .shadow.rest { box-shadow: 0 var(--shadow-y0) var(--shadow-b0) 0 var(--color-cover-shadow); }
+  .shadow.lift { box-shadow: 0 var(--shadow-y1) var(--shadow-b1) 0 var(--color-cover-shadow-hover); opacity: 0; }
+  :global(html:not(.js)) .shadow { display: none; }
 
   /* Title pill, shown on hover and keyboard focus. Script sets --pop (a
      springy 0..1 that overshoots a little), --show (clamped, for opacity) and

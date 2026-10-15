@@ -85,7 +85,7 @@ function rgb(css: string): number[] {
 
 export function mountBackdrop(canvas: HTMLCanvasElement) {
   const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
-  if (!gl) return;  // no WebGL: the canvas's CSS background (the base tone) shows instead
+  if (!gl) return null;  // no WebGL: the canvas's CSS background (the base tone) shows instead
 
   const compile = (type: number, src: string) => {
     const s = gl.createShader(type)!;
@@ -146,7 +146,11 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   applyColors();
   new ResizeObserver(() => { if (!running) draw(); }).observe(canvas);
-  new IntersectionObserver(([e]) => setRunning(e.isIntersecting && !still)).observe(canvas);
+  // Runs while on screen and not paused by the page (e.g. while blurred).
+  let visible = false, paused = false;
+  const update = () => setRunning(visible && !paused && !still);
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; update(); }).observe(canvas);
   new MutationObserver(applyColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scheme'] });
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyColors);
+  return { setPaused(p: boolean) { if (p !== paused) { paused = p; update(); } } };
 }

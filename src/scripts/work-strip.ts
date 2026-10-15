@@ -94,6 +94,8 @@ function init(stage: HTMLElement) {
     content: el.querySelector<HTMLElement>('.cover .content')!,
     outline: el.querySelector<SVGPathElement>('.outline path')!,
     veil: el.querySelector<HTMLElement>('.veil')!,
+    liftShadow: el.querySelector<HTMLElement>('.shadow.lift')!,
+    shader: null as null | { setPaused(p: boolean): void },
     label: el.querySelector<HTMLElement>('.label'),
     labelLast: '',
     video: el.querySelector<HTMLVideoElement>('video'),
@@ -240,16 +242,8 @@ function init(stage: HTMLElement) {
     for (const s of Object.values(S)) { s.pos = clamp(s.pos, s.min, s.max); s.to = null; }
   }
 
-  // Cover shadow at a hover amount (0 rest, 1 lifted): offset and blur grow,
-  // and the colour mixes from the rest tone to the deeper hover tone.
+  // Cover shadow sizes [rest y, rest blur, lifted y, lifted blur] at row size.
   let shadowSpec = [4, 16, 10, 32];
-  function coverShadow(c: { shK: number }, h: number) {
-    const [y0, b0, y1, b1] = shadowSpec, k = c.shK;
-    const col = h > 0
-      ? `color-mix(in srgb, var(--color-cover-shadow-hover) ${(h * 100).toFixed(0)}%, var(--color-cover-shadow))`
-      : 'var(--color-cover-shadow)';
-    return `drop-shadow(0 ${(lerp(y0, y1, h) * k).toFixed(1)}px ${(lerp(b0, b1, h) * k).toFixed(1)}px ${col})`;
-  }
 
   // Corners, border and shadow are specified at row size (Figma's frame); cards
   // are drawn at their largest size and scaled, so convert to that size.
@@ -266,7 +260,11 @@ function init(stage: HTMLElement) {
       c.outline.style.strokeWidth = String(border * k * 2);   // half falls outside the clip
       c.el.style.borderRadius = r * 0.6 + 'px';               // sits inside the clip; also the focus ring
       c.shK = k; c.shLast = -1;
-      c.el.style.filter = coverShadow(c, 0);
+      // Shadow layers, in the card's own (unscaled) pixels.
+      const es = c.el.style;
+      es.setProperty('--shadow-r', `${r}px`);
+      es.setProperty('--shadow-y0', `${shadowSpec[0] * k}px`); es.setProperty('--shadow-b0', `${shadowSpec[1] * k}px`);
+      es.setProperty('--shadow-y1', `${shadowSpec[2] * k}px`); es.setProperty('--shadow-b1', `${shadowSpec[3] * k}px`);
       c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
       c.cover.style.clipPath = c.blurred ? '' : c.clip;
       c.cover.style.borderRadius = c.blurred ? c.rBlur + 'px' : '';
@@ -822,7 +820,7 @@ function init(stage: HTMLElement) {
       st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;
       // The shadow deepens and softens with the lift.
       const sh = Math.round(clamp(c.hv.v, 0, 1) * 100) / 100;
-      if (sh !== c.shLast) { c.shLast = sh; st.filter = coverShadow(c, sh); }
+      if (sh !== c.shLast) { c.shLast = sh; c.liftShadow.style.opacity = sh > 0 ? String(sh) : ''; }
       // Title pill: pops in on its own spring (--pop may overshoot past 1;
       // --show is the clamped version for opacity), counter-scaled to stay a
       // constant size on screen.
@@ -899,10 +897,15 @@ function init(stage: HTMLElement) {
           c.cover.style.clipPath = blurred ? '' : c.clip;
           c.cover.style.borderRadius = blurred ? c.rBlur + 'px' : '';
         }
-        c.veil.style.setProperty('--f', `${blur.toFixed(1)}px`);
-        // The grain layer reaches past the cover by the blur, so round it to
-        // match the blurred shape (a square grain patch read as sharp corners).
-        c.veil.style.borderRadius = `${(c.rBlur + blur).toFixed(1)}px`;
+        // The grain layer takes the cover's shape: its smoothed clip while the
+        // cover is sharp, and a round shape reaching past it by the blur once
+        // blurred (two different curves at the corners read as jank).
+        c.veil.style.setProperty('--f', `${c.blurred ? blur.toFixed(1) : 0}px`);
+        c.veil.style.clipPath = c.blurred ? '' : c.clip;
+        c.veil.style.borderRadius = c.blurred ? `${(c.rBlur + blur).toFixed(1)}px` : '';
+        // A live backdrop shader pauses while its cover is blurred or dimmed:
+        // redrawing it forces the blur to be recomputed every frame.
+        c.shader?.setPaused(blur > 1 || fade > 0.05);
         // Grain only in focus, arriving with the blur so sharp covers stay clean.
         c.veil.style.opacity = Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
@@ -952,9 +955,11 @@ function init(stage: HTMLElement) {
 
   layout();
   applyEdges();
-  stage.querySelectorAll<HTMLCanvasElement>('canvas[data-shader="backdrop"]').forEach((cv) => {
-    try { mountBackdrop(cv); } catch (err) { console.warn('Backdrop shader failed', err); }
-  });
+  for (const c of cards) {
+    const cv = c.el.querySelector<HTMLCanvasElement>('canvas[data-shader="backdrop"]');
+    if (!cv) continue;
+    try { c.shader = mountBackdrop(cv); } catch (err) { console.warn('Backdrop shader failed', err); }
+  }
   S.big.pos = S.big.min;
   const t0 = performance.now();
   for (const c of cards) {
