@@ -18,7 +18,9 @@
   --color-button-border: rgba(0, 0, 0, 0.2);
   --color-button-shadow: rgba(0, 0, 0, 0.05);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
-  --color-divider: rgba(0, 0, 0, 0.08);
+  --color-tip-bg: rgba(38, 38, 38, 0.94);   /* from Khalil's tooltip mockup */
+  --color-tip-fg: #ffffff;
+  --color-tip-border: rgba(255, 255, 255, 0.16);
   --color-toggle-on-bg: #dbe9fc;            /* pressed tile, from Khalil's mockup */
   --color-toggle-on-fg: #3b88f5;
   --color-tool-hover-bg: rgba(0, 0, 0, 0.08);   /* from Khalil's hover mockup */
@@ -70,6 +72,20 @@
   --button-shadow: 0 1px 3.5px 0 var(--color-button-shadow);
   --icon-size: 24px;
 
+  /* Avatar flip (to its About side, on hover) */
+  --photo-perspective: 400px;
+  --photo-flip-duration: 0.6s;
+  --photo-flip-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --photo-back-icon-opacity: 0.6;
+
+  /* Tooltips */
+  --tip-gap: 8px;
+  --tip-pad-y: 6px;
+  --tip-pad-x: 10px;
+  --tip-radius: 8px;
+  --tip-size: 13px;
+  --tip-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
+
   /* Cover title pill (on hover) */
   --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
   --label-pad-y: 12px;                      /* chunky pill */
@@ -77,9 +93,8 @@
   --label-rise: 6px;                        /* drifts up this far as it appears */
   --label-grow: 0.1;                        /* and grows from 90%, popping just past full size */
   --label-shadow: 0 4px 16px 0 var(--color-label-shadow);
-  --tools-inset: 2px;                       /* Figma 67:848: 81 × 40 holding two 24px icons */
-  --tool-width: 34.5px;                     /* 2 + 34.5 + 6 + 34.5 + 2 + 0.5px border each side = 80 + 1 = 81 */
-  --tools-divider-gap: 2.5px;
+  --tools-inset: 4px;                       /* padding around and between the header buttons */
+  --tool-size: 31px;                        /* 40 tall: 4 + 31 + 4 + 0.5px border each side */
 
   /* Covers */
   --cover-radius: 48px;                     /* at row height */
@@ -143,7 +158,8 @@
     --color-button-border: rgba(255, 255, 255, 0.16);
     --color-button-shadow: rgba(0, 0, 0, 0.3);
     --color-label-shadow: rgba(0, 0, 0, 0.35);
-    --color-divider: rgba(255, 255, 255, 0.12);
+    --color-tip-bg: rgba(58, 58, 56, 0.96);
+    --color-tip-border: rgba(255, 255, 255, 0.18);
     --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
     --color-toggle-on-fg: #7fb2ff;
   --color-tool-hover-bg: rgba(255, 255, 255, 0.1);
@@ -171,7 +187,8 @@
   --color-button-border: rgba(255, 255, 255, 0.16);
   --color-button-shadow: rgba(0, 0, 0, 0.3);
   --color-label-shadow: rgba(0, 0, 0, 0.35);
-  --color-divider: rgba(255, 255, 255, 0.12);
+  --color-tip-bg: rgba(58, 58, 56, 0.96);
+  --color-tip-border: rgba(255, 255, 255, 0.18);
   --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
   --color-toggle-on-fg: #7fb2ff;
   --color-tool-hover-bg: rgba(255, 255, 255, 0.1);

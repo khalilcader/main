@@ -1,5 +1,6 @@
 ---
 import { existsSync } from 'node:fs';
+import Tooltip from './Tooltip.astro';
 
 // Figma 53:310. The photo is the one asset that can't be pulled from Figma
 // automatically: drop it at public/images/khalil.jpg and it shows up here.
@@ -14,17 +15,39 @@ const { tools = true } = Astro.props;
 ---
 <header class="site-header">
   <a class="who" href={home}>
-    <span class="photo">
-      {photo && <img src={photo} alt="Khalil Cader" width="50" height="56" />}
+    <!-- Flips over in 3D on hover to show the About side. -->
+    <span class="photo has-tip">
+      <span class="flip">
+        <span class="face front">
+          {photo && <img src={photo} alt="Khalil Cader" width="50" height="56" />}
+        </span>
+        <span class="face back" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6.75 18.25V5.75a1.5 1.5 0 0 1 1.5-1.5h8.5a1.5 1.5 0 0 1 1.5 1.5v12.5" />
+            <path d="M6.75 18.25a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5v0a1.5 1.5 0 0 0-1.5-1.5h-8.5a1.5 1.5 0 0 0-1.5 1.5Z" />
+            <path d="M9.75 7.75h4.5M9.75 10.75h2.5" />
+          </svg>
+        </span>
+      </span>
+      <Tooltip>About</Tooltip>
     </span>
     <span class="name">
       <span>Khalil Cader</span>
       <span class="role">Product Designer</span>
     </span>
   </a>
-  {tools && <div class="tools" role="group" aria-label="View">
-    <!-- Figma 67:848: one glass container holding both buttons, split by a thin divider. -->
-    <button class="tool" id="theme-button" type="button" aria-label="Switch to dark theme" title="Theme (T)">
+  {tools && <div class="tools close-group" id="close-group" hidden>
+    <!-- Focus mode: closes the open cover. Fades in over the avatar (script). -->
+    <button class="tool has-tip" id="close-button" type="button" aria-label="Close" aria-keyshortcuts="Escape">
+      <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+        <path d="M7 7l10 10M17 7L7 17" />
+      </svg>
+      <Tooltip shortcut="Esc">Close</Tooltip>
+    </button>
+  </div>}
+  {tools && <div class="tools" id="view-tools" role="group" aria-label="View">
+    <!-- One glass container holding both buttons (after Figma 67:848), 4px apart. -->
+    <button class="tool has-tip" id="theme-button" type="button" aria-label="Switch to dark theme" aria-keyshortcuts="T">
       <!-- Sun: stand-in drawn to the Figma icon's spec (24px, 1.5 stroke, round
            joins); the Figma SVG couldn't be exported from this environment. -->
       <svg class="icon icon-light" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -35,9 +58,9 @@ const { tools = true } = Astro.props;
       <svg class="icon icon-dark" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M19.25 14.1A7.5 7.5 0 0 1 9.9 4.75a7.5 7.5 0 1 0 9.35 9.35Z" />
       </svg>
+      <Tooltip shortcut="T">Theme</Tooltip>
     </button>
-    <span class="divider" aria-hidden="true"></span>
-    <button class="tool" id="grid-button" type="button" aria-pressed="false" aria-label="Show as grid" title="Grid (G)">
+    <button class="tool has-tip" id="grid-button" type="button" aria-pressed="false" aria-label="Show as grid" aria-keyshortcuts="G">
       <!-- Figma 55:832: four 7px squares, 1.5px stroke, 2px corners. -->
       <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <rect x="4.75" y="4.25" width="5.5" height="5.5" rx="1.25" />
@@ -45,6 +68,7 @@ const { tools = true } = Astro.props;
         <rect x="14.75" y="4.25" width="5.5" height="5.5" rx="1.25" />
         <rect x="14.75" y="14.25" width="5.5" height="5.5" rx="1.25" />
       </svg>
+      <Tooltip shortcut="G">Grid</Tooltip>
     </button>
   </div>}
 </header>
@@ -68,12 +92,32 @@ const { tools = true } = Astro.props;
   }
   .photo {
     flex: none; width: var(--photo-width); height: var(--photo-height);
+    perspective: var(--photo-perspective);
+  }
+  .flip {
+    position: absolute; inset: 0; display: block;
+    transform-style: preserve-3d;
+    transition: transform var(--photo-flip-duration) var(--photo-flip-ease);
+  }
+  .face {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     border: 1px solid var(--color-photo-border); border-radius: var(--photo-radius);
     box-shadow: var(--photo-shadow);
     background: var(--color-cover-bg);
     overflow: hidden;
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
   }
-  .photo img { width: 100%; height: 100%; object-fit: cover; }
+  .face img { width: 100%; height: 100%; object-fit: cover; }
+  .back { transform: rotateY(180deg); color: var(--color-fg); }
+  .back .icon { opacity: var(--photo-back-icon-opacity); }
+  /* Flip on hover (mouse) or keyboard focus. */
+  .who:focus-visible .flip { transform: rotateY(180deg); }
+  @media (hover: hover) {
+    .photo:hover .flip { transform: rotateY(180deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flip { transition: none; }
+  }
   .name {
     display: flex; flex-direction: column;
     font-size: var(--text-name-size); font-weight: var(--text-name-weight);
@@ -82,10 +126,10 @@ const { tools = true } = Astro.props;
   }
   .role { opacity: var(--text-secondary-opacity); }
 
-  /* Figma 67:848: 81 × 40, 10px corners, glass. Each button is a 36px tile
-     inset 2px, so a pressed tile's corners sit concentric with the container. */
+  /* One glass container, 10px corners: square button tiles with 4px around
+     and between them, so a tile's corners sit concentric with the container. */
   .tools {
-    display: flex; align-items: center;
+    display: flex; align-items: center; gap: var(--tools-inset);
     height: var(--button-size); padding: var(--tools-inset);
     border: var(--button-border-width) solid var(--color-button-border);
     border-radius: var(--button-radius);
@@ -94,27 +138,27 @@ const { tools = true } = Astro.props;
     box-shadow: var(--button-shadow);
   }
   :global(html:not(.js)) .tools { display: none; }
+  /* Close button: sits over the avatar's spot; script fades it in for focus mode. */
+  .close-group {
+    position: absolute; left: var(--header-pad); top: 50%; translate: 0 -50%;
+    opacity: 0;
+  }
+  .close-group[hidden] { display: none; }
   .tool {
-    width: var(--tool-width); height: 100%; padding: 0;
+    width: var(--tool-size); height: var(--tool-size); padding: 0;
     display: inline-flex; align-items: center; justify-content: center;
     border: 0; background: none;
     border-radius: calc(var(--button-radius) - var(--tools-inset) - var(--button-border-width));
     color: var(--color-fg); cursor: pointer;
     transition: background-color 0.12s ease-out, color 0.12s ease-out;
   }
-  .divider {
-    flex: none; width: 1px; height: var(--icon-size); margin: 0 var(--tools-divider-gap);
-    border-radius: 1px; background: var(--color-divider);
-  }
-  /* Toggled on: a tinted tile with a filled icon; the divider steps aside. */
+  /* Toggled on: a tinted tile with a filled icon. */
   .tool[aria-pressed="true"] { background: var(--color-toggle-on-bg); color: var(--color-toggle-on-fg); }
   .tool[aria-pressed="true"] rect { fill: currentColor; }
-  .tools:has(.tool[aria-pressed="true"]) .divider { visibility: hidden; }
-  /* Hover (mouse only): a soft tile in the same shape; a pressed tile deepens. */
+  /* Hover (mouse only): a soft tile; a pressed tile deepens. */
   @media (hover: hover) {
     .tool:hover { background: var(--color-tool-hover-bg); }
     .tool[aria-pressed="true"]:hover { background: var(--color-toggle-on-hover-bg); }
-    .tools:has(.tool:hover) .divider { visibility: hidden; }
   }
   .tool:focus-visible, .who:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
   .icon { flex: none; width: var(--icon-size); height: var(--icon-size); }

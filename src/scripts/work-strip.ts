@@ -44,6 +44,9 @@ function init(stage: HTMLElement) {
   const backdrop = document.getElementById('backdrop')!;
   const header = document.querySelector<HTMLElement>('.site-header')!;
   const who = header.querySelector<HTMLElement>('.who')!;
+  const viewTools = document.getElementById('view-tools');
+  const closeGroup = document.getElementById('close-group');
+  let chromeLast = -1;
   const gridBtn = document.getElementById('grid-button')!;
   const themeBtn = document.getElementById('theme-button')!;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -595,6 +598,9 @@ function init(stage: HTMLElement) {
   });
 
   gridBtn.addEventListener('click', () => setMode(mode === 'row' ? 'grid' : 'row'));
+  document.getElementById('close-button')?.addEventListener('click', () => {
+    if (mode === 'grid') closeGrid(); else closeRow();
+  });
 
   // Theme: follows the system until toggled. Toggling flips what's showing;
   // landing back on the system's choice un-pins it.
@@ -838,8 +844,22 @@ function init(stage: HTMLElement) {
     }
     backdrop.style.opacity = mode === 'grid' && gridActive >= 0 ? gpv.toFixed(3) : '0';
     // The focus view is near full screen, so the name steps aside for it.
-    const wo = Math.round((1 - pv) * 100) / 100;
+    // Focus mode (focus strip or grid lightbox): the name and the view controls
+    // step aside, and a close button takes the name's place.
+    const focusAmt = mode === 'row' ? pv : gridActive >= 0 ? gpv : 0;
+    const wo = Math.round((1 - focusAmt) * 100) / 100;
     if (wo !== whoOpacity) { whoOpacity = wo; who.style.opacity = wo < 1 ? String(wo) : ''; who.style.visibility = wo < 0.01 ? 'hidden' : ''; }
+    if (wo !== chromeLast) {
+      chromeLast = wo;
+      if (viewTools) {
+        viewTools.style.opacity = wo < 1 ? String(wo) : '';
+        viewTools.style.visibility = wo < 0.01 ? 'hidden' : '';
+      }
+      if (closeGroup) {
+        closeGroup.hidden = wo > 0.99;
+        closeGroup.style.opacity = String(1 - wo);
+      }
+    }
     slideEdges(eL, eR);
     syncVideos();
     requestAnimationFrame(tick);
