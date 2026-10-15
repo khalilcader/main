@@ -634,13 +634,10 @@ function init(stage: HTMLElement) {
   const MODES = ['system', 'light', 'dark'] as const;
   type ThemeMode = (typeof MODES)[number];
   const modeNow = (): ThemeMode => (document.documentElement.dataset.scheme as ThemeMode) || 'system';
-  const LABELS: Record<ThemeMode, string> = { system: 'System theme', light: 'Light theme', dark: 'Dark theme' };
   const showTheme = () => {
     const m = modeNow();
     themeBtn.dataset.mode = m;
-    themeBtn.setAttribute('aria-label', `${LABELS[m]}. Switch theme`);
-    const tip = themeBtn.querySelector('.tip-text');
-    if (tip) tip.textContent = LABELS[m];
+    themeBtn.setAttribute('aria-label', `Theme: ${m}`);
   };
   function toggleTheme() {
     const next = MODES[(MODES.indexOf(modeNow()) + 1) % MODES.length];
