@@ -115,7 +115,7 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     color: var(--color-fg); cursor: pointer;
   }
   @media (hover: hover) { .about-close:hover { --surface-bg: var(--color-tool-hover-bg); } }
-  .about-close:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  .about-close:focus-visible { outline: none; --surface-bg: var(--color-tool-hover-bg); }
   .about-close svg { width: var(--icon-size); height: var(--icon-size); }
 
   .about-photo-wrap {

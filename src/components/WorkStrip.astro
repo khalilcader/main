@@ -62,7 +62,8 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     cursor: inherit;
   }
   :global(.js) .card :global(.cover) { border: 0; }
-  .card:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+  /* No focus ring: a focused cover lifts and shows its title, like hover (script). */
+  .card:focus-visible { outline: none; }
 
   /* Title pill, shown on hover and keyboard focus. Script sets --pop (a
      springy 0..1 that overshoots a little), --show (clamped, for opacity) and

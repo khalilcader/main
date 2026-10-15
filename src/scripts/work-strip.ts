@@ -37,7 +37,7 @@ const FOCUS_PEEK = 72, FOCUS_GAP = 24, PEEK_DIM = 0.45, PEEK_BLUR = 0;
 // In focus mode the progressive edge blur slides back in, widened to the space
 // beside the open cover, so neighbours blur, dim and pick up grain gradually
 // toward the screen edge instead of all at once.
-const FOCUS_EDGE = { blur: 24, curve: 2, fade: 0.75 };              // background covers fade this much faster in focus mode
+const FOCUS_EDGE = { blur: 16, curve: 2, fade: 0.75 };              // background covers fade this much faster in focus mode
 const HOVER_SCALE = 1.025;           // covers grow this much under the cursor
 const LB_K = 900, LB_C = 34;         // title pill: quick, underdamped (ζ ≈ 0.57) for a little pop
 const OV_K = 320, OV_C = 36;         // per-cover overscroll lag (gaps stretch, then relax)
@@ -121,6 +121,14 @@ function init(stage: HTMLElement) {
     if (v.readyState >= 1) seek(); else v.addEventListener('loadedmetadata', seek, { once: true });
   };
   let hovered = -1;
+  // The card with keyboard focus, tracked by events: asking :focus-visible every
+  // frame forced a style recalculation per card per frame.
+  let keyFocused = -1;
+  stage.addEventListener('focusin', (e) => {
+    const el = (e.target as Element).closest?.('.card') as HTMLElement | null;
+    keyFocused = el && el.matches(':focus-visible') ? +el.dataset.i! : -1;
+  });
+  stage.addEventListener('focusout', () => { keyFocused = -1; });
   for (const c of cards) {
     if (c.video) restOn(c.video);
     c.el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hovered = c.i; });
@@ -668,8 +676,9 @@ function init(stage: HTMLElement) {
     const key = `${w.toFixed(0)}|${maxB.toFixed(1)}|${curve.toFixed(2)}|${fadeAmt.toFixed(3)}`;
     if (key === edgeKey) return;
     edgeKey = key;
-    const root = document.documentElement.style;
-    root.setProperty('--edge-w', `${w.toFixed(1)}px`);
+    // Set on the edge elements, not the page root: a root custom property
+    // makes the browser re-check every element's style, every frame.
+    edges.forEach((ed) => ed.style.setProperty('--edge-w', `${w.toFixed(1)}px`));
     edges.forEach((ed) => [...ed.children].forEach((el, k) =>
       (el as HTMLElement).style.setProperty('--b', (maxB * Math.pow((k + 1) / 8, curve)).toFixed(2) + 'px')));
     const stops = [];
@@ -678,7 +687,8 @@ function init(stage: HTMLElement) {
       const e = u * u * u * (u * (u * 6 - 15) + 10);
       stops.push(`color-mix(in srgb, var(--color-bg) ${(fadeAmt * e * 100).toFixed(1)}%, transparent) ${(t * 100).toFixed(1)}%`);
     }
-    root.setProperty('--fade', `linear-gradient(to left, ${stops.join(', ')})`);
+    const fade = `linear-gradient(to left, ${stops.join(', ')})`;
+    edges.forEach((ed) => ed.style.setProperty('--fade', fade));
   }
   // Each edge slides out (0 = in place, 1 = fully off screen). Sliding, not
   // fading: opacity on a backdrop-filter parent would switch the blur off.
@@ -805,7 +815,7 @@ function init(stage: HTMLElement) {
       // Hover: a slight lift about the cover's centre, in the row and the grid
       // (not while dragging, or once a cover is open).
       const resting = !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
-      const pointed = c.i === hovered || c.el.matches(':focus-visible');
+      const pointed = c.i === hovered || c.i === keyFocused;
       c.hv.t = c.lb.t = pointed && resting ? 1 : 0;
       const hs = 1 + (HOVER_SCALE - 1) * (reduce ? 0 : c.hv.v);
       const tw = w2 * hs;
@@ -852,7 +862,8 @@ function init(stage: HTMLElement) {
         const tr = clamp((start - (vw - x)) / span, 0, 1) * (1 - eR);
         edge = (1 - pv) * Math.max(tl, tr);
       }
-      const dk = Math.round(dim * 400) / 400, ek = Math.round(edge * 400) / 400;
+      // Quantised so a slow scroll doesn't restyle (and re-blur) every cover every frame.
+      const dk = Math.round(dim * 120) / 120, ek = Math.round(edge * 120) / 120;
       if (L.dim !== dk || L.edge !== ek) {
         L.dim = dk; L.edge = ek;
         // Row blur is in on-screen px; the card is scaled by kRow in the row.
@@ -895,6 +906,9 @@ function init(stage: HTMLElement) {
         // Grain only in focus, arriving with the blur so sharp covers stay clean.
         c.veil.style.opacity = Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
+        // Fully faded covers aren't drawn at all (they'd still be blurred and
+        // composited every frame otherwise).
+        st.visibility = fade > 0.995 ? 'hidden' : '';
       }
       const z = mode === 'grid' ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = String(z); }

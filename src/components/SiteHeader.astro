@@ -75,17 +75,15 @@ const { tools = true } = Astro.props;
 
 {tools && (
   <script>
-    // On the home page, once per visit: after the covers have come in, the
-    // avatar flips to its About side and back, hinting that it can be opened.
+    // On load (home page): once the covers have come in, the avatar flips to
+    // its About side, holds for 1.5s, and flips back, hinting it can be opened.
     const photo = document.querySelector<HTMLElement>('.site-header .photo');
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let seen = false;
-    try { seen = sessionStorage.getItem('about-peek') === '1'; sessionStorage.setItem('about-peek', '1'); } catch (e) {}
-    if (photo && !reduce && !seen) {
+    if (photo && !reduce) {
       setTimeout(() => {
         if (photo.matches(':hover')) return;   // already being explored
         photo.classList.add('peek');
-        setTimeout(() => photo.classList.remove('peek'), 1100);
+        setTimeout(() => photo.classList.remove('peek'), 1500 + 600);   // hold + the flip itself
       }, 1400);
     }
   </script>
@@ -196,7 +194,10 @@ const { tools = true } = Astro.props;
     .tool:hover { --surface-bg: var(--color-tool-hover-bg); }
     .tool[aria-pressed="true"]:hover { --surface-bg: var(--color-toggle-on-hover-bg); }
   }
-  .tool:focus-visible, .who:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  /* No focus rings: keyboard focus shows like hover (a soft tile; the avatar flips). */
+  .tool:focus-visible, .who:focus-visible { outline: none; }
+  .tool:focus-visible { --surface-bg: var(--color-tool-hover-bg); }
+  .tool[aria-pressed="true"]:focus-visible { --surface-bg: var(--color-toggle-on-hover-bg); }
   .icon { flex: none; width: var(--icon-size); height: var(--icon-size); }
 
   /* The icon shows the theme in effect: sun in light, moon in dark. */
