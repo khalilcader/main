@@ -69,7 +69,7 @@
   --button-pad: 8px;
   --button-radius: 10px;
   --button-blur: 20px;
-  --button-border-width: 0.5px;
+  --button-border-width: 1px;               /* same as the avatar's outline (Figma has 0.5px) */
   --button-shadow: 0 1px 3.5px 0 var(--color-button-shadow);
   --icon-size: 24px;
 
@@ -108,7 +108,7 @@
   --label-shadow: 0 4px 16px 0 var(--color-label-shadow);
   --tools-inset: 4px;                       /* padding around the header buttons (no gap between them) */
   --close-inset: 32px;                      /* focus-mode close button, from the top-left corner */
-  --tool-size: 31px;                        /* 40 tall: 4 + 31 + 4 + 0.5px border each side; tiles touch */
+  --tool-size: 30px;                        /* 40 tall: 4 + 30 + 4 + 1px border each side; tiles touch */
 
   /* Covers */
   --cover-radius: 48px;                     /* at row height */
