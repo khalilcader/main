@@ -658,9 +658,10 @@ function init(stage: HTMLElement) {
   function applyEdges(f = 0) {
     const rowW = clamp(vw * P.edgeW / 100, 64, 480);
     let focusW = rowW;
-    if (f > 0 && cards[anchor]) {
-      // From the screen edge to just short of the open cover.
-      focusW = Math.max(rowW, (vw - cards[anchor].big.w) / 2 - focusGap / 2);
+    if (f > 0) {
+      // From the screen edge to just short of the cover at the centre.
+      const c = cards[nearest(centerBig, S.big.pos)];
+      focusW = Math.max(rowW, (vw - c.big.w) / 2 - focusGap / 2);
     }
     const w = lerp(rowW, focusW, f), maxB = lerp(P.edgeBlur, FOCUS_EDGE.blur, f);
     const curve = lerp(P.edgeCurve, FOCUS_EDGE.curve, f), fadeAmt = lerp(P.edgeFade, FOCUS_EDGE.fade, f);
@@ -918,7 +919,18 @@ function init(stage: HTMLElement) {
         closeGroup.style.opacity = String(1 - wo);
       }
     }
-    if (FOCUS_SPACING !== 'offscreen') applyEdges(mode === 'row' ? Math.round(pv * 50) / 50 : 0);
+    if (FOCUS_SPACING !== 'offscreen') {
+      // Only while a cover sits at the centre: mid-swipe the bands ease back to
+      // the row's light edge, so the cover coming in isn't blurred on its way.
+      let settled = 1;
+      if (mode === 'row' && pv > 0) {
+        const i = nearest(centerBig, S.big.pos);
+        const half = Math.max(1, Math.abs(centerBig(Math.min(i + 1, N - 1)) - centerBig(Math.max(i - 1, 0))) / 4);
+        const off = clamp(Math.abs(S.big.pos - centerBig(i)) / half, 0, 1);
+        settled = 1 - off * off * (3 - 2 * off);
+      }
+      applyEdges(mode === 'row' ? Math.round(pv * settled * 50) / 50 : 0);
+    }
     slideEdges(eL, eR);
     syncVideos();
     requestAnimationFrame(tick);
