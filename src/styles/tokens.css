@@ -16,6 +16,9 @@
   --color-button-bg: rgba(255, 255, 255, 0.8);
   --color-button-border: rgba(0, 0, 0, 0.2);
   --color-button-shadow: rgba(0, 0, 0, 0.05);
+  --color-divider: rgba(0, 0, 0, 0.08);
+  --color-toggle-on-bg: #dbe9fc;            /* pressed tile, from Khalil's mockup */
+  --color-toggle-on-fg: #3b88f5;
   --color-glass-bg: rgba(255, 255, 255, 0.5);
   --color-glass-border: rgba(255, 255, 255, 0.8);
   --color-glass-shadow: rgba(0, 0, 0, 0.1);
@@ -62,7 +65,9 @@
   --button-border-width: 0.5px;
   --button-shadow: 0 1px 3.5px 0 var(--color-button-shadow);
   --icon-size: 24px;
-  --icon-opacity: 0.4;
+  --tools-inset: 2px;                       /* Figma 67:848: 81 × 40 holding two 24px icons */
+  --tool-width: 34.5px;                     /* 2 + 34.5 + 6 + 34.5 + 2 + 0.5px border each side = 80 + 1 = 81 */
+  --tools-divider-gap: 2.5px;
 
   /* Covers */
   --cover-radius: 48px;                     /* at row height */
@@ -87,9 +92,9 @@
 
   /* Backdrop shader behind the device frame (Mobile spotlight cover): a
      mottled, grainy studio backdrop drifting between three tones. */
-  --color-backdrop-deep: #12399c;
-  --color-backdrop-base: #2157c9;
-  --color-backdrop-light: #4a85ec;
+  --color-backdrop-deep: #3a73dc;
+  --color-backdrop-base: #5f93ef;
+  --color-backdrop-light: #a3c5fa;
 
   /* Effects */
   --grain-amount: 1;
@@ -122,6 +127,9 @@
     --color-button-bg: rgba(40, 40, 38, 0.8);
     --color-button-border: rgba(255, 255, 255, 0.16);
     --color-button-shadow: rgba(0, 0, 0, 0.3);
+    --color-divider: rgba(255, 255, 255, 0.12);
+    --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
+    --color-toggle-on-fg: #7fb2ff;
     --color-glass-bg: rgba(255, 255, 255, 0.07);
     --color-glass-border: rgba(255, 255, 255, 0.16);
     --color-glass-shadow: rgba(0, 0, 0, 0.3);
@@ -143,6 +151,9 @@
   --color-button-bg: rgba(40, 40, 38, 0.8);
   --color-button-border: rgba(255, 255, 255, 0.16);
   --color-button-shadow: rgba(0, 0, 0, 0.3);
+  --color-divider: rgba(255, 255, 255, 0.12);
+  --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
+  --color-toggle-on-fg: #7fb2ff;
   --color-glass-bg: rgba(255, 255, 255, 0.07);
   --color-glass-border: rgba(255, 255, 255, 0.16);
   --color-glass-shadow: rgba(0, 0, 0, 0.3);

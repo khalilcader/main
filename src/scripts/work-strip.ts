@@ -24,6 +24,8 @@ const EDGE_K = 280, EDGE_C = 33;     // overscroll spring-back (critically dampe
 const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under critical)
 const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
+const HV_K = 380, HV_C = 30;         // hover lift (a touch under critical: settles with a whisper of overshoot)
+const HOVER_SCALE = 1.025;           // covers grow this much under the cursor
 const OV_K = 320, OV_C = 36;         // per-cover overscroll lag (gaps stretch, then relax)
 const PULL = 300;                    // px of vertical drag for a full row <-> focus scrub
 const SQUISH_D = 160, MAX_SQ = 0.6;  // squish resistance: 432px of pull lands near 0.56 scale
@@ -81,6 +83,7 @@ function init(stage: HTMLElement) {
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
+    hv: new Spring(0),   // hover lift (0..1)
     ox: new Spring(0), oy: new Spring(0), os: new Spring(1),   // free-drag offset from layout
     ovR: new Spring(0), ovB: new Spring(0),                    // overscroll stretch, row + focus strip
     row: null as unknown as Rect, big: null as unknown as Rect, grid: null as unknown as Rect,
@@ -98,8 +101,7 @@ function init(stage: HTMLElement) {
   };
   let hovered = -1;
   for (const c of cards) {
-    if (!c.video) continue;
-    restOn(c.video);
+    if (c.video) restOn(c.video);
     c.el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hovered = c.i; });
     c.el.addEventListener('pointerleave', () => { if (hovered === c.i) hovered = -1; });
   }
@@ -704,6 +706,7 @@ function init(stage: HTMLElement) {
     for (let i = 0; i < n; i++) {
       for (const c of cards) {
         if (!c.follow && !c.held) { c.x.step(h, P.k, P.c); c.y.step(h, P.k, P.c); c.w.step(h, P.k, P.c); c.h.step(h, P.k, P.c); }
+        c.hv.step(h, HV_K, HV_C);
         if (c.i !== anchor) c.sq.step(h, NB_K, NB_C);
         else if (!dragging) c.sq.step(h, SQ_K, SQ_C);
         if (!c.held) { c.ox.step(h, P.k, P.c); c.oy.step(h, P.k, P.c); c.os.step(h, P.k, P.c); }
@@ -737,7 +740,12 @@ function init(stage: HTMLElement) {
       const os = c.os.v, w2 = w * os, h2 = h * os;
       x += c.ox.v + (w - w2) / 2; y += c.oy.v + (h - h2) / 2;
       const st = c.el.style, L = c.last;
-      st.transform = `translate3d(${x}px, ${y}px, 0) scale(${w2 / c.W})`;
+      // Hover: a slight lift about the cover's centre, in the row and the grid
+      // (not while dragging, or once a cover is open).
+      c.hv.t = c.i === hovered && !ptr && !reduce && (mode === 'row' ? p.t < 0.5 : gridOpen < 0) ? 1 : 0;
+      const hs = 1 + (HOVER_SCALE - 1) * c.hv.v;
+      const tw = w2 * hs;
+      st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;
 
       // Focus: covers away from center blur, fade and pick up grain. t runs from
       // 0 at the center of the screen to 1 as the cover has fully left it.
