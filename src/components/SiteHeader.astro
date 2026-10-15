@@ -48,12 +48,15 @@ const { tools = true } = Astro.props;
   {tools && <div class="tools" id="view-tools" role="group" aria-label="View" data-smooth="surface">
     <!-- One glass container holding both buttons (after Figma 67:848), 4px apart. -->
     <button class="tool has-tip" data-smooth="surface" id="theme-button" type="button" aria-label="System theme. Switch theme" aria-keyshortcuts="T">
-      <!-- System (follows the device): Figma 68:1233, devices_macbook_iphone. -->
-      <svg class="icon icon-system" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M14.25 10.75C14.25 9.64543 15.1454 8.75 16.25 8.75H20.25C21.3546 8.75 22.25 9.64543 22.25 10.75V19.25C22.25 20.3546 21.3546 21.25 20.25 21.25H16.25C15.1454 21.25 14.25 20.3546 14.25 19.25V10.75Z" />
-        <path d="M17.25 11.25H19.5" />
-        <path d="M20.25 5.75C20.25 4.64543 19.3546 3.75 18.25 3.75H5.75C4.64543 3.75 3.75 4.64543 3.75 5.75V14.75C3.75 15.8546 2.85457 16.75 1.75 16.75V18.25C1.75 19.3546 2.64543 20.25 3.75 20.25H11" />
-        <path d="M2.5 16.75H11" />
+      <!-- System (follows the device): a display on computers, a phone on
+           touch devices (CSS picks one). Figma studio-display and phone icons. -->
+      <svg class="icon icon-system on-computer" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18.05 4.75H5.95C4.8299 4.75 4.26984 4.75 3.84202 4.96799C3.46569 5.15973 3.15973 5.46569 2.96799 5.84202C2.75 6.26984 2.75 6.8299 2.75 7.95V13.55C2.75 14.6701 2.75 15.2302 2.96799 15.658C3.15973 16.0343 3.46569 16.3403 3.84202 16.532C4.26984 16.75 4.8299 16.75 5.95 16.75H18.05C19.1701 16.75 19.7302 16.75 20.158 16.532C20.5343 16.3403 20.8403 16.0343 21.032 15.658C21.25 15.2302 21.25 14.6701 21.25 13.55V7.95C21.25 6.8299 21.25 6.26984 21.032 5.84202C20.8403 5.46569 20.5343 5.15973 20.158 4.96799C19.7302 4.75 19.1701 4.75 18.05 4.75Z" />
+        <path d="M9.25 16.75V20.25H14.75V16.75" />
+      </svg>
+      <svg class="icon icon-system on-phone" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="6" y="2" width="12" height="20" rx="2.5" />
+        <path d="M10 5H14" />
       </svg>
       <!-- Sun: Figma sun_light-mode. -->
       <svg class="icon icon-light" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -211,4 +214,10 @@ const { tools = true } = Astro.props;
   .tool[data-mode="light"] .icon-system, .tool[data-mode="dark"] .icon-system { display: none; }
   .tool[data-mode="light"] .icon-light { display: block; }
   .tool[data-mode="dark"] .icon-dark { display: block; }
+  /* System shows the kind of device you're on: a phone on touch screens. */
+  .icon-system.on-phone { display: none; }
+  @media (hover: none) and (pointer: coarse) {
+    .icon-system.on-computer { display: none; }
+    .tool:not([data-mode="light"], [data-mode="dark"]) .icon-system.on-phone { display: block; }
+  }
 </style>
