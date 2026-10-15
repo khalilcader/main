@@ -16,6 +16,7 @@
 import { squirclePath } from './squircle';
 
 const SVGNS = 'http://www.w3.org/2000/svg';
+let uid = 0;
 
 function smoothing() {
   return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-smoothing')) || 0.6;
@@ -35,6 +36,22 @@ function setup(el: HTMLElement) {
   svg.setAttribute('aria-hidden', 'true');
   const path = document.createElementNS(SVGNS, 'path');
   path.setAttribute('stroke-width', String(bw * 2));
+  // Lit from above: the border fades from light along the top to full
+  // strength underneath (--surface-border is the strong end).
+  const id = `smooth-${++uid}`;
+  const grad = document.createElementNS(SVGNS, 'linearGradient');
+  grad.id = id;
+  grad.setAttribute('x1', '0'); grad.setAttribute('y1', '0'); grad.setAttribute('x2', '0'); grad.setAttribute('y2', '1');
+  for (const [offset, opacity] of [['0', 'var(--surface-border-top, 0.35)'], ['1', '1']]) {
+    const stop = document.createElementNS(SVGNS, 'stop');
+    stop.setAttribute('offset', offset);
+    stop.setAttribute('style', `stop-color: var(--surface-border, transparent); stop-opacity: ${opacity}`);
+    grad.appendChild(stop);
+  }
+  const defs = document.createElementNS(SVGNS, 'defs');
+  defs.appendChild(grad);
+  svg.appendChild(defs);
+  path.setAttribute('stroke', `url(#${id})`);
   svg.appendChild(path);
 
   let target = el;
@@ -53,16 +70,22 @@ function setup(el: HTMLElement) {
   el.style.setProperty('--smooth-bw', `${bw}px`);
   if (!bw) svg.style.display = 'none';
 
+  // Exact (fractional) border-box size, ignoring transforms. offsetWidth rounds
+  // to whole pixels, which clipped hairline borders off the bottom and right.
+  let w = 0, h = 0;
   const update = () => {
-    const w = el.offsetWidth, h = el.offsetHeight;
     if (!w || !h) return;
     const r = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, Math.min(w, h) / 2);
     const d = squirclePath(w, h, r, smoothing());
     target.style.clipPath = `path("${d}")`;
     path.setAttribute('d', d);
   };
-  update();
-  new ResizeObserver(update).observe(el, { box: 'border-box' });
+  new ResizeObserver(([entry]) => {
+    const box = entry.borderBoxSize?.[0];
+    w = box ? box.inlineSize : el.offsetWidth;
+    h = box ? box.blockSize : el.offsetHeight;
+    update();
+  }).observe(el, { box: 'border-box' });
 }
 
 export function smoothCorners(root: ParentNode = document) {
