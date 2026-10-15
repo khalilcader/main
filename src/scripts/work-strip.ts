@@ -920,6 +920,9 @@ function init(stage: HTMLElement) {
           c.cover.style.borderRadius = blurred ? c.rBlur + 'px' : '';
         }
         c.veil.style.setProperty('--f', `${blur.toFixed(1)}px`);
+        // The grain layer reaches past the cover by the blur, so round it to
+        // match the blurred shape (a square grain patch read as sharp corners).
+        c.veil.style.borderRadius = `${(c.rBlur + blur).toFixed(1)}px`;
         // Grain only in focus, arriving with the blur so sharp covers stay clean.
         c.veil.style.opacity = Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
