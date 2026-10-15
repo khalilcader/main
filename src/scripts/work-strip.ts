@@ -33,7 +33,11 @@ const FOCUS_FADE = 2.2;
 //   'offscreen' neighbours just past the screen edges (the original)
 // Neighbours are dimmed by PEEK_DIM and blurred PEEK_BLUR px; further ones fade.
 const FOCUS_SPACING: 'row' | 'peek' | 'offscreen' = 'row';
-const FOCUS_PEEK = 72, FOCUS_GAP = 24, PEEK_DIM = 0.5, PEEK_BLUR = 6;              // background covers fade this much faster in focus mode
+const FOCUS_PEEK = 72, FOCUS_GAP = 24, PEEK_DIM = 0.2, PEEK_BLUR = 0;
+// In focus mode the progressive edge blur slides back in, widened to the space
+// beside the open cover, so neighbours blur, dim and pick up grain gradually
+// toward the screen edge instead of all at once.
+const FOCUS_EDGE = { blur: 24, curve: 2, fade: 0.55 };              // background covers fade this much faster in focus mode
 const HOVER_SCALE = 1.025;           // covers grow this much under the cursor
 const LB_K = 900, LB_C = 34;         // title pill: quick, underdamped (ζ ≈ 0.57) for a little pop
 const OV_K = 320, OV_C = 36;         // per-cover overscroll lag (gaps stretch, then relax)
@@ -648,16 +652,30 @@ function init(stage: HTMLElement) {
   // uses a smootherstep ramp sampled into many stops, which avoids the "knee" a
   // two-stop gradient has.
   const edges = [...document.querySelectorAll<HTMLElement>('.edge')];
-  function applyEdges() {
+  // Edge geometry: width (px), max blur at the screen edge, blur curve, fade.
+  // The row's values blend into the focus values as a cover opens (f = 0..1).
+  let edgeKey = '';
+  function applyEdges(f = 0) {
+    const rowW = clamp(vw * P.edgeW / 100, 64, 480);
+    let focusW = rowW;
+    if (f > 0 && cards[anchor]) {
+      // From the screen edge to just short of the open cover.
+      focusW = Math.max(rowW, (vw - cards[anchor].big.w) / 2 - focusGap / 2);
+    }
+    const w = lerp(rowW, focusW, f), maxB = lerp(P.edgeBlur, FOCUS_EDGE.blur, f);
+    const curve = lerp(P.edgeCurve, FOCUS_EDGE.curve, f), fadeAmt = lerp(P.edgeFade, FOCUS_EDGE.fade, f);
+    const key = `${w.toFixed(0)}|${maxB.toFixed(1)}|${curve.toFixed(2)}|${fadeAmt.toFixed(3)}`;
+    if (key === edgeKey) return;
+    edgeKey = key;
     const root = document.documentElement.style;
-    root.setProperty('--edge-w', `clamp(64px, ${P.edgeW}vw, 480px)`);
+    root.setProperty('--edge-w', `${w.toFixed(1)}px`);
     edges.forEach((ed) => [...ed.children].forEach((el, k) =>
-      (el as HTMLElement).style.setProperty('--b', (P.edgeBlur * Math.pow((k + 1) / 8, P.edgeCurve)).toFixed(2) + 'px')));
+      (el as HTMLElement).style.setProperty('--b', (maxB * Math.pow((k + 1) / 8, curve)).toFixed(2) + 'px')));
     const stops = [];
     for (let j = 0; j <= 16; j++) {
       const t = j / 16, u = clamp((t - 0.15) / 0.85, 0, 1);
       const e = u * u * u * (u * (u * 6 - 15) + 10);
-      stops.push(`color-mix(in srgb, var(--color-bg) ${(P.edgeFade * e * 100).toFixed(1)}%, transparent) ${(t * 100).toFixed(1)}%`);
+      stops.push(`color-mix(in srgb, var(--color-bg) ${(fadeAmt * e * 100).toFixed(1)}%, transparent) ${(t * 100).toFixed(1)}%`);
     }
     root.setProperty('--fade', `linear-gradient(to left, ${stops.join(', ')})`);
   }
@@ -678,6 +696,8 @@ function init(stage: HTMLElement) {
     if (mode === 'grid') return [1, 1];
     const s = S.row, ew = edges[0].offsetWidth || 1;
     const l = 1 - clamp((s.pos - s.min) / ew, 0, 1), r = 1 - clamp((s.max - s.pos) / ew, 0, 1);
+    // Focus with neighbours alongside: edges come (back) in. Otherwise they slide away.
+    if (FOCUS_SPACING !== 'offscreen') return [lerp(l, 0, pv), lerp(r, 0, pv)];
     return [Math.max(l, pv), Math.max(r, pv)];
   }
 
@@ -898,6 +918,7 @@ function init(stage: HTMLElement) {
         closeGroup.style.opacity = String(1 - wo);
       }
     }
+    if (FOCUS_SPACING !== 'offscreen') applyEdges(mode === 'row' ? Math.round(pv * 50) / 50 : 0);
     slideEdges(eL, eR);
     syncVideos();
     requestAnimationFrame(tick);

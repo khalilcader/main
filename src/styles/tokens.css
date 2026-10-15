@@ -63,7 +63,7 @@
   /* Header */
   --photo-width: 50px;
   --photo-height: 56px;
-  --photo-radius: 14px;
+  --photo-radius: 10px;                     /* Figma has 14; 10 per Khalil */
   --photo-shadow: 0 4px 16px 0 var(--color-cover-shadow);
   --button-size: 40px;
   --button-pad: 8px;
