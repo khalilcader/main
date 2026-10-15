@@ -26,6 +26,16 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   ))}
 </div>
 
+<!-- Page dots: one per project. Script centres the current dot, shrinks the
+     ones further out, and hides the whole thing in grid view. -->
+<nav class="dots" id="dots" aria-label="Projects" data-smooth="surface">
+  <div class="dots-track">
+    {work.map((item, i) => (
+      <button class="dot" type="button" data-i={i} aria-label={item.data.title}><span></span></button>
+    ))}
+  </div>
+</nav>
+
 <div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
@@ -63,6 +73,34 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   }
   :global(.js) .card :global(.cover) { border: 0; }
   .card:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+
+  /* Page dots, in a soft capsule (after iOS, but every dot a circle). */
+  .dots {
+    --surface-bg: var(--color-dots-bg); --surface-border: transparent; --surface-blur: blur(var(--button-blur));
+    position: fixed; z-index: 30; left: 50%; translate: -50% 0;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--dots-bottom));
+    width: calc(var(--dots-window) * var(--dot-pitch) + 2 * var(--dots-pad-x));
+    height: var(--dots-height);
+    padding: 0 var(--dots-pad-x);
+    border-radius: 999px;
+    background: var(--surface-bg);
+    -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur);
+    overflow: hidden;
+    transition: opacity 0.25s ease-out, visibility 0.25s;
+  }
+  :global(html:not(.js)) .dots, .dots.off { opacity: 0; visibility: hidden; }
+  .dots-track { position: relative; height: 100%; will-change: transform; }
+  .dot {
+    position: absolute; top: 0; height: 100%; width: var(--dot-pitch);
+    padding: 0; border: 0; background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dot span {
+    width: var(--dot-size); height: var(--dot-size); border-radius: 50%;
+    background: var(--color-fg); opacity: var(--dot-opacity, 0.25);
+    transform: scale(var(--dot-scale, 1));
+  }
+  .dot:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; border-radius: 999px; }
 
   /* Title pill, shown on hover and keyboard focus. Script sets --pop (a
      springy 0..1 that overshoots a little), --show (clamped, for opacity) and
