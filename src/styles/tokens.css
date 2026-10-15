@@ -18,6 +18,7 @@
   --color-button-border: rgba(0, 0, 0, 0.2);
   --color-button-shadow: rgba(0, 0, 0, 0.05);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
+  --color-label-bg: var(--color-button-bg);
   --color-tip-bg: rgba(38, 38, 38, 0.94);   /* from Khalil's tooltip mockup */
   --color-tip-fg: #ffffff;
   --color-tip-border: rgba(255, 255, 255, 0.16);
@@ -175,7 +176,8 @@
     --color-button-border: rgba(255, 255, 255, 0.16);
     --color-button-shadow: rgba(0, 0, 0, 0.3);
     --color-label-shadow: rgba(0, 0, 0, 0.35);
-    --color-tip-bg: rgba(58, 58, 56, 0.96);
+    --color-label-bg: rgba(20, 20, 19, 0.82);
+    --color-tip-bg: rgba(20, 20, 19, 0.96);
     --grain-blend: soft-light;              /* overlay brightens dark surfaces; leaving covers should darken */
     --grain-strength: 0.6;
     --veil-tint: rgba(0, 0, 0, 0.55);
@@ -207,7 +209,8 @@
   --color-button-border: rgba(255, 255, 255, 0.16);
   --color-button-shadow: rgba(0, 0, 0, 0.3);
   --color-label-shadow: rgba(0, 0, 0, 0.35);
-  --color-tip-bg: rgba(58, 58, 56, 0.96);
+  --color-label-bg: rgba(20, 20, 19, 0.82);
+  --color-tip-bg: rgba(20, 20, 19, 0.96);
   --grain-blend: soft-light;        /* overlay brightens dark surfaces; leaving covers should darken */
   --grain-strength: 0.6;
   --veil-tint: rgba(0, 0, 0, 0.55);

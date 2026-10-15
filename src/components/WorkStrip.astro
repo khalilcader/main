@@ -74,7 +74,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       scale(calc(var(--unscale, 1) * (1 - (1 - var(--pop, 0)) * var(--label-grow))));
     transform-origin: 50% 100%;
     padding: var(--label-pad-y) var(--label-pad-x);
-    --surface-bg: var(--color-button-bg);
+    --surface-bg: var(--color-label-bg);
     --surface-border: var(--color-button-border);
     --surface-border-top: 0.35;   /* lit from above: darker underneath */
     --surface-blur: blur(var(--button-blur));
