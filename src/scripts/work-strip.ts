@@ -25,6 +25,7 @@ const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under c
 const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
 const HV_K = 600, HV_C = 44;         // hover lift: quick and smooth (ζ ≈ 0.9, no visible overshoot)
+const FOCUS_FADE = 2.2;              // background covers fade this much faster in focus mode
 const HOVER_SCALE = 1.025;           // covers grow this much under the cursor
 const LB_K = 900, LB_C = 34;         // title pill: quick, underdamped (ζ ≈ 0.57) for a little pop
 const OV_K = 320, OV_C = 36;         // per-cover overscroll lag (gaps stretch, then relax)
@@ -815,7 +816,10 @@ function init(stage: HTMLElement) {
         const rowBlur = (P.rowBlur / c.kRow) * Math.pow(ek, 1.6);
         const focusBlur = P.focusBlur * Math.pow(dk, 1.5);
         const blur = Math.max(focusBlur, rowBlur);
-        const fade = Math.max(dk * dk * (3 - 2 * dk), P.rowFade * ek * ek * (3 - 2 * ek));  // smoothstep
+        // Focus: everything but the open cover fades out FOCUS_FADE times faster
+        // than it blurs, so the background clears quickly as a cover opens.
+        const df = clamp(dk * FOCUS_FADE, 0, 1);
+        const fade = Math.max(df * df * (3 - 2 * df), P.rowFade * ek * ek * (3 - 2 * ek));  // smoothstep
         // Focus blurs the whole cover (shape included) as it drifts away; the
         // row's light edge blur only softens the media inside, so the cover's
         // smoothed corners, border and background stay crisp. Either way the
@@ -847,7 +851,7 @@ function init(stage: HTMLElement) {
     // Focus mode (focus strip or grid lightbox): the name and the view controls
     // step aside, and a close button takes the name's place.
     const focusAmt = mode === 'row' ? pv : gridActive >= 0 ? gpv : 0;
-    const wo = Math.round((1 - focusAmt) * 100) / 100;
+    const wo = Math.round((1 - clamp(focusAmt * FOCUS_FADE, 0, 1)) * 100) / 100;
     if (wo !== whoOpacity) { whoOpacity = wo; who.style.opacity = wo < 1 ? String(wo) : ''; who.style.visibility = wo < 0.01 ? 'hidden' : ''; }
     if (wo !== chromeLast) {
       chromeLast = wo;
