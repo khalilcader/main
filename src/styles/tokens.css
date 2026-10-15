@@ -77,6 +77,9 @@
   --photo-flip-duration: 0.6s;
   --photo-flip-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --photo-back-icon-opacity: 0.6;
+  --photo-hover-scale: 1.06;                /* grows a little on hover */
+  --photo-hover-duration: 0.35s;
+  --photo-shadow-hover: 0 8px 24px 0 rgba(0, 0, 0, 0.14);
 
   /* About card (opens from the avatar) */
   --about-height: 760px;                    /* portrait, avatar proportions */
@@ -110,7 +113,7 @@
   --cover-radius: 48px;                     /* at row height */
   --cover-smoothing: 0.8;
   --corner-smoothing: 0.8;                  /* every other smoothed corner (buttons, pills, photo...) */                   /* Figma corner smoothing */
-  --cover-border-width: 1px;
+  --cover-border-width: 0px;                /* no outline on covers (Figma has 1px; dropped per Khalil) */
   --cover-shadow-y: 4px;
   --cover-shadow-blur: 16px;
   --cover-shadow-hover-y: 10px;             /* on hover */
