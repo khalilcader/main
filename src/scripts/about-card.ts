@@ -1,8 +1,11 @@
 // The About card (AboutCard.astro). Clicking the avatar grows the card out of
 // the avatar's About side: it moves and scales from the avatar to the centre of
 // the screen while turning 180° in 3D, so the book side turns away and the
-// card's front comes round. Closing runs the same motion backwards, and either
-// can be interrupted mid-way and reverses smoothly from where it is.
+// card's front comes round. Closing runs the same path back with the same
+// ease-out (not a reversed playback, which would turn it into an ease-in), and
+// either can be interrupted mid-way, turning around from where it is.
+
+import { squirclePath } from './squircle';
 
 const DURATION = 700;                                // ms
 const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';       // quick start, long soft landing
@@ -20,8 +23,13 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
   let state: 'closed' | 'opening' | 'open' | 'closing' = 'closed';
   let anims: Animation[] = [];
 
-  // Keyframes from the small state (on the avatar, book side up) to the open card.
-  function keyframes() {
+  const faces = [...card.querySelectorAll<HTMLElement>('.about-face')];
+
+  // The two end states. Small: on the avatar, book side up. Big: the open card.
+  // Each is a set of styles per element; the faces' smoothed-corner clips are
+  // animated too, so the corners stay in proportion as the card scales.
+  type State = { card: Keyframe; faces: Keyframe; scrim: Keyframe };
+  function ends(): { small: State; big: State } {
     const a = avatar!.getBoundingClientRect();
     card!.style.transform = 'none';
     const c = card!.getBoundingClientRect();
@@ -31,39 +39,56 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
     const dy = a.top + a.height / 2 - (c.top + c.height / 2);
     // The book side's icon matches the avatar's 24px at the small end.
     card!.style.setProperty('--about-back-icon', `${(24 / sx).toFixed(1)}px`);
-    const rSmall = parseFloat(getComputedStyle(avatar!).getPropertyValue('--photo-radius')) || 14;
-    const rBig = parseFloat(getComputedStyle(card!).borderTopLeftRadius) || 24;
+    const root = getComputedStyle(document.documentElement);
+    const rSmall = parseFloat(root.getPropertyValue('--photo-radius')) || 14;
+    const rBig = parseFloat(root.getPropertyValue('--cover-radius')) || 48;
+    const sm = parseFloat(root.getPropertyValue('--corner-smoothing')) || 0.6;
+    const W = faces[0].offsetWidth, H = faces[0].offsetHeight;
+    const clip = (r: number) => `path("${squirclePath(W, H, Math.min(r, Math.min(W, H) / 2), sm)}")`;
     if (reduce) {
-      return { card: [{ opacity: 0 }, { opacity: 1 }], scrim: [{ opacity: 0 }, { opacity: 1 }] };
+      return {
+        small: { card: { opacity: 0 }, faces: { clipPath: clip(rBig) }, scrim: { opacity: 0 } },
+        big: { card: { opacity: 1 }, faces: { clipPath: clip(rBig) }, scrim: { opacity: 1 } },
+      };
     }
     return {
-      card: [
-        {
-          transform: `perspective(${PERSPECTIVE}px) translate(${dx}px, ${dy}px) scale(${sx}, ${sy}) rotateY(-180deg)`,
-          borderRadius: `${rSmall / sx}px / ${rSmall / sy}px`,
-        },
-        {
-          transform: `perspective(${PERSPECTIVE}px) translate(0px, 0px) scale(1, 1) rotateY(0deg)`,
-          borderRadius: `${rBig}px / ${rBig}px`,
-        },
-      ],
-      scrim: [{ opacity: 0 }, { opacity: 1 }],
+      small: {
+        card: { transform: `perspective(${PERSPECTIVE}px) translate(${dx}px, ${dy}px) scale(${sx}, ${sy}) rotateY(-180deg)`, borderRadius: `${rSmall / sx}px / ${rSmall / sy}px` },
+        faces: { clipPath: clip(rSmall / sx) },
+        scrim: { opacity: 0 },
+      },
+      big: {
+        card: { transform: `perspective(${PERSPECTIVE}px) translate(0px, 0px) scale(1, 1) rotateY(0deg)`, borderRadius: `${rBig}px / ${rBig}px` },
+        faces: { clipPath: clip(rBig) },
+        scrim: { opacity: 1 },
+      },
     };
   }
 
-  function run(direction: 'open' | 'close') {
-    // Mid-way the other direction: turn the running animation around.
-    if (anims.length && (state === 'opening' || state === 'closing')) {
-      anims.forEach((an) => an.reverse());
-      state = direction === 'open' ? 'opening' : 'closing';
-      return;
+  // Animate to one end with the same ease-out either way, starting from wherever
+  // the card is now (so an interrupted open or close turns around smoothly).
+  function animateTo(to: 'small' | 'big') {
+    const e = ends();
+    let from = to === 'big' ? e.small : e.big;
+    if (anims.length) {
+      const cc = getComputedStyle(card!), fc = getComputedStyle(faces[0]);
+      from = {
+        card: reduce ? { opacity: cc.opacity } : { transform: cc.transform, borderRadius: cc.borderRadius },
+        faces: { clipPath: fc.clipPath },
+        scrim: { opacity: getComputedStyle(scrim!).opacity },
+      };
+      anims.forEach((an) => an.cancel());
     }
-    const k = keyframes();
+    const target = e[to];
     const opts: KeyframeAnimationOptions = { duration: reduce ? 200 : DURATION, easing: reduce ? 'ease-out' : EASE, fill: 'both' };
-    anims = [card!.animate(k.card, opts), scrim!.animate(k.scrim, opts)];
-    if (direction === 'close') anims.forEach((an) => an.reverse());
-    state = direction === 'open' ? 'opening' : 'closing';
-    Promise.all(anims.map((an) => an.finished)).then(settle, () => {});
+    anims = [
+      card!.animate([from.card, target.card], opts),
+      scrim!.animate([from.scrim, target.scrim], opts),
+      ...faces.map((f) => f.animate([from.faces, target.faces], opts)),
+    ];
+    state = to === 'big' ? 'opening' : 'closing';
+    const mine = anims;
+    Promise.all(mine.map((an) => an.finished)).then(() => { if (anims === mine) settle(); }, () => {});
   }
 
   function settle() {
@@ -88,13 +113,13 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
       avatar!.style.visibility = 'hidden';   // the card takes its place
     }
     scrim!.style.opacity = '';
-    run('open');
+    animateTo('big');
     closeBtn!.focus({ preventScroll: true });
   }
   function close() {
     if (state === 'closed' || state === 'closing') return;
     scrim!.style.opacity = '';
-    run('close');
+    animateTo('small');
   }
 
   who.addEventListener('click', (e) => { e.preventDefault(); open(); });

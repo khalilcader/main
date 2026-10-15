@@ -18,10 +18,10 @@ const { tools = true } = Astro.props;
     <!-- Flips over in 3D on hover to show the About side. -->
     <span class="photo has-tip">
       <span class="flip">
-        <span class="face front">
+        <span class="face front" data-smooth="clip">
           {photo && <img src={photo} alt="Khalil Cader" width="50" height="56" />}
         </span>
-        <span class="face back" aria-hidden="true">
+        <span class="face back" aria-hidden="true" data-smooth="clip">
           <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6.75 18.25V5.75a1.5 1.5 0 0 1 1.5-1.5h8.5a1.5 1.5 0 0 1 1.5 1.5v12.5" />
             <path d="M6.75 18.25a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5v0a1.5 1.5 0 0 0-1.5-1.5h-8.5a1.5 1.5 0 0 0-1.5 1.5Z" />
@@ -36,18 +36,18 @@ const { tools = true } = Astro.props;
       <span class="role">Product Designer</span>
     </span>
   </a>
-  {tools && <div class="tools close-group" id="close-group" hidden>
-    <!-- Focus mode: closes the open cover. Fades in over the avatar (script). -->
-    <button class="tool has-tip" id="close-button" type="button" aria-label="Close" aria-keyshortcuts="Escape">
+  {tools && <div class="tools close-group" id="close-group" data-smooth="surface" hidden>
+    <!-- Focus mode: closes the open cover. Fades in at the top left (script). -->
+    <button class="tool has-tip" data-smooth="surface" id="close-button" type="button" aria-label="Close" aria-keyshortcuts="Escape">
       <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
         <path d="M7 7l10 10M17 7L7 17" />
       </svg>
       <Tooltip shortcut="Esc">Close</Tooltip>
     </button>
   </div>}
-  {tools && <div class="tools" id="view-tools" role="group" aria-label="View">
+  {tools && <div class="tools" id="view-tools" role="group" aria-label="View" data-smooth="surface">
     <!-- One glass container holding both buttons (after Figma 67:848), 4px apart. -->
-    <button class="tool has-tip" id="theme-button" type="button" aria-label="Switch to dark theme" aria-keyshortcuts="T">
+    <button class="tool has-tip" data-smooth="surface" id="theme-button" type="button" aria-label="Switch to dark theme" aria-keyshortcuts="T">
       <!-- Sun: stand-in drawn to the Figma icon's spec (24px, 1.5 stroke, round
            joins); the Figma SVG couldn't be exported from this environment. -->
       <svg class="icon icon-light" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -60,7 +60,7 @@ const { tools = true } = Astro.props;
       </svg>
       <Tooltip shortcut="T">Theme</Tooltip>
     </button>
-    <button class="tool has-tip" id="grid-button" type="button" aria-pressed="false" aria-label="Show as grid" aria-keyshortcuts="G">
+    <button class="tool has-tip" data-smooth="surface" id="grid-button" type="button" aria-pressed="false" aria-label="Show as grid" aria-keyshortcuts="G">
       <!-- Figma 55:832: four 7px squares, 1.5px stroke, 2px corners. -->
       <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <rect x="4.75" y="4.25" width="5.5" height="5.5" rx="1.25" />
@@ -96,13 +96,14 @@ const { tools = true } = Astro.props;
   }
   .flip {
     position: absolute; inset: 0; display: block;
+    border-radius: var(--photo-radius); box-shadow: var(--photo-shadow);   /* the faces are clipped, so the shadow lives here */
     transform-style: preserve-3d;
     transition: transform var(--photo-flip-duration) var(--photo-flip-ease);
   }
   .face {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--color-photo-border); border-radius: var(--photo-radius);
-    box-shadow: var(--photo-shadow);
+    --surface-border: var(--color-photo-border);
+    border: 1px solid var(--surface-border); border-radius: var(--photo-radius);
     background: var(--color-cover-bg);
     overflow: hidden;
     -webkit-backface-visibility: hidden; backface-visibility: hidden;
@@ -131,34 +132,40 @@ const { tools = true } = Astro.props;
   .tools {
     display: flex; align-items: center; gap: var(--tools-inset);
     height: var(--button-size); padding: var(--tools-inset);
-    border: var(--button-border-width) solid var(--color-button-border);
+    --surface-bg: var(--color-button-bg);
+    --surface-border: var(--color-button-border);
+    --surface-blur: blur(var(--button-blur));
+    border: var(--button-border-width) solid var(--surface-border);
     border-radius: var(--button-radius);
-    background: var(--color-button-bg);
-    -webkit-backdrop-filter: blur(var(--button-blur)); backdrop-filter: blur(var(--button-blur));
+    background: var(--surface-bg);
+    -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur);
     box-shadow: var(--button-shadow);
   }
   :global(html:not(.js)) .tools { display: none; }
-  /* Close button: sits over the avatar's spot; script fades it in for focus mode. */
+  /* Close button: top left in focus mode (script fades it in). */
   .close-group {
-    position: absolute; left: var(--header-pad); top: 50%; translate: 0 -50%;
+    position: fixed;
+    left: calc(env(safe-area-inset-left, 0px) + var(--close-inset));
+    top: calc(env(safe-area-inset-top, 0px) + var(--close-inset));
     opacity: 0;
   }
   .close-group[hidden] { display: none; }
   .tool {
     width: var(--tool-size); height: var(--tool-size); padding: 0;
     display: inline-flex; align-items: center; justify-content: center;
-    border: 0; background: none;
+    --surface-bg: transparent; --surface-border: transparent; --surface-blur: none;
+    border: 0; background: var(--surface-bg);
     border-radius: calc(var(--button-radius) - var(--tools-inset) - var(--button-border-width));
     color: var(--color-fg); cursor: pointer;
     transition: background-color 0.12s ease-out, color 0.12s ease-out;
   }
   /* Toggled on: a tinted tile with a filled icon. */
-  .tool[aria-pressed="true"] { background: var(--color-toggle-on-bg); color: var(--color-toggle-on-fg); }
+  .tool[aria-pressed="true"] { --surface-bg: var(--color-toggle-on-bg); color: var(--color-toggle-on-fg); }
   .tool[aria-pressed="true"] rect { fill: currentColor; }
   /* Hover (mouse only): a soft tile; a pressed tile deepens. */
   @media (hover: hover) {
-    .tool:hover { background: var(--color-tool-hover-bg); }
-    .tool[aria-pressed="true"]:hover { background: var(--color-toggle-on-hover-bg); }
+    .tool:hover { --surface-bg: var(--color-tool-hover-bg); }
+    .tool[aria-pressed="true"]:hover { --surface-bg: var(--color-toggle-on-hover-bg); }
   }
   .tool:focus-visible, .who:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
   .icon { flex: none; width: var(--icon-size); height: var(--icon-size); }

@@ -10,15 +10,17 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
 <div class="about-scrim" id="about-scrim" hidden></div>
 <div class="about" id="about" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden>
   <div class="about-card" id="about-card">
-    <div class="about-face about-front">
-      <button class="about-close has-tip" id="about-close" type="button" aria-label="Close" aria-keyshortcuts="Escape">
+    <div class="about-face about-front" data-smooth="clip">
+      <button class="about-close has-tip" data-smooth="surface" id="about-close" type="button" aria-label="Close" aria-keyshortcuts="Escape">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
           <path d="M7 7l10 10M17 7L7 17" />
         </svg>
         <Tooltip shortcut="Esc">Close</Tooltip>
       </button>
-      <span class="about-photo">
-        {photo && <img src={photo} alt="" width="50" height="56" />}
+      <span class="about-photo-wrap">
+        <span class="about-photo" data-smooth="clip">
+          {photo && <img src={photo} alt="" width="50" height="56" />}
+        </span>
       </span>
       <h2 class="about-name" id="about-title">Khalil Cader</h2>
       <p class="about-role">Product Designer</p>
@@ -29,7 +31,7 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
       </div>
     </div>
     <!-- The small side: matches the avatar's About side, and turns away as the card opens. -->
-    <div class="about-face about-back" aria-hidden="true">
+    <div class="about-face about-back" aria-hidden="true" data-smooth="clip">
       <svg class="about-back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M6.75 18.25V5.75a1.5 1.5 0 0 1 1.5-1.5h8.5a1.5 1.5 0 0 1 1.5 1.5v12.5" />
         <path d="M6.75 18.25a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5v0a1.5 1.5 0 0 0-1.5-1.5h-8.5a1.5 1.5 0 0 0-1.5 1.5Z" />
@@ -71,13 +73,14 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     aspect-ratio: 50 / 56;
     transform-style: preserve-3d;
     border-radius: var(--about-radius);
+    box-shadow: var(--about-shadow);   /* the faces are clipped, so the shadow lives here */
     pointer-events: auto;
   }
   .about-face {
-    border: 1px solid var(--color-cover-border);
-    border-radius: inherit;
+    --surface-border: var(--color-cover-border);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--about-radius);
     background: var(--color-cover-bg);
-    box-shadow: var(--about-shadow);
     -webkit-backface-visibility: hidden; backface-visibility: hidden;
   }
   .about-front {
@@ -96,19 +99,24 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     position: absolute; top: var(--space-3); right: var(--space-3);
     width: var(--button-size); height: var(--button-size); padding: var(--button-pad);
     display: inline-flex; align-items: center; justify-content: center;
-    border: 0; border-radius: var(--button-radius); background: none;
+    --surface-bg: transparent; --surface-border: transparent; --surface-blur: none;
+    border: 0; border-radius: var(--button-radius); background: var(--surface-bg);
     color: var(--color-fg); cursor: pointer;
-    transition: background-color 0.12s ease-out;
   }
-  @media (hover: hover) { .about-close:hover { background: var(--color-tool-hover-bg); } }
+  @media (hover: hover) { .about-close:hover { --surface-bg: var(--color-tool-hover-bg); } }
   .about-close:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
   .about-close svg { width: var(--icon-size); height: var(--icon-size); }
 
-  .about-photo {
-    display: block; width: var(--photo-width); height: var(--photo-height);
+  .about-photo-wrap {
+    display: block; flex: none; width: var(--photo-width); height: var(--photo-height);
     margin-bottom: var(--space-4);
-    border: 1px solid var(--color-photo-border); border-radius: var(--photo-radius);
-    box-shadow: var(--photo-shadow); background: var(--color-cover-bg); overflow: hidden;
+    border-radius: var(--photo-radius); box-shadow: var(--photo-shadow);
+  }
+  .about-photo {
+    --surface-border: var(--color-photo-border);
+    display: block; width: 100%; height: 100%;
+    border: 1px solid var(--surface-border); border-radius: var(--photo-radius);
+    background: var(--color-cover-bg); overflow: hidden;
   }
   .about-photo img { width: 100%; height: 100%; object-fit: cover; }
   .about-name, .about-role {

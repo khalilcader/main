@@ -7,7 +7,7 @@ interface Props {
 }
 const { shortcut } = Astro.props;
 ---
-<span class="tip" role="tooltip" aria-hidden="true"><slot />{shortcut && <kbd>{shortcut}</kbd>}</span>
+<span class="tip" role="tooltip" aria-hidden="true" data-smooth="surface"><slot />{shortcut && <kbd>{shortcut}</kbd>}</span>
 
 <style>
   :global(.has-tip) { position: relative; }
@@ -16,8 +16,9 @@ const { shortcut } = Astro.props;
     z-index: 50; pointer-events: none;
     display: inline-flex; align-items: center; gap: 6px;
     padding: var(--tip-pad-y) var(--tip-pad-x);
-    border: 1px solid var(--color-tip-border); border-radius: var(--tip-radius);
-    background: var(--color-tip-bg); color: var(--color-tip-fg);
+    --surface-bg: var(--color-tip-bg); --surface-border: var(--color-tip-border); --surface-blur: none;
+    border: 1px solid var(--surface-border); border-radius: var(--tip-radius);
+    background: var(--surface-bg); color: var(--color-tip-fg);
     box-shadow: var(--tip-shadow);
     font: var(--text-name-weight) var(--tip-size) / 1 var(--font-sans);
     /* Trim the line box to the letters so they sit optically centred
