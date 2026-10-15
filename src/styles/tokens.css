@@ -13,7 +13,6 @@
   --color-cover-border: rgba(0, 0, 0, 0.15);
   --color-cover-shadow: rgba(0, 0, 0, 0.03);
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.08);   /* lifted on hover: subtle, soft */
-  --color-cover-ring: rgba(0, 0, 0, 0.08);           /* 4px ring around a hovered cover */
   --color-photo-border: rgba(0, 0, 0, 0.2);
   --color-button-bg: rgba(255, 255, 255, 0.8);
   --color-button-border: rgba(0, 0, 0, 0.2);
@@ -165,7 +164,6 @@
     --color-cover-border: rgba(255, 255, 255, 0.12);
     --color-cover-shadow: rgba(0, 0, 0, 0.3);
     --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
-    --color-cover-ring: rgba(255, 255, 255, 0.1);
     --color-photo-border: rgba(255, 255, 255, 0.2);
     --color-button-bg: rgba(40, 40, 38, 0.8);
     --color-button-border: rgba(255, 255, 255, 0.16);
@@ -195,7 +193,6 @@
   --color-cover-border: rgba(255, 255, 255, 0.12);
   --color-cover-shadow: rgba(0, 0, 0, 0.3);
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
-  --color-cover-ring: rgba(255, 255, 255, 0.1);
   --color-photo-border: rgba(255, 255, 255, 0.2);
   --color-button-bg: rgba(40, 40, 38, 0.8);
   --color-button-border: rgba(255, 255, 255, 0.16);

@@ -25,7 +25,6 @@ const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under c
 const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
 const HV_K = 600, HV_C = 44;         // hover lift: quick and smooth (ζ ≈ 0.9, no visible overshoot)
-const RING_PX = 4;                   // hover ring width on screen
 const HOVER_SCALE = 1.025;           // covers grow this much under the cursor
 const LB_K = 900, LB_C = 34;         // title pill: quick, underdamped (ζ ≈ 0.57) for a little pop
 const OV_K = 320, OV_C = 36;         // per-cover overscroll lag (gaps stretch, then relax)
@@ -81,8 +80,6 @@ function init(stage: HTMLElement) {
     cover: el.querySelector<HTMLElement>('.cover')!,
     content: el.querySelector<HTMLElement>('.cover .content')!,
     outline: el.querySelector<SVGPathElement>('.outline path')!,
-    ring: el.querySelector<SVGPathElement>('.ring path'),
-    ringLast: -1,
     veil: el.querySelector<HTMLElement>('.veil')!,
     label: el.querySelector<HTMLElement>('.label'),
     labelLast: '',
@@ -237,8 +234,6 @@ function init(stage: HTMLElement) {
       const path = squirclePath(c.W, h, r, smoothing);
       c.clip = `path("${path}")`;
       c.outline.setAttribute('d', path);
-      c.ring?.setAttribute('d', path);
-      c.ringLast = -1;
       c.outline.style.strokeWidth = String(border * k * 2);   // half falls outside the clip
       c.el.style.borderRadius = r * 0.6 + 'px';               // sits inside the clip; also the focus ring
       c.shK = k; c.shLast = -1;
@@ -780,15 +775,6 @@ function init(stage: HTMLElement) {
       // The shadow deepens and softens with the lift.
       const sh = Math.round(clamp(c.hv.v, 0, 1) * 100) / 100;
       if (sh !== c.shLast) { c.shLast = sh; st.filter = coverShadow(c, sh); }
-      // Hover ring: grows from 0 to RING_PX on screen. Stroked on the cover's
-      // edge at twice the width, behind the cover, so the outer half shows.
-      if (c.ring) {
-        const rw = Math.round(clamp(c.hv.v, 0, 1) * RING_PX * 100) / 100;
-        if (rw !== c.ringLast) {
-          c.ringLast = rw;
-          c.ring.parentElement!.style.strokeWidth = rw > 0 ? String((2 * rw * c.W) / tw) : '0';
-        }
-      }
       // Title pill: pops in on its own spring (--pop may overshoot past 1;
       // --show is the clamped version for opacity), counter-scaled to stay a
       // constant size on screen.
