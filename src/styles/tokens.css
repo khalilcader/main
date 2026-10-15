@@ -113,7 +113,7 @@
   --cover-radius: 48px;                     /* at row height */
   --cover-smoothing: 0.8;
   --corner-smoothing: 0.8;                  /* every other smoothed corner (buttons, pills, photo...) */                   /* Figma corner smoothing */
-  --cover-border-width: 0px;                /* no outline on covers (Figma has 1px; dropped per Khalil) */
+  --cover-border-width: 1px;
   --cover-shadow-y: 4px;
   --cover-shadow-blur: 16px;
   --cover-shadow-hover-y: 10px;             /* on hover */
