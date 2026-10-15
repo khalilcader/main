@@ -20,6 +20,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       style={`--aspect: ${item.data.cover.aspect}`}
     >
       <Cover cover={item.data.cover} />
+      <span class="label" aria-hidden="true">{item.data.title}</span>
       <div class="veil"></div>
     </button>
   ))}
@@ -62,6 +63,28 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   }
   :global(.js) .card :global(.cover) { border: 0; }
   .card:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+
+  /* Title pill, shown on hover and keyboard focus (script sets --show and
+     --unscale, which keeps it the same size on screen however the cover is
+     scaled). Same glass as the header buttons. */
+  .label {
+    position: absolute; left: 50%; bottom: calc(var(--label-offset) * var(--unscale, 1));
+    transform: translateX(-50%) translateY(calc((1 - var(--show, 0)) * var(--label-rise)))
+      scale(calc(var(--unscale, 1) * (1 - (1 - var(--show, 0)) * var(--label-grow))));
+    transform-origin: 50% 100%;
+    padding: var(--label-pad-y) var(--label-pad-x);
+    border: var(--button-border-width) solid var(--color-button-border);
+    border-radius: 999px;
+    background: var(--color-button-bg);
+    -webkit-backdrop-filter: blur(var(--button-blur)); backdrop-filter: blur(var(--button-blur));
+    box-shadow: var(--label-shadow);
+    color: var(--color-fg);
+    font-family: inherit; font-size: var(--text-name-size); font-weight: var(--text-name-weight);
+    letter-spacing: var(--text-name-tracking); line-height: 1.25;
+    white-space: nowrap; pointer-events: none;
+    opacity: var(--show, 0);
+  }
+  :global(html:not(.js)) .label { display: none; }
 
   /* Grain over anything pushed out of focus. The cover itself fades and blurs;
      this layer reaches past it by the blur's spill (--f) and feathers over it,

@@ -77,6 +77,8 @@ function init(stage: HTMLElement) {
     content: el.querySelector<HTMLElement>('.cover .content')!,
     outline: el.querySelector<SVGPathElement>('.outline path')!,
     veil: el.querySelector<HTMLElement>('.veil')!,
+    label: el.querySelector<HTMLElement>('.label'),
+    labelLast: '',
     video: el.querySelector<HTMLVideoElement>('video'),
     playing: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
@@ -742,10 +744,22 @@ function init(stage: HTMLElement) {
       const st = c.el.style, L = c.last;
       // Hover: a slight lift about the cover's centre, in the row and the grid
       // (not while dragging, or once a cover is open).
-      c.hv.t = c.i === hovered && !ptr && !reduce && (mode === 'row' ? p.t < 0.5 : gridOpen < 0) ? 1 : 0;
-      const hs = 1 + (HOVER_SCALE - 1) * c.hv.v;
+      const resting = !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
+      const pointed = c.i === hovered || c.el.matches(':focus-visible');
+      c.hv.t = pointed && resting ? 1 : 0;
+      const hs = 1 + (HOVER_SCALE - 1) * (reduce ? 0 : c.hv.v);
       const tw = w2 * hs;
       st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;
+      // Title pill: fades in with the hover, counter-scaled to stay a constant size.
+      if (c.label) {
+        const show = clamp(c.hv.v, 0, 1);
+        const key = show < 0.005 ? '0' : `${show.toFixed(3)}|${(c.W / tw).toFixed(4)}`;
+        if (key !== c.labelLast) {
+          c.labelLast = key;
+          c.label.style.setProperty('--show', show < 0.005 ? '0' : show.toFixed(3));
+          c.label.style.setProperty('--unscale', (c.W / tw).toFixed(4));
+        }
+      }
 
       // Focus: covers away from center blur, fade and pick up grain. t runs from
       // 0 at the center of the screen to 1 as the cover has fully left it.
