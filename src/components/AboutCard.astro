@@ -1,0 +1,117 @@
+---
+import { existsSync } from 'node:fs';
+import Tooltip from './Tooltip.astro';
+
+// The About card. Clicking the avatar grows it out of the avatar's About side
+// (the book), turning 180° in 3D as it goes (src/scripts/about-card.ts).
+// Edit the copy below.
+const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_URL}images/khalil.jpg` : null;
+---
+<div class="about-scrim" id="about-scrim" hidden></div>
+<div class="about" id="about" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden>
+  <div class="about-card" id="about-card">
+    <div class="about-face about-front">
+      <button class="about-close has-tip" id="about-close" type="button" aria-label="Close" aria-keyshortcuts="Escape">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <path d="M7 7l10 10M17 7L7 17" />
+        </svg>
+        <Tooltip shortcut="Esc">Close</Tooltip>
+      </button>
+      <span class="about-photo">
+        {photo && <img src={photo} alt="" width="50" height="56" />}
+      </span>
+      <h2 class="about-name" id="about-title">Khalil Cader</h2>
+      <p class="about-role">Product Designer</p>
+      <!-- Placeholder copy: replace with your own. -->
+      <div class="about-body">
+        <p>A few lines about who you are, what you design, and what you care about.</p>
+        <p>Where you've worked, and what you're looking for next.</p>
+      </div>
+    </div>
+    <!-- The small side: matches the avatar's About side, and turns away as the card opens. -->
+    <div class="about-face about-back" aria-hidden="true">
+      <svg class="about-back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.75 18.25V5.75a1.5 1.5 0 0 1 1.5-1.5h8.5a1.5 1.5 0 0 1 1.5 1.5v12.5" />
+        <path d="M6.75 18.25a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5v0a1.5 1.5 0 0 0-1.5-1.5h-8.5a1.5 1.5 0 0 0-1.5 1.5Z" />
+        <path d="M9.75 7.75h4.5M9.75 10.75h2.5" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+  import '../scripts/about-card';
+</script>
+
+<style>
+  /* Blurs the page behind the card, with a fine grain. */
+  .about-scrim {
+    position: fixed; inset: 0; z-index: 60;
+    background: var(--color-scrim);
+    -webkit-backdrop-filter: blur(var(--about-blur)); backdrop-filter: blur(var(--about-blur));
+    opacity: 0;
+  }
+  .about-scrim::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
+    mix-blend-mode: overlay; opacity: var(--about-grain);
+  }
+  .about-scrim[hidden], .about[hidden] { display: none; }
+
+  .about {
+    position: fixed; inset: 0; z-index: 61;
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--gutter);
+    pointer-events: none;
+  }
+  .about-card {
+    position: relative; width: min(var(--about-width), 100%);
+    transform-style: preserve-3d;
+    border-radius: var(--about-radius);
+    pointer-events: auto;
+  }
+  .about-face {
+    border: 1px solid var(--color-cover-border);
+    border-radius: inherit;
+    background: var(--color-cover-bg);
+    box-shadow: var(--about-shadow);
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  }
+  .about-front { position: relative; padding: var(--about-pad); }
+  .about-back {
+    position: absolute; inset: 0; transform: rotateY(180deg);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-fg);
+  }
+  /* Script sizes this so it matches the avatar's 24px icon at the small end. */
+  .about-back-icon { width: var(--about-back-icon, 24px); height: var(--about-back-icon, 24px); opacity: var(--photo-back-icon-opacity); }
+
+  .about-close {
+    position: absolute; top: var(--space-3); right: var(--space-3);
+    width: var(--button-size); height: var(--button-size); padding: var(--button-pad);
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: var(--button-radius); background: none;
+    color: var(--color-fg); cursor: pointer;
+    transition: background-color 0.12s ease-out;
+  }
+  @media (hover: hover) { .about-close:hover { background: var(--color-tool-hover-bg); } }
+  .about-close:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  .about-close svg { width: var(--icon-size); height: var(--icon-size); }
+
+  .about-photo {
+    display: block; width: var(--photo-width); height: var(--photo-height);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--color-photo-border); border-radius: var(--photo-radius);
+    box-shadow: var(--photo-shadow); background: var(--color-cover-bg); overflow: hidden;
+  }
+  .about-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .about-name, .about-role {
+    margin: 0;
+    font-size: var(--text-name-size); font-weight: var(--text-name-weight);
+    letter-spacing: var(--text-name-tracking); line-height: normal;
+  }
+  .about-role { opacity: var(--text-secondary-opacity); }
+  .about-body { margin-top: var(--space-4); font-size: var(--about-text-size); line-height: 1.5; }
+  .about-body p { margin: 0 0 var(--space-3); }
+  .about-body p:last-child { margin-bottom: 0; }
+</style>

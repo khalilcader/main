@@ -78,6 +78,15 @@
   --photo-flip-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --photo-back-icon-opacity: 0.6;
 
+  /* About card (opens from the avatar) */
+  --about-width: 440px;
+  --about-radius: 24px;
+  --about-pad: 32px;
+  --about-text-size: 15px;
+  --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
+  --about-blur: 16px;                       /* background blur behind the card */
+  --about-grain: 0.6;
+
   /* Tooltips */
   --tip-gap: 8px;
   --tip-pad-y: 6px;
