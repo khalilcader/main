@@ -49,6 +49,8 @@ if (stage) init(stage);
 
 function init(stage: HTMLElement) {
   const backdrop = document.getElementById('backdrop')!;
+  const stageBg = document.getElementById('stage-backdrop') as HTMLCanvasElement | null;
+  let stageBgCtl: { setPaused(p: boolean): void } | null = null, stageBgLast = -1;
   const header = document.querySelector<HTMLElement>('.site-header')!;
   const who = header.querySelector<HTMLElement>('.who')!;
   const gridBtn = document.getElementById('grid-button')!;
@@ -778,6 +780,7 @@ function init(stage: HTMLElement) {
     const gpv = clamp(gp.v, 0, 1), pv = clamp(p.v, 0, 1);
     const sc = reflow(), fb = mode === 'row' ? 1 - pv : 0;
     const [eL, eR] = edgeAmounts(pv), edgeZone = edges[0].offsetWidth || vw * 0.16;
+    let bgAmt = 0;  // how much the full-screen backdrop shows (0..1)
     for (const c of cards) {
       // Squish shrinks toward the bottom center of the cover's slot.
       const w = Math.max(1, c.w.v) * sc[c.i], h = Math.max(1, c.h.v) * sc[c.i];
@@ -797,6 +800,9 @@ function init(stage: HTMLElement) {
       if (mode === 'row' && pv > 0.001 && !(ptr && ptr.kind === 'fling' && c.i === anchor)) {
         const t = clamp((Math.abs(x + w2 / 2 - vw / 2) - w2 * 0.08) / (vw / 2 + w2 * 0.42), 0, 1);
         dim = pv * t;
+        // An open backdrop cover fills the screen behind it with its blue,
+        // fading as it moves off centre or is pulled away.
+        if (c.alwaysFeather) bgAmt = Math.max(bgAmt, pv * (1 - t) * (c.i === anchor ? 1 - pull : 1));
       }
       // Row: a cover blurs by where its inner edge (the side facing the middle)
       // is: sharp until it's within edgeStart of the screen edge, fully blurred
@@ -869,6 +875,15 @@ function init(stage: HTMLElement) {
       if (L.ti !== ti) { L.ti = ti; c.el.tabIndex = ti; }
     }
     backdrop.style.opacity = mode === 'grid' && gridActive >= 0 ? gpv.toFixed(3) : '0';
+    if (mode === 'grid' && gridActive >= 0 && cards[gridActive].alwaysFeather) bgAmt = gpv;
+    if (stageBg) {
+      const a = Math.round(bgAmt * bgAmt * (3 - 2 * bgAmt) * 500) / 500;  // smoothstep
+      if (a !== stageBgLast) {
+        stageBgLast = a;
+        stageBg.style.opacity = a > 0 ? String(a) : '0';
+        stageBgCtl?.setPaused(a === 0);
+      }
+    }
     // The focus view is near full screen, so the name steps aside for it.
     const wo = Math.round((1 - pv) * 100) / 100;
     if (wo !== whoOpacity) { whoOpacity = wo; who.style.opacity = wo < 1 ? String(wo) : ''; who.style.visibility = wo < 0.01 ? 'hidden' : ''; }
@@ -882,6 +897,10 @@ function init(stage: HTMLElement) {
   stage.querySelectorAll<HTMLCanvasElement>('canvas[data-shader="backdrop"]').forEach((cv) => {
     try { mountBackdrop(cv); } catch (err) { console.warn('Backdrop shader failed', err); }
   });
+  if (stageBg) {
+    try { stageBgCtl = mountBackdrop(stageBg); stageBgCtl?.setPaused(true); }
+    catch (err) { console.warn('Backdrop shader failed', err); }
+  }
   S.big.pos = S.big.min;
   const t0 = performance.now();
   for (const c of cards) {

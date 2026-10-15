@@ -10,6 +10,10 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
 ---
 <div class="stage" id="stage" aria-label="Selected work">
   <div class="backdrop" id="backdrop"></div>
+  <!-- Fills the screen behind an open backdrop cover (faded in by script). -->
+  {work.some((item) => item.data.cover.shader) && (
+    <canvas class="stage-backdrop" id="stage-backdrop" aria-hidden="true"></canvas>
+  )}
   {work.map((item, i) => (
     <button
       class="card"
@@ -95,6 +99,14 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
     mix-blend-mode: overlay; opacity: min(1, calc(var(--grain-amount) * 1.3));
   }
+
+  /* Full-screen backdrop behind an open backdrop cover. */
+  .stage-backdrop {
+    display: none;
+    position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+    pointer-events: none; opacity: 0;
+  }
+  :global(.js) .stage-backdrop { display: block; }
 
   /* Grid lightbox: everything else fades to the page. */
   .backdrop {
