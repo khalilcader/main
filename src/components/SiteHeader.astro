@@ -47,7 +47,14 @@ const { tools = true } = Astro.props;
   </div>}
   {tools && <div class="tools" id="view-tools" role="group" aria-label="View" data-smooth="surface">
     <!-- One glass container holding both buttons (after Figma 67:848), 4px apart. -->
-    <button class="tool has-tip" data-smooth="surface" id="theme-button" type="button" aria-label="Switch to dark theme" aria-keyshortcuts="T">
+    <button class="tool has-tip" data-smooth="surface" id="theme-button" type="button" aria-label="System theme. Switch theme" aria-keyshortcuts="T">
+      <!-- System (follows the device): laptop with a phone, after Figma 68:1233
+           (redrawn; the Figma SVG can't be exported from this environment). -->
+      <svg class="icon icon-system" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M13 16.25H4.75a1 1 0 0 1-1-1V6.75a2 2 0 0 1 2-2h10.5a2 2 0 0 1 2 2v1" />
+        <path d="M2.75 19.25H13" />
+        <rect x="15.25" y="10.25" width="6" height="9" rx="1.5" />
+      </svg>
       <!-- Sun: stand-in drawn to the Figma icon's spec (24px, 1.5 stroke, round
            joins); the Figma SVG couldn't be exported from this environment. -->
       <svg class="icon icon-light" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -200,12 +207,10 @@ const { tools = true } = Astro.props;
   .tool[aria-pressed="true"]:focus-visible { --surface-bg: var(--color-toggle-on-hover-bg); }
   .icon { flex: none; width: var(--icon-size); height: var(--icon-size); }
 
-  /* The icon shows the theme in effect: sun in light, moon in dark. */
-  .icon-dark { display: none; }
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-scheme="light"])) .icon-light { display: none; }
-    :global(:root:not([data-scheme="light"])) .icon-dark { display: block; }
-  }
-  :global(:root[data-scheme="dark"]) .icon-light { display: none; }
-  :global(:root[data-scheme="dark"]) .icon-dark { display: block; }
+  /* The icon shows the theme setting: system (follows the device), light or
+     dark. The button's data-mode is set by script; before that, system. */
+  .icon-light, .icon-dark { display: none; }
+  .tool[data-mode="light"] .icon-system, .tool[data-mode="dark"] .icon-system { display: none; }
+  .tool[data-mode="light"] .icon-light { display: block; }
+  .tool[data-mode="dark"] .icon-dark { display: block; }
 </style>

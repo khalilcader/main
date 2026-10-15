@@ -629,28 +629,30 @@ function init(stage: HTMLElement) {
     if (mode === 'grid') closeGrid(); else closeRow();
   });
 
-  // Theme: follows the system until toggled. Toggling flips what's showing;
-  // landing back on the system's choice un-pins it.
-  const systemDark = matchMedia('(prefers-color-scheme: dark)');
-  const isDark = () => {
-    const pinned = document.documentElement.dataset.scheme;
-    return pinned ? pinned === 'dark' : systemDark.matches;
+  // Theme: three settings, cycled by the button or T: system (follows the
+  // device), light, dark. A pinned choice is stored; system clears it.
+  const MODES = ['system', 'light', 'dark'] as const;
+  type ThemeMode = (typeof MODES)[number];
+  const modeNow = (): ThemeMode => (document.documentElement.dataset.scheme as ThemeMode) || 'system';
+  const LABELS: Record<ThemeMode, string> = { system: 'System theme', light: 'Light theme', dark: 'Dark theme' };
+  const showTheme = () => {
+    const m = modeNow();
+    themeBtn.dataset.mode = m;
+    themeBtn.setAttribute('aria-label', `${LABELS[m]}. Switch theme`);
+    const tip = themeBtn.querySelector('.tip-text');
+    if (tip) tip.textContent = LABELS[m];
   };
-  const labelTheme = () => themeBtn.setAttribute('aria-label', isDark() ? 'Switch to light theme' : 'Switch to dark theme');
   function toggleTheme() {
-    const next = isDark() ? 'light' : 'dark';
+    const next = MODES[(MODES.indexOf(modeNow()) + 1) % MODES.length];
     const root = document.documentElement;
-    if ((next === 'dark') === systemDark.matches) delete root.dataset.scheme;
-    else root.dataset.scheme = next;
+    if (next === 'system') delete root.dataset.scheme; else root.dataset.scheme = next;
     try {
-      if (root.dataset.scheme) localStorage.setItem('theme', next);
-      else localStorage.removeItem('theme');
+      if (next === 'system') localStorage.removeItem('theme'); else localStorage.setItem('theme', next);
     } catch (err) {}
-    labelTheme();
+    showTheme();
   }
   themeBtn.addEventListener('click', toggleTheme);
-  systemDark.addEventListener('change', labelTheme);
-  labelTheme();
+  showTheme();
 
   // ---- edges ----
   // Blur strength per band follows an ease-in curve, so the ramp starts almost

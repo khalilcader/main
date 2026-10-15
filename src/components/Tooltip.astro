@@ -8,7 +8,7 @@ interface Props {
 }
 const { shortcut, below = false } = Astro.props;
 ---
-<span class:list={['tip', { below }]} role="tooltip" aria-hidden="true" data-smooth="surface"><slot />{shortcut && <kbd>{shortcut}</kbd>}</span>
+<span class:list={['tip', { below }]} role="tooltip" aria-hidden="true" data-smooth="surface"><span class="tip-text"><slot /></span>{shortcut && <kbd>{shortcut}</kbd>}</span>
 
 <style>
   :global(.has-tip) { position: relative; }
