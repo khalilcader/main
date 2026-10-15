@@ -22,6 +22,13 @@ const TUNING = {
   // `backdropExpand` times its slot around a same-size device, with a wide,
   // airy soft edge (`backdropFeather`). It runs into the gaps, where it fades out.
   backdropExpand: 1.25, backdropFeather: 0.22,
+  // Opened (focus strip or lightbox), the backdrop grows until it fills the
+  // screen, its soft edge firming up as it goes, and shrinks back as it
+  // leaves. Drawn this many times its slot so it stays sharp when grown.
+  backdropRender: 1.6,
+  // As it grows the soft edge narrows (stepping through prebuilt widths) so
+  // it ends up just off screen instead of fading across it.
+  backdropFeatherOpen: 0.03, backdropFeatherLevels: 5,
   // The soft edge stays alive: its grain cycles through a few frames.
   featherFps: 8,
   // Row edge: kept subtle. A light blur (on-screen px at row size) and fade,
@@ -88,11 +95,12 @@ function init(stage: HTMLElement) {
     video: el.querySelector<HTMLVideoElement>('video'),
     playing: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false, shadow: '', feather: 0,
-    featherMasks: [] as string[], featherFrame: -1,
+    featherMasks: [] as string[][], featherFrame: '',   // [edge width level][grain frame]
     // Covers with an animated backdrop stay feathered in every view; others
     // only while open.
     alwaysFeather: !!el.querySelector('canvas[data-shader]'),
     glassFrame: el.querySelector<HTMLElement>('.glass-frame'),
+    exLast: -1, opened: 0,   // last device scale applied; how far the backdrop has opened (0..1)
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
@@ -207,12 +215,11 @@ function init(stage: HTMLElement) {
     // Every layout keeps a cover's aspect ratio, so each card renders once at its
     // largest size and only ever scales down. Text and images stay crisp.
     for (const c of cards) {
-      // Backdrop covers draw past their slot (backdropExpand), so render them that much bigger.
-      const E = c.alwaysFeather ? P.backdropExpand : 1;
-      c.W = Math.max(c.big.w, lightboxRect(c).w, c.row.w) * E;
-      // ...and scale the device back so it stays the size it would be in the slot.
-      if (c.glassFrame) c.glassFrame.style.transform = E !== 1 ? `translate(-50%, -50%) scale(${(1 / E).toFixed(4)})` : '';
-      c.kRow = c.row.w * E / c.W;   // on-screen scale in the row
+      // Backdrop covers draw past their slot (and grow further when opened), so
+      // render them bigger. The device inside is scaled back every frame.
+      c.W = Math.max(c.big.w, lightboxRect(c).w, c.row.w) * (c.alwaysFeather ? P.backdropRender : 1);
+      c.kRow = c.row.w * (c.alwaysFeather ? P.backdropExpand : 1) / c.W;   // on-screen scale in the row
+      c.exLast = -1;
       c.el.style.width = c.W + 'px'; c.el.style.height = c.W / c.a + 'px';
     }
     updateCorners();
@@ -238,9 +245,14 @@ function init(stage: HTMLElement) {
       c.el.style.filter = c.feather > 0 ? 'none' : c.shadow;
       c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
       if (P.focusFeather > 0) {
-        const share = c.alwaysFeather ? P.backdropFeather : P.focusFeather;
-        c.featherMasks = [1, 2, 3, 4].map((seed) => featherMask(c.W, h, r, smoothing, seed, share));
-        c.featherFrame = -1;
+        const levels = c.alwaysFeather ? P.backdropFeatherLevels : 1;
+        c.featherMasks = Array.from({ length: levels }, (_, l) => {
+          const share = !c.alwaysFeather ? P.focusFeather
+            : lerp(P.backdropFeather, P.backdropFeatherOpen, levels > 1 ? l / (levels - 1) : 0);
+          return [1, 2, 3, 4].map((seed) => featherMask(c.W, h, r, smoothing, seed, share));
+        });
+        c.featherFrame = '';
+        if (c.alwaysFeather) c.outline.style.display = 'none';   // its edge is always soft
       }
       c.cover.style.clipPath = c.blurred ? '' : c.clip;
       c.cover.style.borderRadius = c.blurred ? c.rBlur + 'px' : '';
@@ -786,8 +798,28 @@ function init(stage: HTMLElement) {
       const os = c.os.v, w2 = w * os, h2 = h * os;
       x += c.ox.v + (w - w2) / 2; y += c.oy.v + (h - h2) / 2;
       const st = c.el.style, L = c.last;
-      // Backdrop covers grow around their slot's centre.
-      const E = c.alwaysFeather ? P.backdropExpand : 1;
+      // Backdrop covers grow around their centre: past their slot at rest, and
+      // out to fill the screen when opened, shrinking back as they move off
+      // centre or are pulled away. The device scales back to stay the same size.
+      let E = 1;
+      if (c.alwaysFeather) {
+        let open = 0;
+        if (mode === 'row') {
+          const t = clamp((Math.abs(x + w2 / 2 - vw / 2) - w2 * 0.08) / (vw / 2 + w2 * 0.42), 0, 1);
+          open = pv * (1 - t) * (c.i === anchor ? 1 - pull : 1);
+        } else if (c.i === gridActive) open = gpv;
+        open = clamp(open, 0, 1);
+        c.opened = open * open * (3 - 2 * open);   // smoothstep
+        // Big enough to cover the screen from the cover's centre, with room for its corners.
+        const cx = x + w2 / 2, cy = y + h2 / 2;
+        const full = Math.max(2 * Math.max(cx, vw - cx) / w2, 2 * Math.max(cy, vh - cy) / h2) * 1.15;
+        E = lerp(P.backdropExpand, Math.max(P.backdropExpand, full), c.opened);
+        const ek = Math.round(E * 1000) / 1000;
+        if (ek !== c.exLast && c.glassFrame) {
+          c.exLast = ek;
+          c.glassFrame.style.transform = `translate(-50%, -50%) scale(${(1 / E).toFixed(4)})`;
+        }
+      }
       const tw = w2 * E, tx = x - (tw - w2) / 2, ty = y - (h2 * E - h2) / 2;
       st.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${tw / c.W})`;
 
@@ -855,13 +887,16 @@ function init(stage: HTMLElement) {
           delete c.el.dataset.feathered;
           st.removeProperty('--feather'); st.removeProperty('--feather-mask');
           st.filter = c.shadow;
-          c.featherFrame = -1;
+          c.featherFrame = '';
         }
       }
       if (c.feather > 0 && c.featherMasks.length) {
-        // Grain flickers through the mask frames.
-        const frame = reduce ? 0 : Math.floor(now / (1000 / P.featherFps)) % c.featherMasks.length;
-        if (frame !== c.featherFrame) { c.featherFrame = frame; st.setProperty('--feather-mask', c.featherMasks[frame]); }
+        // Grain flickers through the mask frames; a growing backdrop's edge narrows.
+        const lv = Math.round(c.opened * (c.featherMasks.length - 1));
+        const frames = c.featherMasks[lv];
+        const fr = reduce ? 0 : Math.floor(now / (1000 / P.featherFps)) % frames.length;
+        const key = lv + ':' + fr;
+        if (key !== c.featherFrame) { c.featherFrame = key; st.setProperty('--feather-mask', frames[fr]); }
       }
       const z = mode === 'grid' ? (c.i === gridActive ? 20 : 1) : c.i === anchor ? 3 : 1;
       if (L.z !== z) { L.z = z; st.zIndex = String(z); }
