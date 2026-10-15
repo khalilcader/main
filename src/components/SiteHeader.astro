@@ -100,6 +100,7 @@ const { tools = true } = Astro.props;
     border: 0; background: none;
     border-radius: calc(var(--button-radius) - var(--tools-inset) - var(--button-border-width));
     color: var(--color-fg); cursor: pointer;
+    transition: background-color 0.12s ease-out, color 0.12s ease-out;
   }
   .divider {
     flex: none; width: 1px; height: var(--icon-size); margin: 0 var(--tools-divider-gap);
@@ -109,6 +110,12 @@ const { tools = true } = Astro.props;
   .tool[aria-pressed="true"] { background: var(--color-toggle-on-bg); color: var(--color-toggle-on-fg); }
   .tool[aria-pressed="true"] rect { fill: currentColor; }
   .tools:has(.tool[aria-pressed="true"]) .divider { visibility: hidden; }
+  /* Hover (mouse only): a soft tile in the same shape; a pressed tile deepens. */
+  @media (hover: hover) {
+    .tool:hover { background: var(--color-tool-hover-bg); }
+    .tool[aria-pressed="true"]:hover { background: var(--color-toggle-on-hover-bg); }
+    .tools:has(.tool:hover) .divider { visibility: hidden; }
+  }
   .tool:focus-visible, .who:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
   .icon { flex: none; width: var(--icon-size); height: var(--icon-size); }
 

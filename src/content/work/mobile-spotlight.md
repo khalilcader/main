@@ -1,5 +1,5 @@
 ---
-title: Mobile spotlight
+title: Video Comments
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2026"

@@ -24,8 +24,9 @@ const EDGE_K = 280, EDGE_C = 33;     // overscroll spring-back (critically dampe
 const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under critical)
 const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
-const HV_K = 380, HV_C = 30;         // hover lift (a touch under critical: settles with a whisper of overshoot)
+const HV_K = 600, HV_C = 44;         // hover lift: quick and smooth (ζ ≈ 0.9, no visible overshoot)
 const HOVER_SCALE = 1.025;           // covers grow this much under the cursor
+const LB_K = 900, LB_C = 34;         // title pill: quick, underdamped (ζ ≈ 0.57) for a little pop
 const OV_K = 320, OV_C = 36;         // per-cover overscroll lag (gaps stretch, then relax)
 const PULL = 300;                    // px of vertical drag for a full row <-> focus scrub
 const SQUISH_D = 160, MAX_SQ = 0.6;  // squish resistance: 432px of pull lands near 0.56 scale
@@ -86,6 +87,7 @@ function init(stage: HTMLElement) {
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
     hv: new Spring(0),   // hover lift (0..1)
+    lb: new Spring(0),   // title pill: snappier, with a little overshoot
     ox: new Spring(0), oy: new Spring(0), os: new Spring(1),   // free-drag offset from layout
     ovR: new Spring(0), ovB: new Spring(0),                    // overscroll stretch, row + focus strip
     row: null as unknown as Rect, big: null as unknown as Rect, grid: null as unknown as Rect,
@@ -709,6 +711,7 @@ function init(stage: HTMLElement) {
       for (const c of cards) {
         if (!c.follow && !c.held) { c.x.step(h, P.k, P.c); c.y.step(h, P.k, P.c); c.w.step(h, P.k, P.c); c.h.step(h, P.k, P.c); }
         c.hv.step(h, HV_K, HV_C);
+        c.lb.step(h, LB_K, LB_C);
         if (c.i !== anchor) c.sq.step(h, NB_K, NB_C);
         else if (!dragging) c.sq.step(h, SQ_K, SQ_C);
         if (!c.held) { c.ox.step(h, P.k, P.c); c.oy.step(h, P.k, P.c); c.os.step(h, P.k, P.c); }
@@ -746,17 +749,20 @@ function init(stage: HTMLElement) {
       // (not while dragging, or once a cover is open).
       const resting = !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const pointed = c.i === hovered || c.el.matches(':focus-visible');
-      c.hv.t = pointed && resting ? 1 : 0;
+      c.hv.t = c.lb.t = pointed && resting ? 1 : 0;
       const hs = 1 + (HOVER_SCALE - 1) * (reduce ? 0 : c.hv.v);
       const tw = w2 * hs;
       st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;
-      // Title pill: fades in with the hover, counter-scaled to stay a constant size.
+      // Title pill: pops in on its own spring (--pop may overshoot past 1;
+      // --show is the clamped version for opacity), counter-scaled to stay a
+      // constant size on screen.
       if (c.label) {
-        const show = clamp(c.hv.v, 0, 1);
-        const key = show < 0.005 ? '0' : `${show.toFixed(3)}|${(c.W / tw).toFixed(4)}`;
+        const pop = reduce ? clamp(c.lb.t, 0, 1) : c.lb.v, show = clamp(pop, 0, 1);
+        const key = show < 0.005 ? '0' : `${pop.toFixed(3)}|${(c.W / tw).toFixed(4)}`;
         if (key !== c.labelLast) {
           c.labelLast = key;
           c.label.style.setProperty('--show', show < 0.005 ? '0' : show.toFixed(3));
+          c.label.style.setProperty('--pop', pop.toFixed(3));
           c.label.style.setProperty('--unscale', (c.W / tw).toFixed(4));
         }
       }

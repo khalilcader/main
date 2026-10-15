@@ -20,6 +20,8 @@
   --color-divider: rgba(0, 0, 0, 0.08);
   --color-toggle-on-bg: #dbe9fc;            /* pressed tile, from Khalil's mockup */
   --color-toggle-on-fg: #3b88f5;
+  --color-tool-hover-bg: rgba(0, 0, 0, 0.08);   /* from Khalil's hover mockup */
+  --color-toggle-on-hover-bg: #cde0fb;
   --color-glass-bg: rgba(255, 255, 255, 0.5);
   --color-glass-border: rgba(255, 255, 255, 0.8);
   --color-glass-shadow: rgba(0, 0, 0, 0.1);
@@ -72,7 +74,7 @@
   --label-pad-y: 12px;                      /* chunky pill */
   --label-pad-x: 20px;
   --label-rise: 6px;                        /* drifts up this far as it appears */
-  --label-grow: 0.04;                       /* and grows from 96% */
+  --label-grow: 0.1;                        /* and grows from 90%, popping just past full size */
   --label-shadow: 0 4px 16px 0 var(--color-label-shadow);
   --tools-inset: 2px;                       /* Figma 67:848: 81 × 40 holding two 24px icons */
   --tool-width: 34.5px;                     /* 2 + 34.5 + 6 + 34.5 + 2 + 0.5px border each side = 80 + 1 = 81 */
@@ -140,6 +142,8 @@
     --color-divider: rgba(255, 255, 255, 0.12);
     --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
     --color-toggle-on-fg: #7fb2ff;
+  --color-tool-hover-bg: rgba(255, 255, 255, 0.1);
+  --color-toggle-on-hover-bg: rgba(59, 136, 245, 0.32);
     --color-glass-bg: rgba(255, 255, 255, 0.07);
     --color-glass-border: rgba(255, 255, 255, 0.16);
     --color-glass-shadow: rgba(0, 0, 0, 0.3);
@@ -165,6 +169,8 @@
   --color-divider: rgba(255, 255, 255, 0.12);
   --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
   --color-toggle-on-fg: #7fb2ff;
+  --color-tool-hover-bg: rgba(255, 255, 255, 0.1);
+  --color-toggle-on-hover-bg: rgba(59, 136, 245, 0.32);
   --color-glass-bg: rgba(255, 255, 255, 0.07);
   --color-glass-border: rgba(255, 255, 255, 0.16);
   --color-glass-shadow: rgba(0, 0, 0, 0.3);

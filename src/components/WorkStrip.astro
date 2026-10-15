@@ -64,13 +64,14 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   :global(.js) .card :global(.cover) { border: 0; }
   .card:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
 
-  /* Title pill, shown on hover and keyboard focus (script sets --show and
-     --unscale, which keeps it the same size on screen however the cover is
-     scaled). Same glass as the header buttons. */
+  /* Title pill, shown on hover and keyboard focus. Script sets --pop (a
+     springy 0..1 that overshoots a little), --show (clamped, for opacity) and
+     --unscale (keeps it the same size on screen however the cover is scaled).
+     Same glass as the header buttons. */
   .label {
     position: absolute; left: 50%; bottom: calc(var(--label-offset) * var(--unscale, 1));
-    transform: translateX(-50%) translateY(calc((1 - var(--show, 0)) * var(--label-rise)))
-      scale(calc(var(--unscale, 1) * (1 - (1 - var(--show, 0)) * var(--label-grow))));
+    transform: translateX(-50%) translateY(calc((1 - var(--pop, 0)) * var(--label-rise)))
+      scale(calc(var(--unscale, 1) * (1 - (1 - var(--pop, 0)) * var(--label-grow))));
     transform-origin: 50% 100%;
     padding: var(--label-pad-y) var(--label-pad-x);
     border: var(--button-border-width) solid var(--color-button-border);
