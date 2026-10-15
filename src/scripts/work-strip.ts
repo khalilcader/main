@@ -18,6 +18,10 @@ const TUNING = {
   // rounded shape, so attention goes to what's inside. Width is a share of
   // the cover's shorter side; grain breaks up the soft edge. 0 turns it off.
   focusFeather: 0.13, featherGrain: 0.6,
+  // Covers with an animated backdrop always sit opened up: the cover is drawn
+  // `backdropExpand` times its slot around a same-size device, with a wide,
+  // airy soft edge (`backdropFeather`). It runs into the gaps, where it fades out.
+  backdropExpand: 1.25, backdropFeather: 0.22,
   // The soft edge stays alive: its grain cycles through a few frames.
   featherFps: 8,
   // Row edge: kept subtle. A light blur (on-screen px at row size) and fade,
@@ -88,6 +92,7 @@ function init(stage: HTMLElement) {
     // Covers with an animated backdrop stay feathered in every view; others
     // only while open.
     alwaysFeather: !!el.querySelector('canvas[data-shader]'),
+    glassFrame: el.querySelector<HTMLElement>('.glass-frame'),
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
@@ -202,8 +207,12 @@ function init(stage: HTMLElement) {
     // Every layout keeps a cover's aspect ratio, so each card renders once at its
     // largest size and only ever scales down. Text and images stay crisp.
     for (const c of cards) {
-      c.W = Math.max(c.big.w, lightboxRect(c).w, c.row.w);
-      c.kRow = c.row.w / c.W;
+      // Backdrop covers draw past their slot (backdropExpand), so render them that much bigger.
+      const E = c.alwaysFeather ? P.backdropExpand : 1;
+      c.W = Math.max(c.big.w, lightboxRect(c).w, c.row.w) * E;
+      // ...and scale the device back so it stays the size it would be in the slot.
+      if (c.glassFrame) c.glassFrame.style.transform = E !== 1 ? `translate(-50%, -50%) scale(${(1 / E).toFixed(4)})` : '';
+      c.kRow = c.row.w * E / c.W;   // on-screen scale in the row
       c.el.style.width = c.W + 'px'; c.el.style.height = c.W / c.a + 'px';
     }
     updateCorners();
@@ -229,7 +238,8 @@ function init(stage: HTMLElement) {
       c.el.style.filter = c.feather > 0 ? 'none' : c.shadow;
       c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
       if (P.focusFeather > 0) {
-        c.featherMasks = [1, 2, 3, 4].map((seed) => featherMask(c.W, h, r, smoothing, seed));
+        const share = c.alwaysFeather ? P.backdropFeather : P.focusFeather;
+        c.featherMasks = [1, 2, 3, 4].map((seed) => featherMask(c.W, h, r, smoothing, seed, share));
         c.featherFrame = -1;
       }
       c.cover.style.clipPath = c.blurred ? '' : c.clip;
@@ -241,10 +251,10 @@ function init(stage: HTMLElement) {
   // and blurred, so corners stay rounded. Grain is added only in the soft band
   // (where alpha is between 0 and 1): alpha + 4g·a(1−a)·(noise − ½), built
   // from feComposite arithmetic steps.
-  function featherMask(w: number, h: number, r: number, smoothing: number, seed: number) {
+  function featherMask(w: number, h: number, r: number, smoothing: number, seed: number, share: number) {
     // The fade must reach fully clear before the cover's own edge, or the
     // edge shows as a hard seam: keep 2.6σ of margin.
-    const F = P.focusFeather * Math.min(w, h), sigma = F / 4, g = P.featherGrain;
+    const F = share * Math.min(w, h), sigma = F / 4, g = P.featherGrain;
     const inset = 2.6 * sigma;
     const shape = squirclePath(w - 2 * inset, h - 2 * inset, r + inset * 0.6, smoothing);  // rounder than the cover, so the corners read as round under the blur
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w.toFixed(0)}" height="${h.toFixed(0)}">`
@@ -776,7 +786,10 @@ function init(stage: HTMLElement) {
       const os = c.os.v, w2 = w * os, h2 = h * os;
       x += c.ox.v + (w - w2) / 2; y += c.oy.v + (h - h2) / 2;
       const st = c.el.style, L = c.last;
-      st.transform = `translate3d(${x}px, ${y}px, 0) scale(${w2 / c.W})`;
+      // Backdrop covers grow around their slot's centre.
+      const E = c.alwaysFeather ? P.backdropExpand : 1;
+      const tw = w2 * E, tx = x - (tw - w2) / 2, ty = y - (h2 * E - h2) / 2;
+      st.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${tw / c.W})`;
 
       // Focus: covers away from center blur, fade and pick up grain. t runs from
       // 0 at the center of the screen to 1 as the cover has fully left it.
@@ -823,7 +836,9 @@ function init(stage: HTMLElement) {
         }
         c.veil.style.setProperty('--f', `${blur.toFixed(1)}px`);
         // Grain only in focus, arriving with the blur so sharp covers stay clean.
-        c.veil.style.opacity = Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
+        // Feathered backdrop covers carry their own grain, and this layer sits
+        // outside their soft edge, where it would show as a grey box.
+        c.veil.style.opacity = c.alwaysFeather ? '0' : Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
       }
       // Feather the cover's edges: always for backdrop covers, otherwise in
