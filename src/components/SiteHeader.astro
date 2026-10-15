@@ -155,6 +155,13 @@ const { tools = true } = Astro.props;
     white-space: nowrap;
   }
   .role { opacity: var(--text-secondary-opacity); }
+  /* Hover (mouse) or keyboard focus on the avatar or name: the name and title
+     dim, so the avatar (the About card) reads as what you're pointing at. */
+  .name { transition: opacity 0.2s ease-out; }
+  .who:focus-visible .name { opacity: var(--name-hover-opacity); }
+  @media (hover: hover) {
+    .who:hover .name { opacity: var(--name-hover-opacity); }
+  }
 
   /* One glass container, 10px corners: square button tiles with 4px around
      and between them, so a tile's corners sit concentric with the container. */

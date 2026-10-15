@@ -41,6 +41,7 @@
   --text-name-weight: 500;
   --text-name-tracking: 0.16px;
   --text-secondary-opacity: 0.4;
+  --name-hover-opacity: 0.5;               /* name and title dim on hover */
 
   /* Spacing */
   --space-1: 4px;
