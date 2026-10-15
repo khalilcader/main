@@ -18,7 +18,6 @@
   --color-button-border: rgba(0, 0, 0, 0.2);
   --color-button-shadow: rgba(0, 0, 0, 0.05);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
-  --color-dots-bg: rgba(0, 0, 0, 0.05);
   --color-tip-bg: rgba(38, 38, 38, 0.94);   /* from Khalil's tooltip mockup */
   --color-tip-fg: #ffffff;
   --color-tip-border: rgba(255, 255, 255, 0.16);
@@ -90,14 +89,6 @@
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
   --about-blur: 16px;                       /* background blur behind the card */
   --about-grain: 0.6;
-
-  /* Page dots */
-  --dot-size: 8px;
-  --dot-pitch: 16px;                        /* centre to centre */
-  --dots-window: 7;                         /* dot slots visible in the capsule */
-  --dots-pad-x: 12px;
-  --dots-height: 28px;
-  --dots-bottom: 16px;
 
   /* Tooltips */
   --tip-gap: 8px;
@@ -181,7 +172,6 @@
     --color-button-border: rgba(255, 255, 255, 0.16);
     --color-button-shadow: rgba(0, 0, 0, 0.3);
     --color-label-shadow: rgba(0, 0, 0, 0.35);
-    --color-dots-bg: rgba(255, 255, 255, 0.08);
     --color-tip-bg: rgba(58, 58, 56, 0.96);
     --color-tip-border: rgba(255, 255, 255, 0.18);
     --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
@@ -211,7 +201,6 @@
   --color-button-border: rgba(255, 255, 255, 0.16);
   --color-button-shadow: rgba(0, 0, 0, 0.3);
   --color-label-shadow: rgba(0, 0, 0, 0.35);
-  --color-dots-bg: rgba(255, 255, 255, 0.08);
   --color-tip-bg: rgba(58, 58, 56, 0.96);
   --color-tip-border: rgba(255, 255, 255, 0.18);
   --color-toggle-on-bg: rgba(59, 136, 245, 0.24);

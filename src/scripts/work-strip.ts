@@ -148,58 +148,6 @@ function init(stage: HTMLElement) {
 
   const centerBig = (i: number) => cards[i].big.x + cards[i].big.w / 2 - vw / 2;
   const rowSnap = (i: number) => clamp(cards[i].row.x + cards[i].row.w / 2 - vw / 2, 0, S.row.max);
-  // Fractional index (0..N-1) of the scroll position x between the stops fn(i).
-  const indexAt = (fn: (i: number) => number, x: number) => {
-    if (x <= fn(0)) return 0;
-    for (let i = 0; i < N - 1; i++) {
-      const a = fn(i), b = fn(i + 1);
-      if (x <= b) return b > a ? i + (x - a) / (b - a) : i + 1;
-    }
-    return N - 1;
-  };
-
-  // ---- page dots ----
-  const dotsNav = document.getElementById('dots');
-  const dotsTrack = dotsNav?.querySelector<HTMLElement>('.dots-track');
-  const dots = dotsNav ? [...dotsNav.querySelectorAll<HTMLElement>('.dot')] : [];
-  let dotsLast = '';
-  dots.forEach((d, i) => d.addEventListener('click', () => {
-    if (mode === 'grid') return;
-    if (p.t >= 0.5) { S.big.to = centerBig(i); anchor = i; }
-    else { S.row.vel = 0; S.row.to = rowSnap(i); }
-  }));
-  function updateDots(pv: number) {
-    if (!dotsNav || !dotsTrack) return;
-    dotsNav.classList.toggle('off', mode === 'grid');
-    if (mode === 'grid') return;
-    // Row: progress along the row; focus: the cover at the centre.
-    const rowIdx = S.row.max > 0 ? clamp(S.row.pos / S.row.max, 0, 1) * (N - 1) : 0;
-    const pos = lerp(rowIdx, indexAt(centerBig, S.big.pos), pv);
-    const key = pos.toFixed(3);
-    if (key === dotsLast) return;
-    dotsLast = key;
-    const pitch = parseFloat(getComputedStyle(dotsNav).getPropertyValue('--dot-pitch')) || 16;
-    const win = parseFloat(getComputedStyle(dotsNav).getPropertyValue('--dots-window')) || 7;
-    // Keep the current position centred in the capsule (clamped at the ends).
-    const half = (win - 1) / 2;
-    const shift = N <= win ? (win - N) / 2 * pitch : -clamp(pos - half, 0, N - win) * pitch;
-    dotsTrack.style.transform = `translateX(${shift.toFixed(2)}px)`;
-    dots.forEach((d, i) => {
-      d.style.left = `${i * pitch}px`;
-      const dist = Math.abs(i - pos);
-      // Full size near the current dot, then smaller step by step, and gone by
-      // the time a dot reaches an end of the capsule where more dots continue.
-      const slot = i + shift / pitch;                      // 0..win-1 inside the capsule
-      const moreLeft = -shift / pitch > 0.01, moreRight = N - win + shift / pitch > 0.01;
-      const room = Math.min(moreLeft ? slot + 0.5 : Infinity, moreRight ? win - 0.5 - slot : Infinity);
-      const scale = clamp(Math.min(1 - Math.max(0, dist - 1.5) * 0.25, room / 1.5), 0, 1);
-      const on = clamp(1 - dist, 0, 1);
-      const st = d.firstElementChild as HTMLElement;
-      st.style.setProperty('--dot-scale', scale.toFixed(3));
-      st.style.setProperty('--dot-opacity', (0.25 + 0.6 * on).toFixed(3));
-      d.tabIndex = scale < 0.3 ? -1 : 0;
-    });
-  }
   const nearest = (fn: (i: number) => number, x: number) => { let b = 0, bd = Infinity; for (let i = 0; i < N; i++) { const d = Math.abs(fn(i) - x); if (d < bd) { bd = d; b = i; } } return b; };
   const snapFn = (s: Scroll) => (s === S.big ? centerBig : null);
   const layer = () => (mode === 'grid' ? S.grid : p.t >= 0.5 ? S.big : S.row);
@@ -952,7 +900,6 @@ function init(stage: HTMLElement) {
     }
     slideEdges(eL, eR);
     syncVideos();
-    updateDots(pv);
     requestAnimationFrame(tick);
   }
 
