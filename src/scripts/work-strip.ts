@@ -87,6 +87,7 @@ function init(stage: HTMLElement) {
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
     hv: new Spring(0),   // hover lift (0..1)
+    shK: 1, shLast: -1,  // shadow scale (row px → card px); last hover amount applied
     lb: new Spring(0),   // title pill: snappier, with a little overshoot
     ox: new Spring(0), oy: new Spring(0), os: new Spring(1),   // free-drag offset from layout
     ovR: new Spring(0), ovB: new Spring(0),                    // overscroll stretch, row + focus strip
@@ -207,13 +208,24 @@ function init(stage: HTMLElement) {
     for (const s of Object.values(S)) { s.pos = clamp(s.pos, s.min, s.max); s.to = null; }
   }
 
+  // Cover shadow at a hover amount (0 rest, 1 lifted): offset and blur grow,
+  // and the colour mixes from the rest tone to the deeper hover tone.
+  let shadowSpec = [4, 16, 10, 32];
+  function coverShadow(c: { shK: number }, h: number) {
+    const [y0, b0, y1, b1] = shadowSpec, k = c.shK;
+    const col = h > 0
+      ? `color-mix(in srgb, var(--color-cover-shadow-hover) ${(h * 100).toFixed(0)}%, var(--color-cover-shadow))`
+      : 'var(--color-cover-shadow)';
+    return `drop-shadow(0 ${(lerp(y0, y1, h) * k).toFixed(1)}px ${(lerp(b0, b1, h) * k).toFixed(1)}px ${col})`;
+  }
+
   // Corners, border and shadow are specified at row size (Figma's frame); cards
   // are drawn at their largest size and scaled, so convert to that size.
   function updateCorners() {
     const radius = token('--cover-radius') * (cards[0].row.h / token('--row-height'));
     const smoothing = token('--cover-smoothing');
     const border = token('--cover-border-width');
-    const shY = token('--cover-shadow-y'), shB = token('--cover-shadow-blur');
+    shadowSpec = [token('--cover-shadow-y'), token('--cover-shadow-blur'), token('--cover-shadow-hover-y'), token('--cover-shadow-hover-blur')];
     for (const c of cards) {
       const k = c.W / c.row.w, h = c.W / c.a, r = radius * k;
       const path = squirclePath(c.W, h, r, smoothing);
@@ -221,7 +233,8 @@ function init(stage: HTMLElement) {
       c.outline.setAttribute('d', path);
       c.outline.style.strokeWidth = String(border * k * 2);   // half falls outside the clip
       c.el.style.borderRadius = r * 0.6 + 'px';               // sits inside the clip; also the focus ring
-      c.el.style.filter = `drop-shadow(0 ${shY * k}px ${shB * k}px var(--color-cover-shadow))`;
+      c.shK = k; c.shLast = -1;
+      c.el.style.filter = coverShadow(c, 0);
       c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
       c.cover.style.clipPath = c.blurred ? '' : c.clip;
       c.cover.style.borderRadius = c.blurred ? c.rBlur + 'px' : '';
@@ -753,6 +766,9 @@ function init(stage: HTMLElement) {
       const hs = 1 + (HOVER_SCALE - 1) * (reduce ? 0 : c.hv.v);
       const tw = w2 * hs;
       st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;
+      // The shadow deepens and softens with the lift.
+      const sh = Math.round(clamp(c.hv.v, 0, 1) * 100) / 100;
+      if (sh !== c.shLast) { c.shLast = sh; st.filter = coverShadow(c, sh); }
       // Title pill: pops in on its own spring (--pop may overshoot past 1;
       // --show is the clamped version for opacity), counter-scaled to stay a
       // constant size on screen.
