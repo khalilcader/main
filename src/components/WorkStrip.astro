@@ -25,7 +25,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       <span class="shadow rest" aria-hidden="true"></span>
       <span class="shadow lift" aria-hidden="true"></span>
       <Cover cover={item.data.cover} />
-      <span class="label" aria-hidden="true" data-smooth="surface">{item.data.title}</span>
+      <span class="label" aria-hidden="true" data-smooth="surface"><span class="label-text">{item.data.title}</span></span>
       <div class="veil"></div>
     </button>
   ))}
@@ -96,13 +96,20 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     border-radius: var(--button-radius);   /* same corners as the header controls */
     background: var(--surface-bg);
     -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur);
-    box-shadow: var(--label-shadow);
     color: var(--color-fg);
     font-family: inherit; font-size: var(--text-name-size); font-weight: var(--text-name-weight);
     letter-spacing: var(--text-name-tracking); line-height: 1.25;
     white-space: nowrap; pointer-events: none;
-    opacity: var(--show, 0);
   }
+  /* Fades in by its parts (glass, text, shadow), never the label as a whole:
+     opacity below 1 on the label would cut its glass off from the page behind,
+     so the blur would drop out mid-fade and snap back on as it settled. */
+  .label > :global(.smooth-layer), .label-text, .label::before { opacity: var(--show, 0); }
+  .label::before {
+    content: ""; position: absolute; inset: calc(-1 * var(--button-border-width)); z-index: -2;
+    border-radius: inherit; box-shadow: var(--label-shadow);
+  }
+  .label:not(:global(.smooth-host)) { opacity: 0; }   /* until its glass layer is set up */
   :global(html:not(.js)) .label { display: none; }
 
   /* Grain over anything pushed out of focus. The cover itself fades and blurs;
