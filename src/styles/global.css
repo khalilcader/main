@@ -1,18 +1,5 @@
 @import './tokens.css';
 
-/* Matter (licensed webfont). Relative URLs so the build fingerprints the
-   files and resolves them under the site's base path. */
-@font-face {
-  font-family: 'Matter';
-  src: url('../assets/fonts/Matter-Regular.woff2') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: 'Matter';
-  src: url('../assets/fonts/Matter-Medium.woff2') format('woff2');
-  font-weight: 500; font-style: normal; font-display: swap;
-}
-
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
