@@ -115,8 +115,9 @@ function init(stage: HTMLElement) {
   type Card = (typeof cards)[number];
   const N = cards.length;
   if (!N) return;
-  // Videos rest paused on their start frame, and play while their cover is
-  // hovered (mouse) or open in the focus strip or grid lightbox.
+  // Videos rest paused on their start frame (the thumbnail), and play from the
+  // beginning while their cover is hovered (mouse) or open in the focus strip
+  // or grid lightbox.
   const restOn = (v: HTMLVideoElement) => {
     const start = parseFloat(v.dataset.start || '0');
     const seek = () => { v.currentTime = Math.min(start, Math.max(0, (v.duration || start) - 0.1)); };
@@ -144,7 +145,7 @@ function init(stage: HTMLElement) {
       const want = open || hover;
       if (want === c.playing) continue;
       c.playing = want;
-      if (want) c.video.play().catch(() => {});
+      if (want) { c.video.currentTime = 0; c.video.play().catch(() => {}); }
       else { c.video.pause(); restOn(c.video); }
     }
   }
