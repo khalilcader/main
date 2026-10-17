@@ -150,11 +150,11 @@
   --veil-tint: transparent;
   --backdrop-blur: 14px;
 
-  /* Daylight shader (About card stand-in): shade -> sky gradient, with rays
-     and a glow in the glow colour. Warm daylight here, moonlight in dark. */
-  --color-daylight-shade: #d6c3a8;
-  --color-daylight-sky: #eee2d0;
-  --color-daylight-glow: #fffaf1;
+  /* Daylight shader (About card stand-in, the Tree Shadow artifact): light
+     paper with soft tree shadows. Bone grey here, moonlit blue-grey in dark. */
+  --color-daylight-paper: #ecebe8;
+  --color-daylight-shadow: #9d988f;
+  --daylight-flare: 0.8;
 
   color-scheme: light;
 }
@@ -201,9 +201,10 @@
     --color-backdrop-deep: #071a4d;
     --color-backdrop-base: #0f2f80;
     --color-backdrop-light: #2152b5;
-    --color-daylight-shade: #0c111d;
-    --color-daylight-sky: #1b2337;
-    --color-daylight-glow: #8fa3d6;
+    --color-daylight-paper: #1e2330;
+    --color-daylight-shadow: #080a10;
+  --daylight-flare: 0.15;
+    --daylight-flare: 0.15;
     color-scheme: dark;
   }
 }
@@ -238,8 +239,8 @@
   --color-backdrop-deep: #071a4d;
   --color-backdrop-base: #0f2f80;
   --color-backdrop-light: #2152b5;
-  --color-daylight-shade: #0c111d;
-  --color-daylight-sky: #1b2337;
-  --color-daylight-glow: #8fa3d6;
+  --color-daylight-paper: #1e2330;
+  --color-daylight-shadow: #080a10;
+  --daylight-flare: 0.15;
   color-scheme: dark;
 }

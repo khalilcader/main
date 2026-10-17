@@ -13,7 +13,7 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     <!-- Each face is a plane in the 3D turn; the surface inside carries the
          smoothed shape (Chrome ignores clip-path inside a 3D scene). -->
     <div class="about-face about-front"><div class="about-surface" data-smooth="clip">
-      <!-- Stand-in until the About copy is written: a daylight shader. -->
+      <!-- Stand-in until the About copy is written: the Tree Shadow daylight shader. -->
       <canvas class="about-daylight" aria-hidden="true"></canvas>
       <button class="about-close has-tip" data-smooth="surface" id="about-close" type="button" aria-label="Close" aria-keyshortcuts="Escape">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
@@ -37,10 +37,10 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
 
 <script>
   import '../scripts/about-card';
-  import { mountDaylight } from '../scripts/daylight-shader';
+  import { mountTreeShadow } from '../scripts/tree-shadow';
   const daylight = document.querySelector<HTMLCanvasElement>('.about-daylight');
   // Runs only while the card is open (it's display: none otherwise).
-  if (daylight) { try { mountDaylight(daylight); } catch (err) { console.warn('Daylight shader failed', err); } }
+  if (daylight) { try { mountTreeShadow(daylight); } catch (err) { console.warn('Daylight shader failed', err); } }
 </script>
 
 <style>
@@ -88,7 +88,7 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
   }
   .about-daylight {
     position: absolute; inset: 0; width: 100%; height: 100%; display: block;
-    background: var(--color-daylight-sky);   /* without WebGL */
+    background: var(--color-daylight-paper);   /* without WebGL2 */
   }
   .about-back .about-surface {
     display: flex; align-items: center; justify-content: center;
