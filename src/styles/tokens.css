@@ -121,7 +121,7 @@
   --cover-shadow-hover-blur: 32px;
 
   /* Glass device frame (Figma 43:66: 390 × 816) */
-  --glass-height: 76%;                      /* of the cover's height; leaves room for the backdrop above and below */
+  --glass-height: 84%;                      /* of the cover's height; leaves some backdrop above and below */
   --glass-radius-x: 15.6%;                  /* 61px of 390 */
   --glass-radius-y: 7.5%;                   /* 61px of 816 */
   --glass-pad: 2.8%;                        /* bezel: ~11px at 390 wide */
