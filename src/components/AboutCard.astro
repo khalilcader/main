@@ -42,17 +42,16 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
   import '../scripts/about-card';
   import { mountTreeShadow } from '../scripts/tree-shadow';
   const daylight = document.querySelector<HTMLCanvasElement>('.about-daylight');
-  const avatar = document.querySelector('.site-header .who');
-  // Growing the tree takes a moment, so it isn't done at page load: it starts
-  // when the avatar is hovered or focused (ready by the click), or on opening.
-  // It then runs only while the card is open (it's display: none otherwise).
-  let mounted = false;
+  // Set up after load, in idle time; the tree texture itself grows in a
+  // worker. The shader then runs only while the card is open (it's
+  // display: none otherwise).
   const mount = () => {
-    if (mounted || !daylight) return;
-    mounted = true;
+    if (!daylight) return;
     try { mountTreeShadow(daylight); } catch (err) { console.warn('Daylight shader failed', err); }
   };
-  for (const type of ['pointerenter', 'focus', 'click']) avatar?.addEventListener(type, mount, { once: true });
+  const idle = (fn: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(fn) : setTimeout(fn, 200));
+  if (document.readyState === 'complete') idle(mount);
+  else addEventListener('load', () => idle(mount), { once: true });
 </script>
 
 <style>

@@ -64,9 +64,15 @@ const PALMS = {
 // Every tree is grown as a 3D model (x right, y up, z out from the wall toward
 // the sun), spun and tilted, then flattened onto the wall. rotY spins it about
 // its trunk; rotX tips it toward or away from the wall.
+// (Site change: canvases come from makeCanvas, so the tree can also be grown
+// in a Web Worker, where there's no document.)
+const makeCanvas = (w, h) => {
+  if (typeof document !== 'undefined') { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+  return new OffscreenCanvas(w, h);
+};
+
 function buildTree(type, seed, rotY = 0, rotX = 0) {
-  const c = document.createElement('canvas');
-  c.width = c.height = TEX;
+  const c = makeCanvas(TEX, TEX);
   const g = c.getContext('2d');
   g.fillStyle = '#000';
   g.fillRect(0, 0, TEX, TEX);
@@ -76,8 +82,7 @@ function buildTree(type, seed, rotY = 0, rotX = 0) {
   // Depth map, half-res: R = distance from the wall × coverage, G = coverage.
   // The shader divides one by the other to get how far the nearby foliage sits
   // from the wall, and blurs its shadow to match.
-  const dc = document.createElement('canvas');
-  dc.width = dc.height = TEX / 2;
+  const dc = makeCanvas(TEX / 2, TEX / 2);
   const gd = dc.getContext('2d');
   gd.fillStyle = '#000';
   gd.fillRect(0, 0, TEX / 2, TEX / 2);

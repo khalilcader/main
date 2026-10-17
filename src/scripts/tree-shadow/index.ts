@@ -57,22 +57,39 @@ export function mountTreeShadow(canvas: HTMLCanvasElement) {
   const U: Record<string, WebGLUniformLocation | null> = {};
   for (const n of UNIFORMS) U[n] = gl.getUniformLocation(prog, n);
 
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  const tree = buildTree(S.type, S.seed, S.rotY * Math.PI / 180, S.rotX * Math.PI / 180);
-  ([[0, tree], [1, tree.depth]] as const).forEach(([unit, src]) => {
-    gl.activeTexture(gl.TEXTURE0 + unit);
-    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
-    gl.generateMipmap(gl.TEXTURE_2D);
-  });
+  // The tree texture is grown in a worker where possible (it takes a moment
+  // and would freeze the page), else here. Until it arrives nothing is drawn
+  // and the canvas's CSS background (the paper colour) shows.
+  let ready = false;
+  type Img = TexImageSource;
+  const upload = (treeImg: Img, depthImg: Img, crown: number[] | null) => {
+    ([[0, treeImg], [1, depthImg]] as const).forEach(([unit, src]) => {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+      gl.generateMipmap(gl.TEXTURE_2D);
+    });
+    gl.uniform2fv(U.uCrown, crown || [0.5, 0.5]);
+    gl.uniform1f(U.uFrond, crown ? 1 : 0);
+    ready = true;
+    draw();
+  };
+  const rotY = S.rotY * Math.PI / 180, rotX = S.rotX * Math.PI / 180;
+  if (typeof Worker !== 'undefined' && typeof OffscreenCanvas !== 'undefined') {
+    const worker = new Worker(new URL('./tree-worker.ts', import.meta.url), { type: 'module' });
+    worker.onmessage = (e) => { upload(e.data.tree, e.data.depth, e.data.crown); worker.terminate(); };
+    worker.postMessage({ type: S.type, seed: S.seed, rotY, rotX });
+  } else {
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);   // a canvas needs flipping here; the worker's bitmaps come flipped
+    const tree = buildTree(S.type, S.seed, rotY, rotX);
+    upload(tree, tree.depth, tree.crown || null);
+  }
   gl.uniform1i(U.uTree, 0);
   gl.uniform1i(U.uDepth, 1);
-  gl.uniform2fv(U.uCrown, tree.crown || [0.5, 0.5]);
-  gl.uniform1f(U.uFrond, tree.crown ? 1 : 0);
 
   gl.uniform1f(U.uStrength, S.shadowStrength);
   gl.uniform1f(U.uWind, S.wind);
@@ -121,6 +138,7 @@ export function mountTreeShadow(canvas: HTMLCanvasElement) {
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let time = 20, last = performance.now(), raf = 0, running = false, visible = false;
   function draw() {
+    if (!ready) return;
     resize();
     gl!.uniform1f(U.uTime, time);
     gl!.drawArrays(gl!.TRIANGLES, 0, 3);
