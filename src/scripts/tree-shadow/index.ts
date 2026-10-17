@@ -99,7 +99,6 @@ export function mountTreeShadow(canvas: HTMLCanvasElement) {
   gl.uniform1f(U.uSoft, S.softness);
   gl.uniform1f(U.uProg, S.blurFalloff);
   gl.uniform1f(U.uDepthAmt, S.depthBlur);
-  gl.uniform1f(U.uGradient, S.gradient);
   gl.uniform1f(U.uStreak, S.streak);
   gl.uniform1f(U.uRayAngle, S.rayAngle * Math.PI / 180);
   gl.uniform1f(U.uFlip, S.flipX ? 1 : 0);
@@ -121,6 +120,7 @@ export function mountTreeShadow(canvas: HTMLCanvasElement) {
     gl.uniform1f(U.uFlare, num('--daylight-flare', S.flare));
     gl.uniform1f(U.uRays, num('--daylight-rays', S.rays));
     gl.uniform1f(U.uBeams, num('--daylight-beams', S.beams));
+    gl.uniform1f(U.uGradient, num('--daylight-gradient', S.gradient));
     if (!running) draw();
   };
 

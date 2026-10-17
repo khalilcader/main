@@ -160,11 +160,12 @@
 
   /* Daylight shader (About card stand-in, the Tree Shadow artifact): light
      paper with soft tree shadows. Bone grey here, moonlit blue-grey in dark. */
-  --color-daylight-paper: #ecebe8;
-  --color-daylight-shadow: #9d988f;
+  --color-daylight-paper: #f4f3f0;
+  --color-daylight-shadow: #c9c5bd;
   --daylight-flare: 0.8;                    /* lens flare, rays, sun beams */
   --daylight-rays: 0.7;
   --daylight-beams: 0.35;
+  --daylight-gradient: 0.5;                 /* how much the side away from the light falls off */
 
   color-scheme: light;
 }
