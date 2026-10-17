@@ -59,6 +59,8 @@ function init(stage: HTMLElement) {
   const who = header.querySelector<HTMLElement>('.who')!;
   const viewTools = document.getElementById('view-tools');
   const closeGroup = document.getElementById('close-group');
+  const focusTitle = document.getElementById('focus-title');
+  let focusTitleIdx = -1;
   let chromeLast = -1;
   const gridBtn = document.getElementById('grid-button')!;
   const themeBtn = document.getElementById('theme-button')!;
@@ -969,6 +971,12 @@ function init(stage: HTMLElement) {
         closeGroup.hidden = wo > 0.99;
         closeGroup.style.opacity = String(1 - wo);
       }
+    }
+    // The close button's title names the cover in view: the one nearest the
+    // centre of the focus strip, or the one open in the grid.
+    if (focusTitle && focusAmt > 0) {
+      const i = mode === 'row' ? nearest(centerBig, S.big.pos) : gridActive;
+      if (i >= 0 && i !== focusTitleIdx) { focusTitleIdx = i; focusTitle.textContent = cards[i].label?.textContent ?? ''; }
     }
     if (FOCUS_SPACING !== 'offscreen') {
       // Only while a cover sits at the centre: mid-swipe the bands ease back to

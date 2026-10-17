@@ -37,13 +37,16 @@ const { tools = true } = Astro.props;
     </span>
   </a>
   {tools && <div class="tools close-group" id="close-group" data-smooth="surface" hidden>
-    <!-- Focus mode: closes the open cover. Fades in at the top left (script). -->
+    <!-- Focus mode: closes the open cover, with its title alongside. Fades in at the top left (script). -->
     <button class="tool has-tip" data-smooth="surface" id="close-button" type="button" aria-label="Close" aria-keyshortcuts="Escape">
       <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
         <path d="M7 7l10 10M17 7L7 17" />
       </svg>
-      <Tooltip shortcut="Esc">Close</Tooltip>
+      <Tooltip shortcut="Esc" below>Close</Tooltip>
     </button>
+    <!-- The open project's title, joined to the close button (script fills it). -->
+    <span class="divider" aria-hidden="true"></span>
+    <span class="focus-title" id="focus-title"></span>
   </div>}
   {tools && <div class="tools" id="view-tools" role="group" aria-label="View" data-smooth="surface">
     <!-- One glass container holding both buttons (after Figma 67:848), 4px apart. -->
@@ -188,6 +191,21 @@ const { tools = true } = Astro.props;
     opacity: 0;
   }
   .close-group[hidden] { display: none; }
+  .divider {
+    flex: none; width: 1px; height: var(--divider-height);
+    margin: 0 var(--tools-inset);
+    background: var(--color-divider);
+    transition: opacity 0.12s ease-out;
+  }
+  /* The X's hover tile replaces the divider beside it. */
+  .close-group:has(.tool:focus-visible) .divider { opacity: 0; }
+  @media (hover: hover) { .close-group:has(.tool:hover) .divider { opacity: 0; } }
+  .focus-title {
+    padding: 0 var(--focus-title-pad);
+    font-size: var(--focus-title-size); font-weight: var(--text-name-weight);
+    letter-spacing: var(--text-name-tracking); line-height: 1;
+    white-space: nowrap; color: var(--color-fg);
+  }
   .tool {
     width: var(--tool-size); height: var(--tool-size); padding: 0;
     display: inline-flex; align-items: center; justify-content: center;
