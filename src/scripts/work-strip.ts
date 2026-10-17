@@ -99,7 +99,7 @@ function init(stage: HTMLElement) {
     label: el.querySelector<HTMLElement>('.label'),
     labelLast: '',
     video: el.querySelector<HTMLVideoElement>('video'),
-    playing: false,
+    playing: false, dimmed: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
@@ -137,13 +137,16 @@ function init(stage: HTMLElement) {
     c.el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hovered = c.i; });
     c.el.addEventListener('pointerleave', () => { if (hovered === c.i) hovered = -1; });
   }
+  // Backdrop shaders follow the same rule (still otherwise, which saves the
+  // GPU redrawing them and re-blurring the glass over them), and also pause
+  // while their cover is blurred or dimmed.
   function syncVideos() {
     for (const c of cards) {
-      if (!c.video) continue;
       const open = mode === 'row' ? p.t >= 0.5 && c.i === anchor : c.i === gridOpen;
       const hover = c.i === hovered && !reduce && !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const want = open || hover;
-      if (want === c.playing) continue;
+      c.shader?.setPaused(!want || c.dimmed);
+      if (!c.video || want === c.playing) continue;
       c.playing = want;
       if (want) { c.video.currentTime = 0; c.video.play().catch(() => {}); }
       else { c.video.pause(); restOn(c.video); }
@@ -677,8 +680,13 @@ function init(stage: HTMLElement) {
     // Set on the edge elements, not the page root: a root custom property
     // makes the browser re-check every element's style, every frame.
     edges.forEach((ed) => ed.style.setProperty('--edge-w', `${w.toFixed(1)}px`));
-    edges.forEach((ed) => [...ed.children].forEach((el, k) =>
-      (el as HTMLElement).style.setProperty('--b', (maxB * Math.pow((k + 1) / 8, curve)).toFixed(2) + 'px')));
+    // A band under ~0.3px of blur looks the same as none, so it's switched off
+    // rather than paying for a backdrop blur (in the row, half of them).
+    edges.forEach((ed) => [...ed.children].forEach((el, k) => {
+      const b = maxB * Math.pow((k + 1) / 8, curve);
+      (el as HTMLElement).style.setProperty('--b', b.toFixed(2) + 'px');
+      el.classList.toggle('off', b < 0.3);
+    }));
     const stops = [];
     for (let j = 0; j <= 16; j++) {
       const t = j / 16, u = clamp((t - 0.15) / 0.85, 0, 1);
@@ -697,7 +705,10 @@ function init(stage: HTMLElement) {
       if (a === edgeShift[side]) continue;
       edgeShift[side] = a;
       for (const el of edges) if (el.classList.contains(side))
+{
         el.style.transform = `${side === 'r' ? 'scaleX(-1) ' : ''}translateX(${(-a * 100).toFixed(2)}%)`;
+        el.style.visibility = a >= 1 ? 'hidden' : '';   // off screen: no blur passes
+      }
     }
   }
   // An edge only shows when there is more of the row beyond it.
@@ -752,6 +763,29 @@ function init(stage: HTMLElement) {
   }
 
   let last = performance.now(), whoOpacity = -1;
+  // The loop sleeps once everything has settled (so an idle page costs
+  // nothing), and any input wakes it.
+  let running = false, calm = 0;
+  function wake() {
+    calm = 0;
+    if (running) return;
+    running = true; last = performance.now();
+    requestAnimationFrame(tick);
+  }
+  for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'pointerout', 'wheel', 'keydown', 'click', 'focusin', 'focusout', 'resize'])
+    window.addEventListener(type, wake, { capture: true, passive: true });
+  const still = (sp: Spring, e: number) => sp.near(e);
+  function atRest(now: number) {
+    if (ptr) return false;
+    for (const s of [S.row, S.big, S.grid]) if (s.wheel || s.to != null || s.vel || s.pos < s.min || s.pos > s.max) return false;
+    if (!still(p, 1e-4) || !still(gp, 1e-4)) return false;   // these scale whole covers
+    for (const c of cards) {
+      if (now < c.delay || !c.follow && !c.held) return false;
+      if (!still(c.hv, 1e-3) || !still(c.lb, 1e-3) || !still(c.sq, 1e-3) || !still(c.ovR, 1e-3) || !still(c.ovB, 1e-3)) return false;
+      if (!still(c.ox, 0.05) || !still(c.oy, 0.05) || !still(c.os, 1e-3)) return false;
+    }
+    return true;
+  }
   function tick(now: number) {
     const dt = Math.min((now - last) / 1000, 1 / 15);
     last = now;
@@ -903,9 +937,9 @@ function init(stage: HTMLElement) {
         c.veil.style.setProperty('--f', `${c.blurred ? blur.toFixed(1) : 0}px`);
         c.veil.style.clipPath = c.blurred ? '' : c.clip;
         c.veil.style.borderRadius = c.blurred ? `${(c.rBlur + blur).toFixed(1)}px` : '';
-        // A live backdrop shader pauses while its cover is blurred or dimmed:
-        // redrawing it forces the blur to be recomputed every frame.
-        c.shader?.setPaused(blur > 1 || fade > 0.05);
+        // A live backdrop shader pauses while its cover is blurred or dimmed
+        // (see syncVideos): redrawing it forces the blur to be recomputed.
+        c.dimmed = blur > 1 || fade > 0.05;
         // Grain only in focus, arriving with the blur so sharp covers stay clean.
         c.veil.style.opacity = Math.min(1, Math.pow(dk, 1.4) * 1.5).toFixed(3);
         st.opacity = fade > 0.002 ? (1 - fade).toFixed(3) : '';
@@ -950,6 +984,9 @@ function init(stage: HTMLElement) {
     }
     slideEdges(eL, eR);
     syncVideos();
+    // A few calm frames in a row, and it sleeps until the next input.
+    calm = atRest(now) ? calm + 1 : 0;
+    if (calm > 30) { running = false; return; }
     requestAnimationFrame(tick);
   }
 
@@ -972,5 +1009,5 @@ function init(stage: HTMLElement) {
       .finished.then((an) => an.cancel());
   }
   window.addEventListener('resize', layout);
-  requestAnimationFrame(tick);
+  wake();
 }
