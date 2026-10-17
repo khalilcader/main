@@ -91,6 +91,7 @@
 
   /* Tooltips */
   --tip-gap: 8px;
+  --tip-delay: 0.1s;                        /* hover pause before a tooltip shows */
   --tip-pad-y: 8px;                         /* around cap height to baseline */
   --tip-pad-x: 10px;
   --tip-radius: 8px;

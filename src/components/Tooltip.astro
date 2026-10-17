@@ -37,12 +37,12 @@ const { shortcut, below = false } = Astro.props;
   :global(.has-tip:focus-visible) > .tip,
   :global(.has-tip:has(:focus-visible)) > .tip {
     opacity: 1; transform: translate(-50%, 0) scale(1);
-    transition: opacity 0.14s ease-out 0.25s, transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s;
+    transition: opacity 0.12s ease-out var(--tip-delay), transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) var(--tip-delay);
   }
   @media (hover: hover) {
     :global(.has-tip:hover) > .tip {
       opacity: 1; transform: translate(-50%, 0) scale(1);
-      transition: opacity 0.14s ease-out 0.25s, transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s;
+      transition: opacity 0.12s ease-out var(--tip-delay), transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) var(--tip-delay);
     }
   }
   @media (prefers-reduced-motion: reduce) {
