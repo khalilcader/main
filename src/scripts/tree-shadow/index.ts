@@ -83,10 +83,8 @@ export function mountTreeShadow(canvas: HTMLCanvasElement) {
   gl.uniform1f(U.uProg, S.blurFalloff);
   gl.uniform1f(U.uDepthAmt, S.depthBlur);
   gl.uniform1f(U.uGradient, S.gradient);
-  gl.uniform1f(U.uRays, S.rays);
   gl.uniform1f(U.uStreak, S.streak);
   gl.uniform1f(U.uRayAngle, S.rayAngle * Math.PI / 180);
-  gl.uniform1f(U.uBeams, S.beams);
   gl.uniform1f(U.uFlip, S.flipX ? 1 : 0);
   gl.uniform1f(U.uBlinds, S.blinds);
   gl.uniform1f(U.uBlindAngle, S.blindAngle * Math.PI / 180);
@@ -101,8 +99,11 @@ export function mountTreeShadow(canvas: HTMLCanvasElement) {
     const cs = getComputedStyle(canvas);
     gl.uniform3fv(U.uPaper, parseColor(cs.getPropertyValue('--color-daylight-paper')));
     gl.uniform3fv(U.uShadow, parseColor(cs.getPropertyValue('--color-daylight-shadow')));
-    // The flare is additive, so it reads much stronger on dark paper.
-    gl.uniform1f(U.uFlare, parseFloat(cs.getPropertyValue('--daylight-flare')) || S.flare);
+    // Light effects per theme: full daylight, or a dim, flare-free night.
+    const num = (prop: string, fallback: number) => { const v = parseFloat(cs.getPropertyValue(prop)); return Number.isNaN(v) ? fallback : v; };
+    gl.uniform1f(U.uFlare, num('--daylight-flare', S.flare));
+    gl.uniform1f(U.uRays, num('--daylight-rays', S.rays));
+    gl.uniform1f(U.uBeams, num('--daylight-beams', S.beams));
     if (!running) draw();
   };
 

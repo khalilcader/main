@@ -8,6 +8,9 @@ import Tooltip from './Tooltip.astro';
 const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_URL}images/khalil.jpg` : null;
 ---
 <div class="about-scrim" id="about-scrim" hidden></div>
+<!-- Grain on its own layer above the blur, so its blend works on the page
+     (inside the blurred layer it could only blend with that layer). -->
+<div class="about-grain" id="about-grain" aria-hidden="true" hidden></div>
 <div class="about" id="about" role="dialog" aria-modal="true" aria-label="About" hidden>
   <div class="about-card" id="about-card">
     <!-- Each face is a plane in the 3D turn; the surface inside carries the
@@ -39,8 +42,17 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
   import '../scripts/about-card';
   import { mountTreeShadow } from '../scripts/tree-shadow';
   const daylight = document.querySelector<HTMLCanvasElement>('.about-daylight');
-  // Runs only while the card is open (it's display: none otherwise).
-  if (daylight) { try { mountTreeShadow(daylight); } catch (err) { console.warn('Daylight shader failed', err); } }
+  const avatar = document.querySelector('.site-header .who');
+  // Growing the tree takes a moment, so it isn't done at page load: it starts
+  // when the avatar is hovered or focused (ready by the click), or on opening.
+  // It then runs only while the card is open (it's display: none otherwise).
+  let mounted = false;
+  const mount = () => {
+    if (mounted || !daylight) return;
+    mounted = true;
+    try { mountTreeShadow(daylight); } catch (err) { console.warn('Daylight shader failed', err); }
+  };
+  for (const type of ['pointerenter', 'focus', 'click']) avatar?.addEventListener(type, mount, { once: true });
 </script>
 
 <style>
@@ -51,12 +63,13 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     -webkit-backdrop-filter: blur(var(--about-blur)); backdrop-filter: blur(var(--about-blur));
     opacity: 0;
   }
-  .about-scrim::after {
-    content: ""; position: absolute; inset: 0;
+  .about-grain {
+    position: fixed; inset: 0; z-index: 60; pointer-events: none;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
-    mix-blend-mode: overlay; opacity: var(--about-grain);
+    mix-blend-mode: var(--about-grain-blend);   /* overlay; multiply in dark mode */
+    opacity: 0;   /* fades to --about-grain with the scrim (script) */
   }
-  .about-scrim[hidden], .about[hidden] { display: none; }
+  .about-scrim[hidden], .about-grain[hidden], .about[hidden] { display: none; }
 
   .about {
     position: fixed; inset: 0; z-index: 61;

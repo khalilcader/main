@@ -15,11 +15,12 @@ const PERSPECTIVE = 1600;                            // px
 const dialog = document.getElementById('about');
 const card = document.getElementById('about-card');
 const scrim = document.getElementById('about-scrim');
+const grain = document.getElementById('about-grain');
 const closeBtn = document.getElementById('about-close');
 const who = document.querySelector<HTMLAnchorElement>('.site-header .who');
 const avatar = who?.querySelector<HTMLElement>('.photo');
 
-if (dialog && card && scrim && closeBtn && who && avatar) {
+if (dialog && card && scrim && grain && closeBtn && who && avatar) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let state: 'closed' | 'opening' | 'open' | 'closing' = 'closed';
   let anims: Animation[] = [];
@@ -29,7 +30,7 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
   // The two end states. Small: on the avatar, photo side up. Big: the open card.
   // Each is a set of styles per element; the faces' smoothed-corner clips are
   // animated too, so the corners stay in proportion as the card scales.
-  type State = { card: Keyframe; faces: Keyframe; scrim: Keyframe };
+  type State = { card: Keyframe; faces: Keyframe; scrim: Keyframe; grain: Keyframe };
   function ends(): { small: State; big: State } {
     const a = avatar!.getBoundingClientRect();
     card!.style.transform = 'none';
@@ -43,24 +44,25 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
     const rSmall = parseFloat(root.getPropertyValue('--photo-radius')) || 14;
     const rBig = parseFloat(root.getPropertyValue('--cover-radius')) || 48;
     const sm = parseFloat(root.getPropertyValue('--corner-smoothing')) || 0.6;
+    const g = String(parseFloat(root.getPropertyValue('--about-grain')) || 0);   // the grain's full opacity
     const W = faces[0].offsetWidth, H = faces[0].offsetHeight;
     const clip = (r: number) => `path("${squirclePath(W, H, Math.min(r, Math.min(W, H) / 2), sm)}")`;
     if (reduce) {
       return {
-        small: { card: { opacity: 0 }, faces: { clipPath: clip(rBig) }, scrim: { opacity: 0 } },
-        big: { card: { opacity: 1 }, faces: { clipPath: clip(rBig) }, scrim: { opacity: 1 } },
+        small: { card: { opacity: 0 }, faces: { clipPath: clip(rBig) }, scrim: { opacity: 0 }, grain: { opacity: 0 } },
+        big: { card: { opacity: 1 }, faces: { clipPath: clip(rBig) }, scrim: { opacity: 1 }, grain: { opacity: g } },
       };
     }
     return {
       small: {
         card: { transform: `translate(${dx}px, ${dy}px) perspective(${PERSPECTIVE}px) rotateY(-180deg) scale(${sx}, ${sy})`, borderRadius: `${rSmall / sx}px / ${rSmall / sy}px` },
         faces: { clipPath: clip(rSmall / sx) },
-        scrim: { opacity: 0 },
+        scrim: { opacity: 0 }, grain: { opacity: 0 },
       },
       big: {
         card: { transform: `translate(0px, 0px) perspective(${PERSPECTIVE}px) rotateY(0deg) scale(1, 1)`, borderRadius: `${rBig}px / ${rBig}px` },
         faces: { clipPath: clip(rBig) },
-        scrim: { opacity: 1 },
+        scrim: { opacity: 1 }, grain: { opacity: g },
       },
     };
   }
@@ -76,6 +78,7 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
         card: reduce ? { opacity: cc.opacity } : { transform: cc.transform, borderRadius: cc.borderRadius },
         faces: { clipPath: fc.clipPath },
         scrim: { opacity: getComputedStyle(scrim!).opacity },
+        grain: { opacity: getComputedStyle(grain!).opacity },
       };
       anims.forEach((an) => an.cancel());
     }
@@ -84,6 +87,7 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
     anims = [
       card!.animate([from.card, target.card], opts),
       scrim!.animate([from.scrim, target.scrim], opts),
+      grain!.animate([from.grain, target.grain], opts),
       ...faces.map((f) => f.animate([from.faces, target.faces], opts)),
     ];
     state = to === 'big' ? 'opening' : 'closing';
@@ -97,10 +101,11 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
     if (state === 'opening') {
       state = 'open';
       scrim!.style.opacity = '1';
+      grain!.style.opacity = getComputedStyle(document.documentElement).getPropertyValue('--about-grain');
     } else if (state === 'closing') {
       state = 'closed';
-      dialog!.hidden = true; scrim!.hidden = true;
-      scrim!.style.opacity = '';
+      dialog!.hidden = true; scrim!.hidden = true; grain!.hidden = true;
+      scrim!.style.opacity = ''; grain!.style.opacity = '';
       avatar!.style.visibility = '';
       // Focus goes back to the avatar, but it shouldn't flip to its book side
       // for that (after Esc it would count as keyboard focus and stay flipped).
@@ -117,17 +122,17 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
     const flipped = avatar!.matches(':hover') || who!.matches(':focus-visible') || avatar!.classList.contains('peek');
     card!.dataset.small = flipped ? 'book' : 'photo';
     if (state === 'closed') {
-      dialog!.hidden = false; scrim!.hidden = false;
+      dialog!.hidden = false; scrim!.hidden = false; grain!.hidden = false;
       avatar!.style.visibility = 'hidden';   // the card takes its place
     }
-    scrim!.style.opacity = '';
+    scrim!.style.opacity = ''; grain!.style.opacity = '';
     animateTo('big');
     closeBtn!.focus({ preventScroll: true });
   }
   function close() {
     if (state === 'closed' || state === 'closing') return;
     card!.dataset.small = 'photo';   // lands back on the avatar's photo side
-    scrim!.style.opacity = '';
+    scrim!.style.opacity = ''; grain!.style.opacity = '';
     animateTo('small');
   }
 
