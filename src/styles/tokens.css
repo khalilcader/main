@@ -105,7 +105,6 @@
   --label-grow: 0.1;                        /* and grows from 90%, popping just past full size */
   --label-shadow: 0 4px 16px 0 var(--color-label-shadow);
   --tools-inset: 4px;                       /* padding around the header buttons (no gap between them) */
-  --close-inset: 40px;                      /* focus-mode close button, from the top-left corner */
   --tool-size: 30px;                        /* 40 tall: 4 + 30 + 4 + 1px border each side; tiles touch */
   --divider-height: 22px;                   /* between the close button and the focus title */
   --focus-title-size: 18px;                 /* project title beside the close button in focus mode */
