@@ -8,29 +8,19 @@ import Tooltip from './Tooltip.astro';
 const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_URL}images/khalil.jpg` : null;
 ---
 <div class="about-scrim" id="about-scrim" hidden></div>
-<div class="about" id="about" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden>
+<div class="about" id="about" role="dialog" aria-modal="true" aria-label="About" hidden>
   <div class="about-card" id="about-card">
     <!-- Each face is a plane in the 3D turn; the surface inside carries the
          smoothed shape (Chrome ignores clip-path inside a 3D scene). -->
     <div class="about-face about-front"><div class="about-surface" data-smooth="clip">
+      <!-- Stand-in until the About copy is written: a daylight shader. -->
+      <canvas class="about-daylight" aria-hidden="true"></canvas>
       <button class="about-close has-tip" data-smooth="surface" id="about-close" type="button" aria-label="Close" aria-keyshortcuts="Escape">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
           <path d="M7 7l10 10M17 7L7 17" />
         </svg>
         <Tooltip shortcut="Esc" below>Close</Tooltip>
       </button>
-      <span class="about-photo-wrap">
-        <span class="about-photo" data-smooth="clip">
-          {photo && <img src={photo} alt="" width="50" height="56" />}
-        </span>
-      </span>
-      <h2 class="about-name" id="about-title">Khalil Cader</h2>
-      <p class="about-role">Product Designer</p>
-      <!-- Placeholder copy: replace with your own. -->
-      <div class="about-body">
-        <p>A few lines about who you are, what you design, and what you care about.</p>
-        <p>Where you've worked, and what you're looking for next.</p>
-      </div>
     </div></div>
     <!-- The small side matches whatever the avatar shows: the book it has
          flipped to on hover when the card opens, your photo when it closes back. -->
@@ -47,6 +37,10 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
 
 <script>
   import '../scripts/about-card';
+  import { mountDaylight } from '../scripts/daylight-shader';
+  const daylight = document.querySelector<HTMLCanvasElement>('.about-daylight');
+  // Runs only while the card is open (it's display: none otherwise).
+  if (daylight) { try { mountDaylight(daylight); } catch (err) { console.warn('Daylight shader failed', err); } }
 </script>
 
 <style>
@@ -92,9 +86,9 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     border-radius: var(--about-radius);
     background: var(--color-cover-bg);
   }
-  .about-front .about-surface {
-    padding: var(--about-pad);
-    display: flex; flex-direction: column; overflow: auto;
+  .about-daylight {
+    position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+    background: var(--color-daylight-sky);   /* without WebGL */
   }
   .about-back .about-surface {
     display: flex; align-items: center; justify-content: center;
@@ -107,7 +101,8 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
   .about-card[data-small="book"] .about-back-book { display: block; }
 
   .about-close {
-    position: absolute; top: var(--space-3); right: var(--space-3);
+    /* Inset from the card's outer edge (the surface has a 1px border). */
+    position: absolute; top: calc(var(--about-close-inset) - 1px); left: calc(var(--about-close-inset) - 1px);
     width: var(--button-size); height: var(--button-size); padding: var(--button-pad);
     display: inline-flex; align-items: center; justify-content: center;
     --surface-bg: transparent; --surface-border: transparent; --surface-blur: none;
@@ -118,25 +113,4 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
   .about-close:focus-visible { outline: none; --surface-bg: var(--color-tool-hover-bg); }
   .about-close svg { width: var(--icon-size); height: var(--icon-size); }
 
-  .about-photo-wrap {
-    display: block; flex: none; width: var(--photo-width); height: var(--photo-height);
-    margin-bottom: var(--space-4);
-    border-radius: var(--photo-radius); box-shadow: var(--photo-shadow);
-  }
-  .about-photo {
-    --surface-border: var(--color-photo-border);
-    display: block; width: 100%; height: 100%;
-    border: 1px solid var(--surface-border); border-radius: var(--photo-radius);
-    background: var(--color-cover-bg); overflow: hidden;
-  }
-  .about-photo img { width: 100%; height: 100%; object-fit: cover; }
-  .about-name, .about-role {
-    margin: 0;
-    font-size: var(--text-name-size); font-weight: var(--text-name-weight);
-    letter-spacing: var(--text-name-tracking); line-height: normal;
-  }
-  .about-role { opacity: var(--text-secondary-opacity); }
-  .about-body { margin-top: var(--space-4); font-size: var(--about-text-size); line-height: 1.5; }
-  .about-body p { margin: 0 0 var(--space-3); }
-  .about-body p:last-child { margin-bottom: 0; }
 </style>

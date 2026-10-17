@@ -84,6 +84,16 @@ function rgb(css: string): number[] {
 }
 
 export function mountBackdrop(canvas: HTMLCanvasElement) {
+  return mountShader(canvas, FRAG, {
+    uDeep: '--color-backdrop-deep', uBase: '--color-backdrop-base', uLight: '--color-backdrop-light',
+  });
+}
+
+// Runs a full-canvas fragment shader. It gets uRes, uTime and uScale, plus a
+// vec3 uniform per entry in `colors`, read from that CSS custom property on
+// the canvas (so light/dark values follow the theme). It animates while on
+// screen; setPaused stops it from outside.
+export function mountShader(canvas: HTMLCanvasElement, frag: string, colors: Record<string, string>, speed = SPEED) {
   const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
   if (!gl) return null;  // no WebGL: the canvas's CSS background (the base tone) shows instead
 
@@ -96,7 +106,7 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   };
   const prog = gl.createProgram()!;
   gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
-  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
   gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) || 'link');
   gl.useProgram(prog);
@@ -106,7 +116,7 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   const aPos = gl.getAttribLocation(prog, 'aPos');
   gl.enableVertexAttribArray(aPos);
   gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-  const U = Object.fromEntries(['uRes', 'uTime', 'uScale', 'uDeep', 'uBase', 'uLight']
+  const U = Object.fromEntries(['uRes', 'uTime', 'uScale', ...Object.keys(colors)]
     .map((n) => [n, gl.getUniformLocation(prog, n)]));
 
   let running = false, raf = 0, time = 40, last = 0, lastDraw = 0;
@@ -124,13 +134,11 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   };
   const applyColors = () => {
     const cs = getComputedStyle(canvas);
-    gl.uniform3fv(U.uDeep, rgb(cs.getPropertyValue('--color-backdrop-deep')));
-    gl.uniform3fv(U.uBase, rgb(cs.getPropertyValue('--color-backdrop-base')));
-    gl.uniform3fv(U.uLight, rgb(cs.getPropertyValue('--color-backdrop-light')));
+    for (const [u, prop] of Object.entries(colors)) gl.uniform3fv(U[u], rgb(cs.getPropertyValue(prop)));
     if (!running) draw();
   };
   const frame = (now: number) => {
-    time += Math.min(0.1, (now - last) / 1000) * SPEED;
+    time += Math.min(0.1, (now - last) / 1000) * speed;
     last = now;
     if (now - lastDraw >= 1000 / FPS - 1) { lastDraw = now; draw(); }
     if (running) raf = requestAnimationFrame(frame);

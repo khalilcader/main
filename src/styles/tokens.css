@@ -83,8 +83,7 @@
   /* About card (opens from the avatar) */
   --about-height: 760px;                    /* portrait, avatar proportions */
   --about-radius: var(--cover-radius);      /* same corners as the cards */
-  --about-pad: 48px;
-  --about-text-size: 18px;
+  --about-close-inset: 24px;                /* close button, from the card's top-left corner */
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
   --about-blur: 16px;                       /* background blur behind the card */
   --about-grain: 0.6;
@@ -151,6 +150,12 @@
   --veil-tint: transparent;
   --backdrop-blur: 14px;
 
+  /* Daylight shader (About card stand-in): shade -> sky gradient, with rays
+     and a glow in the glow colour. Warm daylight here, moonlight in dark. */
+  --color-daylight-shade: #d6c3a8;
+  --color-daylight-sky: #eee2d0;
+  --color-daylight-glow: #fffaf1;
+
   color-scheme: light;
 }
 
@@ -196,6 +201,9 @@
     --color-backdrop-deep: #071a4d;
     --color-backdrop-base: #0f2f80;
     --color-backdrop-light: #2152b5;
+    --color-daylight-shade: #0c111d;
+    --color-daylight-sky: #1b2337;
+    --color-daylight-glow: #8fa3d6;
     color-scheme: dark;
   }
 }
@@ -230,5 +238,8 @@
   --color-backdrop-deep: #071a4d;
   --color-backdrop-base: #0f2f80;
   --color-backdrop-light: #2152b5;
+  --color-daylight-shade: #0c111d;
+  --color-daylight-sky: #1b2337;
+  --color-daylight-glow: #8fa3d6;
   color-scheme: dark;
 }
