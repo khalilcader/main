@@ -102,6 +102,10 @@ if (dialog && card && scrim && closeBtn && who && avatar) {
       dialog!.hidden = true; scrim!.hidden = true;
       scrim!.style.opacity = '';
       avatar!.style.visibility = '';
+      // Focus goes back to the avatar, but it shouldn't flip to its book side
+      // for that (after Esc it would count as keyboard focus and stay flipped).
+      who!.dataset.noflip = '';
+      who!.addEventListener('blur', () => delete who!.dataset.noflip, { once: true });
       who!.focus({ preventScroll: true });
     }
   }

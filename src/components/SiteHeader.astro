@@ -147,7 +147,7 @@ const { tools = true } = Astro.props;
   .back { transform: rotateY(180deg); color: var(--color-fg); }
   .back .icon { opacity: var(--photo-back-icon-opacity); }
   /* Flip on hover (mouse) or keyboard focus. */
-  .who:focus-visible .flip, .photo.peek .flip { transform: rotateY(180deg); }
+  .who:focus-visible:not([data-noflip]) .flip, .photo.peek .flip { transform: rotateY(180deg); }
   @media (hover: hover) {
     /* Hover: flips, grows a little and lifts onto a stronger shadow. */
     .photo:hover { scale: var(--photo-hover-scale); }
