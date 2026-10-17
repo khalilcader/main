@@ -37,12 +37,12 @@ const { tools = true } = Astro.props;
     </span>
   </a>
   {tools && <div class="tools close-group" id="close-group" data-smooth="surface" hidden>
-    <!-- Focus mode: closes the open cover, with its title alongside. Fades in over the avatar's spot (script). -->
+    <!-- Focus mode: closes the open cover, with its title alongside. Fades in at the top left (script). -->
     <button class="tool has-tip" data-smooth="surface" id="close-button" type="button" aria-label="Close" aria-keyshortcuts="Escape">
       <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
         <path d="M7 7l10 10M17 7L7 17" />
       </svg>
-      <Tooltip shortcut="Esc">Close</Tooltip>
+      <Tooltip shortcut="Esc" below>Close</Tooltip>
     </button>
     <!-- The open project's title, joined to the close button (script fills it). -->
     <span class="divider" aria-hidden="true"></span>
@@ -183,12 +183,11 @@ const { tools = true } = Astro.props;
     box-shadow: var(--button-shadow);
   }
   :global(html:not(.js)) .tools { display: none; }
-  /* Close button: in focus mode (script fades it in). */
-  /* In the avatar's spot in the header row, so it lines up with the view
-     controls and its tooltip has the same room above as theirs. */
+  /* Close button: top left in focus mode (script fades it in). */
   .close-group {
-    position: absolute;
-    left: var(--header-pad); top: 50%; transform: translateY(-50%);
+    position: fixed;
+    left: calc(env(safe-area-inset-left, 0px) + var(--close-inset));
+    top: calc(env(safe-area-inset-top, 0px) + var(--close-inset));
     opacity: 0;
   }
   .close-group[hidden] { display: none; }
