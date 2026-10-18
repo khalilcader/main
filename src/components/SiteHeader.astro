@@ -125,7 +125,9 @@ const { tools = true } = Astro.props;
   }
   .flip {
     position: absolute; inset: 0; display: block;
-    border-radius: var(--photo-radius); box-shadow: var(--photo-shadow);   /* the faces are clipped, so the shadow lives here */
+    /* The faces are clipped, so the shadow lives here, on a box rounder than
+       theirs so it stays inside the smoothed outline. */
+    border-radius: min(50%, calc(var(--photo-radius) * (1 + var(--corner-smoothing)))); box-shadow: var(--photo-shadow);
     transform-style: preserve-3d;
     transition: transform var(--photo-flip-duration) var(--photo-flip-ease),
                 box-shadow var(--photo-hover-duration) var(--photo-flip-ease);

@@ -73,12 +73,17 @@ function setup(el: HTMLElement) {
   // Exact (fractional) border-box size, ignoring transforms. offsetWidth rounds
   // to whole pixels, which clipped hairline borders off the bottom and right.
   let w = 0, h = 0;
+  // A surface's own box casts its shadow; it's rounded more than the clip so
+  // the shadow stays inside the smoothed outline (no sliver at the corners).
+  // The clip keeps the CSS radius, read once before that.
+  const radius = parseFloat(cs.borderTopLeftRadius) || 0;
   const update = () => {
     if (!w || !h) return;
-    const r = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, Math.min(w, h) / 2);
+    const r = Math.min(radius, Math.min(w, h) / 2);
     const d = squirclePath(w, h, r, smoothing());
     target.style.clipPath = `path("${d}")`;
     path.setAttribute('d', d);
+    if (kind === 'surface') el.style.borderRadius = `${Math.min(r * (1 + smoothing()), Math.min(w, h) / 2)}px`;
   };
   new ResizeObserver(([entry]) => {
     const box = entry.borderBoxSize?.[0];
