@@ -53,7 +53,7 @@ export function mountCameras(root: ParentNode = document) {
       let drop = 0;
       if (D && playing) drop = t > D - EXIT ? ease(clamp01((t - (D - EXIT)) / EXIT)) : t < EXIT ? 1 - ease(clamp01(t / EXIT)) : 0;
       // A light follow, so a jump (the loop, a seek) never snaps.
-      const f = 1 - Math.exp(-dt * 10);
+      const f = 1 - Math.exp(-dt * 3);   // slow, so moves drift rather than dart
       cur.x += (kx - cur.x) * f; cur.y += (ky - cur.y) * f; cur.s += (ks - cur.s) * f;
       cur.drop = drop;   // already eased, and has to land exactly at the loop
 
