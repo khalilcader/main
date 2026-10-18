@@ -3,7 +3,8 @@
 //             shot on film: three tones drift in very slow, soft waves, under
 //             film grain and a faint paper tooth.
 //   gradient  a calm, soft gradient: three colours pool and drift very
-//             slowly into each other, with only a whisper of grain.
+//             slowly, their edges curled by flowing noise, with thin wisps
+//             of light along the folds and only a whisper of grain.
 // Each takes three colours from tokens.css (--color-<kind>-deep, -base,
 // -light, with dark-mode values); data-palette="cool" switches the gradient
 // to --color-gradient-cool-*.
@@ -95,26 +96,45 @@ float vnoise(vec2 p) {
   return mix(mix(hash12(i), hash12(i + vec2(1.0, 0.0)), f.x),
              mix(hash12(i + vec2(0.0, 1.0)), hash12(i + vec2(1.0, 1.0)), f.x), f.y);
 }
+float fbm(vec2 p) {
+  float s = 0.0, a = 0.5;
+  for (int i = 0; i < 5; i++) { s += a * vnoise(p); p = p * 2.02 + 11.7; a *= 0.5; }
+  return s;
+}
 
 void main() {
   vec2 frag = gl_FragCoord.xy;
   vec2 uv = frag / uRes;
-  vec2 p = vec2(uv.x * uRes.x / uRes.y, uv.y);
-  float t = uTime;
-  // A slow, gentle warp so the pools never read as circles.
-  p += 0.12 * vec2(vnoise(p * 1.4 + t * 0.03) - 0.5, vnoise(p * 1.4 + 7.0 - t * 0.025) - 0.5);
   float ar = uRes.x / uRes.y;
-  vec2 c1 = vec2(ar * (0.25 + 0.15 * sin(t * 0.050)), 0.75 + 0.12 * cos(t * 0.040));
-  vec2 c2 = vec2(ar * (0.78 + 0.12 * cos(t * 0.045 + 1.7)), 0.55 + 0.18 * sin(t * 0.035 + 0.6));
-  vec2 c3 = vec2(ar * (0.45 + 0.18 * sin(t * 0.030 + 3.1)), 0.15 + 0.12 * cos(t * 0.050 + 2.2));
-  float w1 = exp(-dot(p - c1, p - c1) * 3.0);
-  float w2 = exp(-dot(p - c2, p - c2) * 3.0);
-  float w3 = exp(-dot(p - c3, p - c3) * 3.0);
-  vec3 col = (uDeep * w1 + uBase * w2 + uLight * w3 + uBase * 0.15) / (w1 + w2 + w3 + 0.15);
+  vec2 p = vec2(uv.x * ar, uv.y);
+  float t = uTime;
+
+  // Flowing folds: the colour fields are pushed around by layered noise, so
+  // their edges curl like smoke instead of reading as round pools.
+  vec2 q = vec2(fbm(p * 1.3 + vec2(0.0, t * 0.020)), fbm(p * 1.3 + vec2(4.1, 2.3) - t * 0.017));
+  vec2 r = vec2(fbm(p * 1.1 + q * 2.2 + vec2(1.7, 9.2) + t * 0.012), fbm(p * 1.1 + q * 2.2 + vec2(8.3, 2.8) - t * 0.010));
+  vec2 w = p + (r - 0.5) * 0.55;
+
+  vec2 c1 = vec2(ar * (0.22 + 0.10 * sin(t * 0.040)), 0.80 + 0.08 * cos(t * 0.032));
+  vec2 c2 = vec2(ar * (0.80 + 0.08 * cos(t * 0.036 + 1.7)), 0.50 + 0.12 * sin(t * 0.028 + 0.6));
+  vec2 c3 = vec2(ar * (0.42 + 0.12 * sin(t * 0.024 + 3.1)), 0.12 + 0.08 * cos(t * 0.040 + 2.2));
+  float w1 = exp(-dot(w - c1, w - c1) * 4.0);
+  float w2 = exp(-dot(w - c2, w - c2) * 4.0);
+  float w3 = exp(-dot(w - c3, w - c3) * 4.0);
+  vec3 col = (uDeep * w1 + uBase * w2 + uLight * w3 + uBase * 0.08) / (w1 + w2 + w3 + 0.08);
+
+  // Wisps: thin, soft streaks along the folds, lifted toward the palette's
+  // lightest shade, and a faint shadow on their far side so they read as
+  // layered veils.
+  float f = fbm(w * 2.2 + r * 1.5 + vec2(t * 0.015, -t * 0.01));
+  float wisp = smoothstep(0.55, 0.0, abs(sin(f * 9.0 + r.x * 4.0)) ) * smoothstep(0.25, 0.75, f);
+  float veil = smoothstep(0.35, 0.65, r.y);
+  col = mix(col, col * 0.95, (1.0 - veil) * 0.5);
+  col = mix(col, uLight * 1.06, wisp * 0.22);
 
   // A whisper of grain, in CSS pixels, so the gradient doesn't band.
   vec2 c = frag / uScale;
-  col += (hash12(floor(c * 1.2)) - 0.5) * 0.018;
+  col += (hash12(floor(c * 1.2)) - 0.5) * 0.014;
   gl_FragColor = vec4(col, 1.0);
 }`;
 

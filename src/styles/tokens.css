@@ -157,12 +157,12 @@
   --color-backdrop-base: #d4dce7;
   --color-backdrop-light: #e6ebf2;
   /* Gradient cover shader (cover.shader: gradient): calm, soft colour pools. */
-  --color-gradient-deep: #e9b598;           /* soft peach */
-  --color-gradient-base: #c8bce3;           /* lilac mist */
-  --color-gradient-light: #b5d0e2;          /* pale sky */
-  --color-gradient-cool-deep: #a8c9ae;      /* sage */
-  --color-gradient-cool-base: #c3dbb8;      /* pale mint */
-  --color-gradient-cool-light: #e6dbbf;     /* warm stone */
+  --color-gradient-deep: #e6bea6;           /* shades of soft peach-terracotta */
+  --color-gradient-base: #efd3c2;
+  --color-gradient-light: #f7e6dc;
+  --color-gradient-cool-deep: #b7cfba;      /* shades of sage */
+  --color-gradient-cool-base: #cde0cd;
+  --color-gradient-cool-light: #e3eee1;
 
   /* Effects */
   --grain-amount: 1;
@@ -231,12 +231,12 @@
     --color-backdrop-deep: #0f141c;
     --color-backdrop-base: #161c26;
     --color-backdrop-light: #212935;
-    --color-gradient-deep: #4a2c26;
-    --color-gradient-base: #2e2846;
-    --color-gradient-light: #1d3344;
-    --color-gradient-cool-deep: #1f3a29;
-    --color-gradient-cool-base: #2b3a24;
-    --color-gradient-cool-light: #3b3424;
+    --color-gradient-deep: #241c19;
+    --color-gradient-base: #2c221e;
+    --color-gradient-light: #352923;
+    --color-gradient-cool-deep: #18201b;
+    --color-gradient-cool-base: #1d2820;
+    --color-gradient-cool-light: #243127;
     --color-daylight-paper: #1e2330;
     --color-daylight-shadow: #080a10;
     --daylight-preset: dark;
@@ -281,12 +281,12 @@
   --color-backdrop-deep: #0f141c;
   --color-backdrop-base: #161c26;
   --color-backdrop-light: #212935;
-  --color-gradient-deep: #4a2c26;
-  --color-gradient-base: #2e2846;
-  --color-gradient-light: #1d3344;
-  --color-gradient-cool-deep: #1f3a29;
-  --color-gradient-cool-base: #2b3a24;
-  --color-gradient-cool-light: #3b3424;
+  --color-gradient-deep: #241c19;
+  --color-gradient-base: #2c221e;
+  --color-gradient-light: #352923;
+  --color-gradient-cool-deep: #18201b;
+  --color-gradient-cool-base: #1d2820;
+  --color-gradient-cool-light: #243127;
   --color-daylight-paper: #1e2330;
   --color-daylight-shadow: #080a10;
   --daylight-preset: dark;
