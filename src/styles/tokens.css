@@ -22,7 +22,7 @@
   --color-cursor-ring: rgba(0, 0, 0, 0.1);    /* hairline round the glass bubble, so it reads on white */
   --color-button-shadow: rgba(0, 0, 0, 0.07);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
-  --color-label-bg: var(--color-button-bg);
+  --color-label-bg: rgba(255, 255, 255, 0.85);   /* more solid than the controls: it sits on busy covers */
   --color-tip-bg: rgba(38, 38, 38, 0.94);   /* from Khalil's tooltip mockup */
   --color-tip-fg: #ffffff;
   --color-tip-border: rgba(255, 255, 255, 0.12);
@@ -109,7 +109,7 @@
   --tip-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
 
   /* Cover title pill (on hover) */
-  --label-radius: 18px;                     /* rounder than the header controls (10px) */
+  --label-radius: 14px;                     /* rounder than the header controls (10px) */
   --label-below-gap: 12px;                  /* row view: the title sits this far under the cover */
   --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
   --label-pad-y: 12px;                      /* chunky pill */
@@ -121,6 +121,7 @@
   --close-inset: 40px;                      /* focus-mode close button, from the top-left corner */
   --tool-size: 30px;                        /* 40 tall: 4 + 30 + 4 + 1px border each side; tiles touch */
   --divider-height: 22px;                   /* between the close button and the focus title */
+  --close-height: 46px;                     /* focus mode's close + title bar: as tall as the card labels */
   --focus-title-size: 18px;                 /* project title beside the close button in focus mode */
   --focus-title-pad: 12px;
 
