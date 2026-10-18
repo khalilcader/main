@@ -11,7 +11,7 @@ import { buildTree, VERT, FRAG } from './engine.js';
 const SETTINGS = {
   type: 'broadleaf', seed: 12, posX: 0.5, posY: -0.6, angle: -38, rotY: 0, rotX: 0, flipX: true,
   blinds: 0, blindAngle: 0, blindSize: 1, blindSoft: 1, leaves: 0,
-  wind: 0.8, speed: 0.8, distortion: 0.15,
+  wind: 1.8, speed: 1.3, distortion: 0.15,
 };
 type Light = { zoom: number; softness: number; blurFalloff: number; depthBlur: number; strength: number;
   gradient: number; rays: number; streak: number; rayAngle: number; flare: number; beams: number;
