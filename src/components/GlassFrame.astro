@@ -10,11 +10,14 @@ interface Props {
   poster: string;
   start?: number;   // seconds; the frame the cover rests on
   camera?: [number, number, number, number][];   // see scripts/camera.ts
-  device?: 'iphone' | 'ipad';
+  device?: 'iphone' | 'ipad' | 'desktop';
 }
 const DEVICES = {
   iphone: { src: 'iphone-frame.webp', w: 978, h: 2000, x0: 52, y0: 50, x1: 926, y1: 1950, r: 150 },
   ipad: { src: 'ipad-frame.webp', w: 2000, h: 1424, x0: 83, y0: 80, x1: 1917, y1: 1344, r: 50 },
+  // No frame: a desktop recording (16:10) shown as a window, its corners and
+  // border drawn by smooth-corners.ts.
+  desktop: { src: '', w: 1600, h: 1000, x0: 0, y0: 0, x1: 1600, y1: 1000, r: 0 },
 };
 const { webm, mp4, poster, start = 0, camera, device = 'iphone' } = Astro.props;
 const d = DEVICES[device];
@@ -28,14 +31,14 @@ const shape = [
 ].join('; ');
 ---
 <div class="glass-frame" data-device={device} style={shape} data-camera={camera && JSON.stringify(camera)}>
-  <div class="screen">
+  <div class="screen" data-smooth={device === 'desktop' ? 'clip' : undefined}>
     <!-- Paused on `start` until the cover is hovered or opened (see work-strip.ts). -->
     <video poster={poster} muted loop playsinline preload="auto" data-start={start}>
       {webm && <source src={webm} type="video/webm" />}
       <source src={mp4} type="video/mp4" />
     </video>
   </div>
-  <img class="device" src={frame} alt="" width={d.w} height={d.h} draggable="false" />
+  {d.src && <img class="device" src={frame} alt="" width={d.w} height={d.h} draggable="false" />}
 </div>
 
 <style>
@@ -45,7 +48,14 @@ const shape = [
     filter: drop-shadow(var(--device-shadow));
   }
   /* Landscape devices are sized by width instead. */
-  .glass-frame[data-device="ipad"] { height: auto; width: var(--device-width-landscape); }
+  .glass-frame[data-device="ipad"], .glass-frame[data-device="desktop"] { height: auto; width: var(--device-width-landscape); }
+  /* Desktop: the recording itself as a window, with smoothed corners, a
+     hairline border and the device's soft shadow (on the frame, outside the clip). */
+  .glass-frame[data-device="desktop"] .screen {
+    inset: 0; background: var(--color-cover-bg);
+    border: 1px solid var(--color-desktop-border); --surface-border: var(--color-desktop-border);
+    border-radius: var(--desktop-radius);
+  }
   /* The opening, in shares of the image, grown by --device-bleed under the frame. */
   .screen {
     position: absolute; overflow: hidden; background: #000;

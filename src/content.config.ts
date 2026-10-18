@@ -24,7 +24,7 @@ const work = defineCollection({
         // hover or when the cover is open.
         start: z.number().min(0).default(0),
         // Which device frame it plays in.
-        device: z.enum(['iphone', 'ipad']).default('iphone'),
+        device: z.enum(['iphone', 'ipad', 'desktop']).default('iphone'),
         // Optional camera that follows the interaction while it plays:
         // [seconds, x, y, zoom] keyframes, x/y being the point on the device
         // (0..1 across it) brought to the middle of the cover. The device also
@@ -35,8 +35,9 @@ const work = defineCollection({
       // studio-backdrop shader (src/scripts/backdrop-shader.ts).
       shader: z.enum(['backdrop', 'gradient']).optional(),
       // The gradient's colours: warm (stone rising to an ember glow), cool
-      // (shades of sage) or violet (lavender grey rising to a dusky violet glow).
-      palette: z.enum(['warm', 'cool', 'violet']).optional(),
+      // (shades of sage), violet (lavender grey rising to a dusky violet glow)
+      // or blue (sky grey rising to a soft blue glow).
+      palette: z.enum(['warm', 'cool', 'violet', 'blue']).optional(),
       // A still image filling the cover.
       image: z.string().optional(),
       // Describes the cover for screen readers.
