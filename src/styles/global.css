@@ -61,7 +61,6 @@ a { color: inherit; }
   overflow: visible; pointer-events: none;
   fill: none; stroke: var(--surface-border, transparent);
 }
-.smooth-border-outer { inset: 0; width: 100%; height: 100%; }
 
 /* Custom cursor (scripts/cursor.ts): replaces the system pointer for mouse and
    trackpad. A glass bubble that magnifies what's under it, with a thin
