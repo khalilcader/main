@@ -164,9 +164,9 @@
   --color-gradient-cool-deep: #b7cfba;      /* shades of sage */
   --color-gradient-cool-base: #cde0cd;
   --color-gradient-cool-light: #e3eee1;
-  --color-gradient-violet-deep: #ece7f5;    /* top: soft lilac */
-  --color-gradient-violet-base: #ddd4ef;
-  --color-gradient-violet-light: #b8a4e3;   /* bottom: a violet glow */
+  --color-gradient-violet-deep: #eeedf1;    /* top: soft lavender grey */
+  --color-gradient-violet-base: #e2dfe8;
+  --color-gradient-violet-light: #c3bad3;   /* bottom: a dusky violet glow */
 
   /* Effects */
   --grain-amount: 1;
@@ -241,9 +241,9 @@
     --color-gradient-cool-deep: #18201b;
     --color-gradient-cool-base: #1d2820;
     --color-gradient-cool-light: #243127;
-    --color-gradient-violet-deep: #16141d;
-    --color-gradient-violet-base: #211b2e;
-    --color-gradient-violet-light: #3f2d66;
+    --color-gradient-violet-deep: #151418;
+    --color-gradient-violet-base: #1c1a22;
+    --color-gradient-violet-light: #2f2a3d;
     --color-daylight-paper: #1e2330;
     --color-daylight-shadow: #080a10;
     --daylight-preset: dark;
@@ -294,9 +294,9 @@
   --color-gradient-cool-deep: #18201b;
   --color-gradient-cool-base: #1d2820;
   --color-gradient-cool-light: #243127;
-  --color-gradient-violet-deep: #16141d;
-  --color-gradient-violet-base: #211b2e;
-  --color-gradient-violet-light: #3f2d66;
+  --color-gradient-violet-deep: #151418;
+  --color-gradient-violet-base: #1c1a22;
+  --color-gradient-violet-light: #2f2a3d;
   --color-daylight-paper: #1e2330;
   --color-daylight-shadow: #080a10;
   --daylight-preset: dark;
