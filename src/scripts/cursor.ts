@@ -1,7 +1,10 @@
 // Custom cursor, after the iPad's: a small circle that blurs what's under it.
-// Over a control marked data-cursor="halo" it morphs into that control's
-// shape, a thick halo around it (data-cursor-halo and --cursor-radius tune it), and the control leans a little toward the
-// pointer (magnetic). In focus mode (html[data-focus]) it stays a circle.
+//   data-cursor="halo"    it morphs into the control's shape, a thick halo
+//                         around it (data-cursor-halo and --cursor-radius tune
+//                         it), and the control leans toward the pointer.
+//   data-cursor="magnet"  the element only leans; the cursor stays a circle
+//                         (the cards). data-cursor-pull/-pull-max tune it.
+// In focus mode (html[data-focus]) only elements with data-cursor-focus react.
 // Mouse and trackpad only; touch devices keep their own behaviour.
 
 import { squirclePath } from './squircle';
@@ -50,20 +53,30 @@ if (el && fine.matches) {
     t.style.translate = '';
   };
 
+  const allowed = (t: HTMLElement) => !root.hasAttribute('data-focus') || t.hasAttribute('data-cursor-focus');
+  function setTarget(t: HTMLElement | null) {
+    if (t === target) return;
+    release(target);
+    target = t;
+    el!.classList.toggle('halo', t?.dataset.cursor === 'halo');
+  }
+
   function frame(now: number) {
     const dt = Math.min(0.05, (now - (last || now)) / 1000) || 1 / 60;
     last = now;
-    // Leave a control the moment focus mode starts.
-    if (target && root.hasAttribute('data-focus')) { release(target); target = null; el!.classList.remove('halo'); }
+    // Let go the moment focus mode starts, unless the element takes part in it.
+    if (target && !allowed(target)) setTarget(null);
 
     let tx = mx, ty = my, tw = SIZE, th = SIZE, tr = SIZE / 2;
     if (target) {
       const h = haloOf(target);
-      // Magnetic: the control and its halo lean toward the pointer, a little.
-      const clamp = (v: number) => Math.max(-MAX_PULL, Math.min(MAX_PULL, v));
-      const lx = reduce ? 0 : clamp((mx - h.x) * PULL), ly = reduce ? 0 : clamp((my - h.y) * PULL);
+      // Magnetic: the element (and its halo) leans toward the pointer, a little.
+      const pull = target.dataset.cursorPull != null ? parseFloat(target.dataset.cursorPull) : PULL;
+      const max = target.dataset.cursorPullMax != null ? parseFloat(target.dataset.cursorPullMax) : MAX_PULL;
+      const clamp = (v: number) => Math.max(-max, Math.min(max, v));
+      const lx = reduce ? 0 : clamp((mx - h.x) * pull), ly = reduce ? 0 : clamp((my - h.y) * pull);
       lean(target, lx, ly);
-      tx = h.x + lx; ty = h.y + ly; tw = h.w; th = h.h; tr = h.r;
+      if (target.dataset.cursor === 'halo') { tx = h.x + lx; ty = h.y + ly; tw = h.w; th = h.h; tr = h.r; }
     }
     if (pressed) { tw *= 0.9; th *= 0.9; tr *= 0.9; }
     // Ease toward the target: quick, so the circle never feels like it lags.
@@ -88,15 +101,14 @@ if (el && fine.matches) {
     if (e.pointerType !== 'mouse') return;
     mx = e.clientX; my = e.clientY;
     if (!shown) { shown = true; cur.x = mx; cur.y = my; el.classList.add('shown'); }
-    const t = (e.target as Element | null)?.closest<HTMLElement>('[data-cursor="halo"]') ?? null;
-    const next = t && !root.hasAttribute('data-focus') ? t : null;
-    if (next !== target) { release(target); target = next; el.classList.toggle('halo', !!target); }
+    const t = (e.target as Element | null)?.closest<HTMLElement>('[data-cursor]') ?? null;
+    setTarget(t && allowed(t) ? t : null);
     wake();
   }, { passive: true });
   window.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse') { pressed = true; wake(); } });
   window.addEventListener('pointerup', () => { pressed = false; wake(); });
   // Out of the window: hide until it comes back.
-  document.addEventListener('pointerleave', () => { shown = false; el.classList.remove('shown'); release(target); target = null; el.classList.remove('halo'); });
+  document.addEventListener('pointerleave', () => { shown = false; el.classList.remove('shown'); setTarget(null); });
   window.addEventListener('blur', () => { shown = false; el.classList.remove('shown'); });
   // A scroll or layout change under a still pointer moves the control.
   window.addEventListener('resize', wake);

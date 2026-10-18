@@ -122,6 +122,8 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     color: var(--color-fg); cursor: pointer;
   }
   @media (hover: hover) { .about-close:hover { --surface-bg: var(--color-tool-hover-bg); } }
+  /* The custom cursor's halo is its hover highlight: no tile as well. */
+  @media (hover: hover) { :global(html.has-cursor) .about-close:hover { --surface-bg: transparent; } }
   .about-close:focus-visible { outline: none; --surface-bg: var(--color-tool-hover-bg); }
   .about-close svg { width: var(--icon-size); height: var(--icon-size); }
 
