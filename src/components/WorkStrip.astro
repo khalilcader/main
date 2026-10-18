@@ -99,7 +99,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     --surface-border-top: 0.35;   /* lit from above: darker underneath */
     --surface-blur: blur(var(--button-blur));
     border: var(--button-border-width) solid var(--surface-border);
-    border-radius: var(--button-radius);   /* same corners as the header controls */
+    border-radius: var(--label-radius);
     background: var(--surface-bg);
     -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur);
     color: var(--color-fg);
