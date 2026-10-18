@@ -35,7 +35,7 @@ const work = defineCollection({
       // studio-backdrop shader (src/scripts/backdrop-shader.ts).
       shader: z.enum(['backdrop', 'gradient']).optional(),
       // The gradient's colours: warm (stone rising to an ember glow), cool
-      // (shades of sage) or violet (lilac rising to a violet glow).
+      // (shades of sage) or violet (lavender grey rising to a dusky violet glow).
       palette: z.enum(['warm', 'cool', 'violet']).optional(),
       // A still image filling the cover.
       image: z.string().optional(),

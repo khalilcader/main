@@ -3,8 +3,8 @@
 //             shot on film: three tones drift in very slow, soft waves, under
 //             film grain and a faint paper tooth.
 //   gradient  a calm, soft gradient: three colours pool and drift very
-//             slowly, their edges bent into broad, gentle folds, with only
-//             a whisper of grain.
+//             slowly, their edges bent into broad, gentle folds, under a
+//             fine, faintly flickering grain.
 // Each takes three colours from tokens.css (--color-<kind>-deep, -base,
 // -light, with dark-mode values); data-palette="cool" or "violet" switches
 // the gradient to --color-gradient-<palette>-*.
@@ -131,9 +131,12 @@ void main() {
   float dark = 1.0 - dot(col, vec3(0.3, 0.59, 0.11));   // dark colours need more lift to show it
   col = col * (0.97 + 0.06 * band) + (uLight + 0.1) * 0.08 * band * dark * dark;
 
-  // A whisper of grain, in CSS pixels, so the gradient doesn't band.
+  // Fine grain, in CSS pixels: mostly still, with a faint film flicker
+  // (stepped about 8 times a second) while it plays.
   vec2 c = frag / uScale;
-  col += (hash12(floor(c * 1.2)) - 0.5) * 0.014;
+  float grain = hash12(floor(c * 1.2)) - 0.5;
+  float flicker = hash12(floor(c * 1.2) + floor(uTime * 3.2) * 37.0) - 0.5;
+  col += grain * 0.03 + flicker * 0.012;
   gl_FragColor = vec4(col, 1.0);
 }`;
 
