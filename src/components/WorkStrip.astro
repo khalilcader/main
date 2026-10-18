@@ -73,7 +73,10 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   .card:focus-visible { outline: none; }
 
   .shadow {
-    position: absolute; inset: 0; border-radius: var(--shadow-r, var(--cover-radius));
+    position: absolute; inset: 0;
+    /* Rounder than the cover, so the shadow's box stays inside the smoothed
+       outline and no unshadowed sliver shows at the corners. */
+    border-radius: calc(var(--shadow-r, var(--cover-radius)) * (1 + var(--cover-smoothing)));
     pointer-events: none;
   }
   .shadow.rest { box-shadow: 0 var(--shadow-y0) var(--shadow-b0) 0 var(--color-cover-shadow); }

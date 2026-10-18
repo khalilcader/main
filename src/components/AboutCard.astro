@@ -81,8 +81,8 @@ import { photo } from '../photo';
     height: min(var(--about-height), calc(100dvh - 2 * var(--gutter)), calc((100vw - 2 * var(--gutter)) * 56 / 50));
     aspect-ratio: 50 / 56;
     transform-style: preserve-3d;
-    border-radius: var(--about-radius);
     box-shadow: var(--about-shadow);   /* the faces are clipped, so the shadow lives here */
+    border-radius: calc(var(--about-radius) * (1 + var(--corner-smoothing)));   /* inside the smoothed outline */
     pointer-events: auto;
   }
   .about-face {
