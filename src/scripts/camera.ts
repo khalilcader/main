@@ -18,7 +18,9 @@ function sample(keys: Key[], t: number): [number, number, number] {
   for (let i = 1; i < keys.length; i++) {
     const a = keys[i - 1], b = keys[i];
     if (t <= b[0]) {
-      const k = clamp01((t - a[0]) / Math.max(1e-3, b[0] - a[0]));   // linear: keys are dense
+      // Eased, so each move between held shots starts and lands softly.
+      const l = clamp01((t - a[0]) / Math.max(1e-3, b[0] - a[0]));
+      const k = l * l * (3 - 2 * l);
       return [a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k, a[3] + (b[3] - a[3]) * k];
     }
   }
