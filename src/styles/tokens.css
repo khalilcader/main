@@ -142,6 +142,7 @@
   --device-height: 86%;                     /* iPhone frame: share of the cover's height */
   --device-width-landscape: 86%;            /* iPad frame: share of the cover's width */
   --device-screen-inset-landscape: 1.2%;    /* iPad: black display edge around the picture */
+  --desktop-radius: 14px;                   /* desktop recordings: the window's corners */
   --device-bleed: 2px;                      /* the screen reaches this far under the frame */
   --device-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
   --glass-height: 84%;                      /* of the cover's height; leaves some backdrop above and below */
@@ -172,6 +173,10 @@
   --color-gradient-violet-deep: #eeedf1;    /* top: soft lavender grey */
   --color-gradient-violet-base: #e2dfe8;
   --color-gradient-violet-light: #c3bad3;   /* bottom: a dusky violet glow */
+  --color-gradient-blue-deep: #e8eef5;      /* top: pale sky grey */
+  --color-gradient-blue-base: #d4e0ee;
+  --color-gradient-blue-light: #9fbde0;     /* bottom: a soft blue glow */
+  --color-desktop-border: rgba(0, 0, 0, 0.1);
 
   /* Effects */
   --grain-amount: 1;
@@ -251,6 +256,10 @@
     --color-gradient-violet-deep: #151418;
     --color-gradient-violet-base: #1c1a22;
     --color-gradient-violet-light: #2f2a3d;
+    --color-gradient-blue-deep: #131619;
+    --color-gradient-blue-base: #172029;
+    --color-gradient-blue-light: #233a55;
+    --color-desktop-border: rgba(255, 255, 255, 0.1);
     --color-daylight-paper: #1e2330;
     --color-daylight-shadow: #080a10;
     --daylight-preset: dark;
@@ -306,6 +315,10 @@
   --color-gradient-violet-deep: #151418;
   --color-gradient-violet-base: #1c1a22;
   --color-gradient-violet-light: #2f2a3d;
+  --color-gradient-blue-deep: #131619;
+  --color-gradient-blue-base: #172029;
+  --color-gradient-blue-light: #233a55;
+  --color-desktop-border: rgba(255, 255, 255, 0.1);
   --color-daylight-paper: #1e2330;
   --color-daylight-shadow: #080a10;
   --daylight-preset: dark;
