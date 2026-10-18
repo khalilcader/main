@@ -29,6 +29,9 @@ const work = defineCollection({
         // [seconds, x, y, zoom] keyframes, x/y being the point on the device
         // (0..1 across it) brought to the middle of the cover. The device also
         // drops out and back in around the loop (src/scripts/camera.ts).
+        // Optional resting framing for the thumbnail: [x, y, zoom], like a
+        // camera keyframe, held while the cover isn't playing.
+        rest: z.tuple([z.number(), z.number(), z.number()]).optional(),
         camera: z.array(z.tuple([z.number(), z.number(), z.number(), z.number()])).optional(),
       }).optional(),
       // An animated background behind the media: "backdrop" is a grainy
@@ -36,7 +39,7 @@ const work = defineCollection({
       shader: z.enum(['backdrop', 'gradient']).optional(),
       // The gradient's colours: warm (stone rising to an ember glow), cool
       // (shades of sage), violet (lavender grey rising to a dusky violet glow)
-      // or blue (sky grey rising to a soft blue glow).
+      // or blue (aqua mist rising to a baby-blue glow).
       palette: z.enum(['warm', 'cool', 'violet', 'blue']).optional(),
       // A still image filling the cover.
       image: z.string().optional(),

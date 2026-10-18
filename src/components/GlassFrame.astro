@@ -11,6 +11,7 @@ interface Props {
   start?: number;   // seconds; the frame the cover rests on
   camera?: [number, number, number, number][];   // see scripts/camera.ts
   device?: 'iphone' | 'ipad' | 'desktop';
+  rest?: [number, number, number];   // see scripts/camera.ts
 }
 const DEVICES = {
   iphone: { src: 'iphone-frame.webp', w: 978, h: 2000, x0: 52, y0: 50, x1: 926, y1: 1950, r: 150 },
@@ -19,7 +20,7 @@ const DEVICES = {
   // border drawn by smooth-corners.ts.
   desktop: { src: '', w: 1600, h: 1000, x0: 0, y0: 0, x1: 1600, y1: 1000, r: 0 },
 };
-const { webm, mp4, poster, start = 0, camera, device = 'iphone' } = Astro.props;
+const { webm, mp4, poster, start = 0, camera, device = 'iphone', rest } = Astro.props;
 const d = DEVICES[device];
 const frame = `${import.meta.env.BASE_URL}images/${d.src}`;
 const pct = (v: number, of: number) => `${(v / of * 100).toFixed(4)}%`;
@@ -30,7 +31,7 @@ const shape = [
   `--open-radius: ${pct(d.r, d.x1 - d.x0)} / ${pct(d.r, d.y1 - d.y0)}`,
 ].join('; ');
 ---
-<div class="glass-frame" data-device={device} style={shape} data-camera={camera && JSON.stringify(camera)}>
+<div class="glass-frame" data-device={device} style={shape} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
   <div class="screen" data-smooth={device === 'desktop' ? 'clip' : undefined}>
     <!-- Paused on `start` until the cover is hovered or opened (see work-strip.ts). -->
     <video poster={poster} muted loop playsinline preload="auto" data-start={start}>
@@ -39,6 +40,8 @@ const shape = [
     </video>
   </div>
   {d.src && <img class="device" src={frame} alt="" width={d.w} height={d.h} draggable="false" />}
+  <!-- Desktop: the window's outer border, the same smoothed outer border as the controls. -->
+  {device === 'desktop' && <div class="window-edge" data-smooth="surface" aria-hidden="true"></div>}
 </div>
 
 <style>
@@ -53,8 +56,12 @@ const shape = [
      hairline border and the device's soft shadow (on the frame, outside the clip). */
   .glass-frame[data-device="desktop"] .screen {
     inset: 0; background: var(--color-cover-bg);
-    border: 1px solid var(--color-desktop-border); --surface-border: var(--color-desktop-border);
-    border-radius: var(--desktop-radius);
+    border-radius: var(--desktop-radius);   /* smoothed by the clip (smooth-corners.ts) */
+  }
+  .window-edge {
+    position: absolute; inset: 0; pointer-events: none;
+    --surface-bg: transparent; --surface-border: var(--color-desktop-border); --surface-blur: none;
+    border: 1px solid var(--surface-border); border-radius: var(--desktop-radius);
   }
   /* The opening, in shares of the image, grown by --device-bleed under the frame. */
   .screen {
