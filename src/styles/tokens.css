@@ -162,10 +162,10 @@
      paper with soft tree shadows. Bone grey here, moonlit blue-grey in dark. */
   --color-daylight-paper: #f4f3f0;
   --color-daylight-shadow: #c9c5bd;
-  --daylight-flare: 0.8;                    /* lens flare, rays, sun beams */
+  --daylight-flare: 0;                      /* lens flare, rays, sun beams, falloff */
   --daylight-rays: 0.7;
   --daylight-beams: 0.35;
-  --daylight-gradient: 0.5;                 /* how much the side away from the light falls off */
+  --daylight-gradient: 0.29;
 
   color-scheme: light;
 }
@@ -220,7 +220,7 @@
     --color-daylight-shadow: #080a10;
     --daylight-flare: 0;
     --daylight-rays: 0.55;
-    --daylight-beams: 0.25;
+    --daylight-beams: 0;
     color-scheme: dark;
   }
 }
@@ -263,6 +263,6 @@
   --color-daylight-shadow: #080a10;
   --daylight-flare: 0;
   --daylight-rays: 0.55;
-  --daylight-beams: 0.25;
+  --daylight-beams: 0;
   color-scheme: dark;
 }

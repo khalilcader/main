@@ -5,12 +5,13 @@
 // @ts-expect-error: plain JS copied from the artifact
 import { buildTree, VERT, FRAG } from './engine.js';
 
-// The artifact's settings as Khalil has them (daylight, Flip X, no falling
-// leaves). Colours come from tokens instead of the "bone" palette.
+// The artifact's "Daylight (abstract)" settings as Khalil has them (Flip X,
+// no falling leaves). Colours, and the light effects that differ by theme,
+// come from tokens.
 const SETTINGS = {
-  type: 'broadleaf', seed: 12, posX: 0.5, posY: -0.6, angle: -38, rotY: 0, rotX: 0, zoom: 3.2,
-  softness: 4, blurFalloff: 1.3, depthBlur: 1.2, shadowStrength: 0.5,
-  gradient: 1, rays: 0.7, streak: 0.8, rayAngle: 20, flare: 0.8, beams: 0.35, flipX: true,
+  type: 'broadleaf', seed: 12, posX: 0.5, posY: -0.6, angle: -38, rotY: 0, rotX: 0, zoom: 4,
+  softness: 6, blurFalloff: 3, depthBlur: 3, shadowStrength: 1,
+  gradient: 0.29, rays: 0.7, streak: 0.8, rayAngle: 20, flare: 0, beams: 0.35, flipX: true,
   blinds: 0, blindAngle: 0, blindSize: 1, blindSoft: 1, leaves: 0,
   wind: 0.8, speed: 0.8, grain: 1.5, distortion: 0.15,
 };
