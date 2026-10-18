@@ -110,7 +110,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   /* Fades in by its parts (glass, text, shadow), never the label as a whole:
      opacity below 1 on the label would cut its glass off from the page behind,
      so the blur would drop out mid-fade and snap back on as it settled. */
-  .label > :global(.smooth-layer), .label-text, .label::before { opacity: var(--show, 0); }
+  .label > :global(.smooth-layer), .label > :global(.smooth-border), .label-text, .label::before { opacity: var(--show, 0); }
   .label::before {
     content: ""; position: absolute; inset: calc(-1 * var(--button-border-width)); z-index: -2;
     border-radius: inherit; box-shadow: var(--label-shadow);
@@ -126,6 +126,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     padding: 0;
   }
   :global(html:not([data-grid])) .label > :global(.smooth-layer),
+  :global(html:not([data-grid])) .label > :global(.smooth-border),
   :global(html:not([data-grid])) .label::before { display: none; }
   :global(html:not(.js)) .label { display: none; }
 
