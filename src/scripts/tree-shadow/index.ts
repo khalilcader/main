@@ -1,19 +1,25 @@
-// Runs the tree shadow shader on a canvas (the About card's stand-in): the
-// "daylight" preset from Khalil's Tree Shadow artifact, flipped so the light
-// comes from the left, without falling leaves. Colours come from tokens.css
-// (--color-daylight-paper and --color-daylight-shadow) so they follow the theme.
+// Runs the tree shadow shader on a canvas (the About card's stand-in), from
+// Khalil's Tree Shadow artifact. Colours (--color-daylight-paper, -shadow)
+// and the light preset (--daylight-preset) follow the theme.
 // @ts-expect-error: plain JS copied from the artifact
 import { buildTree, VERT, FRAG } from './engine.js';
 
-// The artifact's "Daylight (abstract)" settings as Khalil has them (Flip X,
-// no falling leaves). Colours, and the light effects that differ by theme,
-// come from tokens.
+// Shared settings from Khalil's Tree Shadow artifact (Flip X, no falling
+// leaves), plus a light preset per theme, picked by --daylight-preset:
+// daylight with sun beams and a lens flare in light mode, a softer, beamless
+// "Daylight (abstract)" at night. Colours come from tokens.
 const SETTINGS = {
-  type: 'broadleaf', seed: 12, posX: 0.5, posY: -0.6, angle: -38, rotY: 0, rotX: 0, zoom: 4,
-  softness: 6, blurFalloff: 3, depthBlur: 3, shadowStrength: 1,
-  gradient: 0.29, rays: 0.7, streak: 0.8, rayAngle: 20, flare: 0, beams: 0.35, flipX: true,
+  type: 'broadleaf', seed: 12, posX: 0.5, posY: -0.6, angle: -38, rotY: 0, rotX: 0, flipX: true,
   blinds: 0, blindAngle: 0, blindSize: 1, blindSoft: 1, leaves: 0,
   wind: 0.8, speed: 0.8, grain: 1.5, distortion: 0.15,
+};
+type Light = { zoom: number; softness: number; blurFalloff: number; depthBlur: number; strength: number;
+  gradient: number; rays: number; streak: number; rayAngle: number; flare: number; beams: number };
+const PRESETS: Record<'light' | 'dark', Light> = {
+  light: { zoom: 3.2, softness: 4, blurFalloff: 1.3, depthBlur: 1.2, strength: 0.31,
+    gradient: 0, rays: 0.7, streak: 1, rayAngle: 26, flare: 1.2, beams: 1 },
+  dark: { zoom: 4, softness: 6, blurFalloff: 3, depthBlur: 3, strength: 1,
+    gradient: 0.29, rays: 0.55, streak: 0.8, rayAngle: 20, flare: 0, beams: 0 },
 };
 const MAX_DPR = 1.5;   // the card is large; this keeps the shader light
 
@@ -92,16 +98,9 @@ export function mountTreeShadow(canvas: HTMLCanvasElement) {
   gl.uniform1i(U.uTree, 0);
   gl.uniform1i(U.uDepth, 1);
 
-  gl.uniform1f(U.uStrength, S.shadowStrength);
   gl.uniform1f(U.uWind, S.wind);
   gl.uniform1f(U.uGrain, S.grain);
   gl.uniform1f(U.uAngle, S.angle * Math.PI / 180);
-  gl.uniform1f(U.uZoom, S.zoom);
-  gl.uniform1f(U.uSoft, S.softness);
-  gl.uniform1f(U.uProg, S.blurFalloff);
-  gl.uniform1f(U.uDepthAmt, S.depthBlur);
-  gl.uniform1f(U.uStreak, S.streak);
-  gl.uniform1f(U.uRayAngle, S.rayAngle * Math.PI / 180);
   gl.uniform1f(U.uFlip, S.flipX ? 1 : 0);
   gl.uniform1f(U.uBlinds, S.blinds);
   gl.uniform1f(U.uBlindAngle, S.blindAngle * Math.PI / 180);
@@ -116,12 +115,19 @@ export function mountTreeShadow(canvas: HTMLCanvasElement) {
     const cs = getComputedStyle(canvas);
     gl.uniform3fv(U.uPaper, parseColor(cs.getPropertyValue('--color-daylight-paper')));
     gl.uniform3fv(U.uShadow, parseColor(cs.getPropertyValue('--color-daylight-shadow')));
-    // Light effects per theme: full daylight, or a dim, flare-free night.
-    const num = (prop: string, fallback: number) => { const v = parseFloat(cs.getPropertyValue(prop)); return Number.isNaN(v) ? fallback : v; };
-    gl.uniform1f(U.uFlare, num('--daylight-flare', S.flare));
-    gl.uniform1f(U.uRays, num('--daylight-rays', S.rays));
-    gl.uniform1f(U.uBeams, num('--daylight-beams', S.beams));
-    gl.uniform1f(U.uGradient, num('--daylight-gradient', S.gradient));
+    // The light itself follows the theme too.
+    const L = PRESETS[cs.getPropertyValue('--daylight-preset').trim() === 'dark' ? 'dark' : 'light'];
+    gl.uniform1f(U.uZoom, L.zoom);
+    gl.uniform1f(U.uSoft, L.softness);
+    gl.uniform1f(U.uProg, L.blurFalloff);
+    gl.uniform1f(U.uDepthAmt, L.depthBlur);
+    gl.uniform1f(U.uStrength, L.strength);
+    gl.uniform1f(U.uGradient, L.gradient);
+    gl.uniform1f(U.uRays, L.rays);
+    gl.uniform1f(U.uStreak, L.streak);
+    gl.uniform1f(U.uRayAngle, L.rayAngle * Math.PI / 180);
+    gl.uniform1f(U.uFlare, L.flare);
+    gl.uniform1f(U.uBeams, L.beams);
     if (!running) draw();
   };
 
