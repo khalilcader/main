@@ -8,10 +8,11 @@ interface Props {
   mp4: string;
   poster: string;
   start?: number;   // seconds; the frame the cover rests on
+  camera?: [number, number, number, number][];   // see scripts/camera.ts
 }
-const { webm, mp4, poster, start = 0 } = Astro.props;
+const { webm, mp4, poster, start = 0, camera } = Astro.props;
 ---
-<div class="glass-frame">
+<div class="glass-frame" data-camera={camera && JSON.stringify(camera)}>
   <div class="glass-shadow"></div>
   <div class="glass">
     <div class="screen">

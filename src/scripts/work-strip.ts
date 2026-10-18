@@ -6,6 +6,7 @@
 // this file are motion tuning, dialed in on the prototype.
 import { squirclePath } from './squircle';
 import { shapeGlassFrames } from './glass-frame';
+import { mountCameras } from './camera';
 import { mountBackdrop } from './backdrop-shader';
 
 const TUNING = {
@@ -1010,6 +1011,7 @@ function init(stage: HTMLElement) {
 
   layout();
   applyEdges();
+  mountCameras(stage);
   for (const c of cards) {
     const cv = c.el.querySelector<HTMLCanvasElement>('canvas[data-shader="backdrop"]');
     if (!cv) continue;

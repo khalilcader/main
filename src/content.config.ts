@@ -23,6 +23,11 @@ const work = defineCollection({
         // Seconds into the video the cover rests on; it plays from here on
         // hover or when the cover is open.
         start: z.number().min(0).default(0),
+        // Optional camera that follows the interaction while it plays:
+        // [seconds, x, y, zoom] keyframes, x/y being the point on the device
+        // (0..1 across it) brought to the middle of the cover. The device also
+        // drops out and back in around the loop (src/scripts/camera.ts).
+        camera: z.array(z.tuple([z.number(), z.number(), z.number(), z.number()])).optional(),
       }).optional(),
       // An animated background behind the media: "backdrop" is a grainy
       // studio-backdrop shader (src/scripts/backdrop-shader.ts).

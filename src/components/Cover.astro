@@ -21,6 +21,7 @@ const url = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, 
           mp4={url(cover.video.mp4)}
           poster={url(cover.video.poster)}
           start={cover.video.start}
+          camera={cover.video.camera}
         />
       </>
     )}
