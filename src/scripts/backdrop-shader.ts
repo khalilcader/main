@@ -1,7 +1,11 @@
-// Backdrop shader: a vivid, mottled studio-backdrop texture behind a cover's
-// media, like a painted cloth shot on film. Three tones from tokens.css
-// (--color-backdrop-deep, -base, -light, with dark-mode values) drift in very
-// slow, soft waves, under film grain and a faint paper tooth.
+// Cover shaders behind a cover's media (cover.shader in the content):
+//   backdrop  a vivid, mottled studio-backdrop texture, like a painted cloth
+//             shot on film: three tones drift in very slow, soft waves, under
+//             film grain and a faint paper tooth.
+//   gradient  a calm, soft gradient: three colours pool and drift very
+//             slowly into each other, with only a whisper of grain.
+// Each takes three colours from tokens.css (--color-<kind>-deep, -base,
+// -light, with dark-mode values).
 
 const VERT = `
 attribute vec2 aPos;
@@ -70,6 +74,49 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
 }`;
 
+const GRADIENT_FRAG = `
+precision highp float;
+uniform vec2 uRes;
+uniform float uTime;
+uniform float uScale;
+uniform vec3 uDeep;
+uniform vec3 uBase;
+uniform vec3 uLight;
+
+float hash12(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+float vnoise(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash12(i), hash12(i + vec2(1.0, 0.0)), f.x),
+             mix(hash12(i + vec2(0.0, 1.0)), hash12(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+void main() {
+  vec2 frag = gl_FragCoord.xy;
+  vec2 uv = frag / uRes;
+  vec2 p = vec2(uv.x * uRes.x / uRes.y, uv.y);
+  float t = uTime;
+  // A slow, gentle warp so the pools never read as circles.
+  p += 0.12 * vec2(vnoise(p * 1.4 + t * 0.03) - 0.5, vnoise(p * 1.4 + 7.0 - t * 0.025) - 0.5);
+  float ar = uRes.x / uRes.y;
+  vec2 c1 = vec2(ar * (0.25 + 0.15 * sin(t * 0.050)), 0.75 + 0.12 * cos(t * 0.040));
+  vec2 c2 = vec2(ar * (0.78 + 0.12 * cos(t * 0.045 + 1.7)), 0.55 + 0.18 * sin(t * 0.035 + 0.6));
+  vec2 c3 = vec2(ar * (0.45 + 0.18 * sin(t * 0.030 + 3.1)), 0.15 + 0.12 * cos(t * 0.050 + 2.2));
+  float w1 = exp(-dot(p - c1, p - c1) * 3.0);
+  float w2 = exp(-dot(p - c2, p - c2) * 3.0);
+  float w3 = exp(-dot(p - c3, p - c3) * 3.0);
+  vec3 col = (uDeep * w1 + uBase * w2 + uLight * w3 + uBase * 0.15) / (w1 + w2 + w3 + 0.15);
+
+  // A whisper of grain, in CSS pixels, so the gradient doesn't band.
+  vec2 c = frag / uScale;
+  col += (hash12(floor(c * 1.2)) - 0.5) * 0.018;
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
 const MAX_DPR = 1.5;  // the cover is large; this keeps the shader light
 const FPS = 30;       // the motion is slow, so 30fps is plenty
 const SPEED = 2.5;    // how fast the folds and colour waves drift
@@ -96,7 +143,8 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   };
   const prog = gl.createProgram()!;
   gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
-  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+  const kind = canvas.dataset.shader === 'gradient' ? 'gradient' : 'backdrop';
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, kind === 'gradient' ? GRADIENT_FRAG : FRAG));
   gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) || 'link');
   gl.useProgram(prog);
@@ -124,9 +172,9 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   };
   const applyColors = () => {
     const cs = getComputedStyle(canvas);
-    gl.uniform3fv(U.uDeep, rgb(cs.getPropertyValue('--color-backdrop-deep')));
-    gl.uniform3fv(U.uBase, rgb(cs.getPropertyValue('--color-backdrop-base')));
-    gl.uniform3fv(U.uLight, rgb(cs.getPropertyValue('--color-backdrop-light')));
+    gl.uniform3fv(U.uDeep, rgb(cs.getPropertyValue(`--color-${kind}-deep`)));
+    gl.uniform3fv(U.uBase, rgb(cs.getPropertyValue(`--color-${kind}-base`)));
+    gl.uniform3fv(U.uLight, rgb(cs.getPropertyValue(`--color-${kind}-light`)));
     if (!running) draw();
   };
   const frame = (now: number) => {

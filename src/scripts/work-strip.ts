@@ -1014,7 +1014,7 @@ function init(stage: HTMLElement) {
   applyEdges();
   mountCameras(stage);
   for (const c of cards) {
-    const cv = c.el.querySelector<HTMLCanvasElement>('canvas[data-shader="backdrop"]');
+    const cv = c.el.querySelector<HTMLCanvasElement>('canvas[data-shader]');
     if (!cv) continue;
     try { c.shader = mountBackdrop(cv); } catch (err) { console.warn('Backdrop shader failed', err); }
   }

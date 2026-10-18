@@ -155,6 +155,10 @@
   --color-backdrop-deep: #3a73dc;
   --color-backdrop-base: #5f93ef;
   --color-backdrop-light: #a3c5fa;
+  /* Gradient cover shader (cover.shader: gradient): calm, soft colour pools. */
+  --color-gradient-deep: #f0dccf;           /* soft peach */
+  --color-gradient-base: #e4e0ee;           /* lilac mist */
+  --color-gradient-light: #dbe7ec;          /* pale sky */
 
   /* Effects */
   --grain-amount: 1;
@@ -223,6 +227,9 @@
     --color-backdrop-deep: #071a4d;
     --color-backdrop-base: #0f2f80;
     --color-backdrop-light: #2152b5;
+    --color-gradient-deep: #2b2626;
+    --color-gradient-base: #26252e;
+    --color-gradient-light: #222a2e;
     --color-daylight-paper: #1e2330;
     --color-daylight-shadow: #080a10;
     --daylight-preset: dark;
@@ -267,6 +274,9 @@
   --color-backdrop-deep: #071a4d;
   --color-backdrop-base: #0f2f80;
   --color-backdrop-light: #2152b5;
+  --color-gradient-deep: #2b2626;
+  --color-gradient-base: #26252e;
+  --color-gradient-light: #222a2e;
   --color-daylight-paper: #1e2330;
   --color-daylight-shadow: #080a10;
   --daylight-preset: dark;
