@@ -16,7 +16,7 @@ const { tools = true } = Astro.props;
 <header class="site-header">
   <a class="who" href={home}>
     <!-- Flips over in 3D on hover to show the About side. -->
-    <span class="photo has-tip" data-cursor="magnet">
+    <span class="photo has-tip" data-cursor="halo" data-cursor-halo="0" style="--cursor-radius: var(--photo-radius)">
       <span class="flip">
         <span class="face front"><span class="surface" data-smooth="clip">
           {photo && <img src={photo} alt="Khalil Cader" width="50" height="56" />}

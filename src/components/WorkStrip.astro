@@ -14,7 +14,6 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     <button
       class="card"
       type="button"
-      data-cursor="halo" data-cursor-halo="0" data-cursor-pull="0.025" data-cursor-pull-max="6"
       data-i={i}
       data-aspect={item.data.cover.aspect}
       aria-label={`${item.data.title}. ${item.data.cover.alt}`}
