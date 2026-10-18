@@ -142,7 +142,7 @@
   --device-height: 86%;                     /* iPhone frame: share of the cover's height */
   --device-width-landscape: 86%;            /* iPad frame: share of the cover's width */
   --device-screen-inset-landscape: 1.2%;    /* iPad: black display edge around the picture */
-  --desktop-radius: 22px;                   /* desktop recordings: the window's corners */
+  --desktop-radius: 16px;                   /* desktop recordings: the window's corners */
   --device-bleed: 2px;                      /* the screen reaches this far under the frame */
   --device-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
   --glass-height: 84%;                      /* of the cover's height; leaves some backdrop above and below */
