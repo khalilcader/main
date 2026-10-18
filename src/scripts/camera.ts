@@ -5,7 +5,9 @@
 //
 // Keyframes come from the cover's content (cover.video.camera) as
 // [seconds, x, y, zoom]: x/y is the point on the device (0..1 across its width
-// and height) brought to the middle of the cover.
+// and height) brought to the middle of the cover. An optional rest framing
+// (cover.video.rest, [x, y, zoom]) holds the cover zoomed in while it isn't
+// playing, its thumbnail; without one it rests on the full view.
 
 type Key = [number, number, number, number];
 
@@ -30,11 +32,14 @@ function sample(keys: Key[], t: number): [number, number, number] {
 
 export function mountCameras(root: ParentNode = document) {
   if (reduce) return;
-  for (const frame of root.querySelectorAll<HTMLElement>('.glass-frame[data-camera]')) {
+  for (const frame of root.querySelectorAll<HTMLElement>('.glass-frame[data-camera], .glass-frame[data-rest]')) {
     const video = frame.querySelector('video');
-    let keys: Key[];
-    try { keys = JSON.parse(frame.dataset.camera!); } catch { continue; }
-    if (!video || !keys.length) continue;
+    let keys: Key[], rest: [number, number, number] | null;
+    try {
+      keys = frame.dataset.camera ? JSON.parse(frame.dataset.camera) : [];
+      rest = frame.dataset.rest ? JSON.parse(frame.dataset.rest) : null;
+    } catch { continue; }
+    if (!video || (!keys.length && !rest)) continue;
 
     // The shot eases in when the video starts and back out when it stops.
     let on = 0, raf = 0, last = 0;
@@ -43,9 +48,10 @@ export function mountCameras(root: ParentNode = document) {
       const dt = Math.min(0.05, last ? (now - last) / 1000 : 1 / 60);
       last = now;
       const playing = !video.paused && !video.ended;
-      on += ((playing ? 1 : 0) - on) * (1 - Math.exp(-dt * 3));
+      const framed = playing || !!rest;   // a rest framing keeps the camera on while idle
+      on += ((framed ? 1 : 0) - on) * (1 - Math.exp(-dt * 3));
 
-      const [kx, ky, ks] = sample(keys, video.currentTime);
+      const [kx, ky, ks] = playing && keys.length ? sample(keys, video.currentTime) : rest ?? [0.5, 0.5, 1];
       // A light follow, so a jump (the loop, a seek) never snaps.
       const f = 1 - Math.exp(-dt * 5);   // smooths the moves without arriving late
       cur.x += (kx - cur.x) * f; cur.y += (ky - cur.y) * f; cur.s += (ks - cur.s) * f;
@@ -59,11 +65,16 @@ export function mountCameras(root: ParentNode = document) {
       frame.style.scale = s.toFixed(4);
       frame.style.translate = `${tx.toFixed(2)}px ${ty.toFixed(2)}px`;
 
-      if (playing || on > 0.002) raf = requestAnimationFrame(step);
-      else { raf = 0; frame.style.scale = ''; frame.style.translate = ''; }
+      const settled = Math.abs(kx - cur.x) < 1e-4 && Math.abs(ky - cur.y) < 1e-4 && Math.abs(ks - cur.s) < 1e-4 && Math.abs(on - 1) < 1e-3;
+      if (playing || (rest ? !settled : on > 0.002)) raf = requestAnimationFrame(step);
+      else { raf = 0; if (!rest) { frame.style.scale = ''; frame.style.translate = ''; } }
     };
     const start = () => { if (!raf) { last = 0; raf = requestAnimationFrame(step); } };
     video.addEventListener('playing', start);
-    video.addEventListener('pause', start);   // ease back out
+    video.addEventListener('pause', start);   // ease back out (or to the rest framing)
+    if (rest) {   // start on the rest framing, without easing in on load
+      on = 1; cur.x = rest[0]; cur.y = rest[1]; cur.s = rest[2];
+      new ResizeObserver(start).observe(frame);
+    }
   }
 }

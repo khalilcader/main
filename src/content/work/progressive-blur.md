@@ -15,6 +15,7 @@ cover:
     poster: images/work/progressive-blur.jpg
     start: 21.2
     device: desktop
+    rest: [0.64, 0.55, 1.5]   # thumbnail: in close on the blurred image, its handle and the popover
     # [seconds, x, y, zoom]: gentle held shots (1.3-1.45x) on each step,
     # with the full view at the start and end so the loop is seamless.
     camera:
