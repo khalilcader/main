@@ -91,4 +91,7 @@ html:not(.has-cursor) .cursor { display: none; }
 .cursor.halo {
   background: var(--color-cursor-halo);
   -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow: none;
 }
+/* Over a control it's the plain tinted halo: no glass, rim or shadow. */
+.cursor.halo::before { opacity: 0; }
