@@ -57,6 +57,10 @@ if (el && fine.matches) {
   };
 
   const allowed = (t: HTMLElement) => !root.hasAttribute('data-focus') || t.hasAttribute('data-cursor-focus');
+  const pick = (under: Element | null) => {
+    const t = under?.closest<HTMLElement>('[data-cursor]') ?? null;
+    return t && allowed(t) ? t : null;
+  };
   function setTarget(t: HTMLElement | null) {
     if (t === target) return;
     release(target);
@@ -67,8 +71,10 @@ if (el && fine.matches) {
   function frame(now: number) {
     const dt = Math.min(0.05, (now - (last || now)) / 1000) || 1 / 60;
     last = now;
-    // Let go the moment focus mode starts, unless the element takes part in it.
-    if (target && !allowed(target)) setTarget(null);
+    // Let go the moment focus mode starts (unless the element takes part in
+    // it), or when something else comes over the control or hides it (the
+    // About card opening over the avatar) with the pointer standing still.
+    if (target) setTarget(pick(document.elementFromPoint(mx, my)));
 
     let tx = mx, ty = my, tw = SIZE, th = SIZE, tr = SIZE / 2;
     if (target) {
@@ -104,8 +110,7 @@ if (el && fine.matches) {
     if (e.pointerType !== 'mouse') return;
     mx = e.clientX; my = e.clientY;
     if (!shown) { shown = true; cur.x = mx; cur.y = my; el.classList.add('shown'); }
-    const t = (e.target as Element | null)?.closest<HTMLElement>('[data-cursor]') ?? null;
-    setTarget(t && allowed(t) ? t : null);
+    setTarget(pick(e.target as Element | null));
     wake();
   }, { passive: true });
   window.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse') { pressed = true; wake(); } });
