@@ -378,6 +378,7 @@ function init(stage: HTMLElement) {
     if (p.t >= 0.5) S.row.pos = rowSnap(nearest(centerBig, S.big.pos));
     p.snap(0);
     mode = m;
+    document.documentElement.toggleAttribute('data-grid', m === 'grid');   // labels change style (WorkStrip.astro)
     gridBtn.setAttribute('aria-pressed', String(m === 'grid'));
     gridBtn.setAttribute('aria-label', m === 'grid' ? 'Show as row' : 'Show as grid');
   }

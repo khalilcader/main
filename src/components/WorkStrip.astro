@@ -116,6 +116,17 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     border-radius: inherit; box-shadow: var(--label-shadow);
   }
   .label:not(:global(.smooth-host)) { opacity: 0; }   /* until its glass layer is set up */
+  /* In the row, the title is plain text under the cover, no glass; the pill
+     stays for the grid, where there's no room beneath. */
+  :global(html:not([data-grid])) .label {
+    bottom: auto; top: calc(100% + var(--label-below-gap) * var(--unscale, 1));
+    transform: translateX(-50%) translateY(calc((1 - var(--pop, 0)) * var(--label-rise)))
+      scale(var(--unscale, 1));
+    transform-origin: 50% 0;
+    padding: 0;
+  }
+  :global(html:not([data-grid])) .label > :global(.smooth-layer),
+  :global(html:not([data-grid])) .label::before { display: none; }
   :global(html:not(.js)) .label { display: none; }
 
   /* Grain over anything pushed out of focus. The cover itself fades and blurs;

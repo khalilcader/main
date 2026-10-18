@@ -109,6 +109,7 @@
   --tip-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
 
   /* Cover title pill (on hover) */
+  --label-below-gap: 12px;                  /* row view: the title sits this far under the cover */
   --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
   --label-pad-y: 12px;                      /* chunky pill */
   --label-pad-x: 20px;
