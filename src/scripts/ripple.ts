@@ -11,8 +11,8 @@ const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 const css = getComputedStyle(document.documentElement);
 const num = (name: string, fallback: number) => parseFloat(css.getPropertyValue(name)) || fallback;
-const RADIUS = num('--ripple-radius', 160);     // px (card pixels): reach of the rings
-const STRENGTH = num('--ripple-strength', 9);   // px of push at full speed
+const RADIUS = num('--ripple-radius', 300);     // px (card pixels): reach of the rings
+const STRENGTH = num('--ripple-strength', 24);   // px of push at full speed
 const SPLIT = num('--ripple-split', 1);         // how far red and blue part from green (1: red twice green's push, blue none)
 
 // The displacement field: R/G hold the push (0.5 = none), radial, as rings
@@ -92,8 +92,8 @@ if (stage && fine && !reduce) {
     // Rings drift after the pointer; strength follows speed, then dies away.
     const follow = 1 - Math.exp(-dt * 12);
     ptr.lx += (ptr.x - ptr.lx) * follow; ptr.ly += (ptr.y - ptr.ly) * follow;
-    const want = Math.min(1, ptr.speed / 900);
-    ptr.amt += (want - ptr.amt) * (1 - Math.exp(-dt * (want > ptr.amt ? 10 : 2.5)));
+    const want = Math.min(1, ptr.speed / 500);
+    ptr.amt += (want - ptr.amt) * (1 - Math.exp(-dt * (want > ptr.amt ? 10 : 1.6)));
     ptr.speed *= Math.exp(-dt * 8);
 
     const r = RADIUS;
