@@ -32,6 +32,8 @@ const work = defineCollection({
       // An animated background behind the media: "backdrop" is a grainy
       // studio-backdrop shader (src/scripts/backdrop-shader.ts).
       shader: z.enum(['backdrop', 'gradient']).optional(),
+      // The gradient's colours: warm (peach, lilac, sky) or cool (mist, lavender, sage).
+      palette: z.enum(['warm', 'cool']).optional(),
       // A still image filling the cover.
       image: z.string().optional(),
       // Describes the cover for screen readers.
