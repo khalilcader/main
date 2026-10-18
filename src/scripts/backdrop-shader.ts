@@ -122,6 +122,15 @@ void main() {
   float w3 = exp(-dot(w - c3, w - c3) * 4.0);
   vec3 col = (uDeep * w1 + uBase * w2 + uLight * w3 + uBase * 0.08) / (w1 + w2 + w3 + 0.08);
 
+  // Soft light: two or three broad, glowing bands, bent by the folds,
+  // sweeping slowly across, with a gentle dip between them. This is what
+  // carries the motion; the shades alone are too close to see move.
+  vec2 dir = normalize(vec2(0.55, 1.0));
+  float band = 0.5 + 0.5 * sin(dot(w, dir) * 5.0 - t * 0.35 + (q.x - 0.5) * 4.0);
+  band = smoothstep(0.2, 1.0, band);
+  float dark = 1.0 - dot(col, vec3(0.3, 0.59, 0.11));   // dark colours need more lift to show it
+  col = col * (0.95 + 0.10 * band) + (uLight + 0.1) * 0.14 * band * dark * dark;
+
   // A whisper of grain, in CSS pixels, so the gradient doesn't band.
   vec2 c = frag / uScale;
   col += (hash12(floor(c * 1.2)) - 0.5) * 0.014;
