@@ -93,7 +93,7 @@
 
   /* Tooltips */
   --tip-gap: 8px;
-  --cursor-size: 20px;                      /* custom cursor: the resting circle */
+  --cursor-size: 24px;                      /* custom cursor: the resting circle */
   --cursor-blur: 6px;                       /* what's under the circle is blurred this much */
   --cursor-halo: 6px;                       /* over a control: how far the halo reaches past it */
   --cursor-pull: 0.12;                      /* magnetic: share of the pointer's offset the control follows */
