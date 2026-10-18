@@ -99,6 +99,9 @@
   --cursor-halo: 6px;                       /* over a control: how far the halo reaches past it */
   --cursor-pull: 0.12;                      /* magnetic: share of the pointer's offset the control follows */
   --cursor-pull-max: 4px;                   /* ...up to this far */
+  --ripple-radius: 160;                     /* hover ripple on a card: reach of the rings (card px) */
+  --ripple-strength: 9;                     /* px of push when the mouse moves fast */
+  --ripple-split: 0.35;                     /* colour split: red and blue bend this much more / less than green */
   --tip-delay: 0.1s;                        /* hover pause before a tooltip shows */
   --tip-pad-y: 8px;                         /* around cap height to baseline */
   --tip-pad-x: 10px;
