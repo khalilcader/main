@@ -107,16 +107,16 @@ void main() {
   vec2 uv = frag / uRes;
   float ar = uRes.x / uRes.y;
   vec2 p = vec2(uv.x * ar, uv.y);
-  float t = uTime;
+  float t = uTime * 2.5;   // its own pace: the broad folds need more motion to read
 
   // Broad, gentle folds: the colour fields are bent by large, slow noise, so
   // their edges flow instead of reading as round pools (no fine curls).
   vec2 q = vec2(fbm(p * 0.7 + vec2(0.0, t * 0.015)), fbm(p * 0.7 + vec2(4.1, 2.3) - t * 0.012));
   vec2 w = p + (q - 0.5) * 0.45;
 
-  vec2 c1 = vec2(ar * (0.22 + 0.10 * sin(t * 0.040)), 0.80 + 0.08 * cos(t * 0.032));
-  vec2 c2 = vec2(ar * (0.80 + 0.08 * cos(t * 0.036 + 1.7)), 0.50 + 0.12 * sin(t * 0.028 + 0.6));
-  vec2 c3 = vec2(ar * (0.42 + 0.12 * sin(t * 0.024 + 3.1)), 0.12 + 0.08 * cos(t * 0.040 + 2.2));
+  vec2 c1 = vec2(ar * (0.22 + 0.16 * sin(t * 0.040)), 0.78 + 0.12 * cos(t * 0.032));
+  vec2 c2 = vec2(ar * (0.78 + 0.14 * cos(t * 0.036 + 1.7)), 0.50 + 0.18 * sin(t * 0.028 + 0.6));
+  vec2 c3 = vec2(ar * (0.42 + 0.18 * sin(t * 0.024 + 3.1)), 0.14 + 0.12 * cos(t * 0.040 + 2.2));
   float w1 = exp(-dot(w - c1, w - c1) * 4.0);
   float w2 = exp(-dot(w - c2, w - c2) * 4.0);
   float w3 = exp(-dot(w - c3, w - c3) * 4.0);
