@@ -2,8 +2,10 @@
 //   data-cursor="halo"    it morphs into the control's shape, a thick halo
 //                         around it (data-cursor-halo and --cursor-radius tune
 //                         it), and the control leans toward the pointer.
-//   data-cursor="magnet"  the element only leans; the cursor stays a circle
-//                         (the cards). data-cursor-pull/-pull-max tune it.
+//   data-cursor="magnet"  the element only leans; the cursor stays a circle.
+//                         data-cursor-pull/-pull-max tune the lean.
+//   data-cursor-behind    the halo goes behind the element (the cards), so it
+//                         shows as a ring around it and doesn't tint it.
 // In focus mode (html[data-focus]) only elements with data-cursor-focus react.
 // Mouse and trackpad only; touch devices keep their own behaviour.
 
@@ -39,7 +41,10 @@ if (el && fine.matches) {
     // radius (--cursor-radius, when its shape is drawn by a child).
     const cs = getComputedStyle(t);
     const pad = t.dataset.cursorHalo != null ? parseFloat(t.dataset.cursorHalo) : HALO;
-    const r = parseFloat(cs.getPropertyValue('--cursor-radius')) || parseFloat(cs.borderTopLeftRadius) || 0;
+    // The radius is in the element's own pixels; scale it to the screen
+    // (the cards are drawn scaled down).
+    const k = t.offsetWidth ? b.width / t.offsetWidth : 1;
+    const r = (parseFloat(cs.getPropertyValue('--cursor-radius')) || parseFloat(cs.borderTopLeftRadius) || 0) * k;
     return { x: b.left - tx + b.width / 2, y: b.top - ty + b.height / 2, w: b.width + pad * 2, h: b.height + pad * 2, r: r + pad };
   };
   const lean = (t: HTMLElement | null, x: number, y: number) => {
@@ -59,6 +64,7 @@ if (el && fine.matches) {
     release(target);
     target = t;
     el!.classList.toggle('halo', t?.dataset.cursor === 'halo');
+    el!.classList.toggle('behind', !!t?.hasAttribute('data-cursor-behind'));
   }
 
   function frame(now: number) {

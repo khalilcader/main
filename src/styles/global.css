@@ -83,3 +83,5 @@ html:not(.has-cursor) .cursor { display: none; }
   background: var(--color-cursor-halo);
   -webkit-backdrop-filter: none; backdrop-filter: none;
 }
+/* Behind a card: under the work strip, so only a ring shows around it. */
+.cursor.behind { z-index: -1; background: var(--color-cursor-ring); }
