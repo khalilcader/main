@@ -15,7 +15,7 @@
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.08);   /* lifted on hover: subtle, soft */
   --color-photo-border: rgba(0, 0, 0, 0.1);
   --color-button-bg: rgba(255, 255, 255, 0.8);
-  --color-button-border: rgba(0, 0, 0, 0.16);
+  --color-button-border: rgba(0, 0, 0, 0.11);
   --color-divider: rgba(0, 0, 0, 0.1);
   --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
   --color-cursor-halo: rgba(0, 0, 0, 0.07);
@@ -134,6 +134,9 @@
   --cover-shadow-hover-blur: 32px;
 
   /* Glass device frame (Figma 43:66: 390 × 816) */
+  --device-height: 86%;                     /* iPhone frame: share of the cover's height */
+  --device-bleed: 2px;                      /* the screen reaches this far under the frame */
+  --device-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
   --glass-height: 84%;                      /* of the cover's height; leaves some backdrop above and below */
   --glass-radius-x: 15.6%;                  /* 61px of 390 */
   --glass-radius-y: 7.5%;                   /* 61px of 816 */
@@ -192,7 +195,7 @@
     --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
     --color-photo-border: rgba(255, 255, 255, 0.08);
     --color-button-bg: rgba(40, 40, 38, 0.8);
-    --color-button-border: rgba(255, 255, 255, 0.12);
+    --color-button-border: rgba(255, 255, 255, 0.07);
     --color-divider: rgba(255, 255, 255, 0.12);
     --color-cursor: rgba(255, 255, 255, 0.03);
     --color-cursor-halo: rgba(255, 255, 255, 0.09);
@@ -236,7 +239,7 @@
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
   --color-photo-border: rgba(255, 255, 255, 0.08);
   --color-button-bg: rgba(40, 40, 38, 0.8);
-  --color-button-border: rgba(255, 255, 255, 0.12);
+  --color-button-border: rgba(255, 255, 255, 0.07);
   --color-divider: rgba(255, 255, 255, 0.12);
   --color-cursor: rgba(255, 255, 255, 0.03);
   --color-cursor-halo: rgba(255, 255, 255, 0.09);
