@@ -10,21 +10,22 @@
   --color-fg: #000000;
   --color-focus: #2f5bd8;
   --color-cover-bg: #ffffff;
-  --color-cover-border: transparent;           /* no outlines in light mode: shadows separate */
+  --color-cover-border: rgba(0, 0, 0, 0.06);   /* hairlines, with the soft shadows doing most of the separating */
   --color-cover-shadow: rgba(0, 0, 0, 0.07);
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.08);   /* lifted on hover: subtle, soft */
-  --color-photo-border: transparent;
+  --color-photo-border: rgba(0, 0, 0, 0.08);
   --color-button-bg: rgba(255, 255, 255, 0.8);
-  --color-button-border: transparent;
+  --color-button-border: rgba(0, 0, 0, 0.08);
   --color-divider: rgba(0, 0, 0, 0.1);
   --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
   --color-cursor-halo: rgba(0, 0, 0, 0.07);
+  --color-cursor-ring: rgba(0, 0, 0, 0.1);    /* hairline round the glass bubble, so it reads on white */
   --color-button-shadow: rgba(0, 0, 0, 0.07);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
   --color-label-bg: var(--color-button-bg);
   --color-tip-bg: rgba(38, 38, 38, 0.94);   /* from Khalil's tooltip mockup */
   --color-tip-fg: #ffffff;
-  --color-tip-border: transparent;
+  --color-tip-border: rgba(255, 255, 255, 0.08);
   --color-toggle-on-bg: #dbe9fc;            /* pressed tile, from Khalil's mockup */
   --color-toggle-on-fg: #3b88f5;
   --color-tool-hover-bg: rgba(0, 0, 0, 0.08);   /* from Khalil's hover mockup */
@@ -95,7 +96,7 @@
   /* Tooltips */
   --tip-gap: 8px;
   --cursor-size: 44px;                      /* custom cursor: the glass bubble */
-  --cursor-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 0 12px rgba(255, 255, 255, 0.12);
+  --cursor-shadow: 0 0 0 1px var(--color-cursor-ring), 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 0 12px rgba(255, 255, 255, 0.12);
   --cursor-halo: 6px;                       /* over a control: how far the halo reaches past it */
   --cursor-pull: 0.12;                      /* magnetic: share of the pointer's offset the control follows */
   --cursor-pull-max: 4px;                   /* ...up to this far */
@@ -162,7 +163,7 @@
   /* Daylight shader (About card stand-in, the Tree Shadow artifact): light
      paper with soft tree shadows. Bone grey here, moonlit blue-grey in dark. */
   --color-daylight-paper: #f8f7f5;            /* the artifact's "Bone" palette */
-  --color-daylight-shadow: #8a8987;
+  --color-daylight-shadow: #bdbab4;
   --daylight-preset: light;                 /* which light settings (scripts/tree-shadow) */
 
   color-scheme: light;
@@ -193,6 +194,7 @@
     --color-divider: rgba(255, 255, 255, 0.12);
     --color-cursor: rgba(255, 255, 255, 0.03);
     --color-cursor-halo: rgba(255, 255, 255, 0.09);
+  --color-cursor-ring: rgba(255, 255, 255, 0.12);
     --color-button-shadow: rgba(0, 0, 0, 0.3);
     --color-label-shadow: rgba(0, 0, 0, 0.35);
     --color-label-bg: rgba(20, 20, 19, 0.82);
@@ -236,6 +238,7 @@
   --color-divider: rgba(255, 255, 255, 0.12);
   --color-cursor: rgba(255, 255, 255, 0.03);
   --color-cursor-halo: rgba(255, 255, 255, 0.09);
+  --color-cursor-ring: rgba(255, 255, 255, 0.12);
   --color-button-shadow: rgba(0, 0, 0, 0.3);
   --color-label-shadow: rgba(0, 0, 0, 0.35);
   --color-label-bg: rgba(20, 20, 19, 0.82);

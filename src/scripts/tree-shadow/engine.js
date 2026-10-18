@@ -417,6 +417,7 @@ uniform float uRays;
 uniform float uStreak;
 uniform float uRayAngle;
 uniform float uFlare;
+uniform float uVignette;   // how much the light falls off away from the source (1 = artifact default)
 uniform float uBeams;
 uniform float uFlip;
 uniform float uBlinds;
@@ -628,7 +629,7 @@ void main() {
 
   // ── light: soft falloff + very slow drift, like thin cloud passing
   float fall = dot(p - vec2(0.18, 0.12), p - vec2(0.18, 0.12));
-  float light = 1.0 - 0.16 * fall * (1.0 - 0.85 * uGradient) + 0.022 * (vnoise(p * 1.4 + t * 0.05) - 0.5);
+  float light = 1.0 - 0.16 * uVignette * fall * (1.0 - 0.85 * uGradient) + 0.022 * (vnoise(p * 1.4 + t * 0.05) - 0.5);
 
   // ── gradient wash: bright on the side the light comes from, dim on the other
   vec2 gDir = vec2(cos(uRayAngle + 0.3), sin(uRayAngle + 0.3));
