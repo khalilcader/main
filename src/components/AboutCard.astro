@@ -98,8 +98,11 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
     border-radius: var(--about-radius);
     background: var(--color-cover-bg);
   }
+  /* Wider than the card (which clips it): the shader composes its light for
+     a landscape frame, as in the artifact, and the card shows the left, lit
+     part of it. On a portrait canvas the flare lands opposite the beams. */
   .about-daylight {
-    position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+    position: absolute; left: 0; top: 0; width: 150%; height: 100%; display: block;
     background: var(--color-daylight-paper);   /* without WebGL2 */
   }
   .about-back .about-surface {
