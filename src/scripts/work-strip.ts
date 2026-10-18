@@ -55,6 +55,8 @@ if (stage) init(stage);
 
 function init(stage: HTMLElement) {
   const backdrop = document.getElementById('backdrop')!;
+  const backdropGrain = document.getElementById('backdrop-grain');
+  let backdropLast = -1;
   const header = document.querySelector<HTMLElement>('.site-header')!;
   const who = header.querySelector<HTMLElement>('.who')!;
   const viewTools = document.getElementById('view-tools');
@@ -954,7 +956,13 @@ function init(stage: HTMLElement) {
       const ti = mode === 'grid' && gridOpen >= 0 && c.i !== gridOpen ? -1 : 0;
       if (L.ti !== ti) { L.ti = ti; c.el.tabIndex = ti; }
     }
-    backdrop.style.opacity = mode === 'grid' && gridActive >= 0 ? gpv.toFixed(3) : '0';
+    const bo = Math.round((mode === 'grid' && gridActive >= 0 ? gpv : 0) * 1000) / 1000;
+    if (bo !== backdropLast) {
+      backdropLast = bo;
+      backdrop.style.opacity = String(bo);
+      // Its grain fades with it, up to the theme's grain strength.
+      if (backdropGrain) backdropGrain.style.opacity = (bo * (parseFloat(getComputedStyle(backdropGrain).getPropertyValue('--scrim-grain')) || 0)).toFixed(3);
+    }
     // The focus view is near full screen, so the name steps aside for it.
     // Focus mode (focus strip or grid lightbox): the name and the view controls
     // step aside, and a close button takes the name's place.

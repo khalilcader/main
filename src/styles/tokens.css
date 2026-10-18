@@ -88,8 +88,8 @@
   --about-close-inset: 24px;                /* close button, from the card's top-left corner */
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
   --about-blur: 16px;                       /* background blur behind the card */
-  --about-grain: 0.6;
-  --about-grain-blend: overlay;
+  --scrim-grain: 0.6;
+  --scrim-grain-blend: overlay;
 
   /* Tooltips */
   --tip-gap: 8px;
@@ -201,8 +201,9 @@
     --color-tip-bg: rgba(20, 20, 19, 0.96);
     --grain-blend: soft-light;              /* overlay brightens dark surfaces; leaving covers should darken */
     --grain-strength: 0.6;
-    --about-grain-blend: multiply;   /* overlay lifts a dark page */
-    --about-grain: 0.35;
+    --scrim-grain-blend: multiply;   /* overlay lifts a dark page */
+    --scrim-grain: 0.35;
+    --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
     --veil-tint: rgba(0, 0, 0, 0.55);
     --color-tip-border: rgba(255, 255, 255, 0.18);
     --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
@@ -244,8 +245,9 @@
   --color-tip-bg: rgba(20, 20, 19, 0.96);
   --grain-blend: soft-light;        /* overlay brightens dark surfaces; leaving covers should darken */
   --grain-strength: 0.6;
-  --about-grain-blend: multiply;   /* overlay lifts a dark page */
-  --about-grain: 0.35;
+  --scrim-grain-blend: multiply;   /* overlay lifts a dark page */
+  --scrim-grain: 0.35;
+  --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
   --veil-tint: rgba(0, 0, 0, 0.55);
   --color-tip-border: rgba(255, 255, 255, 0.18);
   --color-toggle-on-bg: rgba(59, 136, 245, 0.24);

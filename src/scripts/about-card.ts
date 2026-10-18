@@ -44,7 +44,7 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     const rSmall = parseFloat(root.getPropertyValue('--photo-radius')) || 14;
     const rBig = parseFloat(root.getPropertyValue('--cover-radius')) || 48;
     const sm = parseFloat(root.getPropertyValue('--corner-smoothing')) || 0.6;
-    const g = String(parseFloat(root.getPropertyValue('--about-grain')) || 0);   // the grain's full opacity
+    const g = String(parseFloat(root.getPropertyValue('--scrim-grain')) || 0);   // the grain's full opacity
     const W = faces[0].offsetWidth, H = faces[0].offsetHeight;
     const clip = (r: number) => `path("${squirclePath(W, H, Math.min(r, Math.min(W, H) / 2), sm)}")`;
     if (reduce) {
@@ -101,7 +101,7 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     if (state === 'opening') {
       state = 'open';
       scrim!.style.opacity = '1';
-      grain!.style.opacity = getComputedStyle(document.documentElement).getPropertyValue('--about-grain');
+      grain!.style.opacity = getComputedStyle(document.documentElement).getPropertyValue('--scrim-grain');
     } else if (state === 'closing') {
       state = 'closed';
       dialog!.hidden = true; scrim!.hidden = true; grain!.hidden = true;

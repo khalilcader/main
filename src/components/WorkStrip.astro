@@ -10,6 +10,8 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
 ---
 <div class="stage" id="stage" aria-label="Selected work">
   <div class="backdrop" id="backdrop"></div>
+  <!-- Grain on its own layer above the blur, so its blend reaches the page. -->
+  <div class="backdrop-grain" id="backdrop-grain"></div>
   {work.map((item, i) => (
     <button
       class="card"
@@ -126,7 +128,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
                 linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent);
     mask-composite: intersect;
   }
-  .veil::after, .backdrop::after {
+  .veil::after {
     content: ""; position: absolute; inset: 0; border-radius: inherit;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
     mix-blend-mode: var(--grain-blend); opacity: min(1, calc(var(--grain-amount) * var(--grain-strength)));
@@ -137,6 +139,14 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     position: absolute; inset: 0; z-index: 10; pointer-events: none;
     background: var(--color-scrim);
     -webkit-backdrop-filter: blur(var(--backdrop-blur)); backdrop-filter: blur(var(--backdrop-blur));
+    opacity: 0;
+  }
+  /* Same grain as the About overlay: overlay in light mode, multiplied in dark
+     so the page behind darkens rather than lifts. Faded with the backdrop. */
+  .backdrop-grain {
+    position: absolute; inset: 0; z-index: 10; pointer-events: none;
+    background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
+    mix-blend-mode: var(--scrim-grain-blend);
     opacity: 0;
   }
 
