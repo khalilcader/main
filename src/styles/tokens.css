@@ -96,7 +96,7 @@
   /* Tooltips */
   --tip-gap: 8px;
   --cursor-size: 44px;                      /* custom cursor: the glass bubble */
-  --cursor-size-grow: 88px;                 /* ...over a card: a bigger lens on the work */
+  --cursor-size-grow: 60px;                 /* ...over a card: a bigger lens on the work */
   --cursor-shadow: 0 0 0 1px var(--color-cursor-ring), 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 0 12px rgba(255, 255, 255, 0.12);
   --cursor-halo: 6px;                       /* over a control: how far the halo reaches past it */
   --cursor-pull: 0.12;                      /* magnetic: share of the pointer's offset the control follows */
