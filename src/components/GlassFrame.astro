@@ -1,8 +1,9 @@
 ---
-// Figma 43:66: the glassy device frame a screen recording plays in. Sized in
-// percentages so it scales with the cover. The frame and the screen get
-// smoothed, concentric corners from src/scripts/glass-frame.ts; until that
-// runs (or without JavaScript) plain rounded corners stand in.
+// The device a screen recording plays in: Khalil's iPhone frame image
+// (public/images/iphone-frame.webp, 978 x 2000, transparent screen) over the
+// video. Sized in percentages so it scales with the cover. The screen sits in
+// the frame's opening (x 52-926, y 50-1950 of the image), reaching a little
+// under the frame so no gap shows at its edge.
 interface Props {
   webm?: string;
   mp4: string;
@@ -11,50 +12,32 @@ interface Props {
   camera?: [number, number, number, number][];   // see scripts/camera.ts
 }
 const { webm, mp4, poster, start = 0, camera } = Astro.props;
+const frame = `${import.meta.env.BASE_URL}images/iphone-frame.webp`;
 ---
 <div class="glass-frame" data-camera={camera && JSON.stringify(camera)}>
-  <div class="glass-shadow"></div>
-  <div class="glass">
-    <div class="screen">
-      <!-- Paused on `start` until the cover is hovered or opened (see work-strip.ts). -->
-      <video poster={poster} muted loop playsinline preload="auto" data-start={start}>
-        {webm && <source src={webm} type="video/webm" />}
-        <source src={mp4} type="video/mp4" />
-      </video>
-    </div>
-    <!-- 2px border that follows the smoothed corners; half the stroke is clipped. -->
-    <svg class="glass-outline" aria-hidden="true"><path /></svg>
+  <div class="screen">
+    <!-- Paused on `start` until the cover is hovered or opened (see work-strip.ts). -->
+    <video poster={poster} muted loop playsinline preload="auto" data-start={start}>
+      {webm && <source src={webm} type="video/webm" />}
+      <source src={mp4} type="video/mp4" />
+    </video>
   </div>
+  <img class="device" src={frame} alt="" width="978" height="2000" draggable="false" />
 </div>
 
 <style>
   .glass-frame {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    height: var(--glass-height); aspect-ratio: 390 / 816;
+    height: var(--device-height); aspect-ratio: 978 / 2000;
+    filter: drop-shadow(var(--device-shadow));
   }
-  /* The shadow sits behind the clipped glass (a clip would cut it off). Its
-     blur is wide enough that a round corner reads the same as the smoothed one. */
-  .glass-shadow {
-    position: absolute; inset: 0;
-    border-radius: var(--glass-radius-x) / var(--glass-radius-y);
-    box-shadow: var(--glass-shadow);
-  }
-  .glass {
-    position: absolute; inset: 0;
-    padding: var(--glass-pad);
-    border-radius: var(--glass-radius-x) / var(--glass-radius-y);
-    background: var(--color-glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
-  }
+  /* The opening, in shares of the image, grown by --device-bleed under the frame. */
   .screen {
-    width: 100%; height: 100%; overflow: hidden;
-    border-radius: var(--glass-screen-radius-x) / var(--glass-screen-radius-y);
+    position: absolute; overflow: hidden; background: #000;
+    left: calc(52 / 978 * 100% - var(--device-bleed)); right: calc(52 / 978 * 100% - var(--device-bleed));
+    top: calc(50 / 2000 * 100% - var(--device-bleed)); bottom: calc(50 / 2000 * 100% - var(--device-bleed));
+    border-radius: calc(150 / 874 * 100%) / calc(150 / 1900 * 100%);
   }
-  video { width: 100%; height: 100%; object-fit: cover; }
-  .glass-outline {
-    position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
-    fill: none; stroke: var(--color-glass-border); stroke-width: calc(var(--glass-border-width) * 2);
-  }
-  /* Before the clip paths are set the outline has no path, so fall back to a border. */
-  .glass:not([data-shaped]) { border: var(--glass-border-width) solid var(--color-glass-border); }
+  video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .device { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; pointer-events: none; user-select: none; }
 </style>
