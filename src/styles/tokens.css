@@ -10,21 +10,21 @@
   --color-fg: #000000;
   --color-focus: #2f5bd8;
   --color-cover-bg: #ffffff;
-  --color-cover-border: rgba(0, 0, 0, 0.15);
-  --color-cover-shadow: rgba(0, 0, 0, 0.03);
+  --color-cover-border: transparent;           /* no outlines in light mode: shadows separate */
+  --color-cover-shadow: rgba(0, 0, 0, 0.07);
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.08);   /* lifted on hover: subtle, soft */
-  --color-photo-border: rgba(0, 0, 0, 0.2);
+  --color-photo-border: transparent;
   --color-button-bg: rgba(255, 255, 255, 0.8);
-  --color-button-border: rgba(0, 0, 0, 0.2);
+  --color-button-border: transparent;
   --color-divider: rgba(0, 0, 0, 0.1);
   --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
   --color-cursor-halo: rgba(0, 0, 0, 0.07);
-  --color-button-shadow: rgba(0, 0, 0, 0.05);
+  --color-button-shadow: rgba(0, 0, 0, 0.07);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
   --color-label-bg: var(--color-button-bg);
   --color-tip-bg: rgba(38, 38, 38, 0.94);   /* from Khalil's tooltip mockup */
   --color-tip-fg: #ffffff;
-  --color-tip-border: rgba(255, 255, 255, 0.16);
+  --color-tip-border: transparent;
   --color-toggle-on-bg: #dbe9fc;            /* pressed tile, from Khalil's mockup */
   --color-toggle-on-fg: #3b88f5;
   --color-tool-hover-bg: rgba(0, 0, 0, 0.08);   /* from Khalil's hover mockup */
@@ -64,13 +64,13 @@
   --photo-width: 50px;
   --photo-height: 56px;
   --photo-radius: 14px;
-  --photo-shadow: 0 4px 16px 0 var(--color-cover-shadow);
+  --photo-shadow: 0 1px 2px 0 var(--color-button-shadow), 0 4px 16px 0 var(--color-cover-shadow);
   --button-size: 40px;
   --button-pad: 8px;
   --button-radius: 10px;
   --button-blur: 20px;
   --button-border-width: 1px;               /* same as the avatar's outline (Figma has 0.5px) */
-  --button-shadow: 0 1px 3.5px 0 var(--color-button-shadow);
+  --button-shadow: 0 1px 2px 0 var(--color-button-shadow), 0 4px 14px 0 var(--color-button-shadow);
   --icon-size: 24px;
 
   /* Avatar flip (to its About side, on hover) */
@@ -128,8 +128,8 @@
   --cover-smoothing: 0.8;
   --corner-smoothing: 0.8;                  /* every other smoothed corner (buttons, pills, photo...) */                   /* Figma corner smoothing */
   --cover-border-width: 1px;
-  --cover-shadow-y: 4px;
-  --cover-shadow-blur: 16px;
+  --cover-shadow-y: 6px;
+  --cover-shadow-blur: 24px;
   --cover-shadow-hover-y: 10px;             /* on hover */
   --cover-shadow-hover-blur: 32px;
 
@@ -187,12 +187,12 @@
     --color-fg: #ecece8;
     --color-focus: #8fa9ff;
     --color-cover-bg: #1c1c1e;
-    --color-cover-border: rgba(255, 255, 255, 0.12);
+    --color-cover-border: rgba(255, 255, 255, 0.06);
     --color-cover-shadow: rgba(0, 0, 0, 0.3);
     --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
-    --color-photo-border: rgba(255, 255, 255, 0.2);
+    --color-photo-border: rgba(255, 255, 255, 0.08);
     --color-button-bg: rgba(40, 40, 38, 0.8);
-    --color-button-border: rgba(255, 255, 255, 0.16);
+    --color-button-border: rgba(255, 255, 255, 0.08);
     --color-divider: rgba(255, 255, 255, 0.12);
     --color-cursor: rgba(255, 255, 255, 0.03);
     --color-cursor-halo: rgba(255, 255, 255, 0.09);
@@ -207,7 +207,7 @@
     --scrim-grain: 0.35;
     --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
     --veil-tint: rgba(0, 0, 0, 0.55);
-    --color-tip-border: rgba(255, 255, 255, 0.18);
+    --color-tip-border: rgba(255, 255, 255, 0.1);
     --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
     --color-toggle-on-fg: #7fb2ff;
   --color-tool-hover-bg: rgba(255, 255, 255, 0.1);
@@ -230,12 +230,12 @@
   --color-fg: #ecece8;
   --color-focus: #8fa9ff;
   --color-cover-bg: #1c1c1e;
-  --color-cover-border: rgba(255, 255, 255, 0.12);
+  --color-cover-border: rgba(255, 255, 255, 0.06);
   --color-cover-shadow: rgba(0, 0, 0, 0.3);
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
-  --color-photo-border: rgba(255, 255, 255, 0.2);
+  --color-photo-border: rgba(255, 255, 255, 0.08);
   --color-button-bg: rgba(40, 40, 38, 0.8);
-  --color-button-border: rgba(255, 255, 255, 0.16);
+  --color-button-border: rgba(255, 255, 255, 0.08);
   --color-divider: rgba(255, 255, 255, 0.12);
   --color-cursor: rgba(255, 255, 255, 0.03);
   --color-cursor-halo: rgba(255, 255, 255, 0.09);
@@ -250,7 +250,7 @@
   --scrim-grain: 0.35;
   --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
   --veil-tint: rgba(0, 0, 0, 0.55);
-  --color-tip-border: rgba(255, 255, 255, 0.18);
+  --color-tip-border: rgba(255, 255, 255, 0.1);
   --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
   --color-toggle-on-fg: #7fb2ff;
   --color-tool-hover-bg: rgba(255, 255, 255, 0.1);
