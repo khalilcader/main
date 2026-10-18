@@ -19,7 +19,6 @@
   --color-divider: rgba(0, 0, 0, 0.1);
   --color-cursor: rgba(0, 0, 0, 0.16);
   --color-cursor-halo: rgba(0, 0, 0, 0.07);
-  --color-cursor-ring: rgba(0, 0, 0, 0.06);    /* the halo behind a card */
   --color-button-shadow: rgba(0, 0, 0, 0.05);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
   --color-label-bg: var(--color-button-bg);
@@ -196,7 +195,6 @@
     --color-divider: rgba(255, 255, 255, 0.12);
     --color-cursor: rgba(255, 255, 255, 0.22);
     --color-cursor-halo: rgba(255, 255, 255, 0.09);
-    --color-cursor-ring: rgba(255, 255, 255, 0.08);
     --color-button-shadow: rgba(0, 0, 0, 0.3);
     --color-label-shadow: rgba(0, 0, 0, 0.35);
     --color-label-bg: rgba(20, 20, 19, 0.82);
@@ -240,7 +238,6 @@
   --color-divider: rgba(255, 255, 255, 0.12);
   --color-cursor: rgba(255, 255, 255, 0.22);
   --color-cursor-halo: rgba(255, 255, 255, 0.09);
-  --color-cursor-ring: rgba(255, 255, 255, 0.08);
   --color-button-shadow: rgba(0, 0, 0, 0.3);
   --color-label-shadow: rgba(0, 0, 0, 0.35);
   --color-label-bg: rgba(20, 20, 19, 0.82);
