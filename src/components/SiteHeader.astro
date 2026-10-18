@@ -177,7 +177,7 @@ const { tools = true } = Astro.props;
     height: var(--button-size); padding: var(--tools-inset);
     --surface-bg: var(--color-button-bg);
     --surface-border: var(--color-button-border);
-    --surface-blur: blur(var(--button-blur));
+    --surface-blur: blur(var(--button-blur)) saturate(var(--glass-saturate));
     border: var(--button-border-width) solid var(--surface-border);
     border-radius: var(--button-radius);
     background: var(--surface-bg);

@@ -14,7 +14,7 @@
   --color-cover-shadow: rgba(0, 0, 0, 0.07);
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.08);   /* lifted on hover: subtle, soft */
   --color-photo-border: rgba(0, 0, 0, 0.1);
-  --color-button-bg: rgba(255, 255, 255, 0.6);   /* translucent, so the blur behind shows */
+  --color-button-bg: rgba(255, 255, 255, 0.35);  /* glass: the blurred page shows through */
   --color-button-border: rgba(0, 0, 0, 0.11);
   --color-divider: rgba(0, 0, 0, 0.1);
   --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
@@ -70,6 +70,7 @@
   --button-pad: 8px;
   --button-radius: 10px;
   --button-blur: 20px;
+  --glass-saturate: 1.8;                    /* glass lifts the colour behind it, so it shows through */
   --button-border-width: 1px;               /* same as the avatar's outline (Figma has 0.5px) */
   --button-shadow: 0 4px 14px 0 var(--color-button-shadow);   /* soft only: the border makes the edge */
   --icon-size: 24px;
@@ -216,7 +217,7 @@
     --color-cover-shadow: rgba(0, 0, 0, 0.3);
     --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
     --color-photo-border: rgba(255, 255, 255, 0.08);
-    --color-button-bg: rgba(40, 40, 38, 0.55);
+    --color-button-bg: rgba(40, 40, 38, 0.4);
     --color-button-border: rgba(255, 255, 255, 0.07);
     --color-divider: rgba(255, 255, 255, 0.12);
     --color-cursor: rgba(255, 255, 255, 0.03);
@@ -275,7 +276,7 @@
   --color-cover-shadow: rgba(0, 0, 0, 0.3);
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
   --color-photo-border: rgba(255, 255, 255, 0.08);
-  --color-button-bg: rgba(40, 40, 38, 0.55);
+  --color-button-bg: rgba(40, 40, 38, 0.4);
   --color-button-border: rgba(255, 255, 255, 0.07);
   --color-divider: rgba(255, 255, 255, 0.12);
   --color-cursor: rgba(255, 255, 255, 0.03);
