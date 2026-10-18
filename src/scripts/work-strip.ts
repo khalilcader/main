@@ -981,7 +981,9 @@ function init(stage: HTMLElement) {
       }
       if (closeGroup) {
         closeGroup.hidden = wo > 0.99;
-        closeGroup.style.opacity = String(1 - wo);
+        // Exactly opaque once in: any opacity below 1 cuts its glass off from
+        // the page behind, and the blur drops out.
+        closeGroup.style.opacity = wo < 0.005 ? '' : String(1 - wo);
       }
     }
     // The close button's title names the cover in view: the one nearest the
