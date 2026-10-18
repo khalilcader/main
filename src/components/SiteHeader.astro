@@ -1,10 +1,8 @@
 ---
-import { existsSync } from 'node:fs';
 import Tooltip from './Tooltip.astro';
 
-// Figma 53:310. The photo is the one asset that can't be pulled from Figma
-// automatically: drop it at public/images/khalil.jpg and it shows up here.
-const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_URL}images/khalil.jpg` : null;
+// Figma 53:310.
+import { photo } from '../photo';
 const home = import.meta.env.BASE_URL;
 
 interface Props {
