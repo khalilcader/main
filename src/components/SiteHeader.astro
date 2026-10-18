@@ -146,7 +146,9 @@ const { tools = true } = Astro.props;
     background: var(--color-cover-bg);
     overflow: hidden;
   }
-  .face img { width: 100%; height: 100%; object-fit: cover; }
+  /* The photo covers the whole face, border included, so no sliver of
+     background shows inside the smoothed clip; the border is drawn over it. */
+  .face img { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); max-width: none; object-fit: cover; }
   .back { transform: rotateY(180deg); color: var(--color-fg); }
   .back .icon { opacity: var(--photo-back-icon-opacity); }
   /* Flip on hover (mouse) or keyboard focus. */
