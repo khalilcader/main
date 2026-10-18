@@ -15,7 +15,7 @@
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.08);   /* lifted on hover: subtle, soft */
   --color-photo-border: rgba(0, 0, 0, 0.1);
   --color-button-bg: rgba(255, 255, 255, 0.8);
-  --color-button-border: rgba(0, 0, 0, 0.1);
+  --color-button-border: rgba(0, 0, 0, 0.16);
   --color-divider: rgba(0, 0, 0, 0.1);
   --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
   --color-cursor-halo: rgba(0, 0, 0, 0.07);
@@ -190,7 +190,7 @@
     --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
     --color-photo-border: rgba(255, 255, 255, 0.08);
     --color-button-bg: rgba(40, 40, 38, 0.8);
-    --color-button-border: rgba(255, 255, 255, 0.08);
+    --color-button-border: rgba(255, 255, 255, 0.12);
     --color-divider: rgba(255, 255, 255, 0.12);
     --color-cursor: rgba(255, 255, 255, 0.03);
     --color-cursor-halo: rgba(255, 255, 255, 0.09);
@@ -234,7 +234,7 @@
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
   --color-photo-border: rgba(255, 255, 255, 0.08);
   --color-button-bg: rgba(40, 40, 38, 0.8);
-  --color-button-border: rgba(255, 255, 255, 0.08);
+  --color-button-border: rgba(255, 255, 255, 0.12);
   --color-divider: rgba(255, 255, 255, 0.12);
   --color-cursor: rgba(255, 255, 255, 0.03);
   --color-cursor-halo: rgba(255, 255, 255, 0.09);

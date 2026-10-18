@@ -83,7 +83,10 @@ function setup(el: HTMLElement) {
     const d = squirclePath(w, h, r, smoothing());
     target.style.clipPath = `path("${d}")`;
     path.setAttribute('d', d);
-    if (kind === 'surface') el.style.borderRadius = `${Math.min(r * (1 + smoothing()), Math.min(w, h) / 2)}px`;
+    if (kind === 'surface') {
+      el.style.borderRadius = `${Math.min(r * (1 + smoothing()), Math.min(w, h) / 2)}px`;
+      el.style.setProperty('--smooth-r', `${r}px`);   // the shape's real radius, for the cursor's halo
+    }
   };
   new ResizeObserver(([entry]) => {
     const box = entry.borderBoxSize?.[0];
