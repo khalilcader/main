@@ -14,7 +14,7 @@
   --color-cover-shadow: rgba(0, 0, 0, 0.07);
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.08);   /* lifted on hover: subtle, soft */
   --color-photo-border: rgba(0, 0, 0, 0.1);
-  --color-button-bg: rgba(255, 255, 255, 0.8);
+  --color-button-bg: rgba(255, 255, 255, 0.6);   /* translucent, so the blur behind shows */
   --color-button-border: rgba(0, 0, 0, 0.11);
   --color-divider: rgba(0, 0, 0, 0.1);
   --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
@@ -152,9 +152,9 @@
 
   /* Backdrop shader behind the device frame (Mobile spotlight cover): a
      mottled, grainy studio backdrop drifting between three tones. */
-  --color-backdrop-deep: #3a73dc;
-  --color-backdrop-base: #5f93ef;
-  --color-backdrop-light: #a3c5fa;
+  --color-backdrop-deep: #c3cedd;           /* quiet blue-grey: the content carries the colour */
+  --color-backdrop-base: #d4dce7;
+  --color-backdrop-light: #e6ebf2;
   /* Gradient cover shader (cover.shader: gradient): calm, soft colour pools. */
   --color-gradient-deep: #f0dccf;           /* soft peach */
   --color-gradient-base: #e4e0ee;           /* lilac mist */
@@ -198,7 +198,7 @@
     --color-cover-shadow: rgba(0, 0, 0, 0.3);
     --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
     --color-photo-border: rgba(255, 255, 255, 0.08);
-    --color-button-bg: rgba(40, 40, 38, 0.8);
+    --color-button-bg: rgba(40, 40, 38, 0.55);
     --color-button-border: rgba(255, 255, 255, 0.07);
     --color-divider: rgba(255, 255, 255, 0.12);
     --color-cursor: rgba(255, 255, 255, 0.03);
@@ -224,9 +224,9 @@
     --color-glass-border: rgba(255, 255, 255, 0.16);
     --color-glass-shadow: rgba(0, 0, 0, 0.3);
     --ambient-opacity: 0.3;
-    --color-backdrop-deep: #071a4d;
-    --color-backdrop-base: #0f2f80;
-    --color-backdrop-light: #2152b5;
+    --color-backdrop-deep: #0f141c;
+    --color-backdrop-base: #161c26;
+    --color-backdrop-light: #212935;
     --color-gradient-deep: #2b2626;
     --color-gradient-base: #26252e;
     --color-gradient-light: #222a2e;
@@ -245,7 +245,7 @@
   --color-cover-shadow: rgba(0, 0, 0, 0.3);
   --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
   --color-photo-border: rgba(255, 255, 255, 0.08);
-  --color-button-bg: rgba(40, 40, 38, 0.8);
+  --color-button-bg: rgba(40, 40, 38, 0.55);
   --color-button-border: rgba(255, 255, 255, 0.07);
   --color-divider: rgba(255, 255, 255, 0.12);
   --color-cursor: rgba(255, 255, 255, 0.03);
@@ -271,9 +271,9 @@
   --color-glass-border: rgba(255, 255, 255, 0.16);
   --color-glass-shadow: rgba(0, 0, 0, 0.3);
   --ambient-opacity: 0.3;
-  --color-backdrop-deep: #071a4d;
-  --color-backdrop-base: #0f2f80;
-  --color-backdrop-light: #2152b5;
+  --color-backdrop-deep: #0f141c;
+  --color-backdrop-base: #161c26;
+  --color-backdrop-light: #212935;
   --color-gradient-deep: #2b2626;
   --color-gradient-base: #26252e;
   --color-gradient-light: #222a2e;
