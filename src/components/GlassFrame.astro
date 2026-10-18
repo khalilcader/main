@@ -1,20 +1,33 @@
 ---
-// The device a screen recording plays in: Khalil's iPhone frame image
-// (public/images/iphone-frame.webp, 978 x 2000, transparent screen) over the
-// video. Sized in percentages so it scales with the cover. The screen sits in
-// the frame's opening (x 52-926, y 50-1950 of the image), reaching a little
-// under the frame so no gap shows at its edge.
+// The device a screen recording plays in: Khalil's device frame image
+// (transparent screen) over the video. Sized in percentages so it scales with
+// the cover. The screen sits in the frame's opening, reaching a little under
+// the frame so no gap shows at its edge. Each device's image size, opening and
+// screen corner, in the image's pixels:
 interface Props {
   webm?: string;
   mp4: string;
   poster: string;
   start?: number;   // seconds; the frame the cover rests on
   camera?: [number, number, number, number][];   // see scripts/camera.ts
+  device?: 'iphone' | 'ipad';
 }
-const { webm, mp4, poster, start = 0, camera } = Astro.props;
-const frame = `${import.meta.env.BASE_URL}images/iphone-frame.webp`;
+const DEVICES = {
+  iphone: { src: 'iphone-frame.webp', w: 978, h: 2000, x0: 52, y0: 50, x1: 926, y1: 1950, r: 150 },
+  ipad: { src: 'ipad-frame.webp', w: 2000, h: 1424, x0: 83, y0: 80, x1: 1917, y1: 1344, r: 50 },
+};
+const { webm, mp4, poster, start = 0, camera, device = 'iphone' } = Astro.props;
+const d = DEVICES[device];
+const frame = `${import.meta.env.BASE_URL}images/${d.src}`;
+const pct = (v: number, of: number) => `${(v / of * 100).toFixed(4)}%`;
+const shape = [
+  `--device-ar: ${d.w} / ${d.h}`,
+  `--open-left: ${pct(d.x0, d.w)}`, `--open-right: ${pct(d.w - d.x1, d.w)}`,
+  `--open-top: ${pct(d.y0, d.h)}`, `--open-bottom: ${pct(d.h - d.y1, d.h)}`,
+  `--open-radius: ${pct(d.r, d.x1 - d.x0)} / ${pct(d.r, d.y1 - d.y0)}`,
+].join('; ');
 ---
-<div class="glass-frame" data-camera={camera && JSON.stringify(camera)}>
+<div class="glass-frame" data-device={device} style={shape} data-camera={camera && JSON.stringify(camera)}>
   <div class="screen">
     <!-- Paused on `start` until the cover is hovered or opened (see work-strip.ts). -->
     <video poster={poster} muted loop playsinline preload="auto" data-start={start}>
@@ -22,21 +35,23 @@ const frame = `${import.meta.env.BASE_URL}images/iphone-frame.webp`;
       <source src={mp4} type="video/mp4" />
     </video>
   </div>
-  <img class="device" src={frame} alt="" width="978" height="2000" draggable="false" />
+  <img class="device" src={frame} alt="" width={d.w} height={d.h} draggable="false" />
 </div>
 
 <style>
   .glass-frame {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    height: var(--device-height); aspect-ratio: 978 / 2000;
+    height: var(--device-height); aspect-ratio: var(--device-ar);
     filter: drop-shadow(var(--device-shadow));
   }
+  /* Landscape devices are sized by width instead. */
+  .glass-frame[data-device="ipad"] { height: auto; width: var(--device-width-landscape); }
   /* The opening, in shares of the image, grown by --device-bleed under the frame. */
   .screen {
     position: absolute; overflow: hidden; background: #000;
-    left: calc(52 / 978 * 100% - var(--device-bleed)); right: calc(52 / 978 * 100% - var(--device-bleed));
-    top: calc(50 / 2000 * 100% - var(--device-bleed)); bottom: calc(50 / 2000 * 100% - var(--device-bleed));
-    border-radius: calc(150 / 874 * 100%) / calc(150 / 1900 * 100%);
+    left: calc(var(--open-left) - var(--device-bleed)); right: calc(var(--open-right) - var(--device-bleed));
+    top: calc(var(--open-top) - var(--device-bleed)); bottom: calc(var(--open-bottom) - var(--device-bleed));
+    border-radius: var(--open-radius);
   }
   video { width: 100%; height: 100%; object-fit: cover; display: block; }
   .device { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; pointer-events: none; user-select: none; }
