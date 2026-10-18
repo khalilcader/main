@@ -1,4 +1,5 @@
-// Custom cursor, after the iPad's: a small circle that blurs what's under it.
+// Custom cursor: a glass bubble that magnifies what's under it (its lens is
+// at the end of this file), morphing into controls after the iPad's pointer.
 //   data-cursor="halo"    it morphs into the control's shape, a thick halo
 //                         around it (data-cursor-halo and --cursor-radius tune
 //                         it), and the control leans toward the pointer.
@@ -16,6 +17,7 @@ const el = document.getElementById('cursor');
 if (el && fine.matches) {
   const root = document.documentElement;
   root.classList.add('has-cursor');
+  mountLens();
   const css = getComputedStyle(root);
   const px = (name: string, fallback: number) => parseFloat(css.getPropertyValue(name)) || fallback;
   const SIZE = px('--cursor-size', 20);
@@ -120,4 +122,55 @@ if (el && fine.matches) {
   window.addEventListener('blur', () => { shown = false; el.classList.remove('shown'); });
   // A scroll or layout change under a still pointer moves the control.
   window.addEventListener('resize', wake);
+}
+
+// The glass bubble's lens: an SVG filter the cursor applies to what's behind
+// it (backdrop-filter: url(#cursor-lens), Chrome). A radial displacement map
+// pulls the backdrop in toward the middle, magnifying it, and bends it harder
+// at the rim; red, green and blue bend by slightly different amounts, which
+// fringes the rim with colour. Sized in the cursor's own box, so it scales
+// with it. Browsers without SVG backdrop filters just show the rim.
+function mountLens(size = 256) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d')!;
+  const img = g.createImageData(size, size);
+  const h = size / 2;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const dx = (x + 0.5 - h) / h, dy = (y + 0.5 - h) / h;
+      const r = Math.hypot(dx, dy);
+      // A smooth fisheye: the backdrop is sampled from nearer the middle
+      // (about 1.25x in the centre), squeezing harder toward the rim, but
+      // never so hard that neighbouring pixels cross (that would tear).
+      // In units of the bubble's radius; the filter's scale of 1 (its full
+      // width) makes a map value of a push by a radius.
+      const a = r < 1 ? -0.35 * r * (1 + 0.8 * Math.pow(r, 4)) / 1.8 : 0;
+      const ux = r ? dx / r : 0, uy = r ? dy / r : 0;
+      const i = (y * size + x) * 4;
+      img.data[i] = Math.round(128 + 127 * a * ux);
+      img.data[i + 1] = Math.round(128 + 127 * a * uy);
+      img.data[i + 2] = 128;
+      img.data[i + 3] = 255;
+    }
+  }
+  g.putImageData(img, 0, 0);
+  const channel = (n: string, scale: number, m: string) => `
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${scale}" xChannelSelector="R" yChannelSelector="G" result="d${n}" />
+      <feColorMatrix in="d${n}" type="matrix" values="${m}" result="${n}" />`;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '0'); svg.setAttribute('height', '0');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.style.position = 'absolute';
+  svg.innerHTML = `
+    <filter id="cursor-lens" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox"
+            primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB">
+      <feImage href="${c.toDataURL()}" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="map" />
+      ${channel('r', 1.03, '1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0')}
+      ${channel('g', 1, '0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0')}
+      ${channel('b', 0.97, '0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0')}
+      <feComposite in="r" in2="g" operator="arithmetic" k2="1" k3="1" result="rg" />
+      <feComposite in="rg" in2="b" operator="arithmetic" k2="1" k3="1" />
+    </filter>`;
+  document.body.appendChild(svg);
 }

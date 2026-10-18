@@ -17,7 +17,7 @@
   --color-button-bg: rgba(255, 255, 255, 0.8);
   --color-button-border: rgba(0, 0, 0, 0.2);
   --color-divider: rgba(0, 0, 0, 0.1);
-  --color-cursor: rgba(0, 0, 0, 0.16);
+  --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
   --color-cursor-halo: rgba(0, 0, 0, 0.07);
   --color-button-shadow: rgba(0, 0, 0, 0.05);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
@@ -94,8 +94,8 @@
 
   /* Tooltips */
   --tip-gap: 8px;
-  --cursor-size: 24px;                      /* custom cursor: the resting circle */
-  --cursor-blur: 6px;                       /* what's under the circle is blurred this much */
+  --cursor-size: 112px;                     /* custom cursor: the glass bubble */
+  --cursor-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 0 12px rgba(255, 255, 255, 0.12);
   --cursor-halo: 6px;                       /* over a control: how far the halo reaches past it */
   --cursor-pull: 0.12;                      /* magnetic: share of the pointer's offset the control follows */
   --cursor-pull-max: 4px;                   /* ...up to this far */
@@ -194,7 +194,7 @@
     --color-button-bg: rgba(40, 40, 38, 0.8);
     --color-button-border: rgba(255, 255, 255, 0.16);
     --color-divider: rgba(255, 255, 255, 0.12);
-    --color-cursor: rgba(255, 255, 255, 0.22);
+    --color-cursor: rgba(255, 255, 255, 0.03);
     --color-cursor-halo: rgba(255, 255, 255, 0.09);
     --color-button-shadow: rgba(0, 0, 0, 0.3);
     --color-label-shadow: rgba(0, 0, 0, 0.35);
@@ -237,7 +237,7 @@
   --color-button-bg: rgba(40, 40, 38, 0.8);
   --color-button-border: rgba(255, 255, 255, 0.16);
   --color-divider: rgba(255, 255, 255, 0.12);
-  --color-cursor: rgba(255, 255, 255, 0.22);
+  --color-cursor: rgba(255, 255, 255, 0.03);
   --color-cursor-halo: rgba(255, 255, 255, 0.09);
   --color-button-shadow: rgba(0, 0, 0, 0.3);
   --color-label-shadow: rgba(0, 0, 0, 0.35);

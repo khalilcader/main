@@ -64,21 +64,30 @@ a { color: inherit; }
 .smooth-layer > .smooth-border { inset: 0; width: 100%; height: 100%; }
 
 /* Custom cursor (scripts/cursor.ts): replaces the system pointer for mouse and
-   trackpad. A small circle that blurs what's under it; over a control it
-   becomes a halo in the control's shape. */
+   trackpad. A glass bubble that magnifies what's under it, with a thin
+   iridescent rim; over a control it becomes a halo in the control's shape. */
 html.has-cursor, html.has-cursor * { cursor: none !important; }
 .cursor {
   position: fixed; left: 0; top: 0; z-index: 1000;
   width: var(--cursor-size); height: var(--cursor-size); border-radius: 50%;
   pointer-events: none; opacity: 0;
   background: var(--color-cursor);
-  -webkit-backdrop-filter: blur(var(--cursor-blur)); backdrop-filter: blur(var(--cursor-blur));
-  transition: opacity 0.15s ease-out, background-color 0.15s ease-out;
+  -webkit-backdrop-filter: url(#cursor-lens); backdrop-filter: url(#cursor-lens);
+  box-shadow: var(--cursor-shadow);
+  transition: opacity 0.15s ease-out, background-color 0.15s ease-out, box-shadow 0.15s ease-out;
   will-change: transform;
+}
+/* The rim: a hairline of soft rainbow, brightest where the light catches it. */
+.cursor::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: conic-gradient(from 200deg, rgba(255,255,255,0.95), rgba(170,255,230,0.75), rgba(255,255,255,0.35),
+    rgba(255,190,240,0.7), rgba(255,255,255,0.9), rgba(190,220,255,0.7), rgba(255,255,255,0.95));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
+  transition: opacity 0.15s ease-out;
 }
 html:not(.has-cursor) .cursor { display: none; }
 .cursor.shown { opacity: 1; }
-/* As a halo it sits over the control, so it tints rather than blurs. */
 .cursor.halo {
   background: var(--color-cursor-halo);
   -webkit-backdrop-filter: none; backdrop-filter: none;
