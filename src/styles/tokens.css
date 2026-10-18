@@ -65,13 +65,13 @@
   --photo-width: 50px;
   --photo-height: 56px;
   --photo-radius: 14px;
-  --photo-shadow: 0 1px 2px 0 var(--color-button-shadow), 0 4px 16px 0 var(--color-cover-shadow);
+  --photo-shadow: 0 4px 16px 0 var(--color-cover-shadow);   /* soft only: the border makes the edge */
   --button-size: 40px;
   --button-pad: 8px;
   --button-radius: 10px;
   --button-blur: 20px;
   --button-border-width: 1px;               /* same as the avatar's outline (Figma has 0.5px) */
-  --button-shadow: 0 1px 2px 0 var(--color-button-shadow), 0 4px 14px 0 var(--color-button-shadow);
+  --button-shadow: 0 4px 14px 0 var(--color-button-shadow);   /* soft only: the border makes the edge */
   --icon-size: 24px;
 
   /* Avatar flip (to its About side, on hover) */

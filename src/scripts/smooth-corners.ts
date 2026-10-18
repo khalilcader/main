@@ -8,8 +8,10 @@
 //     --surface-blur (custom properties, so hover and pressed states still work).
 //
 //   data-smooth="clip"  A container whose content must be clipped too (a photo).
-//     The element itself is clipped; its border is redrawn along the curve from
-//     --surface-border. Put its shadow on a parent: a clip cuts shadows off.
+//     The element itself is clipped, so its border is drawn in its parent,
+//     which it must fill. Put its shadow on a parent: a clip cuts shadows off.
+//
+// Borders are drawn outside the shape (an outer border), from --surface-border.
 //
 // The corner radius comes from the element's CSS border-radius, which stays in
 // place as the no-JavaScript fallback and the shape of its shadow.
@@ -30,7 +32,8 @@ function setup(el: HTMLElement) {
   if (cs.position === 'static') el.style.position = 'relative';
   const bw = parseFloat(cs.borderTopWidth) || 0;
 
-  // The curve-following border: stroked at twice the width, half of it clipped away.
+  // The curve-following border: stroked at twice the width, masked to the
+  // outside of the shape, so it rings the element without covering any of it.
   const svg = document.createElementNS(SVGNS, 'svg');
   svg.setAttribute('class', 'smooth-border');
   svg.setAttribute('aria-hidden', 'true');
@@ -48,10 +51,19 @@ function setup(el: HTMLElement) {
     stop.setAttribute('style', `stop-color: var(--surface-border, transparent); stop-opacity: ${opacity}`);
     grad.appendChild(stop);
   }
+  const mask = document.createElementNS(SVGNS, 'mask');
+  mask.id = `${id}-out`;
+  mask.setAttribute('maskUnits', 'userSpaceOnUse');
+  const maskAll = document.createElementNS(SVGNS, 'rect');
+  maskAll.setAttribute('fill', '#fff');
+  const maskShape = document.createElementNS(SVGNS, 'path');
+  maskShape.setAttribute('fill', '#000');
+  mask.append(maskAll, maskShape);
   const defs = document.createElementNS(SVGNS, 'defs');
-  defs.appendChild(grad);
+  defs.append(grad, mask);
   svg.appendChild(defs);
   path.setAttribute('stroke', `url(#${id})`);
+  path.setAttribute('mask', `url(#${id}-out)`);
   svg.appendChild(path);
 
   let target = el;
@@ -59,12 +71,13 @@ function setup(el: HTMLElement) {
     const layer = document.createElement('span');
     layer.className = 'smooth-layer';
     layer.setAttribute('aria-hidden', 'true');
-    layer.appendChild(svg);
     el.prepend(layer);
+    el.appendChild(svg);   // outside the clipped layer, so the outer border shows
     target = layer;
     el.classList.add('smooth-host');
   } else {
-    el.appendChild(svg);
+    svg.classList.add('smooth-border-outer');
+    el.after(svg);   // the element clips itself; the border goes beside it, in the parent it fills
     el.classList.add('smooth-clip');
   }
   el.style.setProperty('--smooth-bw', `${bw}px`);
@@ -83,6 +96,9 @@ function setup(el: HTMLElement) {
     const d = squirclePath(w, h, r, smoothing());
     target.style.clipPath = `path("${d}")`;
     path.setAttribute('d', d);
+    maskShape.setAttribute('d', d);
+    maskAll.setAttribute('x', String(-bw * 4)); maskAll.setAttribute('y', String(-bw * 4));
+    maskAll.setAttribute('width', String(w + bw * 8)); maskAll.setAttribute('height', String(h + bw * 8));
     if (kind === 'surface') {
       el.style.borderRadius = `${Math.min(r * (1 + smoothing()), Math.min(w, h) / 2)}px`;
       el.style.setProperty('--smooth-r', `${r}px`);   // the shape's real radius, for the cursor's halo

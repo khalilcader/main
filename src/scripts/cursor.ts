@@ -106,9 +106,12 @@ if (el && fine.matches) {
     }
     if (pressed) { tw *= 0.9; th *= 0.9; tr *= 0.9; }
     // Ease toward the target: quick, so the circle never feels like it lags.
+    // The bubble's own size changes (growing over a card) ease more gently,
+    // so they read as a motion rather than a snap.
     const k = reduce ? 1 : 1 - Math.exp(-dt * (target ? 22 : 40));
+    const ks = reduce ? 1 : target ? k : 1 - Math.exp(-dt * 10);
     cur.x += (tx - cur.x) * k; cur.y += (ty - cur.y) * k;
-    cur.w += (tw - cur.w) * k; cur.h += (th - cur.h) * k; cur.r += (tr - cur.r) * k;
+    cur.w += (tw - cur.w) * ks; cur.h += (th - cur.h) * ks; cur.r += (tr - cur.r) * ks;
 
     const s = el!.style;
     s.width = `${cur.w.toFixed(2)}px`; s.height = `${cur.h.toFixed(2)}px`; s.borderRadius = `${cur.r.toFixed(2)}px`;
