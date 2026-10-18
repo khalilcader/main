@@ -31,7 +31,7 @@ const work = defineCollection({
       }).optional(),
       // An animated background behind the media: "backdrop" is a grainy
       // studio-backdrop shader (src/scripts/backdrop-shader.ts).
-      shader: z.enum(['backdrop']).optional(),
+      shader: z.enum(['backdrop', 'gradient']).optional(),
       // A still image filling the cover.
       image: z.string().optional(),
       // Describes the cover for screen readers.
