@@ -157,9 +157,9 @@
   --color-backdrop-base: #d4dce7;
   --color-backdrop-light: #e6ebf2;
   /* Gradient cover shader (cover.shader: gradient): calm, soft colour pools. */
-  --color-gradient-deep: #e6bea6;           /* shades of soft peach-terracotta */
-  --color-gradient-base: #efd3c2;
-  --color-gradient-light: #f7e6dc;
+  --color-gradient-deep: #ebe4de;           /* top: warm stone, like the voice cards' calm top */
+  --color-gradient-base: #e4d2c6;
+  --color-gradient-light: #d6a084;          /* bottom: a soft ember glow */
   --color-gradient-cool-deep: #b7cfba;      /* shades of sage */
   --color-gradient-cool-base: #cde0cd;
   --color-gradient-cool-light: #e3eee1;
@@ -231,9 +231,9 @@
     --color-backdrop-deep: #0f141c;
     --color-backdrop-base: #161c26;
     --color-backdrop-light: #212935;
-    --color-gradient-deep: #241c19;
-    --color-gradient-base: #2c221e;
-    --color-gradient-light: #352923;
+    --color-gradient-deep: #171312;
+    --color-gradient-base: #261a16;
+    --color-gradient-light: #5e3324;
     --color-gradient-cool-deep: #18201b;
     --color-gradient-cool-base: #1d2820;
     --color-gradient-cool-light: #243127;
@@ -281,9 +281,9 @@
   --color-backdrop-deep: #0f141c;
   --color-backdrop-base: #161c26;
   --color-backdrop-light: #212935;
-  --color-gradient-deep: #241c19;
-  --color-gradient-base: #2c221e;
-  --color-gradient-light: #352923;
+  --color-gradient-deep: #171312;
+  --color-gradient-base: #261a16;
+  --color-gradient-light: #5e3324;
   --color-gradient-cool-deep: #18201b;
   --color-gradient-cool-base: #1d2820;
   --color-gradient-cool-light: #243127;
