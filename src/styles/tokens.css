@@ -98,6 +98,8 @@
   --cursor-halo: 6px;                       /* over a control: how far the halo reaches past it */
   --cursor-pull: 0.12;                      /* magnetic: share of the pointer's offset the control follows */
   --cursor-pull-max: 4px;                   /* ...up to this far */
+  --ripple-duration: 850;                   /* ms: the click ripple on a card */
+  --ripple-strength: 12;                    /* px of push at its start */
   --tip-delay: 0.1s;                        /* hover pause before a tooltip shows */
   --tip-pad-y: 8px;                         /* around cap height to baseline */
   --tip-pad-x: 10px;
