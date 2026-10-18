@@ -17,8 +17,8 @@ type Light = { zoom: number; softness: number; blurFalloff: number; depthBlur: n
   gradient: number; rays: number; streak: number; rayAngle: number; flare: number; beams: number;
   vignette: number; grain: number };
 const PRESETS: Record<'light' | 'dark', Light> = {
-  light: { zoom: 3.2, softness: 4, blurFalloff: 1.3, depthBlur: 1.2, strength: 0.26,
-    gradient: 0, rays: 0.7, streak: 1, rayAngle: 26, flare: 1.2, beams: 1,
+  light: { zoom: 3.2, softness: 4, blurFalloff: 1.3, depthBlur: 1.2, strength: 0.5,
+    gradient: 0.12, rays: 1.6, streak: 1, rayAngle: 26, flare: 1.2, beams: 3,
     vignette: 0.25, grain: 0.6 },   // airy: barely any falloff, fine grain
   dark: { zoom: 4, softness: 6, blurFalloff: 3, depthBlur: 3, strength: 1,
     gradient: 0.29, rays: 0.55, streak: 0.8, rayAngle: 20, flare: 0, beams: 0,
