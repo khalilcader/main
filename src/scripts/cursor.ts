@@ -44,7 +44,9 @@ if (el && fine.matches) {
     // The radius is in the element's own pixels; scale it to the screen
     // (the cards are drawn scaled down).
     const k = t.offsetWidth ? b.width / t.offsetWidth : 1;
-    const r = (parseFloat(cs.getPropertyValue('--cursor-radius')) || parseFloat(cs.borderTopLeftRadius) || 0) * k;
+    // --smooth-r: a smoothed surface's real radius (its CSS one is rounder, for its shadow).
+    const r = (parseFloat(cs.getPropertyValue('--cursor-radius')) || parseFloat(cs.getPropertyValue('--smooth-r'))
+      || parseFloat(cs.borderTopLeftRadius) || 0) * k;
     return { x: b.left - tx + b.width / 2, y: b.top - ty + b.height / 2, w: b.width + pad * 2, h: b.height + pad * 2, r: r + pad };
   };
   const lean = (t: HTMLElement | null, x: number, y: number) => {
