@@ -141,12 +141,13 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     -webkit-backdrop-filter: blur(var(--backdrop-blur)); backdrop-filter: blur(var(--backdrop-blur));
     opacity: 0;
   }
-  /* Same grain as the About overlay: overlay in light mode, multiplied in dark
-     so the page behind darkens rather than lifts. Faded with the backdrop. */
+  /* Same grain as the About overlay: overlay in light mode; in dark, plain
+     near-black speckles (a blend would lift the page, or trace the blurred
+     cards' edges). Faded with the backdrop. */
   .backdrop-grain {
     position: absolute; inset: 0; z-index: 10; pointer-events: none;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
-    mix-blend-mode: var(--scrim-grain-blend);
+    mix-blend-mode: var(--scrim-grain-blend); filter: var(--scrim-grain-filter);
     opacity: 0;
   }
 

@@ -65,7 +65,7 @@ const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_U
   .about-grain {
     position: fixed; inset: 0; z-index: 60; pointer-events: none;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
-    mix-blend-mode: var(--scrim-grain-blend);   /* overlay; multiply in dark mode */
+    mix-blend-mode: var(--scrim-grain-blend); filter: var(--scrim-grain-filter);   /* overlay; plain dark speckles in dark mode */
     opacity: 0;   /* fades to --scrim-grain with the scrim (script) */
   }
   .about-scrim[hidden], .about-grain[hidden], .about[hidden] { display: none; }

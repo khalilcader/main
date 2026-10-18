@@ -90,6 +90,7 @@
   --about-blur: 16px;                       /* background blur behind the card */
   --scrim-grain: 0.6;
   --scrim-grain-blend: overlay;
+  --scrim-grain-filter: none;
 
   /* Tooltips */
   --tip-gap: 8px;
@@ -201,7 +202,8 @@
     --color-tip-bg: rgba(20, 20, 19, 0.96);
     --grain-blend: soft-light;              /* overlay brightens dark surfaces; leaving covers should darken */
     --grain-strength: 0.6;
-    --scrim-grain-blend: multiply;   /* overlay lifts a dark page */
+    --scrim-grain-blend: normal;   /* blends lift a dark page, or ring the blurred cards */
+    --scrim-grain-filter: brightness(0.1);   /* near-black speckles: texture that only darkens */
     --scrim-grain: 0.35;
     --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
     --veil-tint: rgba(0, 0, 0, 0.55);
@@ -245,7 +247,8 @@
   --color-tip-bg: rgba(20, 20, 19, 0.96);
   --grain-blend: soft-light;        /* overlay brightens dark surfaces; leaving covers should darken */
   --grain-strength: 0.6;
-  --scrim-grain-blend: multiply;   /* overlay lifts a dark page */
+  --scrim-grain-blend: normal;   /* blends lift a dark page, or ring the blurred cards */
+  --scrim-grain-filter: brightness(0.1);   /* near-black speckles: texture that only darkens */
   --scrim-grain: 0.35;
   --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
   --veil-tint: rgba(0, 0, 0, 0.55);
