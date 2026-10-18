@@ -6,8 +6,8 @@
 //             slowly, their edges bent into broad, gentle folds, with only
 //             a whisper of grain.
 // Each takes three colours from tokens.css (--color-<kind>-deep, -base,
-// -light, with dark-mode values); data-palette="cool" switches the gradient
-// to --color-gradient-cool-*.
+// -light, with dark-mode values); data-palette="cool" or "violet" switches
+// the gradient to --color-gradient-<palette>-*.
 
 const VERT = `
 attribute vec2 aPos;
@@ -107,7 +107,7 @@ void main() {
   vec2 uv = frag / uRes;
   float ar = uRes.x / uRes.y;
   vec2 p = vec2(uv.x * ar, uv.y);
-  float t = uTime * 2.5;   // its own pace: the broad folds need more motion to read
+  float t = uTime * 1.6;   // its own pace: a little livelier than the backdrop's
 
   // Broad, gentle folds: the colour fields are bent by large, slow noise, so
   // their edges flow instead of reading as round pools (no fine curls).
@@ -126,10 +126,10 @@ void main() {
   // sweeping slowly across, with a gentle dip between them. This is what
   // carries the motion; the shades alone are too close to see move.
   vec2 dir = normalize(vec2(0.55, 1.0));
-  float band = 0.5 + 0.5 * sin(dot(w, dir) * 5.0 - t * 0.35 + (q.x - 0.5) * 4.0);
+  float band = 0.5 + 0.5 * sin(dot(w, dir) * 8.0 - t * 0.22 + (q.x - 0.5) * 4.0);
   band = smoothstep(0.2, 1.0, band);
   float dark = 1.0 - dot(col, vec3(0.3, 0.59, 0.11));   // dark colours need more lift to show it
-  col = col * (0.95 + 0.10 * band) + (uLight + 0.1) * 0.14 * band * dark * dark;
+  col = col * (0.97 + 0.06 * band) + (uLight + 0.1) * 0.08 * band * dark * dark;
 
   // A whisper of grain, in CSS pixels, so the gradient doesn't band.
   vec2 c = frag / uScale;
@@ -164,7 +164,8 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   const prog = gl.createProgram()!;
   gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
   const kind = canvas.dataset.shader === 'gradient' ? 'gradient' : 'backdrop';
-  const tokens = kind === 'gradient' && canvas.dataset.palette === 'cool' ? 'gradient-cool' : kind;
+  const palette = canvas.dataset.palette;
+  const tokens = kind === 'gradient' && palette && palette !== 'warm' ? `gradient-${palette}` : kind;
   gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, kind === 'gradient' ? GRADIENT_FRAG : FRAG));
   gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) || 'link');
