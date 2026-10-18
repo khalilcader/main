@@ -13,7 +13,7 @@ const css = getComputedStyle(document.documentElement);
 const num = (name: string, fallback: number) => parseFloat(css.getPropertyValue(name)) || fallback;
 const RADIUS = num('--ripple-radius', 160);     // px (card pixels): reach of the rings
 const STRENGTH = num('--ripple-strength', 9);   // px of push at full speed
-const SPLIT = num('--ripple-split', 0.35);      // how far red and blue part from green
+const SPLIT = num('--ripple-split', 1);         // how far red and blue part from green (1: red twice green's push, blue none)
 
 // The displacement field: R/G hold the push (0.5 = none), radial, as rings
 // that fade out toward the edge.
