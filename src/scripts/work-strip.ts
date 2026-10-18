@@ -106,6 +106,7 @@ function init(stage: HTMLElement) {
     video: el.querySelector<HTMLVideoElement>('video'),
     playing: false, dimmed: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
+    gm: 0, rLast: -1,    // corners: 0 sized for the row, 1 for the grid (shapeCorners); last radius drawn
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
@@ -259,28 +260,41 @@ function init(stage: HTMLElement) {
 
   // Corners, border and shadow are specified at row size (Figma's frame); cards
   // are drawn at their largest size and scaled, so convert to that size.
+  // In the row every cover shares a height, so corners scale with height; in
+  // the grid they share a width, so there the corners match the narrowest
+  // (portrait) cover's instead, or a wide cover would come out sharper. Each
+  // cover eases between the two (cornerMix) as the view changes.
+  let cornerBase = 0, cornerSmoothing = 0.6, cornerBorder = 1, refAspect = 1;
   function updateCorners() {
-    const radius = token('--cover-radius') * (cards[0].row.h / token('--row-height'));
-    const smoothing = token('--cover-smoothing');
-    const border = token('--cover-border-width');
+    cornerBase = token('--cover-radius') / token('--row-height');
+    cornerSmoothing = token('--cover-smoothing');
+    cornerBorder = token('--cover-border-width');
+    refAspect = Math.min(...cards.map((c) => c.a));
     shadowSpec = [token('--cover-shadow-y'), token('--cover-shadow-blur'), token('--cover-shadow-hover-y'), token('--cover-shadow-hover-blur')];
-    for (const c of cards) {
-      const k = c.W / c.row.w, h = c.W / c.a, r = radius * k;
-      const path = squirclePath(c.W, h, r, smoothing);
-      c.clip = `path("${path}")`;
-      c.outline.setAttribute('d', path);
-      c.outline.style.strokeWidth = String(border * k * 2);   // half falls outside the clip
-      c.el.style.borderRadius = r * 0.6 + 'px';               // sits inside the clip; also the focus ring
-      c.shK = k; c.shLast = -1;
-      // Shadow layers, in the card's own (unscaled) pixels.
-      const es = c.el.style;
-      es.setProperty('--shadow-r', `${r}px`);
-      es.setProperty('--shadow-y0', `${shadowSpec[0] * k}px`); es.setProperty('--shadow-b0', `${shadowSpec[1] * k}px`);
-      es.setProperty('--shadow-y1', `${shadowSpec[2] * k}px`); es.setProperty('--shadow-b1', `${shadowSpec[3] * k}px`);
-      c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
-      c.cover.style.clipPath = c.blurred ? '' : c.clip;
-      c.cover.style.borderRadius = c.blurred ? c.rBlur + 'px' : '';
-    }
+    for (const c of cards) { c.rLast = -1; shapeCorners(c); }
+  }
+  function shapeCorners(c: Card) {
+    const rowR = cornerBase * c.W * c.row.h / c.row.w;   // radius * W / row width
+    const gridR = cornerBase * c.W / refAspect;           // as the portrait cover's, by width
+    const r = rowR + (gridR - rowR) * c.gm;
+    if (Math.abs(r - c.rLast) < 0.3) return;
+    c.rLast = r;
+    const h = c.W / c.a;
+    const path = squirclePath(c.W, h, r, cornerSmoothing);
+    c.clip = `path("${path}")`;
+    c.outline.setAttribute('d', path);
+    c.outline.style.strokeWidth = String(cornerBorder * (c.W / c.row.w) * 2);   // half falls outside the clip
+    c.el.style.borderRadius = r * 0.6 + 'px';               // sits inside the clip; also the focus ring
+    c.shK = c.W / c.row.w; c.shLast = -1;
+    // Shadow layers, in the card's own (unscaled) pixels.
+    const es = c.el.style, ks = c.shK;
+    es.setProperty('--shadow-r', `${r}px`);
+    es.setProperty('--shadow-y0', `${shadowSpec[0] * ks}px`); es.setProperty('--shadow-b0', `${shadowSpec[1] * ks}px`);
+    es.setProperty('--shadow-y1', `${shadowSpec[2] * ks}px`); es.setProperty('--shadow-b1', `${shadowSpec[3] * ks}px`);
+    c.rBlur = r * 1.2;                                       // round stand-in for the squircle while blurred
+    c.cover.style.clipPath = c.blurred ? '' : c.clip;
+    c.cover.style.borderRadius = c.blurred ? c.rBlur + 'px' : '';
+    if (c.veil) c.veil.style.clipPath = c.blurred ? '' : c.clip;
   }
 
   function lightboxRect(c: Card): Rect {
@@ -845,7 +859,10 @@ function init(stage: HTMLElement) {
     const gpv = clamp(gp.v, 0, 1), pv = clamp(p.v, 0, 1);
     const sc = reflow(), fb = mode === 'row' ? 1 - pv : 0;
     const [eL, eR] = edgeAmounts(pv), edgeZone = edges[0].offsetWidth || vw * 0.16;
+    const gmK = reduce ? 1 : 1 - Math.exp(-dt * 6);
     for (const c of cards) {
+      c.gm += ((mode === 'grid' ? 1 : 0) - c.gm) * gmK;
+      shapeCorners(c);
       // Squish shrinks toward the bottom center of the cover's slot.
       const w = Math.max(1, c.w.v) * sc[c.i], h = Math.max(1, c.h.v) * sc[c.i];
       let x = c.x.v + flow[c.i] * fb + (c.w.v - w) / 2, y = c.y.v + c.h.v - h;

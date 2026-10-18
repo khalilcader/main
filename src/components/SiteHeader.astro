@@ -192,6 +192,14 @@ const { tools = true } = Astro.props;
     top: calc(env(safe-area-inset-top, 0px) + var(--close-inset));
   }
   .close-group[hidden] { display: none; }
+  /* As chunky and round as the card labels; the X's tile grows to match,
+     its corners still concentric with the bar's. */
+  .close-group.tools { height: var(--close-height); border-radius: var(--label-radius); }
+  .close-group .tool {
+    width: calc(var(--close-height) - 2 * (var(--tools-inset) + var(--button-border-width)));
+    height: calc(var(--close-height) - 2 * (var(--tools-inset) + var(--button-border-width)));
+    border-radius: calc(var(--label-radius) - var(--tools-inset) - var(--button-border-width));
+  }
   .divider {
     flex: none; width: 1px; height: var(--divider-height);
     margin: 0 var(--tools-inset);
