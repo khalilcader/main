@@ -37,7 +37,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
 <div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <!-- Grid view: protects the header once the covers scroll under it. -->
-<div class="top-scrim" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="top-scrim" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
 <script>
   import '../scripts/work-strip';
@@ -194,9 +194,11 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   .edge i:nth-child(6) { right: 62.5%; width: 37.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
   .edge i:nth-child(7) { right: 75%; width: 25%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 50%, #000 100%); mask-image: linear-gradient(to left, transparent 0%, #000 50%, #000 100%); }
   /* Grid view, scrolled: a band across the top behind the header, the same
-     treatment as the row's edges (progressive blur, the page fading in, a
-     little grain), in four masked passes, strongest at the top. Each layer
-     fades itself (opacity on a parent would cut its blur off from the page). */
+     treatment as the row's edges: eight stacked backdrop blurs rising from
+     1px to 24px toward the top, each covering only its own strip and easing
+     into the next (no visible steps), the page colour fading in along an
+     eased curve, and a little grain. Each layer fades itself (opacity on a
+     parent would cut its blur off from the page). */
   .top-scrim {
     display: none;
     position: fixed; left: 0; right: 0; top: 0; z-index: 25; pointer-events: none;
@@ -207,22 +209,27 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     position: absolute; left: 0; right: 0; display: block;
     opacity: 0; transition: opacity 0.3s ease-out;
   }
-  :global(html[data-grid-scrolled]) .top-scrim i, :global(html[data-grid-scrolled]) .top-scrim::before,
-  :global(html[data-grid-scrolled]) .top-scrim::after { opacity: 1; }
+  :global(html[data-grid-scrolled]) .top-scrim i, :global(html[data-grid-scrolled]) .top-scrim::after { opacity: 1; }
   .top-scrim i { -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
-  .top-scrim i:nth-child(1) { --b: 16px; top: 0; height: 60%; -webkit-mask-image: linear-gradient(#000 60%, transparent); mask-image: linear-gradient(#000 60%, transparent); }
-  .top-scrim i:nth-child(2) { --b: 8px; top: 40%; height: 35%; -webkit-mask-image: linear-gradient(transparent, #000 35%, #000 65%, transparent); mask-image: linear-gradient(transparent, #000 35%, #000 65%, transparent); }
-  .top-scrim i:nth-child(3) { --b: 4px; top: 55%; height: 30%; -webkit-mask-image: linear-gradient(transparent, #000 35%, #000 65%, transparent); mask-image: linear-gradient(transparent, #000 35%, #000 65%, transparent); }
-  .top-scrim i:nth-child(4) { --b: 2px; top: 70%; height: 30%; -webkit-mask-image: linear-gradient(transparent, #000 35%, transparent); mask-image: linear-gradient(transparent, #000 35%, transparent); }
+  .top-scrim i:nth-child(1) { --b: 1px; bottom: 0.0%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .top-scrim i:nth-child(2) { --b: 2px; bottom: 12.5%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .top-scrim i:nth-child(3) { --b: 3px; bottom: 25.0%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .top-scrim i:nth-child(4) { --b: 5px; bottom: 37.5%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .top-scrim i:nth-child(5) { --b: 8px; bottom: 50.0%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .top-scrim i:nth-child(6) { --b: 12px; bottom: 62.5%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .top-scrim i:nth-child(7) { --b: 18px; bottom: 75%; height: 25%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 50%, #000 100%); mask-image: linear-gradient(to top, transparent 0%, #000 50%, #000 100%); }
+  .top-scrim i:nth-child(8) { --b: 24px; bottom: 87.5%; height: 12.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 100%); mask-image: linear-gradient(to top, transparent 0%, #000 100%); }
   .top-scrim::after {
     content: ""; top: 0; bottom: 0;
-    background: linear-gradient(var(--color-bg) 0%, color-mix(in srgb, var(--color-bg) 92%, transparent) 55%, color-mix(in srgb, var(--color-bg) 45%, transparent) 80%, transparent);
+    background: linear-gradient(color-mix(in srgb, var(--color-bg) 82%, transparent) 0%, color-mix(in srgb, var(--color-bg) 65%, transparent) 10%, color-mix(in srgb, var(--color-bg) 50%, transparent) 20%, color-mix(in srgb, var(--color-bg) 37%, transparent) 30%, color-mix(in srgb, var(--color-bg) 27%, transparent) 40%, color-mix(in srgb, var(--color-bg) 18%, transparent) 50%, color-mix(in srgb, var(--color-bg) 11%, transparent) 60%, color-mix(in srgb, var(--color-bg) 6%, transparent) 70%, color-mix(in srgb, var(--color-bg) 2%, transparent) 80%, color-mix(in srgb, var(--color-bg) 1%, transparent) 90%, color-mix(in srgb, var(--color-bg) 0%, transparent) 100%);
   }
   .top-scrim::before {
     content: ""; top: 0; bottom: 0; z-index: 1;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
-    mix-blend-mode: var(--scrim-grain-blend); filter: var(--scrim-grain-filter);
-    -webkit-mask-image: linear-gradient(#000 60%, transparent); mask-image: linear-gradient(#000 60%, transparent);
+    /* Plain speckles, no blend mode: a blended layer here cuts the blurs
+       off from the page and they stop blurring. */
+    filter: var(--top-scrim-grain-filter);
+    -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent);
   }
   :global(html[data-grid-scrolled]) .top-scrim::before { opacity: var(--top-scrim-grain); }
   .edge i:nth-child(8) { right: 87.5%; width: 12.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 100%); mask-image: linear-gradient(to left, transparent 0%, #000 100%); }
