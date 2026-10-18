@@ -5,6 +5,8 @@
 //                         it), and the control leans toward the pointer.
 //   data-cursor="magnet"  the element only leans; the cursor stays a circle.
 //                         data-cursor-pull/-pull-max tune the lean.
+//   data-cursor-grow      over it, the bubble grows (--cursor-size-grow), a
+//                         bigger lens on the work; it stays a circle.
 // In focus mode (html[data-focus]) only elements with data-cursor-focus react.
 // Mouse and trackpad only; touch devices keep their own behaviour.
 
@@ -21,6 +23,7 @@ if (el && fine.matches) {
   const css = getComputedStyle(root);
   const px = (name: string, fallback: number) => parseFloat(css.getPropertyValue(name)) || fallback;
   const SIZE = px('--cursor-size', 20);
+  const GROW = px('--cursor-size-grow', SIZE);
   const HALO = px('--cursor-halo', 6);       // how far the halo reaches past the control
   const PULL = px('--cursor-pull', 0.12);    // share of the pointer's offset the control follows
   const MAX_PULL = px('--cursor-pull-max', 4);
@@ -31,6 +34,7 @@ if (el && fine.matches) {
   let mx = -100, my = -100, shown = false, pressed = false;
   const cur = { x: -100, y: -100, w: SIZE, h: SIZE, r: SIZE / 2 };
   let target: HTMLElement | null = null;
+  let grow = false;
   let raf = 0, last = 0;
 
   const haloOf = (t: HTMLElement) => {
@@ -65,6 +69,10 @@ if (el && fine.matches) {
     const t = under?.closest<HTMLElement>('[data-cursor]') ?? null;
     return t && allowed(t) ? t : null;
   };
+  const growsOver = (under: Element | null) => {
+    const g = under?.closest<HTMLElement>('[data-cursor-grow]');
+    return !!g && allowed(g);
+  };
   function setTarget(t: HTMLElement | null) {
     if (t === target) return;
     release(target);
@@ -78,9 +86,14 @@ if (el && fine.matches) {
     // Let go the moment focus mode starts (unless the element takes part in
     // it), or when something else comes over the control or hides it (the
     // About card opening over the avatar) with the pointer standing still.
-    if (target) setTarget(pick(document.elementFromPoint(mx, my)));
+    if (target || grow) {
+      const under = document.elementFromPoint(mx, my);
+      if (target) setTarget(pick(under));
+      grow = growsOver(under);
+    }
 
-    let tx = mx, ty = my, tw = SIZE, th = SIZE, tr = SIZE / 2;
+    const size = grow && !target ? GROW : SIZE;
+    let tx = mx, ty = my, tw = size, th = size, tr = size / 2;
     if (target) {
       const h = haloOf(target);
       // Magnetic: the element (and its halo) leans toward the pointer, a little.
@@ -106,7 +119,7 @@ if (el && fine.matches) {
     s.transform = `translate3d(${(cur.x - cur.w / 2).toFixed(2)}px, ${(cur.y - cur.h / 2).toFixed(2)}px, 0)`;
 
     const settled = Math.abs(tx - cur.x) < 0.05 && Math.abs(ty - cur.y) < 0.05 && Math.abs(tw - cur.w) < 0.05 && Math.abs(th - cur.h) < 0.05;
-    raf = settled && !target ? 0 : requestAnimationFrame(frame);
+    raf = settled && !target && !grow ? 0 : requestAnimationFrame(frame);
   }
   const wake = () => { if (!raf) { last = 0; raf = requestAnimationFrame(frame); } };
 
@@ -115,12 +128,13 @@ if (el && fine.matches) {
     mx = e.clientX; my = e.clientY;
     if (!shown) { shown = true; cur.x = mx; cur.y = my; el.classList.add('shown'); }
     setTarget(pick(e.target as Element | null));
+    grow = growsOver(e.target as Element | null);
     wake();
   }, { passive: true });
   window.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse') { pressed = true; wake(); } });
   window.addEventListener('pointerup', () => { pressed = false; wake(); });
   // Out of the window: hide until it comes back.
-  document.addEventListener('pointerleave', () => { shown = false; el.classList.remove('shown'); setTarget(null); });
+  document.addEventListener('pointerleave', () => { shown = false; el.classList.remove('shown'); setTarget(null); grow = false; });
   window.addEventListener('blur', () => { shown = false; el.classList.remove('shown'); });
   // A scroll or layout change under a still pointer moves the control.
   window.addEventListener('resize', wake);
