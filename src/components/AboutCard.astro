@@ -1,11 +1,10 @@
 ---
-import { existsSync } from 'node:fs';
 import Tooltip from './Tooltip.astro';
 
 // The About card. Clicking the avatar grows it out of the avatar's About side
 // (photo side first), turning 180° in 3D as it goes (src/scripts/about-card.ts).
 // Edit the copy below.
-const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_URL}images/khalil.jpg` : null;
+import { photo } from '../photo';
 ---
 <div class="about-scrim" id="about-scrim" hidden></div>
 <!-- Grain on its own layer above the blur, so its blend works on the page
