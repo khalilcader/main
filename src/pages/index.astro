@@ -1,19 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getCollection } from 'astro:content';
-
-const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+import SiteHeader from '../components/SiteHeader.astro';
+import WorkStrip from '../components/WorkStrip.astro';
+import AboutCard from '../components/AboutCard.astro';
 ---
 <Base>
-  <!-- Placeholder page: unstyled on purpose. Will be rebuilt from the Figma design. -->
+  <SiteHeader />
   <main>
-    <h1>Khalil Cader</h1>
-    <p>Product designer.</p>
-    <ul>
-      {work.map((item) => (
-        <li><a href={`${base}/work/${item.id}/`}>{item.data.title}</a></li>
-      ))}
-    </ul>
+    <h1 class="visually-hidden">Khalil Cader, product designer: selected work</h1>
+    <WorkStrip />
   </main>
+  <AboutCard />
 </Base>

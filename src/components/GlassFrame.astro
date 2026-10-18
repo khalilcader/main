@@ -1,0 +1,60 @@
+---
+// Figma 43:66: the glassy device frame a screen recording plays in. Sized in
+// percentages so it scales with the cover. The frame and the screen get
+// smoothed, concentric corners from src/scripts/glass-frame.ts; until that
+// runs (or without JavaScript) plain rounded corners stand in.
+interface Props {
+  webm?: string;
+  mp4: string;
+  poster: string;
+  start?: number;   // seconds; the frame the cover rests on
+  camera?: [number, number, number, number][];   // see scripts/camera.ts
+}
+const { webm, mp4, poster, start = 0, camera } = Astro.props;
+---
+<div class="glass-frame" data-camera={camera && JSON.stringify(camera)}>
+  <div class="glass-shadow"></div>
+  <div class="glass">
+    <div class="screen">
+      <!-- Paused on `start` until the cover is hovered or opened (see work-strip.ts). -->
+      <video poster={poster} muted loop playsinline preload="auto" data-start={start}>
+        {webm && <source src={webm} type="video/webm" />}
+        <source src={mp4} type="video/mp4" />
+      </video>
+    </div>
+    <!-- 2px border that follows the smoothed corners; half the stroke is clipped. -->
+    <svg class="glass-outline" aria-hidden="true"><path /></svg>
+  </div>
+</div>
+
+<style>
+  .glass-frame {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    height: var(--glass-height); aspect-ratio: 390 / 816;
+  }
+  /* The shadow sits behind the clipped glass (a clip would cut it off). Its
+     blur is wide enough that a round corner reads the same as the smoothed one. */
+  .glass-shadow {
+    position: absolute; inset: 0;
+    border-radius: var(--glass-radius-x) / var(--glass-radius-y);
+    box-shadow: var(--glass-shadow);
+  }
+  .glass {
+    position: absolute; inset: 0;
+    padding: var(--glass-pad);
+    border-radius: var(--glass-radius-x) / var(--glass-radius-y);
+    background: var(--color-glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+  }
+  .screen {
+    width: 100%; height: 100%; overflow: hidden;
+    border-radius: var(--glass-screen-radius-x) / var(--glass-screen-radius-y);
+  }
+  video { width: 100%; height: 100%; object-fit: cover; }
+  .glass-outline {
+    position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
+    fill: none; stroke: var(--color-glass-border); stroke-width: calc(var(--glass-border-width) * 2);
+  }
+  /* Before the clip paths are set the outline has no path, so fall back to a border. */
+  .glass:not([data-shaped]) { border: var(--glass-border-width) solid var(--color-glass-border); }
+</style>

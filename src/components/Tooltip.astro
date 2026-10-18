@@ -1,0 +1,51 @@
+---
+// A small dark label that appears above its parent on hover (mouse) or
+// keyboard focus. Put it inside an element with class "has-tip", which
+// positions it. An optional shortcut key shows dimmed after the text.
+interface Props {
+  shortcut?: string;
+  below?: boolean;   // show under the control (e.g. inside a clipped card)
+}
+const { shortcut, below = false } = Astro.props;
+---
+<span class:list={['tip', { below }]} role="tooltip" aria-hidden="true" data-smooth="surface"><span class="tip-text"><slot /></span>{shortcut && <kbd>{shortcut}</kbd>}</span>
+
+<style>
+  :global(.has-tip) { position: relative; }
+  .tip {
+    position: absolute; left: 50%; bottom: calc(100% + var(--tip-gap));
+    z-index: 50; pointer-events: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: var(--tip-pad-y) var(--tip-pad-x);
+    --surface-bg: var(--color-tip-bg); --surface-border: var(--color-tip-border); --surface-blur: none;
+    border: 1px solid var(--surface-border); border-radius: var(--tip-radius);
+    background: var(--surface-bg); color: var(--color-tip-fg);
+    box-shadow: var(--tip-shadow);
+    font: var(--text-name-weight) var(--tip-size) / 1 var(--font-sans);
+    /* Trim the line box to the letters so they sit optically centred
+       (the font's descender space made it look bottom-heavy). */
+    text-box: trim-both cap alphabetic;
+    letter-spacing: var(--text-name-tracking);
+    white-space: nowrap;
+    opacity: 0; transform: translate(-50%, 3px) scale(0.96); transform-origin: 50% 100%;
+    /* Hide at once. */
+    transition: opacity 0.08s ease-in, transform 0.08s ease-in;
+  }
+  .tip.below { bottom: auto; top: calc(100% + var(--tip-gap)); transform-origin: 50% 0; transform: translate(-50%, -3px) scale(0.96); }
+  kbd { font: inherit; opacity: 0.5; }
+  /* Show after a short pause, quickly and softly. */
+  :global(.has-tip:focus-visible) > .tip,
+  :global(.has-tip:has(:focus-visible)) > .tip {
+    opacity: 1; transform: translate(-50%, 0) scale(1);
+    transition: opacity 0.12s ease-out var(--tip-delay), transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) var(--tip-delay);
+  }
+  @media (hover: hover) {
+    :global(.has-tip:hover) > .tip {
+      opacity: 1; transform: translate(-50%, 0) scale(1);
+      transition: opacity 0.12s ease-out var(--tip-delay), transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) var(--tip-delay);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tip { transform: translate(-50%, 0); }
+  }
+</style>

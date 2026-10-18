@@ -1,0 +1,133 @@
+---
+import { existsSync } from 'node:fs';
+import Tooltip from './Tooltip.astro';
+
+// The About card. Clicking the avatar grows it out of the avatar's About side
+// (photo side first), turning 180° in 3D as it goes (src/scripts/about-card.ts).
+// Edit the copy below.
+const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_URL}images/khalil.jpg` : null;
+---
+<div class="about-scrim" id="about-scrim" hidden></div>
+<!-- Grain on its own layer above the blur, so its blend works on the page
+     (inside the blurred layer it could only blend with that layer). -->
+<div class="about-grain" id="about-grain" aria-hidden="true" hidden></div>
+<div class="about" id="about" role="dialog" aria-modal="true" aria-label="About" hidden>
+  <div class="about-card" id="about-card">
+    <!-- Each face is a plane in the 3D turn; the surface inside carries the
+         smoothed shape (Chrome ignores clip-path inside a 3D scene). -->
+    <div class="about-face about-front"><div class="about-surface" data-smooth="clip">
+      <!-- Stand-in until the About copy is written: the Tree Shadow daylight shader. -->
+      <canvas class="about-daylight" aria-hidden="true"></canvas>
+      <button class="about-close has-tip" data-smooth="surface" data-cursor="halo" id="about-close" type="button" aria-label="Close" aria-keyshortcuts="Escape">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <path d="M7 7l10 10M17 7L7 17" />
+        </svg>
+        <Tooltip shortcut="Esc" below>Close</Tooltip>
+      </button>
+    </div></div>
+    <!-- The small side matches whatever the avatar shows: the book it has
+         flipped to on hover when the card opens, your photo when it closes back. -->
+    <div class="about-face about-back" aria-hidden="true"><div class="about-surface" data-smooth="clip">
+      {photo && <img class="about-back-photo" src={photo} alt="" />}
+      <svg class="about-back-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.75 18.25V5.75a1.5 1.5 0 0 1 1.5-1.5h8.5a1.5 1.5 0 0 1 1.5 1.5v12.5" />
+        <path d="M6.75 18.25a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5v0a1.5 1.5 0 0 0-1.5-1.5h-8.5a1.5 1.5 0 0 0-1.5 1.5Z" />
+        <path d="M9.75 7.75h4.5M9.75 10.75h2.5" />
+      </svg>
+    </div></div>
+  </div>
+</div>
+
+<script>
+  import '../scripts/about-card';
+  import { mountTreeShadow } from '../scripts/tree-shadow';
+  const daylight = document.querySelector<HTMLCanvasElement>('.about-daylight');
+  // Set up after load, in idle time; the tree texture itself grows in a
+  // worker. The shader then runs only while the card is open (it's
+  // display: none otherwise).
+  const mount = () => {
+    if (!daylight) return;
+    try { mountTreeShadow(daylight); } catch (err) { console.warn('Daylight shader failed', err); }
+  };
+  const idle = (fn: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(fn) : setTimeout(fn, 200));
+  if (document.readyState === 'complete') idle(mount);
+  else addEventListener('load', () => idle(mount), { once: true });
+</script>
+
+<style>
+  /* Blurs the page behind the card, with a fine grain. */
+  .about-scrim {
+    position: fixed; inset: 0; z-index: 60;
+    background: var(--color-scrim);
+    -webkit-backdrop-filter: blur(var(--about-blur)); backdrop-filter: blur(var(--about-blur));
+    opacity: 0;
+  }
+  .about-grain {
+    position: fixed; inset: 0; z-index: 60; pointer-events: none;
+    background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
+    mix-blend-mode: var(--scrim-grain-blend); filter: var(--scrim-grain-filter);   /* overlay; plain dark speckles in dark mode */
+    opacity: 0;   /* fades to --scrim-grain with the scrim (script) */
+  }
+  .about-scrim[hidden], .about-grain[hidden], .about[hidden] { display: none; }
+
+  .about {
+    position: fixed; inset: 0; z-index: 61;
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--gutter);
+    pointer-events: none;
+  }
+  /* Portrait, in the avatar's proportions (50 × 56), as tall as fits. */
+  .about-card {
+    position: relative;
+    height: min(var(--about-height), calc(100dvh - 2 * var(--gutter)), calc((100vw - 2 * var(--gutter)) * 56 / 50));
+    aspect-ratio: 50 / 56;
+    transform-style: preserve-3d;
+    border-radius: var(--about-radius);
+    box-shadow: var(--about-shadow);   /* the faces are clipped, so the shadow lives here */
+    pointer-events: auto;
+  }
+  .about-face {
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  }
+  .about-front { position: relative; height: 100%; }
+  .about-back { position: absolute; inset: 0; transform: rotateY(180deg); }
+  .about-surface {
+    --surface-border: var(--color-cover-border);
+    position: relative; height: 100%;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--about-radius);
+    background: var(--color-cover-bg);
+  }
+  /* Wider than the card (which clips it): the shader composes its light for
+     a landscape frame, as in the artifact, and the card shows the left, lit
+     part of it. On a portrait canvas the flare lands opposite the beams. */
+  .about-daylight {
+    position: absolute; left: 0; top: 0; width: 150%; height: 100%; display: block;
+    background: var(--color-daylight-paper);   /* without WebGL2 */
+  }
+  .about-back .about-surface {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-fg);
+  }
+  .about-back-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* Sized by script to match the avatar's 24px icon at the small end. */
+  .about-back-book { display: none; width: var(--about-back-icon, 24px); height: var(--about-back-icon, 24px); opacity: var(--photo-back-icon-opacity); }
+  .about-card[data-small="book"] .about-back-photo { display: none; }
+  .about-card[data-small="book"] .about-back-book { display: block; }
+
+  .about-close {
+    /* Inset from the card's outer edge (the surface has a 1px border). */
+    position: absolute; top: calc(var(--about-close-inset) - 1px); left: calc(var(--about-close-inset) - 1px);
+    width: var(--button-size); height: var(--button-size); padding: var(--button-pad);
+    display: inline-flex; align-items: center; justify-content: center;
+    --surface-bg: transparent; --surface-border: transparent; --surface-blur: none;
+    border: 0; border-radius: var(--button-radius); background: var(--surface-bg);
+    color: var(--color-fg); cursor: pointer;
+  }
+  @media (hover: hover) { .about-close:hover { --surface-bg: var(--color-tool-hover-bg); } }
+  /* The custom cursor's halo is its hover highlight: no tile as well. */
+  @media (hover: hover) { :global(html.has-cursor) .about-close:hover { --surface-bg: transparent; } }
+  .about-close:focus-visible { outline: none; --surface-bg: var(--color-tool-hover-bg); }
+  .about-close svg { width: var(--icon-size); height: var(--icon-size); }
+
+</style>

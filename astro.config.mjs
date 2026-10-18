@@ -6,4 +6,6 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: process.env.SITE || 'https://khalilcader.github.io',
   base: process.env.BASE || '/',
+  // The dev toolbar sits over the page dots; it only ever shows in `npm run dev`.
+  devToolbar: { enabled: false },
 });

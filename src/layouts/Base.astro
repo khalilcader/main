@@ -5,17 +5,31 @@ interface Props {
   title?: string;
   description?: string;
 }
-const { title = 'Khalil Cader', description = 'Product designer.' } = Astro.props;
+const { title = 'Khalil Cader', description = 'Khalil Cader, product designer.' } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <!-- Before first paint: mark JS as available, and apply a pinned theme so it never flashes. -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.scheme = t;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <slot />
+    <!-- Custom cursor (mouse and trackpad only; see scripts/cursor.ts). -->
+    <div class="cursor" id="cursor" aria-hidden="true"></div>
+    <script>
+      import '../scripts/smooth-corners';
+      import '../scripts/cursor';
+    </script>
   </body>
 </html>

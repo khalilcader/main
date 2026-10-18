@@ -1,0 +1,180 @@
+---
+import Cover from './Cover.astro';
+import { getCollection } from 'astro:content';
+
+// The work strip (Figma 53:324): a row of covers you can drag, pull up into a
+// large focus strip, or switch to a grid. The motion lives in
+// src/scripts/work-strip.ts; without JavaScript the covers sit in a plain
+// scrolling row.
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+---
+<div class="stage" id="stage" aria-label="Selected work">
+  <div class="backdrop" id="backdrop"></div>
+  <!-- Grain on its own layer above the blur, so its blend reaches the page. -->
+  <div class="backdrop-grain" id="backdrop-grain"></div>
+  {work.map((item, i) => (
+    <button
+      class="card"
+      type="button"
+      data-i={i}
+      data-aspect={item.data.cover.aspect}
+      aria-label={`${item.data.title}. ${item.data.cover.alt}`}
+      style={`--aspect: ${item.data.cover.aspect}`}
+    >
+      <!-- Shadows: plain layers behind the cover (a drop-shadow filter on the
+           card was recomputed from its live content every frame). The hover
+           one cross-fades in. -->
+      <span class="shadow rest" aria-hidden="true"></span>
+      <span class="shadow lift" aria-hidden="true"></span>
+      <Cover cover={item.data.cover} />
+      <span class="label" aria-hidden="true" data-smooth="surface"><span class="label-text">{item.data.title}</span></span>
+      <div class="veil"></div>
+    </button>
+  ))}
+</div>
+
+<div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+<script>
+  import '../scripts/work-strip';
+  import '../scripts/ripple';
+</script>
+
+<style>
+  /* No JavaScript: a plain horizontal row under the header. */
+  .stage {
+    position: fixed; inset: 0; overflow-x: auto; overflow-y: hidden;
+    display: flex; gap: var(--row-gap); align-items: flex-start;
+    padding: calc(var(--header-top) + var(--header-pad) * 2 + var(--photo-height) + var(--row-gap-below-header)) var(--page-pad) 0;
+  }
+  .card {
+    position: relative; flex: none;
+    height: min(var(--row-height), 60vh); aspect-ratio: var(--aspect);
+    padding: 0; margin: 0; border: 0; background: none; color: inherit;
+    border-radius: var(--cover-radius);
+    font: inherit; text-align: left; cursor: pointer;
+  }
+  .card :global(.cover) { border: var(--cover-border-width) solid var(--color-cover-border); }
+
+  /* With JavaScript: one full-bleed stage; covers are placed with transforms. */
+  :global(.js) .stage {
+    display: block; overflow: hidden; padding: 0;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+    cursor: grab;
+  }
+  :global(.js) .stage.dragging { cursor: grabbing; }
+  :global(.js) .card {
+    position: absolute; left: 0; top: 0; height: auto; aspect-ratio: auto;
+    transform-origin: 0 0; will-change: transform;
+    cursor: inherit;
+  }
+  :global(.js) .card :global(.cover) { border: 0; }
+  /* No focus ring: a focused cover lifts and shows its title, like hover (script). */
+  .card:focus-visible { outline: none; }
+
+  .shadow {
+    position: absolute; inset: 0; border-radius: var(--shadow-r, var(--cover-radius));
+    pointer-events: none;
+  }
+  .shadow.rest { box-shadow: 0 var(--shadow-y0) var(--shadow-b0) 0 var(--color-cover-shadow); }
+  .shadow.lift { box-shadow: 0 var(--shadow-y1) var(--shadow-b1) 0 var(--color-cover-shadow-hover); opacity: 0; }
+  :global(html:not(.js)) .shadow { display: none; }
+
+  /* Title pill, shown on hover and keyboard focus. Script sets --pop (a
+     springy 0..1 that overshoots a little), --show (clamped, for opacity) and
+     --unscale (keeps it the same size on screen however the cover is scaled).
+     Same glass as the header buttons. */
+  .label {
+    position: absolute; left: 50%; bottom: calc(var(--label-offset) * var(--unscale, 1));
+    transform: translateX(-50%) translateY(calc((1 - var(--pop, 0)) * var(--label-rise)))
+      scale(calc(var(--unscale, 1) * (1 - (1 - var(--pop, 0)) * var(--label-grow))));
+    transform-origin: 50% 100%;
+    padding: var(--label-pad-y) var(--label-pad-x);
+    --surface-bg: var(--color-label-bg);
+    --surface-border: var(--color-button-border);
+    --surface-border-top: 0.35;   /* lit from above: darker underneath */
+    --surface-blur: blur(var(--button-blur));
+    border: var(--button-border-width) solid var(--surface-border);
+    border-radius: var(--button-radius);   /* same corners as the header controls */
+    background: var(--surface-bg);
+    -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur);
+    color: var(--color-fg);
+    font-family: inherit; font-size: var(--text-name-size); font-weight: var(--text-name-weight);
+    letter-spacing: var(--text-name-tracking); line-height: 1.25;
+    white-space: nowrap; pointer-events: none;
+  }
+  /* Fades in by its parts (glass, text, shadow), never the label as a whole:
+     opacity below 1 on the label would cut its glass off from the page behind,
+     so the blur would drop out mid-fade and snap back on as it settled. */
+  .label > :global(.smooth-layer), .label-text, .label::before { opacity: var(--show, 0); }
+  .label::before {
+    content: ""; position: absolute; inset: calc(-1 * var(--button-border-width)); z-index: -2;
+    border-radius: inherit; box-shadow: var(--label-shadow);
+  }
+  .label:not(:global(.smooth-host)) { opacity: 0; }   /* until its glass layer is set up */
+  :global(html:not(.js)) .label { display: none; }
+
+  /* Grain over anything pushed out of focus. The cover itself fades and blurs;
+     this layer reaches past it by the blur's spill (--f) and feathers over it,
+     so it never shows a hard edge. */
+  .veil {
+    position: absolute; inset: calc(var(--f, 0px) * -1); border-radius: inherit;
+    background: var(--veil-tint);   /* dark mode: leaving covers darken under their grain */
+    pointer-events: none; opacity: 0;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent),
+                        linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to right, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent),
+                linear-gradient(to bottom, transparent, #000 calc(var(--f, 0px) * 2.5), #000 calc(100% - var(--f, 0px) * 2.5), transparent);
+    mask-composite: intersect;
+  }
+  .veil::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
+    mix-blend-mode: var(--grain-blend); opacity: min(1, calc(var(--grain-amount) * var(--grain-strength)));
+  }
+
+  /* Grid lightbox: everything else fades to the page. */
+  .backdrop {
+    position: absolute; inset: 0; z-index: 10; pointer-events: none;
+    background: var(--color-scrim);
+    -webkit-backdrop-filter: blur(var(--backdrop-blur)); backdrop-filter: blur(var(--backdrop-blur));
+    opacity: 0;
+  }
+  /* Same grain as the About overlay: overlay in light mode; in dark, plain
+     near-black speckles (a blend would lift the page, or trace the blurred
+     cards' edges). Faded with the backdrop. */
+  .backdrop-grain {
+    position: absolute; inset: 0; z-index: 10; pointer-events: none;
+    background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
+    mix-blend-mode: var(--scrim-grain-blend); filter: var(--scrim-grain-filter);
+    opacity: 0;
+  }
+
+  /* Progressive edge blur: eight stacked backdrop blurs, strength rising along
+     an eased curve (set in script), each masked to its own overlapping band, plus
+     a fade to the page on top. No blend-mode grain in or over the edge: inside it
+     isolates the backdrop blur, over it brightens mid-tones into a streak. */
+  .edge {
+    display: none;
+    position: fixed; top: 0; bottom: 0; z-index: 25; pointer-events: none;
+    width: var(--edge-w, 8vw); will-change: transform;
+  }
+  :global(.js) .edge { display: block; }
+  .edge.l { left: 0; }
+  .edge.r { right: 0; transform: scaleX(-1); }
+  /* Each band covers only its own strip of the edge (where its mask is
+     non-zero), so no band blurs pixels it then masks away. */
+  .edge i { position: absolute; top: 0; bottom: 0; display: block; -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
+  .edge i.off { display: none; }   /* too faint to see: skip its blur pass */
+  .edge::after { content: ""; position: absolute; inset: 0; background: var(--fade, none); }
+  .edge i:nth-child(1) { right: 0%; width: 37.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .edge i:nth-child(2) { right: 12.5%; width: 37.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .edge i:nth-child(3) { right: 25%; width: 37.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .edge i:nth-child(4) { right: 37.5%; width: 37.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .edge i:nth-child(5) { right: 50%; width: 37.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .edge i:nth-child(6) { right: 62.5%; width: 37.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
+  .edge i:nth-child(7) { right: 75%; width: 25%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 50%, #000 100%); mask-image: linear-gradient(to left, transparent 0%, #000 50%, #000 100%); }
+  .edge i:nth-child(8) { right: 87.5%; width: 12.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 100%); mask-image: linear-gradient(to left, transparent 0%, #000 100%); }
+</style>

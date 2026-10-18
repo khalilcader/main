@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -11,9 +12,18 @@ const { item } = Astro.props;
 const { Content } = await render(item);
 ---
 <Base title={`${item.data.title} — Khalil Cader`} description={item.data.summary}>
-  <main>
+  <SiteHeader tools={false} />
+  <!-- Case study layout isn't designed yet; this is a plain reading column. -->
+  <main class="case">
     <h1>{item.data.title}</h1>
     <p>{item.data.role} · {item.data.year}</p>
     <Content />
   </main>
 </Base>
+
+<style>
+  .case {
+    max-width: 720px; margin: 0 auto;
+    padding: calc(var(--header-top) + var(--header-pad) * 2 + var(--photo-height) + var(--space-5)) var(--gutter) var(--space-6);
+  }
+</style>

@@ -1,21 +1,49 @@
 /*
-  Design tokens — the single source of truth for the visual system.
-  Placeholder values only. Replace these with the variables from the Figma file
-  (colors, type scale, spacing, radii) before building any components.
+  Design tokens: the single source of truth for the visual system.
+  Values come from the Figma file "khalilcader.com" (layout frame 53:253, glass
+  frame 43:66). The file has no Figma variables yet, so these are read from the
+  layers. Dark values are not in Figma; they carry over from the prototype.
 */
 :root {
   /* Color */
-  --color-bg: #ffffff;
-  --color-fg: #111111;
-  --color-muted: #6b6b6b;
-  --color-accent: #111111;
+  --color-bg: #f5f5f5;
+  --color-fg: #000000;
+  --color-focus: #2f5bd8;
+  --color-cover-bg: #ffffff;
+  --color-cover-border: rgba(0, 0, 0, 0.15);
+  --color-cover-shadow: rgba(0, 0, 0, 0.03);
+  --color-cover-shadow-hover: rgba(0, 0, 0, 0.08);   /* lifted on hover: subtle, soft */
+  --color-photo-border: rgba(0, 0, 0, 0.2);
+  --color-button-bg: rgba(255, 255, 255, 0.8);
+  --color-button-border: rgba(0, 0, 0, 0.2);
+  --color-divider: rgba(0, 0, 0, 0.1);
+  --color-cursor: rgba(0, 0, 0, 0.16);
+  --color-cursor-halo: rgba(0, 0, 0, 0.07);
+  --color-button-shadow: rgba(0, 0, 0, 0.05);
+  --color-label-shadow: rgba(0, 0, 0, 0.08);
+  --color-label-bg: var(--color-button-bg);
+  --color-tip-bg: rgba(38, 38, 38, 0.94);   /* from Khalil's tooltip mockup */
+  --color-tip-fg: #ffffff;
+  --color-tip-border: rgba(255, 255, 255, 0.16);
+  --color-toggle-on-bg: #dbe9fc;            /* pressed tile, from Khalil's mockup */
+  --color-toggle-on-fg: #3b88f5;
+  --color-tool-hover-bg: rgba(0, 0, 0, 0.08);   /* from Khalil's hover mockup */
+  --color-toggle-on-hover-bg: #cde0fb;
+  --color-glass-bg: rgba(255, 255, 255, 0.5);
+  --color-glass-border: rgba(255, 255, 255, 0.8);
+  --color-glass-shadow: rgba(0, 0, 0, 0.1);
+  --color-scrim: color-mix(in srgb, var(--color-bg) 72%, transparent);
 
   /* Type */
-  --font-sans: system-ui, -apple-system, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: ui-monospace, monospace;
+  /* Saans, served from src/assets/fonts (see global.css): 400 and 500. */
+  --font-sans: "Saans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-name-size: 16px;
+  --text-name-weight: 500;
+  --text-name-tracking: 0.16px;
+  --text-secondary-opacity: 0.4;
 
-  /* Spacing (base 4) */
+  /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 16px;
@@ -23,7 +51,219 @@
   --space-5: 40px;
   --space-6: 64px;
 
-  /* Layout */
-  --max-width: 1200px;
+  /* Layout (Figma frame is 1440 × 1024) */
+  --page-pad: clamp(16px, 7.15vw, 103px);    /* 103px at 1440 */
+  --header-top: 64px;
+  --header-pad: 16px;
+  --row-gap-below-header: 72px;             /* header ends at 152, covers start at 224 */
+  --row-height: 617px;                      /* max cover height in the row */
+  --row-gap: 24px;
   --gutter: 16px;
+
+  /* Header */
+  --photo-width: 50px;
+  --photo-height: 56px;
+  --photo-radius: 14px;
+  --photo-shadow: 0 4px 16px 0 var(--color-cover-shadow);
+  --button-size: 40px;
+  --button-pad: 8px;
+  --button-radius: 10px;
+  --button-blur: 20px;
+  --button-border-width: 1px;               /* same as the avatar's outline (Figma has 0.5px) */
+  --button-shadow: 0 1px 3.5px 0 var(--color-button-shadow);
+  --icon-size: 24px;
+
+  /* Avatar flip (to its About side, on hover) */
+  --photo-perspective: 400px;
+  --photo-flip-duration: 0.6s;
+  --photo-flip-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --photo-back-icon-opacity: 0.6;
+  --photo-hover-scale: 1.06;                /* grows a little on hover */
+  --photo-hover-duration: 0.35s;
+  --photo-shadow-hover: 0 8px 24px 0 rgba(0, 0, 0, 0.14);
+
+  /* About card (opens from the avatar) */
+  --about-height: 760px;                    /* portrait, avatar proportions */
+  --about-radius: var(--cover-radius);      /* same corners as the cards */
+  --about-close-inset: 24px;                /* close button, from the card's top-left corner */
+  --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
+  --about-blur: 16px;                       /* background blur behind the card */
+  --scrim-grain: 0.6;
+  --scrim-grain-blend: overlay;
+  --scrim-grain-filter: none;
+
+  /* Tooltips */
+  --tip-gap: 8px;
+  --cursor-size: 24px;                      /* custom cursor: the resting circle */
+  --cursor-blur: 6px;                       /* what's under the circle is blurred this much */
+  --cursor-halo: 6px;                       /* over a control: how far the halo reaches past it */
+  --cursor-pull: 0.12;                      /* magnetic: share of the pointer's offset the control follows */
+  --cursor-pull-max: 4px;                   /* ...up to this far */
+  --ripple-radius: 160;                     /* hover ripple on a card: reach of the rings (card px) */
+  --ripple-strength: 10;                    /* px of push when the mouse moves fast */
+  --ripple-split: 1;                        /* colour split: red and blue bend this much more / less than green */
+  --tip-delay: 0.1s;                        /* hover pause before a tooltip shows */
+  --tip-pad-y: 8px;                         /* around cap height to baseline */
+  --tip-pad-x: 10px;
+  --tip-radius: 8px;
+  --tip-size: 13px;
+  --tip-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
+
+  /* Cover title pill (on hover) */
+  --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
+  --label-pad-y: 12px;                      /* chunky pill */
+  --label-pad-x: 20px;
+  --label-rise: 6px;                        /* drifts up this far as it appears */
+  --label-grow: 0.1;                        /* and grows from 90%, popping just past full size */
+  --label-shadow: 0 4px 16px 0 var(--color-label-shadow);
+  --tools-inset: 4px;                       /* padding around the header buttons (no gap between them) */
+  --close-inset: 40px;                      /* focus-mode close button, from the top-left corner */
+  --tool-size: 30px;                        /* 40 tall: 4 + 30 + 4 + 1px border each side; tiles touch */
+  --divider-height: 22px;                   /* between the close button and the focus title */
+  --focus-title-size: 18px;                 /* project title beside the close button in focus mode */
+  --focus-title-pad: 12px;
+
+  /* Covers */
+  --cover-radius: 48px;                     /* at row height */
+  --cover-smoothing: 0.8;
+  --corner-smoothing: 0.8;                  /* every other smoothed corner (buttons, pills, photo...) */                   /* Figma corner smoothing */
+  --cover-border-width: 1px;
+  --cover-shadow-y: 4px;
+  --cover-shadow-blur: 16px;
+  --cover-shadow-hover-y: 10px;             /* on hover */
+  --cover-shadow-hover-blur: 32px;
+
+  /* Glass device frame (Figma 43:66: 390 × 816) */
+  --glass-height: 84%;                      /* of the cover's height; leaves some backdrop above and below */
+  --glass-radius-x: 15.6%;                  /* 61px of 390 */
+  --glass-radius-y: 7.5%;                   /* 61px of 816 */
+  --glass-pad: 2.8%;                        /* bezel: ~11px at 390 wide */
+  --glass-border-width: 2px;
+  --glass-blur: 20px;
+  --glass-shadow: 0 6px 24px 0 var(--color-glass-shadow);   /* tighter than Figma's 0 4 50 30, per Khalil */
+  --glass-screen-radius-x: 12%;             /* fallback before script shapes the corners */
+  --glass-screen-radius-y: 5.6%;
+  --screen-radius: 0.12;                    /* screen corner as a share of its width (iPhone: ~47pt of 390) */
+  --screen-smoothing: 0.6;                  /* corner smoothing for the screen and frame */
+  --ambient-opacity: 0.55;
+
+  /* Backdrop shader behind the device frame (Mobile spotlight cover): a
+     mottled, grainy studio backdrop drifting between three tones. */
+  --color-backdrop-deep: #3a73dc;
+  --color-backdrop-base: #5f93ef;
+  --color-backdrop-light: #a3c5fa;
+
+  /* Effects */
+  --grain-amount: 1;
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='2.2' intercept='-0.6'/><feFuncG type='linear' slope='2.2' intercept='-0.6'/><feFuncB type='linear' slope='2.2' intercept='-0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --grain-size: 160px;
+  --grain-blend: overlay;                   /* how grain sits on blurred covers */
+  --grain-strength: 1.3;
+  --veil-tint: transparent;
+  --backdrop-blur: 14px;
+
+  /* Daylight shader (About card stand-in, the Tree Shadow artifact): light
+     paper with soft tree shadows. Bone grey here, moonlit blue-grey in dark. */
+  --color-daylight-paper: #f8f7f5;            /* the artifact's "Bone" palette */
+  --color-daylight-shadow: #8a8987;
+  --daylight-preset: light;                 /* which light settings (scripts/tree-shadow) */
+
+  color-scheme: light;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --header-top: 16px;
+    --row-gap-below-header: 32px;
+    --row-gap: 12px;
+  }
+}
+
+/* Dark: follows the system unless the theme button pins light. The button
+   writes data-scheme on <html>. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-scheme="light"]) {
+    --color-bg: #121211;
+    --color-fg: #ecece8;
+    --color-focus: #8fa9ff;
+    --color-cover-bg: #1c1c1e;
+    --color-cover-border: rgba(255, 255, 255, 0.12);
+    --color-cover-shadow: rgba(0, 0, 0, 0.3);
+    --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
+    --color-photo-border: rgba(255, 255, 255, 0.2);
+    --color-button-bg: rgba(40, 40, 38, 0.8);
+    --color-button-border: rgba(255, 255, 255, 0.16);
+    --color-divider: rgba(255, 255, 255, 0.12);
+    --color-cursor: rgba(255, 255, 255, 0.22);
+    --color-cursor-halo: rgba(255, 255, 255, 0.09);
+    --color-button-shadow: rgba(0, 0, 0, 0.3);
+    --color-label-shadow: rgba(0, 0, 0, 0.35);
+    --color-label-bg: rgba(20, 20, 19, 0.82);
+    --color-tip-bg: rgba(20, 20, 19, 0.96);
+    --grain-blend: soft-light;              /* overlay brightens dark surfaces; leaving covers should darken */
+    --grain-strength: 0.6;
+    --scrim-grain-blend: normal;   /* blends lift a dark page, or ring the blurred cards */
+    --scrim-grain-filter: brightness(0.1);   /* near-black speckles: texture that only darkens */
+    --scrim-grain: 0.35;
+    --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
+    --veil-tint: rgba(0, 0, 0, 0.55);
+    --color-tip-border: rgba(255, 255, 255, 0.18);
+    --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
+    --color-toggle-on-fg: #7fb2ff;
+  --color-tool-hover-bg: rgba(255, 255, 255, 0.1);
+  --color-toggle-on-hover-bg: rgba(59, 136, 245, 0.32);
+    --color-glass-bg: rgba(255, 255, 255, 0.07);
+    --color-glass-border: rgba(255, 255, 255, 0.16);
+    --color-glass-shadow: rgba(0, 0, 0, 0.3);
+    --ambient-opacity: 0.3;
+    --color-backdrop-deep: #071a4d;
+    --color-backdrop-base: #0f2f80;
+    --color-backdrop-light: #2152b5;
+    --color-daylight-paper: #1e2330;
+    --color-daylight-shadow: #080a10;
+    --daylight-preset: dark;
+    color-scheme: dark;
+  }
+}
+:root[data-scheme="dark"] {
+  --color-bg: #121211;
+  --color-fg: #ecece8;
+  --color-focus: #8fa9ff;
+  --color-cover-bg: #1c1c1e;
+  --color-cover-border: rgba(255, 255, 255, 0.12);
+  --color-cover-shadow: rgba(0, 0, 0, 0.3);
+  --color-cover-shadow-hover: rgba(0, 0, 0, 0.45);
+  --color-photo-border: rgba(255, 255, 255, 0.2);
+  --color-button-bg: rgba(40, 40, 38, 0.8);
+  --color-button-border: rgba(255, 255, 255, 0.16);
+  --color-divider: rgba(255, 255, 255, 0.12);
+  --color-cursor: rgba(255, 255, 255, 0.22);
+  --color-cursor-halo: rgba(255, 255, 255, 0.09);
+  --color-button-shadow: rgba(0, 0, 0, 0.3);
+  --color-label-shadow: rgba(0, 0, 0, 0.35);
+  --color-label-bg: rgba(20, 20, 19, 0.82);
+  --color-tip-bg: rgba(20, 20, 19, 0.96);
+  --grain-blend: soft-light;        /* overlay brightens dark surfaces; leaving covers should darken */
+  --grain-strength: 0.6;
+  --scrim-grain-blend: normal;   /* blends lift a dark page, or ring the blurred cards */
+  --scrim-grain-filter: brightness(0.1);   /* near-black speckles: texture that only darkens */
+  --scrim-grain: 0.35;
+  --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
+  --veil-tint: rgba(0, 0, 0, 0.55);
+  --color-tip-border: rgba(255, 255, 255, 0.18);
+  --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
+  --color-toggle-on-fg: #7fb2ff;
+  --color-tool-hover-bg: rgba(255, 255, 255, 0.1);
+  --color-toggle-on-hover-bg: rgba(59, 136, 245, 0.32);
+  --color-glass-bg: rgba(255, 255, 255, 0.07);
+  --color-glass-border: rgba(255, 255, 255, 0.16);
+  --color-glass-shadow: rgba(0, 0, 0, 0.3);
+  --ambient-opacity: 0.3;
+  --color-backdrop-deep: #071a4d;
+  --color-backdrop-base: #0f2f80;
+  --color-backdrop-light: #2152b5;
+  --color-daylight-paper: #1e2330;
+  --color-daylight-shadow: #080a10;
+  --daylight-preset: dark;
+  color-scheme: dark;
 }

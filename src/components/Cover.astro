@@ -1,0 +1,53 @@
+---
+import GlassFrame from './GlassFrame.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  cover: CollectionEntry<'work'>['data']['cover'];
+}
+const { cover } = Astro.props;
+const url = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+---
+<div class:list={['cover', { media: cover.video }]}>
+  <!-- Media sits in its own layer so the row's edge blur can soften it while
+       the cover's shape, border and background stay crisp. The hover ripple
+       bends the layer inside it (scripts/ripple.ts), so the card stays intact. -->
+  <div class="content"><div class="ripple-layer">
+    {cover.shader && <canvas class="shader" data-shader={cover.shader}></canvas>}
+    {cover.video && (
+      <>
+        {!cover.shader && <img class="ambient" src={url(cover.video.poster)} alt="" />}
+        <GlassFrame
+          webm={cover.video.webm && url(cover.video.webm)}
+          mp4={url(cover.video.mp4)}
+          poster={url(cover.video.poster)}
+          start={cover.video.start}
+          camera={cover.video.camera}
+        />
+      </>
+    )}
+    {cover.image && <img class="still" src={url(cover.image)} alt="" />}
+  </div></div>
+  <!-- 1px border that follows the smoothed corners; the path is set in script. -->
+  <svg class="outline" aria-hidden="true"><path /></svg>
+</div>
+
+<style>
+  .cover {
+    position: absolute; inset: 0; overflow: hidden;
+    border-radius: inherit;
+    background: var(--color-cover-bg);
+    pointer-events: none;
+  }
+  .content, .ripple-layer { position: absolute; inset: 0; }
+  .shader { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: var(--color-backdrop-base); }
+  .ambient {
+    position: absolute; inset: -12%; width: 124%; height: 124%; max-width: none;
+    object-fit: cover; filter: blur(40px) saturate(1.3); opacity: var(--ambient-opacity);
+  }
+  .still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .outline {
+    position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
+    fill: none; stroke: var(--color-cover-border);
+  }
+</style>

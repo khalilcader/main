@@ -1,0 +1,251 @@
+---
+import { existsSync } from 'node:fs';
+import Tooltip from './Tooltip.astro';
+
+// Figma 53:310. The photo is the one asset that can't be pulled from Figma
+// automatically: drop it at public/images/khalil.jpg and it shows up here.
+const photo = existsSync('public/images/khalil.jpg') ? `${import.meta.env.BASE_URL}images/khalil.jpg` : null;
+const home = import.meta.env.BASE_URL;
+
+interface Props {
+  // The theme and grid buttons drive the work strip, so they only show with it.
+  tools?: boolean;
+}
+const { tools = true } = Astro.props;
+---
+<header class="site-header">
+  <a class="who" href={home}>
+    <!-- Flips over in 3D on hover to show the About side. -->
+    <span class="photo has-tip" data-cursor="halo" data-cursor-halo="0" style="--cursor-radius: var(--photo-radius)">
+      <span class="flip">
+        <span class="face front"><span class="surface" data-smooth="clip">
+          {photo && <img src={photo} alt="Khalil Cader" width="50" height="56" />}
+        </span></span>
+        <span class="face back" aria-hidden="true"><span class="surface" data-smooth="clip">
+          <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6.75 18.25V5.75a1.5 1.5 0 0 1 1.5-1.5h8.5a1.5 1.5 0 0 1 1.5 1.5v12.5" />
+            <path d="M6.75 18.25a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5v0a1.5 1.5 0 0 0-1.5-1.5h-8.5a1.5 1.5 0 0 0-1.5 1.5Z" />
+            <path d="M9.75 7.75h4.5M9.75 10.75h2.5" />
+          </svg>
+        </span></span>
+      </span>
+      <Tooltip>About</Tooltip>
+    </span>
+    <span class="name">
+      <span>Khalil Cader</span>
+      <span class="role">Product Designer</span>
+    </span>
+  </a>
+  {tools && <div class="tools close-group" id="close-group" data-smooth="surface" hidden>
+    <!-- Focus mode: closes the open cover, with its title alongside. Fades in at the top left (script). -->
+    <button class="tool has-tip" data-smooth="surface" data-cursor="halo" data-cursor-halo="4" data-cursor-focus id="close-button" type="button" aria-label="Close" aria-keyshortcuts="Escape">
+      <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+        <path d="M7 7l10 10M17 7L7 17" />
+      </svg>
+      <Tooltip shortcut="Esc">Close</Tooltip>
+    </button>
+    <!-- The open project's title, joined to the close button (script fills it). -->
+    <span class="divider" aria-hidden="true"></span>
+    <span class="focus-title" id="focus-title"></span>
+  </div>}
+  {tools && <div class="tools" id="view-tools" role="group" aria-label="View" data-smooth="surface">
+    <!-- One glass container holding both buttons (after Figma 67:848), 4px apart. -->
+    <button class="tool has-tip" data-smooth="surface" data-cursor="halo" data-cursor-halo="4" id="theme-button" type="button" aria-label="Theme: system" aria-keyshortcuts="T">
+      <!-- System (follows the device): a display on computers, a phone on
+           touch devices (CSS picks one). Figma studio-display and phone icons. -->
+      <svg class="icon icon-system on-computer" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18.05 4.75H5.95C4.8299 4.75 4.26984 4.75 3.84202 4.96799C3.46569 5.15973 3.15973 5.46569 2.96799 5.84202C2.75 6.26984 2.75 6.8299 2.75 7.95V13.55C2.75 14.6701 2.75 15.2302 2.96799 15.658C3.15973 16.0343 3.46569 16.3403 3.84202 16.532C4.26984 16.75 4.8299 16.75 5.95 16.75H18.05C19.1701 16.75 19.7302 16.75 20.158 16.532C20.5343 16.3403 20.8403 16.0343 21.032 15.658C21.25 15.2302 21.25 14.6701 21.25 13.55V7.95C21.25 6.8299 21.25 6.26984 21.032 5.84202C20.8403 5.46569 20.5343 5.15973 20.158 4.96799C19.7302 4.75 19.1701 4.75 18.05 4.75Z" />
+        <path d="M9.25 16.75V20.25H14.75V16.75" />
+      </svg>
+      <svg class="icon icon-system on-phone" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="6" y="2" width="12" height="20" rx="2.5" />
+        <path d="M10 5H14" />
+      </svg>
+      <!-- Sun: Figma sun_light-mode. -->
+      <svg class="icon icon-light" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12.0002 3.29083V1.76758M5.8418 18.1586L4.7647 19.2357M12.0002 22.2327V20.7094M19.2353 4.76468L18.1582 5.84179M20.709 12.0001H22.2322M18.1582 18.1586L19.2353 19.2357M1.76758 12.0001H3.29083M4.76462 4.76462L5.84173 5.84173M15.7123 8.28781C17.7626 10.3381 17.7626 13.6622 15.7123 15.7124C13.6621 17.7627 10.3379 17.7627 8.28769 15.7124C6.23744 13.6622 6.23744 10.3381 8.28769 8.28781C10.3379 6.23756 13.6621 6.23756 15.7123 8.28781Z" />
+      </svg>
+      <!-- Moon: Figma moon_dark-mode. -->
+      <svg class="icon icon-dark" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21.2481 11.8112C20.1889 12.56 18.8958 13 17.5 13C13.9101 13 11 10.0899 11 6.5C11 5.10416 11.44 3.81108 12.1888 2.75189C12.126 2.75063 12.0631 2.75 12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 11.9369 21.2494 11.874 21.2481 11.8112Z" />
+      </svg>
+      <Tooltip shortcut="T">Theme</Tooltip>
+    </button>
+    <button class="tool has-tip" data-smooth="surface" data-cursor="halo" data-cursor-halo="4" id="grid-button" type="button" aria-pressed="false" aria-label="Show as grid" aria-keyshortcuts="G">
+      <!-- Figma layout-grid-2: outlined when off, filled when on. -->
+      <svg class="icon grid-off" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <rect x="4" y="3.5" width="7" height="7" rx="2" />
+        <rect x="4" y="13.5" width="7" height="7" rx="2" />
+        <rect x="14" y="3.5" width="7" height="7" rx="2" />
+        <rect x="14" y="13.5" width="7" height="7" rx="2" />
+      </svg>
+      <svg class="icon grid-on" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
+        <path d="M7.54981 12.75C8.09748 12.75 8.55368 12.749 8.92481 12.7793C9.30454 12.8103 9.66091 12.8781 9.99805 13.0498C10.5155 13.3135 10.9365 13.7345 11.2002 14.252C11.3719 14.5891 11.4397 14.9455 11.4707 15.3252C11.501 15.6963 11.5 16.1525 11.5 16.7002V17.2998C11.5 17.8475 11.501 18.3037 11.4707 18.6748C11.4397 19.0545 11.3719 19.4109 11.2002 19.7481C10.9365 20.2655 10.5155 20.6865 9.99805 20.9502C9.66091 21.1219 9.30454 21.1897 8.92481 21.2207C8.55368 21.251 8.09748 21.25 7.54981 21.25H6.9502C6.40252 21.25 5.94633 21.251 5.5752 21.2207C5.19547 21.1897 4.8391 21.1219 4.50196 20.9502C3.98451 20.6865 3.56346 20.2655 3.29981 19.7481C3.1281 19.4109 3.06033 19.0545 3.0293 18.6748C2.99898 18.3037 3 17.8475 3 17.2998V16.7002C3 16.1525 2.99898 15.6963 3.0293 15.3252C3.06033 14.9455 3.1281 14.5891 3.29981 14.252C3.56346 13.7345 3.98451 13.3135 4.50196 13.0498C4.8391 12.8781 5.19547 12.8103 5.5752 12.7793C5.94633 12.749 6.40252 12.75 6.9502 12.75H7.54981ZM17.5498 12.75C18.0975 12.75 18.5537 12.749 18.9248 12.7793C19.3045 12.8103 19.6609 12.8781 19.9981 13.0498C20.5155 13.3135 20.9365 13.7345 21.2002 14.252C21.3719 14.5891 21.4397 14.9455 21.4707 15.3252C21.501 15.6963 21.5 16.1525 21.5 16.7002V17.2998C21.5 17.8475 21.501 18.3037 21.4707 18.6748C21.4397 19.0545 21.3719 19.4109 21.2002 19.7481C20.9365 20.2655 20.5155 20.6865 19.9981 20.9502C19.6609 21.1219 19.3045 21.1897 18.9248 21.2207C18.5537 21.251 18.0975 21.25 17.5498 21.25H16.9502C16.4025 21.25 15.9463 21.251 15.5752 21.2207C15.1955 21.1897 14.8391 21.1219 14.502 20.9502C13.9845 20.6865 13.5635 20.2655 13.2998 19.7481C13.1281 19.4109 13.0603 19.0545 13.0293 18.6748C12.999 18.3037 13 17.8475 13 17.2998V16.7002C13 16.1525 12.999 15.6963 13.0293 15.3252C13.0603 14.9455 13.1281 14.5891 13.2998 14.252C13.5635 13.7345 13.9845 13.3135 14.502 13.0498C14.8391 12.8781 15.1955 12.8103 15.5752 12.7793C15.9463 12.749 16.4025 12.75 16.9502 12.75H17.5498ZM7.54981 2.75C8.09748 2.75 8.55368 2.74898 8.92481 2.7793C9.30454 2.81033 9.66091 2.8781 9.99805 3.04981C10.5155 3.31346 10.9365 3.73451 11.2002 4.25196C11.3719 4.5891 11.4397 4.94547 11.4707 5.3252C11.501 5.69633 11.5 6.15252 11.5 6.7002V7.29981C11.5 7.84748 11.501 8.30368 11.4707 8.67481C11.4397 9.05454 11.3719 9.41091 11.2002 9.74805C10.9365 10.2655 10.5155 10.6865 9.99805 10.9502C9.66091 11.1219 9.30454 11.1897 8.92481 11.2207C8.55368 11.251 8.09748 11.25 7.54981 11.25H6.9502C6.40252 11.25 5.94633 11.251 5.5752 11.2207C5.19547 11.1897 4.8391 11.1219 4.50196 10.9502C3.98451 10.6865 3.56346 10.2655 3.29981 9.74805C3.1281 9.41091 3.06033 9.05454 3.0293 8.67481C2.99898 8.30368 3 7.84748 3 7.29981V6.7002C3 6.15252 2.99898 5.69633 3.0293 5.3252C3.06033 4.94547 3.1281 4.5891 3.29981 4.25196C3.56346 3.73451 3.98451 3.31346 4.50196 3.04981C4.8391 2.8781 5.19547 2.81033 5.5752 2.7793C5.94633 2.74898 6.40252 2.75 6.9502 2.75H7.54981ZM17.5498 2.75C18.0975 2.75 18.5537 2.74898 18.9248 2.7793C19.3045 2.81033 19.6609 2.8781 19.9981 3.04981C20.5155 3.31346 20.9365 3.73451 21.2002 4.25196C21.3719 4.5891 21.4397 4.94547 21.4707 5.3252C21.501 5.69633 21.5 6.15252 21.5 6.7002V7.29981C21.5 7.84748 21.501 8.30368 21.4707 8.67481C21.4397 9.05454 21.3719 9.41091 21.2002 9.74805C20.9365 10.2655 20.5155 10.6865 19.9981 10.9502C19.6609 11.1219 19.3045 11.1897 18.9248 11.2207C18.5537 11.251 18.0975 11.25 17.5498 11.25H16.9502C16.4025 11.25 15.9463 11.251 15.5752 11.2207C15.1955 11.1897 14.8391 11.1219 14.502 10.9502C13.9845 10.6865 13.5635 10.2655 13.2998 9.74805C13.1281 9.41091 13.0603 9.05454 13.0293 8.67481C12.999 8.30368 13 7.84748 13 7.29981V6.7002C13 6.15252 12.999 5.69633 13.0293 5.3252C13.0603 4.94547 13.1281 4.5891 13.2998 4.25196C13.5635 3.73451 13.9845 3.31346 14.502 3.04981C14.8391 2.8781 15.1955 2.81033 15.5752 2.7793C15.9463 2.74898 16.4025 2.75 16.9502 2.75H17.5498Z" />
+      </svg>
+      <Tooltip shortcut="G">Grid</Tooltip>
+    </button>
+  </div>}
+</header>
+
+{tools && (
+  <script>
+    // On load (home page): once the covers have come in, the avatar flips to
+    // its About side, holds for 1.5s, and flips back, hinting it can be opened.
+    const photo = document.querySelector<HTMLElement>('.site-header .photo');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (photo && !reduce) {
+      setTimeout(() => {
+        if (photo.matches(':hover')) return;   // already being explored
+        photo.classList.add('peek');
+        setTimeout(() => photo.classList.remove('peek'), 1500 + 600);   // hold + the flip itself
+      }, 1400);
+    }
+  </script>
+)}
+
+<style>
+  .site-header {
+    position: fixed; z-index: 30;
+    top: calc(env(safe-area-inset-top, 0px) + var(--header-top));
+    left: var(--page-pad); right: var(--page-pad);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--header-pad);
+    pointer-events: none;
+  }
+  .site-header > * { pointer-events: auto; }
+
+  .who {
+    display: flex; align-items: center; gap: var(--space-3);
+    min-width: 0; text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .photo {
+    flex: none; width: var(--photo-width); height: var(--photo-height);
+    perspective: var(--photo-perspective);
+    transition: scale var(--photo-hover-duration) var(--photo-flip-ease);
+  }
+  .flip {
+    position: absolute; inset: 0; display: block;
+    border-radius: var(--photo-radius); box-shadow: var(--photo-shadow);   /* the faces are clipped, so the shadow lives here */
+    transform-style: preserve-3d;
+    transition: transform var(--photo-flip-duration) var(--photo-flip-ease),
+                box-shadow var(--photo-hover-duration) var(--photo-flip-ease);
+  }
+  /* A face takes part in the 3D flip; its surface inside carries the shape.
+     (Chrome ignores clip-path on elements inside a 3D scene, so the smoothed
+     clip has to sit one level down.) */
+  .face {
+    position: absolute; inset: 0; display: block;
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  }
+  .surface {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    --surface-border: var(--color-photo-border);
+    border: 1px solid var(--surface-border); border-radius: var(--photo-radius);
+    background: var(--color-cover-bg);
+    overflow: hidden;
+  }
+  .face img { width: 100%; height: 100%; object-fit: cover; }
+  .back { transform: rotateY(180deg); color: var(--color-fg); }
+  .back .icon { opacity: var(--photo-back-icon-opacity); }
+  /* Flip on hover (mouse) or keyboard focus. */
+  .who:focus-visible:not([data-noflip]) .flip, .photo.peek .flip { transform: rotateY(180deg); }
+  @media (hover: hover) {
+    /* Hover: flips, grows a little and lifts onto a stronger shadow. */
+    .photo:hover { scale: var(--photo-hover-scale); }
+    .photo:hover .flip { transform: rotateY(180deg); box-shadow: var(--photo-shadow-hover); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flip { transition: none; }
+    .photo:hover { scale: none; }
+  }
+  .name {
+    display: flex; flex-direction: column;
+    font-size: var(--text-name-size); font-weight: var(--text-name-weight);
+    letter-spacing: var(--text-name-tracking); line-height: normal;
+    white-space: nowrap;
+  }
+  .role { opacity: var(--text-secondary-opacity); }
+
+  /* One glass container, 10px corners: square button tiles with 4px around
+     and between them, so a tile's corners sit concentric with the container. */
+  .tools {
+    display: flex; align-items: center;
+    height: var(--button-size); padding: var(--tools-inset);
+    --surface-bg: var(--color-button-bg);
+    --surface-border: var(--color-button-border);
+    --surface-blur: blur(var(--button-blur));
+    border: var(--button-border-width) solid var(--surface-border);
+    border-radius: var(--button-radius);
+    background: var(--surface-bg);
+    -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur);
+    box-shadow: var(--button-shadow);
+  }
+  :global(html:not(.js)) .tools { display: none; }
+  /* Close button: top left in focus mode (script fades it in). */
+  .close-group {
+    position: fixed;
+    left: calc(env(safe-area-inset-left, 0px) + var(--close-inset));
+    top: calc(env(safe-area-inset-top, 0px) + var(--close-inset));
+    opacity: 0;
+  }
+  .close-group[hidden] { display: none; }
+  .divider {
+    flex: none; width: 1px; height: var(--divider-height);
+    margin: 0 var(--tools-inset);
+    background: var(--color-divider);
+    transition: opacity 0.12s ease-out;
+  }
+  /* The X's hover tile replaces the divider beside it. */
+  .close-group:has(.tool:focus-visible) .divider { opacity: 0; }
+  @media (hover: hover) { .close-group:has(.tool:hover) .divider { opacity: 0; } }
+  .focus-title {
+    padding: 0 var(--focus-title-pad);
+    font-size: var(--focus-title-size); font-weight: var(--text-name-weight);
+    letter-spacing: var(--text-name-tracking); line-height: 1;
+    white-space: nowrap; color: var(--color-fg);
+  }
+  .tool {
+    width: var(--tool-size); height: var(--tool-size); padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    --surface-bg: transparent; --surface-border: transparent; --surface-blur: none;
+    border: 0; background: var(--surface-bg);
+    border-radius: calc(var(--button-radius) - var(--tools-inset) - var(--button-border-width));
+    color: var(--color-fg); cursor: pointer;
+    transition: background-color 0.12s ease-out, color 0.12s ease-out;
+  }
+  /* Toggled on: a tinted tile with the filled icon. */
+  .tool[aria-pressed="true"] { --surface-bg: var(--color-toggle-on-bg); color: var(--color-toggle-on-fg); }
+  .grid-on, .tool[aria-pressed="true"] .grid-off { display: none; }
+  .tool[aria-pressed="true"] .grid-on { display: block; }
+  /* Hover (mouse only): a soft tile; a pressed tile deepens. */
+  @media (hover: hover) {
+    .tool:hover { --surface-bg: var(--color-tool-hover-bg); }
+    .tool[aria-pressed="true"]:hover { --surface-bg: var(--color-toggle-on-hover-bg); }
+  }
+  /* No focus rings: keyboard focus shows like hover (a soft tile; the avatar flips). */
+  /* With the custom cursor, its halo is the hover highlight (in focus mode, on
+     the close button only). */
+  @media (hover: hover) {
+    :global(html.has-cursor:not([data-focus])) .tool[data-cursor="halo"]:not([aria-pressed="true"]):hover,
+    :global(html.has-cursor) .tool[data-cursor-focus]:hover { --surface-bg: transparent; }
+  }
+  .tool:focus-visible, .who:focus-visible { outline: none; }
+  .tool:focus-visible { --surface-bg: var(--color-tool-hover-bg); }
+  .tool[aria-pressed="true"]:focus-visible { --surface-bg: var(--color-toggle-on-hover-bg); }
+  .icon { flex: none; width: var(--icon-size); height: var(--icon-size); }
+
+  /* The icon shows the theme setting: system (follows the device), light or
+     dark. The button's data-mode is set by script; before that, system. */
+  .icon-light, .icon-dark { display: none; }
+  .tool[data-mode="light"] .icon-system, .tool[data-mode="dark"] .icon-system { display: none; }
+  .tool[data-mode="light"] .icon-light { display: block; }
+  .tool[data-mode="dark"] .icon-dark { display: block; }
+  /* System shows the kind of device you're on: a phone on touch screens. */
+  .icon-system.on-phone { display: none; }
+  @media (hover: none) and (pointer: coarse) {
+    .icon-system.on-computer { display: none; }
+    .tool:not([data-mode="light"], [data-mode="dark"]) .icon-system.on-phone { display: block; }
+  }
+</style>
