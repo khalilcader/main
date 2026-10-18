@@ -159,6 +159,9 @@
   --color-gradient-deep: #f0dccf;           /* soft peach */
   --color-gradient-base: #e4e0ee;           /* lilac mist */
   --color-gradient-light: #dbe7ec;          /* pale sky */
+  --color-gradient-cool-deep: #dde4ee;      /* mist blue */
+  --color-gradient-cool-base: #e6e5ef;      /* lavender grey */
+  --color-gradient-cool-light: #e0ebe7;     /* sage mist */
 
   /* Effects */
   --grain-amount: 1;
@@ -230,6 +233,9 @@
     --color-gradient-deep: #2b2626;
     --color-gradient-base: #26252e;
     --color-gradient-light: #222a2e;
+    --color-gradient-cool-deep: #1f242c;
+    --color-gradient-cool-base: #23242d;
+    --color-gradient-cool-light: #1f2729;
     --color-daylight-paper: #1e2330;
     --color-daylight-shadow: #080a10;
     --daylight-preset: dark;
@@ -277,6 +283,9 @@
   --color-gradient-deep: #2b2626;
   --color-gradient-base: #26252e;
   --color-gradient-light: #222a2e;
+  --color-gradient-cool-deep: #1f242c;
+  --color-gradient-cool-base: #23242d;
+  --color-gradient-cool-light: #1f2729;
   --color-daylight-paper: #1e2330;
   --color-daylight-shadow: #080a10;
   --daylight-preset: dark;

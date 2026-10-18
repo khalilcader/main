@@ -32,7 +32,8 @@ cover:
       - [40.9, 0.541, 0.6, 1.2]
       - [43.8, 0.541, 0.6, 1.2]
       - [44.8, 0.5, 0.5, 1]
-  shader: backdrop
+  shader: gradient
+  palette: cool
   alt: Screen recording of Mobile spotlight on a phone
 ---
 

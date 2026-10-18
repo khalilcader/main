@@ -5,7 +5,8 @@
 //   gradient  a calm, soft gradient: three colours pool and drift very
 //             slowly into each other, with only a whisper of grain.
 // Each takes three colours from tokens.css (--color-<kind>-deep, -base,
-// -light, with dark-mode values).
+// -light, with dark-mode values); data-palette="cool" switches the gradient
+// to --color-gradient-cool-*.
 
 const VERT = `
 attribute vec2 aPos;
@@ -144,6 +145,7 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   const prog = gl.createProgram()!;
   gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
   const kind = canvas.dataset.shader === 'gradient' ? 'gradient' : 'backdrop';
+  const tokens = kind === 'gradient' && canvas.dataset.palette === 'cool' ? 'gradient-cool' : kind;
   gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, kind === 'gradient' ? GRADIENT_FRAG : FRAG));
   gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) || 'link');
@@ -172,9 +174,9 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   };
   const applyColors = () => {
     const cs = getComputedStyle(canvas);
-    gl.uniform3fv(U.uDeep, rgb(cs.getPropertyValue(`--color-${kind}-deep`)));
-    gl.uniform3fv(U.uBase, rgb(cs.getPropertyValue(`--color-${kind}-base`)));
-    gl.uniform3fv(U.uLight, rgb(cs.getPropertyValue(`--color-${kind}-light`)));
+    gl.uniform3fv(U.uDeep, rgb(cs.getPropertyValue(`--color-${tokens}-deep`)));
+    gl.uniform3fv(U.uBase, rgb(cs.getPropertyValue(`--color-${tokens}-base`)));
+    gl.uniform3fv(U.uLight, rgb(cs.getPropertyValue(`--color-${tokens}-light`)));
     if (!running) draw();
   };
   const frame = (now: number) => {

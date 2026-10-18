@@ -146,8 +146,11 @@ function init(stage: HTMLElement) {
   // GPU redrawing them and re-blurring the glass over them), and also pause
   // while their cover is blurred or dimmed.
   function syncVideos() {
+    // In focus, the card at the centre plays (it changes as you swipe), not
+    // the one first opened.
+    const centred = mode === 'row' && p.t >= 0.5 ? nearest(centerBig, S.big.pos) : -1;
     for (const c of cards) {
-      const open = mode === 'row' ? p.t >= 0.5 && c.i === anchor : c.i === gridOpen;
+      const open = mode === 'row' ? c.i === centred : c.i === gridOpen;
       const hover = c.i === hovered && !reduce && !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const want = open || hover;
       c.shader?.setPaused(!want || c.dimmed);
