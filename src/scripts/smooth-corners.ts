@@ -6,12 +6,14 @@
 //     its content, and only that layer is clipped, so the element's shadow and
 //     focus ring stay visible. Style it with --surface-bg, --surface-border and
 //     --surface-blur (custom properties, so hover and pressed states still work).
+//     Its border is drawn just outside the shape (an outer border).
 //
 //   data-smooth="clip"  A container whose content must be clipped too (a photo).
-//     The element itself is clipped, so its border is drawn in its parent,
-//     which it must fill. Put its shadow on a parent: a clip cuts shadows off.
+//     The element itself is clipped; its border is redrawn along the curve,
+//     inside the edge, over the content. Put its shadow on a parent: a clip
+//     cuts shadows off.
 //
-// Borders are drawn outside the shape (an outer border), from --surface-border.
+// Borders come from --surface-border.
 //
 // The corner radius comes from the element's CSS border-radius, which stays in
 // place as the no-JavaScript fallback and the shape of its shadow.
@@ -32,8 +34,9 @@ function setup(el: HTMLElement) {
   if (cs.position === 'static') el.style.position = 'relative';
   const bw = parseFloat(cs.borderTopWidth) || 0;
 
-  // The curve-following border: stroked at twice the width, masked to the
-  // outside of the shape, so it rings the element without covering any of it.
+  // The curve-following border: stroked at twice the width, half of it
+  // dropped: outside the shape for a surface (masked), inside it for a clip
+  // (clipped with the element).
   const svg = document.createElementNS(SVGNS, 'svg');
   svg.setAttribute('class', 'smooth-border');
   svg.setAttribute('aria-hidden', 'true');
@@ -63,7 +66,7 @@ function setup(el: HTMLElement) {
   defs.append(grad, mask);
   svg.appendChild(defs);
   path.setAttribute('stroke', `url(#${id})`);
-  path.setAttribute('mask', `url(#${id}-out)`);
+  if (kind === 'surface') path.setAttribute('mask', `url(#${id}-out)`);
   svg.appendChild(path);
 
   let target = el;
@@ -76,8 +79,7 @@ function setup(el: HTMLElement) {
     target = layer;
     el.classList.add('smooth-host');
   } else {
-    svg.classList.add('smooth-border-outer');
-    el.after(svg);   // the element clips itself; the border goes beside it, in the parent it fills
+    el.appendChild(svg);
     el.classList.add('smooth-clip');
   }
   el.style.setProperty('--smooth-bw', `${bw}px`);
