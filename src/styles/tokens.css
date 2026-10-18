@@ -121,8 +121,8 @@
   --close-inset: 40px;                      /* focus-mode close button, from the top-left corner */
   --tool-size: 30px;                        /* 40 tall: 4 + 30 + 4 + 1px border each side; tiles touch */
   --divider-height: 22px;                   /* between the close button and the focus title */
-  --top-scrim-height: calc(var(--header-top) + 170px);   /* grid view: the band behind the header once scrolled */
-  --top-scrim-grain: 0.06;
+  --top-scrim-height: calc(var(--header-top) + 220px);   /* grid view: the band behind the header once scrolled */
+  --top-scrim-grain: 0.12;
   --top-scrim-grain-filter: none;
   --close-height: 46px;                     /* focus mode's close + title bar: as tall as the card labels */
   --focus-title-size: 18px;                 /* project title beside the close button in focus mode */
@@ -226,7 +226,7 @@
     --scrim-grain-blend: normal;   /* blends lift a dark page, or ring the blurred cards */
     --scrim-grain-filter: brightness(0.1);   /* near-black speckles: texture that only darkens */
     --scrim-grain: 0.35;
-    --top-scrim-grain: 0.3;
+    --top-scrim-grain: 0.45;
     --top-scrim-grain-filter: brightness(0.1);
     --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
     --veil-tint: rgba(0, 0, 0, 0.55);
@@ -281,7 +281,7 @@
   --scrim-grain-blend: normal;   /* blends lift a dark page, or ring the blurred cards */
   --scrim-grain-filter: brightness(0.1);   /* near-black speckles: texture that only darkens */
   --scrim-grain: 0.35;
-  --top-scrim-grain: 0.3;
+  --top-scrim-grain: 0.45;
   --top-scrim-grain-filter: brightness(0.1);
   --color-scrim: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* dark: overlays read dark, not grey */
   --veil-tint: rgba(0, 0, 0, 0.55);
