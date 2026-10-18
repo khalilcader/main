@@ -10,9 +10,8 @@ const url = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, 
 ---
 <div class:list={['cover', { media: cover.video }]}>
   <!-- Media sits in its own layer so the row's edge blur can soften it while
-       the cover's shape, border and background stay crisp. The click ripple
-       bends the layer inside it (scripts/ripple.ts), so the card stays intact. -->
-  <div class="content"><div class="ripple-layer">
+       the cover's shape, border and background stay crisp. -->
+  <div class="content">
     {cover.shader && <canvas class="shader" data-shader={cover.shader}></canvas>}
     {cover.video && (
       <>
@@ -26,7 +25,7 @@ const url = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, 
       </>
     )}
     {cover.image && <img class="still" src={url(cover.image)} alt="" />}
-  </div></div>
+  </div>
   <!-- 1px border that follows the smoothed corners; the path is set in script. -->
   <svg class="outline" aria-hidden="true"><path /></svg>
 </div>
@@ -38,7 +37,7 @@ const url = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, 
     background: var(--color-cover-bg);
     pointer-events: none;
   }
-  .content, .ripple-layer { position: absolute; inset: 0; }
+  .content { position: absolute; inset: 0; }
   .shader { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: var(--color-backdrop-base); }
   .ambient {
     position: absolute; inset: -12%; width: 124%; height: 124%; max-width: none;

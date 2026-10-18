@@ -1,6 +1,6 @@
-// Click ripple on the cards, after Janum Trivedi's ripple shader: a subtle
-// wave rings out from where the card was pressed, bending the picture inside
-// it (not the card itself), and dies away. An SVG displacement filter does the bending: its map is a precomputed
+// Click ripple on the cards, after Janum Trivedi's ripple shader: a wave
+// rings out from where the card was pressed, bending its contents, and dies
+// away. An SVG displacement filter does the bending: its map is a precomputed
 // ring of outward/inward pushes (a few damped wavelets behind the front),
 // scaled up from the press point over the ripple's life while the push fades.
 
@@ -10,11 +10,11 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const css = getComputedStyle(document.documentElement);
 const num = (name: string, fallback: number) => parseFloat(css.getPropertyValue(name)) || fallback;
 const DURATION = num('--ripple-duration', 850);   // ms
-const STRENGTH = num('--ripple-strength', 5);    // px of push at the start
+const STRENGTH = num('--ripple-strength', 12);    // px of push at the start
 
 // The displacement map: R/G hold the push (0.5 = none), radial, as a damped
 // wave whose front sits near the edge of the image.
-function ringMap(size = 512) {
+function ringMap(size = 256) {
   const c = document.createElement('canvas');
   c.width = c.height = size;
   const g = c.getContext('2d')!;
@@ -54,13 +54,8 @@ function makeFilter() {
             primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feFlood flood-color="rgb(128,128,128)" result="calm" />
       <feImage href="${ringMap()}" preserveAspectRatio="none" result="ring" />
-      <feMerge result="raw"><feMergeNode in="calm" /><feMergeNode in="ring" /></feMerge>
-      <!-- Smooth the map so bent edges flow like water rather than tear. -->
-      <feGaussianBlur in="raw" stdDeviation="3" result="map" />
-      <feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G" result="bent" />
-      <!-- Where a push reaches past the edge there's nothing to pull in; the
-           unbent picture fills it, so the edges never tear. -->
-      <feComposite in="bent" in2="SourceGraphic" operator="over" />
+      <feMerge result="map"><feMergeNode in="calm" /><feMergeNode in="ring" /></feMerge>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G" />
     </filter>`;
   document.body.appendChild(svg);
   return {
@@ -75,8 +70,7 @@ if (stage && !reduce) {
   let current: HTMLElement | null = null, raf = 0;
 
   stage.addEventListener('pointerdown', (e) => {
-    // The media layer inside the cover bends; the card's shape stays put.
-    const card = (e.target as Element).closest<HTMLElement>('.card')?.querySelector<HTMLElement>('.ripple-layer');
+    const card = (e.target as Element).closest<HTMLElement>('.card');
     if (!card || e.button !== 0) return;
     filter ??= makeFilter();
     const f = filter;
@@ -84,7 +78,7 @@ if (stage && !reduce) {
     cancelAnimationFrame(raf);
     current = card;
 
-    // The filter works in the layer's own (unscaled) pixels.
+    // The filter works in the card's own (unscaled) pixels.
     const b = card.getBoundingClientRect();
     const scale = b.width / card.offsetWidth || 1;
     const px = (e.clientX - b.left) / scale, py = (e.clientY - b.top) / scale;
