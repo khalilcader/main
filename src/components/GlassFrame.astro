@@ -10,13 +10,16 @@ interface Props {
   poster: string;
   start?: number;   // seconds; the frame the cover rests on
   camera?: [number, number, number, number][];   // see scripts/camera.ts
-  device?: 'iphone' | 'iphone-notch' | 'ipad' | 'desktop';
+  device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop';
   rest?: [number, number, number];   // see scripts/camera.ts
 }
 const DEVICES = {
   iphone: { src: 'iphone-frame.webp', w: 978, h: 2000, x0: 52, y0: 50, x1: 926, y1: 1950, r: 150 },
   // An older iPhone with a notch (the notch is part of the image).
   'iphone-notch': { src: 'iphone-notch-frame.webp', w: 1061, h: 2000, x0: 127, y0: 127, x1: 935, y1: 1875, r: 118 },
+  // No frame image: the recording has the phone in it already; it's clipped
+  // to the phone's own rounded outline.
+  'iphone-recorded': { src: '', w: 726, h: 1470, x0: 0, y0: 0, x1: 726, y1: 1470, r: 111 },
   ipad: { src: 'ipad-frame.webp', w: 2000, h: 1424, x0: 83, y0: 80, x1: 1917, y1: 1344, r: 50 },
   // No frame: a desktop recording (16:10) shown as a window, its corners and
   // border drawn by smooth-corners.ts.
@@ -80,5 +83,7 @@ const shape = [
      so the picture keeps a hairline of black display edge inside the bezel,
      clear of the rounded corners. */
   .glass-frame[data-device="ipad"] .screen { padding: var(--device-screen-inset-landscape); }
+  /* A recording with its own phone in it: the clip is the phone's outline, no bleed. */
+  .glass-frame[data-device="iphone-recorded"] .screen { inset: 0; background: none; }
   .device { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; pointer-events: none; user-select: none; }
 </style>

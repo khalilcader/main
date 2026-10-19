@@ -211,6 +211,9 @@
   --color-gradient-indigo-deep: #eff0f7;    /* top: pale periwinkle mist */
   --color-gradient-indigo-base: #e0e3f2;
   --color-gradient-indigo-light: #aab4df;   /* bottom: a soft periwinkle glow */
+  --color-gradient-mint-deep: #eef6f2;      /* top: pale mint */
+  --color-gradient-mint-base: #dcede6;
+  --color-gradient-mint-light: #a3d3c2;     /* bottom: a soft sea-glass glow */
   --color-desktop-border: rgba(0, 0, 0, 0.16);
 
   /* Effects */
@@ -304,6 +307,9 @@
     --color-gradient-indigo-deep: #121420;
     --color-gradient-indigo-base: #171a2a;
     --color-gradient-indigo-light: #262c4a;
+    --color-gradient-mint-deep: #111816;
+    --color-gradient-mint-base: #15201c;
+    --color-gradient-mint-light: #1f3a31;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
     --about-scene-day: 0;
     --about-scene-opacity: 0.8;
@@ -377,6 +383,9 @@
   --color-gradient-indigo-deep: #121420;
   --color-gradient-indigo-base: #171a2a;
   --color-gradient-indigo-light: #262c4a;
+  --color-gradient-mint-deep: #111816;
+  --color-gradient-mint-base: #15201c;
+  --color-gradient-mint-light: #1f3a31;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
   --about-scene-day: 0;
   --about-scene-opacity: 0.8;
