@@ -15,8 +15,11 @@ import { photo } from '../photo';
     <!-- Each face is a plane in the 3D turn; the surface inside carries the
          smoothed shape (Chrome ignores clip-path inside a 3D scene). -->
     <div class="about-face about-front"><div class="about-surface" data-smooth="clip">
-      <!-- Stand-in until the About copy is written: the Tree Shadow daylight shader. -->
+      <!-- The Tree Shadow daylight shader behind the copy. -->
       <canvas class="about-daylight" aria-hidden="true"></canvas>
+      <div class="about-copy">
+        <p>I am a product designer who designs tools that shape how people think, collaborate, and create. I am currently a Member of Technical Staff at Anthropic, where I design interfaces for AI.</p>
+      </div>
       <button class="about-close has-tip" data-smooth="surface" data-cursor="halo" id="about-close" type="button" aria-label="Close" aria-keyshortcuts="Escape">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
           <path d="M7 7l10 10M17 7L7 17" />
@@ -104,6 +107,16 @@ import { photo } from '../photo';
     position: absolute; left: 0; top: 0; width: 150%; height: 100%; display: block;
     background: var(--color-daylight-paper);   /* without WebGL2 */
   }
+  /* The copy: large, set in the card's own units (cqh) so it scales with it. */
+  .about-front .about-surface { container-type: size; }
+  .about-copy {
+    position: absolute; left: var(--about-pad); right: var(--about-pad);
+    top: calc(var(--about-close-inset) + var(--button-size) + var(--about-copy-gap));
+    color: var(--color-fg);
+    font-size: clamp(18px, var(--about-text-size), 32px); font-weight: var(--text-name-weight);
+    line-height: 1.3; letter-spacing: -0.01em; text-wrap: pretty;
+  }
+  .about-copy p { margin: 0; }
   .about-back .about-surface {
     display: flex; align-items: center; justify-content: center;
     color: var(--color-fg);
