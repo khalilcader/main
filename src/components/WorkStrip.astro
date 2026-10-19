@@ -28,7 +28,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       <span class="shadow rest" aria-hidden="true"></span>
       <span class="shadow lift" aria-hidden="true"></span>
       <Cover cover={item.data.cover} />
-      <span class="label" aria-hidden="true" data-smooth="surface"><span class="label-text">{item.data.title}</span></span>
+      <span class="label" aria-hidden="true" data-smooth="surface"><span class="label-text">{item.data.title}<span class="label-year">{item.data.year}</span></span></span>
       <div class="veil"></div>
     </button>
   ))}
@@ -126,7 +126,13 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       scale(var(--unscale, 1));
     transform-origin: 50% 0;
     padding: 0;
-    color: var(--color-label-below); font-size: var(--label-below-size);
+    font-size: var(--label-below-size); text-align: center;
+  }
+  /* The year: on its own line under the title, smaller and lighter; row view only. */
+  .label-year { display: none; }
+  :global(html:not([data-grid])) .label-year {
+    display: block; margin-top: var(--label-year-gap);
+    color: var(--color-label-year); font-size: var(--label-year-size); font-weight: 400; letter-spacing: 0;
   }
   :global(html:not([data-grid])) .label > :global(.smooth-layer),
   :global(html:not([data-grid])) .label > :global(.smooth-border),

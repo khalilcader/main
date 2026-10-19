@@ -23,7 +23,7 @@
   --color-button-shadow: rgba(0, 0, 0, 0.07);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
   --color-label-bg: rgba(255, 255, 255, 0.85);   /* more solid than the controls: it sits on busy covers */
-  --color-label-below: rgba(0, 0, 0, 0.5);       /* row view: the title under the cover, softer than body text */
+  --color-label-year: rgba(0, 0, 0, 0.45);       /* row view: the year under the title */
   --color-tip-bg: rgba(38, 38, 38, 0.94);   /* from Khalil's tooltip mockup */
   --color-tip-fg: #ffffff;
   --color-tip-border: rgba(255, 255, 255, 0.12);
@@ -137,6 +137,8 @@
   --label-radius: 14px;                     /* rounder than the header controls (10px) */
   --label-below-gap: 12px;                  /* row view: the title sits this far under the cover */
   --label-below-size: 14px;                 /* and is a touch smaller than the pills */
+  --label-year-size: 12px;                  /* the year under it, smaller still */
+  --label-year-gap: 2px;
   --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
   --label-pad-y: 12px;                      /* chunky pill */
   --label-pad-x: 20px;
@@ -263,7 +265,7 @@
     --color-button-shadow: rgba(0, 0, 0, 0.3);
     --color-label-shadow: rgba(0, 0, 0, 0.35);
     --color-label-bg: rgba(20, 20, 19, 0.82);
-    --color-label-below: rgba(236, 236, 232, 0.55);
+    --color-label-year: rgba(236, 236, 232, 0.5);
     --color-tip-bg: rgba(20, 20, 19, 0.96);
     --grain-blend: soft-light;              /* overlay brightens dark surfaces; leaving covers should darken */
     --grain-strength: 0.6;
@@ -339,7 +341,7 @@
   --color-button-shadow: rgba(0, 0, 0, 0.3);
   --color-label-shadow: rgba(0, 0, 0, 0.35);
   --color-label-bg: rgba(20, 20, 19, 0.82);
-  --color-label-below: rgba(236, 236, 232, 0.55);
+  --color-label-year: rgba(236, 236, 232, 0.5);
   --color-tip-bg: rgba(20, 20, 19, 0.96);
   --grain-blend: soft-light;        /* overlay brightens dark surfaces; leaving covers should darken */
   --grain-strength: 0.6;
