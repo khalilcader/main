@@ -28,6 +28,18 @@ const jobs = [
       <!-- The Tree Shadow daylight shader behind the copy. -->
       <canvas class="about-daylight" aria-hidden="true"></canvas>
       <div class="about-body">
+        <!-- Brooklyn, by day or by night with the theme: a sharp scene over a
+             blurred halo of itself, both easing out in an oval, under a little
+             grain, and blended with the daylight shader beneath. -->
+        <div class="about-scene" aria-hidden="true">
+          {['halo', 'sharp'].map((layer) => (
+            <div class={`scene-layer ${layer}`}>
+              <img class="day" src={`${import.meta.env.BASE_URL}images/about-nyc-light.webp`} alt="" width="1000" height="1000" />
+              <img class="night" src={`${import.meta.env.BASE_URL}images/about-nyc-dark.webp`} alt="" width="1000" height="1000" />
+            </div>
+          ))}
+          <div class="scene-grain"></div>
+        </div>
         <div class="about-copy">
           <p>Hi, I’m Khalil. I’m a product designer who designs tools that shape how people think, collaborate, and create. I’m currently a Member of Technical Staff at Anthropic, where I design interfaces for <span class="nowrap">human-AI</span> interaction.</p>
           <p>I’m currently based in New York City.</p>
@@ -138,6 +150,37 @@ const jobs = [
     position: absolute; left: var(--about-pad); right: var(--about-pad); bottom: var(--about-pad);
     top: calc(var(--about-close-inset) + var(--button-size) + var(--about-copy-gap));
     display: flex; flex-direction: column; gap: var(--about-body-gap);
+  }
+  /* The scene fills the room above the bio, across the card's full width.
+     Its oval fade is eased (many stops), the halo reaching further than the
+     sharp layer. Light mode multiplies it with the daylight, so the leaf
+     shadows fall across it; dark mode screens it, so the shader's glow sits
+     over it. */
+  .about-scene {
+    position: relative; flex: 1 1 0; min-height: 0;
+    margin: calc(-1 * var(--about-copy-gap)) calc(-1 * var(--about-pad)) 0;
+    mix-blend-mode: var(--about-scene-blend);
+  }
+  .scene-layer { position: absolute; inset: 0; }
+  .scene-layer img {
+    position: absolute; inset: 0; width: 100%; height: 100%; max-width: none;
+    object-fit: cover; object-position: 50% 48%;
+  }
+  .scene-layer .day { opacity: var(--about-scene-day); }
+  .scene-layer .night { opacity: calc(1 - var(--about-scene-day)); }
+  .scene-layer.sharp {
+    -webkit-mask-image: var(--about-scene-mask); mask-image: var(--about-scene-mask);
+  }
+  .scene-layer.halo {
+    filter: blur(var(--about-scene-halo-blur)); opacity: var(--about-scene-halo);
+    transform: scale(1.06);
+    -webkit-mask-image: var(--about-scene-halo-mask); mask-image: var(--about-scene-halo-mask);
+  }
+  .scene-grain {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
+    mix-blend-mode: overlay; opacity: var(--about-scene-grain);
+    -webkit-mask-image: var(--about-scene-mask); mask-image: var(--about-scene-mask);
   }
   .about-copy {
     flex: none;
