@@ -6,7 +6,7 @@
 //             slowly, their edges bent into broad, gentle folds, under a
 //             fine, faintly flickering grain.
 // Each takes three colours from tokens.css (--color-<kind>-deep, -base,
-// -light, with dark-mode values); data-palette="cool", "violet", "blue", "rose", "stone", "indigo", "cobalt" or "coral" switches
+// -light, with dark-mode values); data-palette="cool", "violet", "blue", "rose", "stone", "indigo", "cobalt" or "orchid" switches
 // the gradient to --color-gradient-<palette>-*.
 
 const VERT = `
