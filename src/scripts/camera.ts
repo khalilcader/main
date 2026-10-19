@@ -75,6 +75,7 @@ export function mountCameras(root: ParentNode = document) {
     video.addEventListener('pause', start);   // ease back out (or to the rest framing)
     if (rest) {   // start on the rest framing, without easing in on load
       on = 1; cur.x = rest[0]; cur.y = rest[1]; cur.s = rest[2];
+      start();   // apply it now; it's in shares of the frame, so it holds at any size
     }
   }
 }
