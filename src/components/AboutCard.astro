@@ -164,21 +164,18 @@ const jobs = [
   .scene-layer .day { opacity: var(--about-scene-day); }
   .scene-layer .night { opacity: calc(1 - var(--about-scene-day)); }
   .scene-layer.sharp {
-    -webkit-mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); -webkit-mask-composite: source-in, source-in;
-    mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); mask-composite: intersect;
+    -webkit-mask-image: var(--about-scene-round); mask-image: var(--about-scene-round);
   }
   .scene-layer.halo {
     filter: blur(var(--about-scene-halo-blur)); opacity: var(--about-scene-halo);
     transform: scale(1.04);
-    -webkit-mask-image: var(--about-scene-halo-x), var(--about-scene-halo-y), var(--about-scene-halo-round); -webkit-mask-composite: source-in, source-in;
-    mask-image: var(--about-scene-halo-x), var(--about-scene-halo-y), var(--about-scene-halo-round); mask-composite: intersect;
+    -webkit-mask-image: var(--about-scene-halo-round); mask-image: var(--about-scene-halo-round);
   }
   .scene-grain {
     position: absolute; inset: 0; pointer-events: none;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
     mix-blend-mode: overlay; opacity: var(--about-scene-grain);
-    -webkit-mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); -webkit-mask-composite: source-in, source-in;
-    mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); mask-composite: intersect;
+    -webkit-mask-image: var(--about-scene-round); mask-image: var(--about-scene-round);
   }
   .about-copy {
     flex: none;
