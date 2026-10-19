@@ -7,6 +7,7 @@ order: 5
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
+  angle: 140
   palette: rose
   alt: Instagram Explore on a phone, starring Nail Art as an interest, snoozing Vinyasa Yoga and opening Manage Interests
   video:

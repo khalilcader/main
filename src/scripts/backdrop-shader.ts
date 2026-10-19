@@ -84,6 +84,7 @@ uniform float uScale;
 uniform vec3 uDeep;
 uniform vec3 uBase;
 uniform vec3 uLight;
+uniform float uAngle;   // radians: turns the whole gradient, so covers don't all glow from the bottom
 
 float hash12(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -107,6 +108,9 @@ void main() {
   vec2 uv = frag / uRes;
   float ar = uRes.x / uRes.y;
   vec2 p = vec2(uv.x * ar, uv.y);
+  vec2 ctr = vec2(ar * 0.5, 0.5);
+  float sa = sin(uAngle), ca = cos(uAngle);
+  p = ctr + mat2(ca, -sa, sa, ca) * (p - ctr);
   float t = uTime * 1.6;   // its own pace: a little livelier than the backdrop's
 
   // Broad, gentle folds: the colour fields are bent by large, slow noise, so
@@ -179,9 +183,10 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   const aPos = gl.getAttribLocation(prog, 'aPos');
   gl.enableVertexAttribArray(aPos);
   gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-  const U = Object.fromEntries(['uRes', 'uTime', 'uScale', 'uDeep', 'uBase', 'uLight']
+  const U = Object.fromEntries(['uRes', 'uTime', 'uScale', 'uDeep', 'uBase', 'uLight', 'uAngle']
     .map((n) => [n, gl.getUniformLocation(prog, n)]));
 
+  gl.uniform1f(U.uAngle, (parseFloat(canvas.dataset.angle || '0') || 0) * Math.PI / 180);
   let running = false, raf = 0, time = 40, last = 0, lastDraw = 0;
   const draw = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);

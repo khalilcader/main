@@ -12,7 +12,7 @@ const url = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, 
   <!-- Media sits in its own layer so the row's edge blur can soften it while
        the cover's shape, border and background stay crisp. -->
   <div class="content">
-    {cover.shader && <canvas class="shader" data-shader={cover.shader} data-palette={cover.palette}></canvas>}
+    {cover.shader && <canvas class="shader" data-shader={cover.shader} data-palette={cover.palette} data-angle={cover.angle}></canvas>}
     {cover.video && (
       <>
         {!cover.shader && <img class="ambient" src={url(cover.video.poster)} alt="" />}

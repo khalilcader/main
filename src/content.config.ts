@@ -43,6 +43,9 @@ const work = defineCollection({
       // dusky rose glow), stone (pale stone rising to a soft warm-grey glow) or indigo (periwinkle
       // mist rising to a soft periwinkle glow).
       palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose', 'stone', 'indigo']).optional(),
+      // Turns the gradient (degrees) so the covers don't all glow from the
+      // same side; 0 is deep at the top, glow at the bottom.
+      angle: z.number().optional(),
       // A still image filling the cover.
       image: z.string().optional(),
       // Describes the cover for screen readers.

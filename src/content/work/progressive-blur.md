@@ -7,6 +7,7 @@ order: 4
 cover:
   aspect: 1.25   # 771 × 617: wide, for desktop
   shader: gradient
+  angle: -50
   palette: blue
   alt: Figma on desktop, adding a progressive blur to an image and dragging its direction
   video:

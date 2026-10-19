@@ -7,6 +7,7 @@ order: 6
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
+  angle: -100
   palette: stone
   alt: Dictating a message in the Claude app, from the mic button to the transcribed text in the composer
   video:
