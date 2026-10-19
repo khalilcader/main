@@ -144,9 +144,10 @@ const jobs = [
     top: calc(var(--about-scene-top) + var(--about-scene-height) - var(--about-scene-overlap));   /* where the scene's fade trails off */
     display: flex; flex-direction: column; gap: var(--about-body-gap);
   }
-  /* The illustration at the top, inset to line up with the text (its
-     feathered edges reach a little past it), below the close button. Its edges dissolve along long, eased
-     feathers on all four sides, the halo reaching further. Light mode
+  /* The illustration at the top, below the close button, in two layers: the
+     picture itself, fading softly over its outer edge, over a blurred,
+     enlarged glow of itself whose long, eased tail carries the fade far past
+     the picture, so it dissolves into the card with no edge. Light mode
      multiplies it with the daylight, so the leaf shadows fall across it;
      dark mode screens it, so the shader's glow sits over it. */
   .about-scene {
@@ -163,17 +164,20 @@ const jobs = [
   .scene-layer .day { opacity: var(--about-scene-day); }
   .scene-layer .night { opacity: calc(1 - var(--about-scene-day)); }
   .scene-layer.sharp {
-    -webkit-mask-image: var(--about-scene-round); mask-image: var(--about-scene-round);
+    -webkit-mask-image: var(--about-scene-x), var(--about-scene-y); -webkit-mask-composite: source-in;
+    mask-image: var(--about-scene-x), var(--about-scene-y); mask-composite: intersect;
   }
   .scene-layer.halo {
     filter: blur(var(--about-scene-halo-blur)); opacity: var(--about-scene-halo);
-    -webkit-mask-image: var(--about-scene-halo-round); mask-image: var(--about-scene-halo-round);
+    transform: scale(var(--about-scene-halo-scale));
+    -webkit-mask-image: var(--about-scene-glow); mask-image: var(--about-scene-glow);
   }
   .scene-grain {
     position: absolute; inset: 0; pointer-events: none;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
     mix-blend-mode: overlay; opacity: var(--about-scene-grain);
-    -webkit-mask-image: var(--about-scene-round); mask-image: var(--about-scene-round);
+    -webkit-mask-image: var(--about-scene-x), var(--about-scene-y); -webkit-mask-composite: source-in;
+    mask-image: var(--about-scene-x), var(--about-scene-y); mask-composite: intersect;
   }
   .about-copy {
     flex: none;
