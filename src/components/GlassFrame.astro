@@ -37,7 +37,7 @@ const shape = [
 ].join('; ');
 ---
 <div class="glass-frame" data-device={device} style={shape} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
-  <div class="screen" data-smooth={device === 'desktop' ? 'clip' : undefined}>
+  <div class="screen" data-smooth={device === 'desktop' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Paused on `start` until the cover is hovered or opened (see work-strip.ts). -->
     <video poster={poster} muted loop playsinline preload="auto" data-start={start}>
       {webm && <source src={webm} type="video/webm" />}
@@ -74,6 +74,9 @@ const shape = [
     left: calc(var(--open-left) - var(--device-bleed)); right: calc(var(--open-right) - var(--device-bleed));
     top: calc(var(--open-top) - var(--device-bleed)); bottom: calc(var(--open-bottom) - var(--device-bleed));
     border-radius: var(--open-radius);
+    /* The poster behind the video, so a cover coming on screen never shows
+       black while its video catches up. */
+    background-image: var(--poster); background-size: 100% 100%;
   }
   video { width: 100%; height: 100%; object-fit: cover; display: block; }
   /* Recordings can be a hair off the iPad's screen shape (1.43 vs 1.45); fit it

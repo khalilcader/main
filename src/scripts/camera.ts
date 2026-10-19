@@ -56,14 +56,15 @@ export function mountCameras(root: ParentNode = document) {
       const f = 1 - Math.exp(-dt * 5);   // smooths the moves without arriving late
       cur.x += (kx - cur.x) * f; cur.y += (ky - cur.y) * f; cur.s += (ks - cur.s) * f;
 
-      const w = frame.offsetWidth, h = frame.offsetHeight;
       const s = 1 + (cur.s - 1) * on;
       // The frame is centred by its own transform (translate -50%), which
       // the scale applies after; (s - 1) / 2 of its size undoes that drift.
-      const tx = (0.5 - cur.x) * w * s * on + (s - 1) * w / 2;
-      const ty = (0.5 - cur.y) * h * s * on + (s - 1) * h / 2;
+      // In shares of the frame's own size, so the framing holds while the
+      // cover resizes (switching views) without waiting a frame to catch up.
+      const tx = ((0.5 - cur.x) * s * on + (s - 1) / 2) * 100;
+      const ty = ((0.5 - cur.y) * s * on + (s - 1) / 2) * 100;
       frame.style.scale = s.toFixed(4);
-      frame.style.translate = `${tx.toFixed(2)}px ${ty.toFixed(2)}px`;
+      frame.style.translate = `${tx.toFixed(3)}% ${ty.toFixed(3)}%`;
 
       const settled = Math.abs(kx - cur.x) < 1e-4 && Math.abs(ky - cur.y) < 1e-4 && Math.abs(ks - cur.s) < 1e-4 && Math.abs(on - 1) < 1e-3;
       if (playing || (rest ? !settled : on > 0.002)) raf = requestAnimationFrame(step);
@@ -74,7 +75,6 @@ export function mountCameras(root: ParentNode = document) {
     video.addEventListener('pause', start);   // ease back out (or to the rest framing)
     if (rest) {   // start on the rest framing, without easing in on load
       on = 1; cur.x = rest[0]; cur.y = rest[1]; cur.s = rest[2];
-      new ResizeObserver(start).observe(frame);
     }
   }
 }
