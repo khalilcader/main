@@ -10,6 +10,12 @@ import { squirclePath } from './squircle';
 
 const DURATION = 700;                                // ms
 const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';       // quick start, long soft landing
+// Closing from fully open is slower and gentler (ease in and out), and the
+// card shrinks and travels toward the avatar first, saving most of its turn
+// for the second half, so it doesn't flip the moment you close it.
+const CLOSE_DURATION = 950;                          // ms
+const CLOSE_EASE = 'cubic-bezier(0.45, 0, 0.2, 1)';
+const CLOSE_MID = 0.5, CLOSE_MID_TRAVEL = 0.55, CLOSE_MID_TURN = -35;   // at half time: share of the way there, and degrees turned
 const PERSPECTIVE = 1600;                            // px
 
 const dialog = document.getElementById('about');
@@ -31,6 +37,8 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
   // Each is a set of styles per element; the faces' smoothed-corner clips are
   // animated too, so the corners stay in proportion as the card scales.
   type State = { card: Keyframe; faces: Keyframe; scrim: Keyframe; grain: Keyframe };
+  type Geo = { dx: number; dy: number; sx: number; sy: number };
+  let geo: Geo = { dx: 0, dy: 0, sx: 1, sy: 1 };
   function ends(): { small: State; big: State } {
     const a = avatar!.getBoundingClientRect();
     card!.style.transform = 'none';
@@ -40,6 +48,7 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     card!.style.setProperty('--about-back-icon', `${(24 / sx).toFixed(1)}px`);
     const dx = a.left + a.width / 2 - (c.left + c.width / 2);
     const dy = a.top + a.height / 2 - (c.top + c.height / 2);
+    geo = { dx, dy, sx, sy };
     const root = getComputedStyle(document.documentElement);
     const rSmall = parseFloat(root.getPropertyValue('--photo-radius')) || 14;
     const rBig = parseFloat(root.getPropertyValue('--cover-radius')) || 48;
@@ -83,9 +92,20 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
       anims.forEach((an) => an.cancel());
     }
     const target = e[to];
-    const opts: KeyframeAnimationOptions = { duration: reduce ? 200 : DURATION, easing: reduce ? 'ease-out' : EASE, fill: 'both' };
+    // A close from fully open gets its own, slower shape (see CLOSE_*).
+    const shaped = to === 'small' && !anims.length && !reduce;
+    const opts: KeyframeAnimationOptions = shaped
+      ? { duration: CLOSE_DURATION, easing: CLOSE_EASE, fill: 'both' }
+      : { duration: reduce ? 200 : DURATION, easing: reduce ? 'ease-out' : EASE, fill: 'both' };
+    const k = CLOSE_MID_TRAVEL, { dx, dy, sx, sy } = geo;
+    const cardFrames: Keyframe[] = shaped
+      ? [from.card, {
+          offset: CLOSE_MID,
+          transform: `translate(${dx * k}px, ${dy * k}px) perspective(${PERSPECTIVE}px) rotateY(${CLOSE_MID_TURN}deg) scale(${1 + (sx - 1) * k}, ${1 + (sy - 1) * k})`,
+        }, target.card]
+      : [from.card, target.card];
     anims = [
-      card!.animate([from.card, target.card], opts),
+      card!.animate(cardFrames, opts),
       scrim!.animate([from.scrim, target.scrim], opts),
       grain!.animate([from.grain, target.grain], opts),
       ...faces.map((f) => f.animate([from.faces, target.faces], opts)),
