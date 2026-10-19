@@ -216,6 +216,9 @@
   --color-gradient-cobalt-deep: #d9e6fd;    /* top: clear sky blue */
   --color-gradient-cobalt-base: #a9c6fa;
   --color-gradient-cobalt-light: #4a82ec;   /* bottom: a rich Google-blue glow */
+  --color-gradient-coral-deep: #fbf0ea;     /* top: pale shell pink */
+  --color-gradient-coral-base: #f5dccf;
+  --color-gradient-coral-light: #ec9f86;    /* bottom: a soft coral glow */
   --color-desktop-border: rgba(0, 0, 0, 0.16);
 
   /* Effects */
@@ -312,6 +315,9 @@
     --color-gradient-cobalt-deep: #0c1428;
     --color-gradient-cobalt-base: #10204a;
     --color-gradient-cobalt-light: #1d48a6;
+    --color-gradient-coral-deep: #181211;
+    --color-gradient-coral-base: #241815;
+    --color-gradient-coral-light: #4a2a22;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
     --about-scene-day: 0;
     --about-scene-opacity: 0.8;
@@ -388,6 +394,9 @@
   --color-gradient-cobalt-deep: #0c1428;
   --color-gradient-cobalt-base: #10204a;
   --color-gradient-cobalt-light: #1d48a6;
+  --color-gradient-coral-deep: #181211;
+  --color-gradient-coral-base: #241815;
+  --color-gradient-coral-light: #4a2a22;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
   --about-scene-day: 0;
   --about-scene-opacity: 0.8;
