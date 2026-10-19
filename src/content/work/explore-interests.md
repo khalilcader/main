@@ -1,5 +1,5 @@
 ---
-title: Explore Interests
+title: Instagram Explore
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2026"
