@@ -8,7 +8,7 @@ cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
   angle: 30
-  palette: cobalt
+  palette: ink
   alt: Chrome on iPhone, pulling down to refresh, opening the menu and switching tabs
   video:
     webm: images/work/chrome-2.webm

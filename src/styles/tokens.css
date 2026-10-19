@@ -216,6 +216,15 @@
   --color-gradient-cobalt-deep: #d9e6fd;    /* top: clear sky blue */
   --color-gradient-cobalt-base: #a9c6fa;
   --color-gradient-cobalt-light: #4a82ec;   /* bottom: a rich Google-blue glow */
+  --color-gradient-umber-deep: #2b1610;     /* deep: dark umber rising to an ember glow */
+  --color-gradient-umber-base: #5a2c1d;
+  --color-gradient-umber-light: #c0623a;
+  --color-gradient-plum-deep: #24101f;      /* deep: dark plum rising to a berry glow */
+  --color-gradient-plum-base: #4a1d3b;
+  --color-gradient-plum-light: #a8457d;
+  --color-gradient-ink-deep: #0b1532;       /* deep: ink navy rising to a bright blue glow */
+  --color-gradient-ink-base: #17327c;
+  --color-gradient-ink-light: #3c7af0;
   --color-gradient-orchid-deep: #f8eff9;    /* top: pale orchid */
   --color-gradient-orchid-base: #f0dbf2;
   --color-gradient-orchid-light: #d696e0;   /* bottom: a playful orchid glow, like FigJam's pink marker */
@@ -315,6 +324,15 @@
     --color-gradient-cobalt-deep: #0c1428;
     --color-gradient-cobalt-base: #10204a;
     --color-gradient-cobalt-light: #1d48a6;
+    --color-gradient-umber-deep: #1c0f0b;
+    --color-gradient-umber-base: #3d1e14;
+    --color-gradient-umber-light: #8a4329;
+    --color-gradient-plum-deep: #170a14;
+    --color-gradient-plum-base: #331429;
+    --color-gradient-plum-light: #76305a;
+    --color-gradient-ink-deep: #070e22;
+    --color-gradient-ink-base: #10235a;
+    --color-gradient-ink-light: #2a5bc0;
     --color-gradient-orchid-deep: #171219;
     --color-gradient-orchid-base: #221726;
     --color-gradient-orchid-light: #4a2852;
@@ -394,6 +412,15 @@
   --color-gradient-cobalt-deep: #0c1428;
   --color-gradient-cobalt-base: #10204a;
   --color-gradient-cobalt-light: #1d48a6;
+  --color-gradient-umber-deep: #1c0f0b;
+  --color-gradient-umber-base: #3d1e14;
+  --color-gradient-umber-light: #8a4329;
+  --color-gradient-plum-deep: #170a14;
+  --color-gradient-plum-base: #331429;
+  --color-gradient-plum-light: #76305a;
+  --color-gradient-ink-deep: #070e22;
+  --color-gradient-ink-base: #10235a;
+  --color-gradient-ink-light: #2a5bc0;
   --color-gradient-orchid-deep: #171219;
   --color-gradient-orchid-base: #221726;
   --color-gradient-orchid-light: #4a2852;
