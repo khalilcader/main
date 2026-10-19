@@ -215,6 +215,9 @@
   --color-gradient-cobalt-deep: #d9e6fd;    /* top: clear sky blue */
   --color-gradient-cobalt-base: #bcd3fb;
   --color-gradient-cobalt-light: #6b9af0;   /* bottom: a rich Google-blue glow */
+  --color-gradient-lemon-deep: #fbf9ec;     /* top: pale butter */
+  --color-gradient-lemon-base: #f5eecb;
+  --color-gradient-lemon-light: #e6d470;    /* bottom: a soft lemon glow */
   --color-gradient-orchid-deep: #f8eff9;    /* top: pale orchid */
   --color-gradient-orchid-base: #f0dbf2;
   --color-gradient-orchid-light: #d696e0;   /* bottom: a playful orchid glow, like FigJam's pink marker */
@@ -314,6 +317,9 @@
     --color-gradient-cobalt-deep: #0c1428;
     --color-gradient-cobalt-base: #10204a;
     --color-gradient-cobalt-light: #1d48a6;
+    --color-gradient-lemon-deep: #16150f;
+    --color-gradient-lemon-base: #201e12;
+    --color-gradient-lemon-light: #47401c;
     --color-gradient-orchid-deep: #171219;
     --color-gradient-orchid-base: #221726;
     --color-gradient-orchid-light: #4a2852;
@@ -393,6 +399,9 @@
   --color-gradient-cobalt-deep: #0c1428;
   --color-gradient-cobalt-base: #10204a;
   --color-gradient-cobalt-light: #1d48a6;
+  --color-gradient-lemon-deep: #16150f;
+  --color-gradient-lemon-base: #201e12;
+  --color-gradient-lemon-light: #47401c;
   --color-gradient-orchid-deep: #171219;
   --color-gradient-orchid-base: #221726;
   --color-gradient-orchid-light: #4a2852;
