@@ -205,6 +205,9 @@
   --color-gradient-rose-deep: #f6eeee;      /* top: pale blush */
   --color-gradient-rose-base: #efdfe2;
   --color-gradient-rose-light: #dcaab8;     /* bottom: a dusky rose glow */
+  --color-gradient-gold-deep: #f5f1e7;      /* top: pale parchment */
+  --color-gradient-gold-base: #eee4cc;
+  --color-gradient-gold-light: #dcc38c;     /* bottom: a soft honey glow */
   --color-desktop-border: rgba(0, 0, 0, 0.16);
 
   /* Effects */
@@ -292,6 +295,9 @@
     --color-gradient-rose-deep: #181314;
     --color-gradient-rose-base: #22181b;
     --color-gradient-rose-light: #43283a;
+    --color-gradient-gold-deep: #161511;
+    --color-gradient-gold-base: #1f1c14;
+    --color-gradient-gold-light: #3d3420;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
     --about-scene-day: 0;
     --about-scene-opacity: 0.8;
@@ -359,6 +365,9 @@
   --color-gradient-rose-deep: #181314;
   --color-gradient-rose-base: #22181b;
   --color-gradient-rose-light: #43283a;
+  --color-gradient-gold-deep: #161511;
+  --color-gradient-gold-base: #1f1c14;
+  --color-gradient-gold-light: #3d3420;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
   --about-scene-day: 0;
   --about-scene-opacity: 0.8;
