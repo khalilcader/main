@@ -89,6 +89,9 @@
   --about-radius: var(--cover-radius);      /* same corners as the cards */
   --about-close-inset: 24px;                /* close button, from the card's top-left corner */
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
+  --about-pad: 40px;                        /* copy inset from the card's sides */
+  --about-copy-gap: 40px;                   /* copy below the close button */
+  --about-text-size: 4cqh;                  /* about 30px on the full-size card */
   --about-blur: 16px;                       /* background blur behind the card */
   --scrim-grain: 0.6;
   --scrim-grain-blend: overlay;
