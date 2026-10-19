@@ -10,9 +10,9 @@ cover:
   palette: rose
   alt: Instagram Explore on a phone, starring Nail Art as an interest, snoozing Vinyasa Yoga and opening Manage Interests
   video:
-    webm: images/work/explore-interests.webm
-    mp4: images/work/explore-interests.mp4
-    poster: images/work/explore-interests.jpg
+    webm: images/work/instagram-explore.webm
+    mp4: images/work/instagram-explore.mp4
+    poster: images/work/instagram-explore.jpg
     start: 1
     device: iphone-notch
     # [seconds, x, y, zoom]: held shots on each interaction (browsing topics,
