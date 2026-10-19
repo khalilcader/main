@@ -7,6 +7,7 @@ order: 3
 cover:
   aspect: 1.25   # 771 × 617: wide, for the iPad
   shader: gradient
+  angle: 70
   palette: violet
   alt: FigJam on iPad, browsing 3D stickers and templates and adding a star to the canvas
   video:

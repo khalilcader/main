@@ -7,14 +7,16 @@ order: 7
 cover:
   aspect: 1.25   # 771 × 617: wide, for the iPad
   shader: gradient
+  angle: 215
   palette: indigo
   alt: Figma on iPad, adding a drop shadow to a frame and dragging its light source to move the shadow
   video:
-    webm: images/work/shadows.webm
-    mp4: images/work/shadows.mp4
-    poster: images/work/shadows.jpg
-    start: 28
+    webm: images/work/shadows-2.webm
+    mp4: images/work/shadows-2.mp4
+    poster: images/work/shadows-2.jpg
+    start: 22.5
     device: ipad
+    rest: [0.2, 0.17, 2.0]   # thumbnail: in close on the light-source control and the shadow it casts
     # [seconds, x, y, zoom]: gentle held shots on each step (select the frame,
     # add a drop shadow, drag the light source, tune it), with the full view
     # at the start and end so the loop is seamless.
