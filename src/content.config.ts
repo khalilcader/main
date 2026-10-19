@@ -24,7 +24,7 @@ const work = defineCollection({
         // hover or when the cover is open.
         start: z.number().min(0).default(0),
         // Which device frame it plays in.
-        device: z.enum(['iphone', 'iphone-notch', 'ipad', 'desktop']).default('iphone'),
+        device: z.enum(['iphone', 'iphone-notch', 'iphone-recorded', 'ipad', 'desktop']).default('iphone'),
         // Optional camera that follows the interaction while it plays:
         // [seconds, x, y, zoom] keyframes, x/y being the point on the device
         // (0..1 across it) brought to the middle of the cover. The device also
@@ -40,9 +40,10 @@ const work = defineCollection({
       // The gradient's colours: warm (stone rising to an ember glow), cool
       // (shades of sage), violet (lavender grey rising to a dusky violet glow)
       // blue (aqua mist rising to a baby-blue glow) or rose (blush rising to a
-      // dusky rose glow), stone (pale stone rising to a soft warm-grey glow) or indigo (periwinkle
-      // mist rising to a soft periwinkle glow).
-      palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose', 'stone', 'indigo']).optional(),
+      // dusky rose glow), stone (pale stone rising to a soft warm-grey glow) indigo (periwinkle
+      // mist rising to a soft periwinkle glow) or mint (pale mint rising to a soft
+      // sea-glass glow).
+      palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose', 'stone', 'indigo', 'mint']).optional(),
       // Turns the gradient (degrees) so the covers don't all glow from the
       // same side; 0 is deep at the top, glow at the bottom.
       angle: z.number().optional(),
