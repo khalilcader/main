@@ -83,10 +83,6 @@ const shape = [
   /* Recordings can be a hair off the iPad's screen shape (1.43 vs 1.45); fit it
      exactly rather than crop, so the status bar doesn't slip under the corner. */
   .glass-frame[data-device="ipad"] video { object-fit: fill; border-radius: var(--open-radius); }
-  /* This recording's status bar sits closer to the edge than a real iPad's,
-     so the picture keeps a hairline of black display edge inside the bezel,
-     clear of the rounded corners. */
-  .glass-frame[data-device="ipad"] .screen { padding: var(--device-screen-inset-landscape); }
   /* A recording with its own phone in it: the clip is the phone's outline, no bleed. */
   .glass-frame[data-device="iphone-recorded"] .screen { inset: 0; background: none; }
   .device { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; pointer-events: none; user-select: none; }

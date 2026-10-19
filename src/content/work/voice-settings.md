@@ -7,7 +7,6 @@ order: 2
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
-  palette: umber
   angle: 180
   alt: Voice settings in the Claude app, choosing a voice, its speed and how to talk
   video:

@@ -43,8 +43,8 @@ const work = defineCollection({
       // dusky rose glow), stone (pale stone rising to a soft warm-grey glow) indigo (periwinkle
       // mist rising to a soft periwinkle glow) cobalt (clear sky blue rising to a
       // rich Google-blue glow) orchid (pale orchid rising to a playful
-      // orchid glow); and three deep ones to break up the row: umber, plum, ink.
-      palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose', 'stone', 'indigo', 'cobalt', 'orchid', 'umber', 'plum', 'ink']).optional(),
+      // orchid glow).
+      palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose', 'stone', 'indigo', 'cobalt', 'orchid']).optional(),
       // Turns the gradient (degrees) so the covers don't all glow from the
       // same side; 0 is deep at the top, glow at the bottom.
       angle: z.number().optional(),
