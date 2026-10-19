@@ -126,6 +126,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       scale(var(--unscale, 1));
     transform-origin: 50% 0;
     padding: 0;
+    color: var(--color-label-below); font-size: var(--label-below-size);
   }
   :global(html:not([data-grid])) .label > :global(.smooth-layer),
   :global(html:not([data-grid])) .label > :global(.smooth-border),
