@@ -2,7 +2,7 @@
 title: Chrome on iOS
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
-year: "2026"
+year: "20XX"
 order: 8
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers

@@ -2,7 +2,7 @@
 title: Video Comments
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
-year: "2026"
+year: "20XX"
 order: 1
 cover:
   aspect: 0.684   # 422 × 617
