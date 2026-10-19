@@ -860,8 +860,9 @@ function init(stage: HTMLElement) {
     const gpv = clamp(gp.v, 0, 1), pv = clamp(p.v, 0, 1);
     const sc = reflow(), fb = mode === 'row' ? 1 - pv : 0;
     const [eL, eR] = edgeAmounts(pv), edgeZone = edges[0].offsetWidth || vw * 0.16;
-    // Grid view, scrolled: the header's scrim comes in (WorkStrip.astro).
-    const gridScrolled = mode === 'grid' && S.grid.pos > 2;
+    // Grid view, scrolled: the header's scrim comes in (WorkStrip.astro),
+    // but not over a cover that's open, until it has settled back in.
+    const gridScrolled = mode === 'grid' && S.grid.pos > 2 && gridActive < 0;
     if (gridScrolled !== lastGridScrolled) { lastGridScrolled = gridScrolled; document.documentElement.toggleAttribute('data-grid-scrolled', gridScrolled); }
     const gmK = reduce ? 1 : 1 - Math.exp(-dt * 6);
     for (const c of cards) {
