@@ -10,11 +10,11 @@ cover:
   palette: stone
   alt: Dictating a message in the Claude app, from the mic button to the transcribed text in the composer
   video:
-    webm: images/work/dictation-2.webm
-    mp4: images/work/dictation-2.mp4
-    poster: images/work/dictation-2.jpg
+    webm: images/work/dictation-3.webm
+    mp4: images/work/dictation-3.mp4
+    poster: images/work/dictation-3.jpg
     start: 9
-    rest: [0.5, 0.675, 1.55]   # thumbnail: in on the dictation bar, its waveform live
+    rest: [0.5, 0.635, 1.2]   # thumbnail: the lower half of the phone with the dictation bar, its waveform live
     # [seconds, x, y, zoom]: stays on the lower half of the phone (nothing
     # happens up top): in on the mic, the recording bar and transcribing, back
     # out for the text and keyboard, and back to the resting framing for a
