@@ -200,6 +200,9 @@
   --color-gradient-blue-deep: #e6f4f8;      /* top: pale aqua mist */
   --color-gradient-blue-base: #cdeaf3;
   --color-gradient-blue-light: #8ccfe6;     /* bottom: a baby-blue aqua glow */
+  --color-gradient-rose-deep: #f6eeee;      /* top: pale blush */
+  --color-gradient-rose-base: #efdfe2;
+  --color-gradient-rose-light: #dcaab8;     /* bottom: a dusky rose glow */
   --color-desktop-border: rgba(0, 0, 0, 0.16);
 
   /* Effects */
@@ -283,6 +286,9 @@
     --color-gradient-blue-deep: #11171a;
     --color-gradient-blue-base: #142328;
     --color-gradient-blue-light: #1d4552;
+    --color-gradient-rose-deep: #181314;
+    --color-gradient-rose-base: #22181b;
+    --color-gradient-rose-light: #43283a;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
     --about-scene-day: 0;
     --about-scene-opacity: 0.8;
@@ -346,6 +352,9 @@
   --color-gradient-blue-deep: #11171a;
   --color-gradient-blue-base: #142328;
   --color-gradient-blue-light: #1d4552;
+  --color-gradient-rose-deep: #181314;
+  --color-gradient-rose-base: #22181b;
+  --color-gradient-rose-light: #43283a;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
   --about-scene-day: 0;
   --about-scene-opacity: 0.8;
