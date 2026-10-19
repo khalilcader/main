@@ -8,7 +8,7 @@ cover:
   aspect: 1.25   # 771 × 617: wide, for the iPad
   shader: gradient
   angle: 120
-  palette: coral
+  palette: orchid
   alt: FigJam on iPad, picking up the chunky pen, pencil and highlighters and choosing their colours
   video:
     webm: images/work/chubbs.webm
