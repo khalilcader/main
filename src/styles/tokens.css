@@ -90,13 +90,21 @@
   --about-close-inset: 24px;                /* close button, from the card's top-left corner */
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
   --about-pad: 40px;                        /* copy inset from the card's sides */
-  --about-copy-gap: 40px;                   /* copy below the close button */
-  --about-text-size: 4cqh;                  /* about 30px on the full-size card */
+  --about-copy-gap: 24px;                   /* copy below the close button */
+  --about-text-size: 3cqh;                  /* about 23px on the full-size card */
+  --about-scene-day: 1;                     /* the About card's Brooklyn scene: day (1) or night (0) */
+  --about-scene-blend: multiply;
+  --about-scene-grain: 0.35;
+  --about-scene-halo: 0.75;
+  --about-scene-halo-blur: 22px;
+  /* An eased oval: holds in the middle, then falls away gently. */
+  --about-scene-mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 0%, #000 42%, rgba(0,0,0,0.92) 50%, rgba(0,0,0,0.75) 58%, rgba(0,0,0,0.52) 65%, rgba(0,0,0,0.3) 72%, rgba(0,0,0,0.13) 79%, rgba(0,0,0,0.04) 86%, transparent 93%);
+  --about-scene-halo-mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 0%, #000 50%, rgba(0,0,0,0.7) 66%, rgba(0,0,0,0.35) 80%, rgba(0,0,0,0.1) 92%, transparent 100%);
   --about-body-gap: 24px;                   /* between the bio and the résumé, at the least */
-  --job-logo-size: 36px;                    /* résumé rows on the About card */
+  --job-logo-size: 32px;                    /* résumé rows on the About card */
   --job-logo-radius: 10px;
   --job-gap: 14px;
-  --job-row-pad: 12px;
+  --job-row-pad: 9px;
   --job-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
   --color-job-glass-rim: rgba(0, 0, 0, 0.08);
   --color-job-glass-gloss: rgba(255, 255, 255, 0.5);
@@ -272,6 +280,9 @@
     --color-gradient-blue-base: #142328;
     --color-gradient-blue-light: #1d4552;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
+    --about-scene-day: 0;
+    --about-scene-blend: screen;
+    --about-scene-grain: 0.25;
     --job-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
     --color-job-glass-rim: rgba(255, 255, 255, 0.1);
     --color-job-glass-gloss: rgba(255, 255, 255, 0.05);
@@ -334,6 +345,9 @@
   --color-gradient-blue-base: #142328;
   --color-gradient-blue-light: #1d4552;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
+  --about-scene-day: 0;
+  --about-scene-blend: screen;
+  --about-scene-grain: 0.25;
   --job-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
   --color-job-glass-rim: rgba(255, 255, 255, 0.1);
   --color-job-glass-gloss: rgba(255, 255, 255, 0.05);
