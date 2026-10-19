@@ -150,16 +150,15 @@ const jobs = [
      multiplies it with the daylight, so the leaf shadows fall across it;
      dark mode screens it, so the shader's glow sits over it. */
   .about-scene {
-    position: absolute; top: var(--about-scene-top);
-    left: calc(var(--about-pad) - var(--about-scene-bleed)); right: calc(var(--about-pad) - var(--about-scene-bleed));
-    height: var(--about-scene-height);
+    position: absolute; top: var(--about-scene-top); left: 50%; translate: -50% 0;
+    width: var(--about-scene-width); height: var(--about-scene-height);
     pointer-events: none;
     mix-blend-mode: var(--about-scene-blend);
   }
   .scene-layer { position: absolute; inset: 0; }
   .scene-layer img {
     position: absolute; inset: 0; width: 100%; height: 100%; max-width: none;
-    object-fit: cover; object-position: 50% 72%;   /* skyline to the cab */
+    object-fit: cover; object-position: 50% 62%;
   }
   .scene-layer .day { opacity: var(--about-scene-day); }
   .scene-layer .night { opacity: calc(1 - var(--about-scene-day)); }
@@ -168,7 +167,6 @@ const jobs = [
   }
   .scene-layer.halo {
     filter: blur(var(--about-scene-halo-blur)); opacity: var(--about-scene-halo);
-    transform: scale(1.04);
     -webkit-mask-image: var(--about-scene-halo-round); mask-image: var(--about-scene-halo-round);
   }
   .scene-grain {
