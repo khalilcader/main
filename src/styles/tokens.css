@@ -92,6 +92,10 @@
   --about-pad: 40px;                        /* copy inset from the card's sides */
   --about-copy-gap: 40px;                   /* copy below the close button */
   --about-text-size: 4cqh;                  /* about 30px on the full-size card */
+  --job-logo-size: 36px;                    /* résumé rows on the About card */
+  --job-logo-radius: 10px;
+  --job-gap: 14px;
+  --job-row-pad: 12px;
   --about-blur: 16px;                       /* background blur behind the card */
   --scrim-grain: 0.6;
   --scrim-grain-blend: overlay;
