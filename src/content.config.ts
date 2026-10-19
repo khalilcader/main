@@ -24,7 +24,7 @@ const work = defineCollection({
         // hover or when the cover is open.
         start: z.number().min(0).default(0),
         // Which device frame it plays in.
-        device: z.enum(['iphone', 'ipad', 'desktop']).default('iphone'),
+        device: z.enum(['iphone', 'iphone-notch', 'ipad', 'desktop']).default('iphone'),
         // Optional camera that follows the interaction while it plays:
         // [seconds, x, y, zoom] keyframes, x/y being the point on the device
         // (0..1 across it) brought to the middle of the cover. The device also
@@ -39,8 +39,9 @@ const work = defineCollection({
       shader: z.enum(['backdrop', 'gradient']).optional(),
       // The gradient's colours: warm (stone rising to an ember glow), cool
       // (shades of sage), violet (lavender grey rising to a dusky violet glow)
-      // or blue (aqua mist rising to a baby-blue glow).
-      palette: z.enum(['warm', 'cool', 'violet', 'blue']).optional(),
+      // blue (aqua mist rising to a baby-blue glow) or rose (blush rising to a
+      // dusky rose glow).
+      palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose']).optional(),
       // A still image filling the cover.
       image: z.string().optional(),
       // Describes the cover for screen readers.

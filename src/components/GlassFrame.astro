@@ -10,11 +10,13 @@ interface Props {
   poster: string;
   start?: number;   // seconds; the frame the cover rests on
   camera?: [number, number, number, number][];   // see scripts/camera.ts
-  device?: 'iphone' | 'ipad' | 'desktop';
+  device?: 'iphone' | 'iphone-notch' | 'ipad' | 'desktop';
   rest?: [number, number, number];   // see scripts/camera.ts
 }
 const DEVICES = {
   iphone: { src: 'iphone-frame.webp', w: 978, h: 2000, x0: 52, y0: 50, x1: 926, y1: 1950, r: 150 },
+  // An older iPhone with a notch (the notch is part of the image).
+  'iphone-notch': { src: 'iphone-notch-frame.webp', w: 1061, h: 2000, x0: 127, y0: 127, x1: 935, y1: 1875, r: 118 },
   ipad: { src: 'ipad-frame.webp', w: 2000, h: 1424, x0: 83, y0: 80, x1: 1917, y1: 1344, r: 50 },
   // No frame: a desktop recording (16:10) shown as a window, its corners and
   // border drawn by smooth-corners.ts.
