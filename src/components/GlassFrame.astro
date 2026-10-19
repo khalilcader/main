@@ -80,9 +80,5 @@ const shape = [
      so the picture keeps a hairline of black display edge inside the bezel,
      clear of the rounded corners. */
   .glass-frame[data-device="ipad"] .screen { padding: var(--device-screen-inset-landscape); }
-  /* The notch iPhone recording's status and tab bars hug its edges; shrink
-     the picture inside a black display edge so they sit clear of the bezel. */
-  .glass-frame[data-device="iphone-notch"] .screen { padding: var(--device-screen-inset-notch); }
-  .glass-frame[data-device="iphone-notch"] video { object-fit: contain; border-radius: var(--open-radius); }
   .device { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; pointer-events: none; user-select: none; }
 </style>
