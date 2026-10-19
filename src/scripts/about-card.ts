@@ -10,12 +10,14 @@ import { squirclePath } from './squircle';
 
 const DURATION = 700;                                // ms
 const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';       // quick start, long soft landing
-// Closing from fully open is slower and gentler (ease in and out), and the
-// card shrinks and travels toward the avatar first, saving most of its turn
-// for the second half, so it doesn't flip the moment you close it.
-const CLOSE_DURATION = 950;                          // ms
-const CLOSE_EASE = 'cubic-bezier(0.45, 0, 0.2, 1)';
-const CLOSE_MID = 0.5, CLOSE_MID_TRAVEL = 0.55, CLOSE_MID_TURN = -35;   // at half time: share of the way there, and degrees turned
+// Closing from fully open is slower and gentler: the card shrinks and travels
+// toward the avatar on one smooth curve, and only starts turning over once it
+// is CLOSE_TURN_START of the way through, so it doesn't flip the moment you
+// close it. Sampled into keyframes, since one transform carries both.
+const CLOSE_DURATION = 1000;                         // ms
+const CLOSE_TURN_START = 0.45;
+const CLOSE_STEPS = 16;
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const PERSPECTIVE = 1600;                            // px
 
 const dialog = document.getElementById('about');
@@ -95,20 +97,27 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     // A close from fully open gets its own, slower shape (see CLOSE_*).
     const shaped = to === 'small' && !anims.length && !reduce;
     const opts: KeyframeAnimationOptions = shaped
-      ? { duration: CLOSE_DURATION, easing: CLOSE_EASE, fill: 'both' }
+      ? { duration: CLOSE_DURATION, easing: 'linear', fill: 'both' }
       : { duration: reduce ? 200 : DURATION, easing: reduce ? 'ease-out' : EASE, fill: 'both' };
-    const k = CLOSE_MID_TRAVEL, { dx, dy, sx, sy } = geo;
-    const cardFrames: Keyframe[] = shaped
-      ? [from.card, {
-          offset: CLOSE_MID,
-          transform: `translate(${dx * k}px, ${dy * k}px) perspective(${PERSPECTIVE}px) rotateY(${CLOSE_MID_TURN}deg) scale(${1 + (sx - 1) * k}, ${1 + (sy - 1) * k})`,
-        }, target.card]
-      : [from.card, target.card];
+    const { dx, dy, sx, sy } = geo;
+    const closeFrames = (): Keyframe[] => Array.from({ length: CLOSE_STEPS + 1 }, (_, i) => {
+      const t = i / CLOSE_STEPS;
+      const m = easeInOut(t);                                                  // travel and size
+      const turn = easeInOut(Math.max(0, (t - CLOSE_TURN_START) / (1 - CLOSE_TURN_START)));
+      return {
+        offset: t,
+        transform: `translate(${dx * m}px, ${dy * m}px) perspective(${PERSPECTIVE}px) rotateY(${-180 * turn}deg) scale(${1 + (sx - 1) * m}, ${1 + (sy - 1) * m})`,
+        borderRadius: i === CLOSE_STEPS ? target.card.borderRadius : i === 0 ? from.card.borderRadius : undefined,
+      };
+    }).map((f) => { if (f.borderRadius === undefined) delete f.borderRadius; return f; });
+    const cardFrames: Keyframe[] = shaped ? closeFrames() : [from.card, target.card];
+    // Everything else on the close follows the travel's curve.
+    const otherOpts: KeyframeAnimationOptions = shaped ? { ...opts, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' } : opts;
     anims = [
       card!.animate(cardFrames, opts),
-      scrim!.animate([from.scrim, target.scrim], opts),
-      grain!.animate([from.grain, target.grain], opts),
-      ...faces.map((f) => f.animate([from.faces, target.faces], opts)),
+      scrim!.animate([from.scrim, target.scrim], otherOpts),
+      grain!.animate([from.grain, target.grain], otherOpts),
+      ...faces.map((f) => f.animate([from.faces, target.faces], otherOpts)),
     ];
     state = to === 'big' ? 'opening' : 'closing';
     const mine = anims;
