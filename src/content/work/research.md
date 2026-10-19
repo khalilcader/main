@@ -15,15 +15,15 @@ cover:
     mp4: images/work/research.mp4
     poster: images/work/research.jpg
     start: 9
-    rest: [0.5, 0.49, 1.7]   # thumbnail: searching Slack, with a little backdrop either side
+    rest: [0.5, 0.53, 1.7]   # thumbnail: searching Slack, with a little backdrop either side
     # [seconds, x, y, zoom]: stays in close on the middle of the phone (no top
     # bar or composer): the request and each source being searched, then down
     # to the summary as it streams in, and the tap that opens its steps.
     camera:
-      - [0, 0.5, 0.49, 1.7]        # never the top bar or the composer: zoom and height keep both out of frame
-      - [33.5, 0.5, 0.49, 1.7]
-      - [35.5, 0.5, 0.5, 1.7]      # the summary streams in
-      - [43.4, 0.5, 0.5, 1.7]      # tap Worked for 10 minutes; the sheet opens
+      - [0, 0.5, 0.53, 1.7]        # held low enough that the top bar never shows
+      - [33.5, 0.5, 0.53, 1.7]
+      - [35.5, 0.5, 0.55, 1.7]     # the summary streams in
+      - [43.4, 0.5, 0.55, 1.7]     # tap Worked for 10 minutes; the sheet opens
 ---
 
 Placeholder case study.
