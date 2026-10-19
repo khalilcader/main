@@ -5,15 +5,12 @@ import Tooltip from './Tooltip.astro';
 // (photo side first), turning 180° in 3D as it goes (src/scripts/about-card.ts).
 // Edit the copy below.
 import { photo } from '../photo';
-// Where Khalil has worked, newest first, in years (no months). Logos are
-// from SVG Logos (gilbarbara/logos, CC0), in their brand colours; Anthropic's
-// black mark follows the theme instead, and Instagram's glyph takes its
-// brand gradient.
+// Where Khalil has worked, newest first, in years (no months).
 const jobs = [
-  { company: 'Anthropic', from: 2025, to: 'Present', viewBox: '0 0 256 176', logo: '<path fill="currentColor" d="m147.487 0l70.081 175.78H256L185.919 0zM66.183 106.221l23.98-61.774l23.98 61.774zM70.07 0L0 175.78h39.18l14.33-36.914h73.308l14.328 36.914h39.179L110.255 0z"/>' },
-  { company: 'Figma', from: 2022, to: 2025, viewBox: '0 0 256 384', logo: '<path fill="#0acf83" d="M64 384c35.328 0 64-28.672 64-64v-64H64c-35.328 0-64 28.672-64 64s28.672 64 64 64"/><path fill="#a259ff" d="M0 192c0-35.328 28.672-64 64-64h64v128H64c-35.328 0-64-28.672-64-64"/><path fill="#f24e1e" d="M0 64C0 28.672 28.672 0 64 0h64v128H64C28.672 128 0 99.328 0 64"/><path fill="#ff7262" d="M128 0h64c35.328 0 64 28.672 64 64s-28.672 64-64 64h-64z"/><path fill="#1abcfe" d="M256 192c0 35.328-28.672 64-64 64s-64-28.672-64-64s28.672-64 64-64s64 28.672 64 64"/>' },
-  { company: 'Instagram', from: 2020, to: 2022, viewBox: '0 0 256 256', logo: '<defs><radialGradient id="instagram-icon-g" cx="0.28" cy="1.05" r="1.25"><stop offset="0" stop-color="#fd5"/><stop offset="0.1" stop-color="#fd5"/><stop offset="0.5" stop-color="#ff543e"/><stop offset="1" stop-color="#c837ab"/></radialGradient></defs><path fill="url(#instagram-icon-g)" d="M128 23.064c34.177 0 38.225.13 51.722.745c12.48.57 19.258 2.655 23.769 4.408c5.974 2.322 10.238 5.096 14.717 9.575s7.253 8.743 9.575 14.717c1.753 4.511 3.838 11.289 4.408 23.768c.615 13.498.745 17.546.745 51.723s-.13 38.226-.745 51.723c-.57 12.48-2.655 19.257-4.408 23.768c-2.322 5.974-5.096 10.239-9.575 14.718s-8.743 7.253-14.717 9.574c-4.511 1.753-11.289 3.839-23.769 4.408c-13.495.616-17.543.746-51.722.746s-38.228-.13-51.723-.746c-12.48-.57-19.257-2.655-23.768-4.408c-5.974-2.321-10.239-5.095-14.718-9.574c-4.479-4.48-7.253-8.744-9.574-14.718c-1.753-4.51-3.839-11.288-4.408-23.768c-.616-13.497-.746-17.545-.746-51.723s.13-38.225.746-51.722c.57-12.48 2.655-19.258 4.408-23.769c2.321-5.974 5.095-10.238 9.574-14.717c4.48-4.48 8.744-7.253 14.718-9.575c4.51-1.753 11.288-3.838 23.768-4.408c13.497-.615 17.545-.745 51.723-.745M128 0C93.237 0 88.878.147 75.226.77c-13.625.622-22.93 2.786-31.071 5.95c-8.418 3.271-15.556 7.648-22.672 14.764S9.991 35.738 6.72 44.155C3.555 52.297 1.392 61.602.77 75.226C.147 88.878 0 93.237 0 128s.147 39.122.77 52.774c.622 13.625 2.785 22.93 5.95 31.071c3.27 8.417 7.647 15.556 14.763 22.672s14.254 11.492 22.672 14.763c8.142 3.165 17.446 5.328 31.07 5.95c13.653.623 18.012.77 52.775.77s39.122-.147 52.774-.77c13.624-.622 22.929-2.785 31.07-5.95c8.418-3.27 15.556-7.647 22.672-14.763s11.493-14.254 14.764-22.672c3.164-8.142 5.328-17.446 5.95-31.07c.623-13.653.77-18.012.77-52.775s-.147-39.122-.77-52.774c-.622-13.624-2.786-22.929-5.95-31.07c-3.271-8.418-7.648-15.556-14.764-22.672S220.262 9.99 211.845 6.72c-8.142-3.164-17.447-5.328-31.071-5.95C167.122.147 162.763 0 128 0m0 62.27c-36.302 0-65.73 29.43-65.73 65.73s29.428 65.73 65.73 65.73c36.301 0 65.73-29.428 65.73-65.73c0-36.301-29.429-65.73-65.73-65.73m0 108.397c-23.564 0-42.667-19.103-42.667-42.667S104.436 85.333 128 85.333s42.667 19.103 42.667 42.667s-19.103 42.667-42.667 42.667m83.686-110.994c0 8.484-6.876 15.36-15.36 15.36s-15.36-6.876-15.36-15.36s6.877-15.36 15.36-15.36s15.36 6.877 15.36 15.36"/>' },
-  { company: 'Google', from: 2015, to: 2020, viewBox: '0 0 256 262', logo: '<path fill="#4285f4" d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622l38.755 30.023l2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"/><path fill="#34a853" d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055c-34.523 0-63.824-22.773-74.269-54.25l-1.531.13l-40.298 31.187l-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1"/><path fill="#fbbc05" d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82c0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602z"/><path fill="#eb4335" d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"/>' },
+  { company: 'Anthropic', from: 2025, to: 'Present' },
+  { company: 'Figma', from: 2022, to: 2025 },
+  { company: 'Instagram', from: 2020, to: 2022 },
+  { company: 'Google', from: 2015, to: 2020 },
 ];
 ---
 <div class="about-scrim" id="about-scrim" hidden></div>
@@ -27,19 +24,19 @@ const jobs = [
     <div class="about-face about-front"><div class="about-surface" data-smooth="clip">
       <!-- The Tree Shadow daylight shader behind the copy. -->
       <canvas class="about-daylight" aria-hidden="true"></canvas>
+      <!-- Brooklyn, by day or by night with the theme: a sharp scene over a
+           blurred halo of itself, both easing out in an oval, under a little
+           grain, and blended with the daylight shader beneath. -->
+      <div class="about-scene" aria-hidden="true">
+        {['halo', 'sharp'].map((layer) => (
+          <div class={`scene-layer ${layer}`}>
+            <img class="day" src={`${import.meta.env.BASE_URL}images/about-nyc-light.webp`} alt="" width="1000" height="1000" />
+            <img class="night" src={`${import.meta.env.BASE_URL}images/about-nyc-dark.webp`} alt="" width="1000" height="1000" />
+          </div>
+        ))}
+        <div class="scene-grain"></div>
+      </div>
       <div class="about-body">
-        <!-- Brooklyn, by day or by night with the theme: a sharp scene over a
-             blurred halo of itself, both easing out in an oval, under a little
-             grain, and blended with the daylight shader beneath. -->
-        <div class="about-scene" aria-hidden="true">
-          {['halo', 'sharp'].map((layer) => (
-            <div class={`scene-layer ${layer}`}>
-              <img class="day" src={`${import.meta.env.BASE_URL}images/about-nyc-light.webp`} alt="" width="1000" height="1000" />
-              <img class="night" src={`${import.meta.env.BASE_URL}images/about-nyc-dark.webp`} alt="" width="1000" height="1000" />
-            </div>
-          ))}
-          <div class="scene-grain"></div>
-        </div>
         <div class="about-copy">
           <p>Hi, I’m Khalil. I’m a product designer who designs tools that shape how people think, collaborate, and create. I’m currently a Member of Technical Staff at Anthropic, where I design interfaces for <span class="nowrap">human-AI</span> interaction.</p>
           <p>I’m currently based in New York City.</p>
@@ -47,9 +44,6 @@ const jobs = [
         <ul class="about-jobs" aria-label="Experience">
           {jobs.map((j) => (
             <li>
-              <span class="job-logo" data-smooth="clip">
-                <svg viewBox={j.viewBox} aria-hidden="true" set:html={j.logo} />
-              </span>
               <span class="job-company">{j.company}</span>
               <span class="job-years">{j.from} – {j.to}</span>
             </li>
@@ -68,9 +62,8 @@ const jobs = [
     <div class="about-face about-back" aria-hidden="true"><div class="about-surface" data-smooth="clip">
       {photo && <img class="about-back-photo" src={photo} alt="" />}
       <svg class="about-back-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17.25 2.75H6.75C5.64543 2.75 4.75 3.64543 4.75 4.75V19.25C4.75 20.3546 5.64543 21.25 6.75 21.25H17.25C18.3546 21.25 19.25 20.3546 19.25 19.25V4.75C19.25 3.64543 18.3546 2.75 17.25 2.75Z" />
-        <path d="M19.25 12V14.75C19.25 15.8546 18.3546 16.75 17.25 16.75H7C5.75736 16.75 4.75 17.7574 4.75 19C4.75 20.2426 5.75736 21.25 7 21.25H10" />
-        <path d="M8.75 7H15.25M8.75 11H12.25" />
+        <path d="M7.75 2.75V2C5.67893 2 4 3.67893 4 5.75H4.75H5.5C5.5 4.50736 6.50736 3.5 7.75 3.5V2.75ZM7.75 2.75V3.5H16.25V2.75V2H7.75V2.75ZM16.25 2.75V3.5C17.4926 3.5 18.5 4.50736 18.5 5.75H19.25H20C20 3.67893 18.3211 2 16.25 2V2.75ZM19.25 5.75H18.5V18.25H19.25H20V5.75H19.25ZM19.25 18.25H18.5C18.5 19.4926 17.4926 20.5 16.25 20.5V21.25V22C18.3211 22 20 20.3211 20 18.25H19.25ZM16.25 21.25V20.5H7.75V21.25V22H16.25V21.25ZM7.75 21.25V20.5C6.50736 20.5 5.5 19.4926 5.5 18.25H4.75H4C4 20.3211 5.67893 22 7.75 22V21.25ZM4.75 18.25H5.5V5.75H4.75H4V18.25H4.75Z" fill="currentColor" stroke="none" />
+        <path d="M8.75 6.75H15.25M8.75 10.75H15.25M8.75 14.75H11.25" />
       </svg>
     </div></div>
   </div>
@@ -145,58 +138,63 @@ const jobs = [
   }
   /* The copy: large, set in the card's own units (cqh) so it scales with it. */
   .about-front .about-surface { container-type: size; }
-  /* Bio at the top, résumé along the bottom. */
+  /* Bio under the scene, résumé along the bottom. */
   .about-body {
     position: absolute; left: var(--about-pad); right: var(--about-pad); bottom: var(--about-pad);
-    top: calc(var(--about-close-inset) + var(--button-size) + var(--about-copy-gap));
+    top: calc(var(--about-scene-top) + var(--about-scene-height) - var(--about-scene-overlap));   /* where the scene's fade trails off */
     display: flex; flex-direction: column; gap: var(--about-body-gap);
   }
-  /* The scene fills the room above the bio, across the card's full width.
-     Its oval fade is eased (many stops), the halo reaching further than the
-     sharp layer. Light mode multiplies it with the daylight, so the leaf
-     shadows fall across it; dark mode screens it, so the shader's glow sits
-     over it. */
+  /* The illustration at the top, inset to line up with the text (its
+     feathered edges reach a little past it), below the close button. Its edges dissolve along long, eased
+     feathers on all four sides, the halo reaching further. Light mode
+     multiplies it with the daylight, so the leaf shadows fall across it;
+     dark mode screens it, so the shader's glow sits over it. */
   .about-scene {
-    position: relative; flex: 1 1 0; min-height: 0;
-    margin: calc(-1 * var(--about-copy-gap)) calc(-1 * var(--about-pad)) 0;
+    position: absolute; top: var(--about-scene-top);
+    left: calc(var(--about-pad) - var(--about-scene-bleed)); right: calc(var(--about-pad) - var(--about-scene-bleed));
+    height: var(--about-scene-height);
+    pointer-events: none;
     mix-blend-mode: var(--about-scene-blend);
   }
   .scene-layer { position: absolute; inset: 0; }
   .scene-layer img {
     position: absolute; inset: 0; width: 100%; height: 100%; max-width: none;
-    object-fit: cover; object-position: 50% 48%;
+    object-fit: cover; object-position: 50% 72%;   /* skyline to the cab */
   }
   .scene-layer .day { opacity: var(--about-scene-day); }
   .scene-layer .night { opacity: calc(1 - var(--about-scene-day)); }
   .scene-layer.sharp {
-    -webkit-mask-image: var(--about-scene-mask); mask-image: var(--about-scene-mask);
+    -webkit-mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); -webkit-mask-composite: source-in, source-in;
+    mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); mask-composite: intersect;
   }
   .scene-layer.halo {
     filter: blur(var(--about-scene-halo-blur)); opacity: var(--about-scene-halo);
-    transform: scale(1.06);
-    -webkit-mask-image: var(--about-scene-halo-mask); mask-image: var(--about-scene-halo-mask);
+    transform: scale(1.04);
+    -webkit-mask-image: var(--about-scene-halo-x), var(--about-scene-halo-y), var(--about-scene-halo-round); -webkit-mask-composite: source-in, source-in;
+    mask-image: var(--about-scene-halo-x), var(--about-scene-halo-y), var(--about-scene-halo-round); mask-composite: intersect;
   }
   .scene-grain {
     position: absolute; inset: 0; pointer-events: none;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
     mix-blend-mode: overlay; opacity: var(--about-scene-grain);
-    -webkit-mask-image: var(--about-scene-mask); mask-image: var(--about-scene-mask);
+    -webkit-mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); -webkit-mask-composite: source-in, source-in;
+    mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); mask-composite: intersect;
   }
   .about-copy {
     flex: none;
     color: var(--color-fg);
-    font-size: clamp(18px, var(--about-text-size), 32px); font-weight: var(--text-name-weight);
+    font-size: clamp(13px, var(--about-text-size), 32px); font-weight: var(--text-name-weight);
     line-height: 1.3; letter-spacing: -0.01em; text-wrap: pretty;
   }
   .about-copy p { margin: 0; }
   .about-copy p + p { margin-top: 0.6em; }
   .nowrap { white-space: nowrap; }
 
-  /* A short résumé along the bottom: logo, company and years, in rows
+  /* A short résumé along the bottom: company and years, in rows
      between hairline dividers. */
   .about-jobs {
     flex: none; margin: auto 0 0; padding: 0; list-style: none;
-    font-size: var(--text-name-size); font-weight: var(--text-name-weight); letter-spacing: var(--text-name-tracking);
+    font-size: clamp(13px, var(--job-text-size), var(--text-name-size)); font-weight: var(--text-name-weight); letter-spacing: var(--text-name-tracking);
     color: var(--color-fg);
   }
   .about-jobs li {
@@ -205,23 +203,6 @@ const jobs = [
     border-top: 1px solid var(--color-divider);
   }
   .about-jobs li:first-child { border-top: 0; }
-  /* Liquid glass, quietly: a tile lit at an angle from the top left, with a
-     soft gloss in that corner and one hairline rim along the smoothed edge
-     (no inset shadows or backdrop blur: both follow a plain rounded box and
-     show as a second edge against the squircle). */
-  .job-logo {
-    position: relative; isolation: isolate;
-    flex: none; width: var(--job-logo-size); height: var(--job-logo-size);
-    display: inline-flex; align-items: center; justify-content: center;
-    background: var(--job-glass-bg);
-    --surface-border: var(--color-job-glass-rim);
-    border: 1px solid var(--surface-border); border-radius: var(--job-logo-radius);
-  }
-  .job-logo::after {
-    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-    background: radial-gradient(90% 90% at 15% 10%, var(--color-job-glass-gloss), transparent 70%);
-  }
-  .job-logo svg { width: 55%; height: 55%; }
   .job-company { flex: 1; }
   .job-years { opacity: var(--text-secondary-opacity); font-weight: 400; letter-spacing: 0; }
   .about-back .about-surface {
