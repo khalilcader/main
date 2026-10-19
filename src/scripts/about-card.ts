@@ -14,8 +14,8 @@ const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';       // quick start, long soft l
 // toward the avatar on one smooth curve, and only starts turning over once it
 // is CLOSE_TURN_START of the way through, so it doesn't flip the moment you
 // close it. Sampled into keyframes, since one transform carries both.
-const CLOSE_DURATION = 1000;                         // ms
-const CLOSE_TURN_START = 0.45;
+const CLOSE_DURATION = 900;                          // ms
+const CLOSE_TURN_START = 0.15;
 const CLOSE_STEPS = 16;
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const PERSPECTIVE = 1600;                            // px
