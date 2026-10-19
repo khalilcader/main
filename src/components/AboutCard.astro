@@ -141,16 +141,17 @@ const jobs = [
   /* Bio under the scene, résumé along the bottom. */
   .about-body {
     position: absolute; left: var(--about-pad); right: var(--about-pad); bottom: var(--about-pad);
-    top: calc(var(--about-scene-height) - var(--about-scene-overlap));   /* where the scene's fade trails off */
+    top: calc(var(--about-scene-top) + var(--about-scene-height) - var(--about-scene-overlap));   /* where the scene's fade trails off */
     display: flex; flex-direction: column; gap: var(--about-body-gap);
   }
-  /* The illustration across the card's full width at the top (the close
-     button sits in its faded corner). Its edges dissolve along long, eased
+  /* The illustration at the top, inset to line up with the text (its
+     feathered edges reach a little past it), below the close button. Its edges dissolve along long, eased
      feathers on all four sides, the halo reaching further. Light mode
      multiplies it with the daylight, so the leaf shadows fall across it;
      dark mode screens it, so the shader's glow sits over it. */
   .about-scene {
-    position: absolute; top: 0; left: 0; right: 0;
+    position: absolute; top: var(--about-scene-top);
+    left: calc(var(--about-pad) - var(--about-scene-bleed)); right: calc(var(--about-pad) - var(--about-scene-bleed));
     height: var(--about-scene-height);
     pointer-events: none;
     mix-blend-mode: var(--about-scene-blend);
@@ -158,31 +159,31 @@ const jobs = [
   .scene-layer { position: absolute; inset: 0; }
   .scene-layer img {
     position: absolute; inset: 0; width: 100%; height: 100%; max-width: none;
-    object-fit: cover; object-position: 50% 58%;
+    object-fit: cover; object-position: 50% 72%;   /* skyline to the cab */
   }
   .scene-layer .day { opacity: var(--about-scene-day); }
   .scene-layer .night { opacity: calc(1 - var(--about-scene-day)); }
   .scene-layer.sharp {
-    -webkit-mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y); -webkit-mask-composite: source-in;
-    mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y); mask-composite: intersect;
+    -webkit-mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); -webkit-mask-composite: source-in, source-in;
+    mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); mask-composite: intersect;
   }
   .scene-layer.halo {
     filter: blur(var(--about-scene-halo-blur)); opacity: var(--about-scene-halo);
     transform: scale(1.04);
-    -webkit-mask-image: var(--about-scene-halo-x), var(--about-scene-halo-y); -webkit-mask-composite: source-in;
-    mask-image: var(--about-scene-halo-x), var(--about-scene-halo-y); mask-composite: intersect;
+    -webkit-mask-image: var(--about-scene-halo-x), var(--about-scene-halo-y), var(--about-scene-halo-round); -webkit-mask-composite: source-in, source-in;
+    mask-image: var(--about-scene-halo-x), var(--about-scene-halo-y), var(--about-scene-halo-round); mask-composite: intersect;
   }
   .scene-grain {
     position: absolute; inset: 0; pointer-events: none;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
     mix-blend-mode: overlay; opacity: var(--about-scene-grain);
-    -webkit-mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y); -webkit-mask-composite: source-in;
-    mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y); mask-composite: intersect;
+    -webkit-mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); -webkit-mask-composite: source-in, source-in;
+    mask-image: var(--about-scene-feather-x), var(--about-scene-feather-y), var(--about-scene-round); mask-composite: intersect;
   }
   .about-copy {
     flex: none;
     color: var(--color-fg);
-    font-size: clamp(18px, var(--about-text-size), 32px); font-weight: var(--text-name-weight);
+    font-size: clamp(13px, var(--about-text-size), 32px); font-weight: var(--text-name-weight);
     line-height: 1.3; letter-spacing: -0.01em; text-wrap: pretty;
   }
   .about-copy p { margin: 0; }

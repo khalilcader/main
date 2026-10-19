@@ -89,23 +89,27 @@
   --about-radius: var(--cover-radius);      /* same corners as the cards */
   --about-close-inset: 24px;                /* close button, from the card's top-left corner */
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
-  --about-pad: 56px;                        /* copy inset from the card's sides */
-  --about-text-size: 2.6cqh;                /* about 20px on the full-size card */
-  --about-scene-height: 46cqh;              /* the illustration's height at the top of the card */
-  --about-scene-overlap: 1cqh;              /* the bio starts this far into its bottom fade */
-  --about-scene-feather-x: linear-gradient(to right, rgba(0,0,0,0.00) 0.0%, rgba(0,0,0,0.04) 5.7%, rgba(0,0,0,0.21) 11.3%, rgba(0,0,0,0.50) 17.0%, rgba(0,0,0,0.79) 22.7%, rgba(0,0,0,0.96) 28.3%, rgba(0,0,0,1.00) 34.0%, rgba(0,0,0,1.00) 66.0%, rgba(0,0,0,0.96) 71.7%, rgba(0,0,0,0.79) 77.3%, rgba(0,0,0,0.50) 83.0%, rgba(0,0,0,0.21) 88.7%, rgba(0,0,0,0.04) 94.3%, rgba(0,0,0,0.00) 100.0%);
-  --about-scene-feather-y: linear-gradient(to bottom, rgba(0,0,0,0.00) 0.0%, rgba(0,0,0,0.04) 5.7%, rgba(0,0,0,0.21) 11.3%, rgba(0,0,0,0.50) 17.0%, rgba(0,0,0,0.79) 22.7%, rgba(0,0,0,0.96) 28.3%, rgba(0,0,0,1.00) 34.0%, rgba(0,0,0,1.00) 66.0%, rgba(0,0,0,0.96) 71.7%, rgba(0,0,0,0.79) 77.3%, rgba(0,0,0,0.50) 83.0%, rgba(0,0,0,0.21) 88.7%, rgba(0,0,0,0.04) 94.3%, rgba(0,0,0,0.00) 100.0%);
-  --about-scene-halo-x: linear-gradient(to right, rgba(0,0,0,0.00) 0.0%, rgba(0,0,0,0.04) 3.7%, rgba(0,0,0,0.21) 7.3%, rgba(0,0,0,0.50) 11.0%, rgba(0,0,0,0.79) 14.7%, rgba(0,0,0,0.96) 18.3%, rgba(0,0,0,1.00) 22.0%, rgba(0,0,0,1.00) 78.0%, rgba(0,0,0,0.96) 81.7%, rgba(0,0,0,0.79) 85.3%, rgba(0,0,0,0.50) 89.0%, rgba(0,0,0,0.21) 92.7%, rgba(0,0,0,0.04) 96.3%, rgba(0,0,0,0.00) 100.0%);
-  --about-scene-halo-y: linear-gradient(to bottom, rgba(0,0,0,0.00) 0.0%, rgba(0,0,0,0.04) 3.7%, rgba(0,0,0,0.21) 7.3%, rgba(0,0,0,0.50) 11.0%, rgba(0,0,0,0.79) 14.7%, rgba(0,0,0,0.96) 18.3%, rgba(0,0,0,1.00) 22.0%, rgba(0,0,0,1.00) 78.0%, rgba(0,0,0,0.96) 81.7%, rgba(0,0,0,0.79) 85.3%, rgba(0,0,0,0.50) 89.0%, rgba(0,0,0,0.21) 92.7%, rgba(0,0,0,0.04) 96.3%, rgba(0,0,0,0.00) 100.0%);
+  --about-pad: 72px;                        /* copy inset from the card's sides */
+  --about-text-size: 2.3cqh;                /* about 17.5px on the full-size card */
+  --about-scene-height: 47cqh;              /* the illustration's height at the top of the card */
+  --about-scene-top: 5cqh;                  /* below the close button */
+  --about-scene-bleed: 24px;                /* its feathered edges reach this far past the text */
+  --about-scene-overlap: -3.5cqh;              /* negative: a gap between its fade and the bio */
+  --about-scene-feather-x: linear-gradient(to right, rgba(0,0,0,0.000) 0.0%, rgba(0,0,0,0.016) 5.0%, rgba(0,0,0,0.104) 10.0%, rgba(0,0,0,0.275) 15.0%, rgba(0,0,0,0.500) 20.0%, rgba(0,0,0,0.725) 25.0%, rgba(0,0,0,0.896) 30.0%, rgba(0,0,0,0.984) 35.0%, rgba(0,0,0,1.000) 40.0%, rgba(0,0,0,1.000) 60.0%, rgba(0,0,0,0.984) 65.0%, rgba(0,0,0,0.896) 70.0%, rgba(0,0,0,0.725) 75.0%, rgba(0,0,0,0.500) 80.0%, rgba(0,0,0,0.275) 85.0%, rgba(0,0,0,0.104) 90.0%, rgba(0,0,0,0.016) 95.0%, rgba(0,0,0,0.000) 100.0%);
+  --about-scene-feather-y: linear-gradient(to bottom, rgba(0,0,0,0.000) 0.0%, rgba(0,0,0,0.016) 5.0%, rgba(0,0,0,0.104) 10.0%, rgba(0,0,0,0.275) 15.0%, rgba(0,0,0,0.500) 20.0%, rgba(0,0,0,0.725) 25.0%, rgba(0,0,0,0.896) 30.0%, rgba(0,0,0,0.984) 35.0%, rgba(0,0,0,1.000) 40.0%, rgba(0,0,0,1.000) 60.0%, rgba(0,0,0,0.984) 65.0%, rgba(0,0,0,0.896) 70.0%, rgba(0,0,0,0.725) 75.0%, rgba(0,0,0,0.500) 80.0%, rgba(0,0,0,0.275) 85.0%, rgba(0,0,0,0.104) 90.0%, rgba(0,0,0,0.016) 95.0%, rgba(0,0,0,0.000) 100.0%);
+  --about-scene-round: radial-gradient(ellipse 72% 72% at 50% 50%, #000 0%, #000 52%, rgba(0,0,0,0.991) 56.8%, rgba(0,0,0,0.942) 61.6%, rgba(0,0,0,0.837) 66.4%, rgba(0,0,0,0.683) 71.2%, rgba(0,0,0,0.500) 76.0%, rgba(0,0,0,0.317) 80.8%, rgba(0,0,0,0.163) 85.6%, rgba(0,0,0,0.058) 90.4%, rgba(0,0,0,0.009) 95.2%, rgba(0,0,0,0.000) 100.0%);
+  --about-scene-halo-x: linear-gradient(to right, rgba(0,0,0,0.000) 0.0%, rgba(0,0,0,0.016) 3.5%, rgba(0,0,0,0.104) 7.0%, rgba(0,0,0,0.275) 10.5%, rgba(0,0,0,0.500) 14.0%, rgba(0,0,0,0.725) 17.5%, rgba(0,0,0,0.896) 21.0%, rgba(0,0,0,0.984) 24.5%, rgba(0,0,0,1.000) 28.0%, rgba(0,0,0,1.000) 72.0%, rgba(0,0,0,0.984) 75.5%, rgba(0,0,0,0.896) 79.0%, rgba(0,0,0,0.725) 82.5%, rgba(0,0,0,0.500) 86.0%, rgba(0,0,0,0.275) 89.5%, rgba(0,0,0,0.104) 93.0%, rgba(0,0,0,0.016) 96.5%, rgba(0,0,0,0.000) 100.0%);
+  --about-scene-halo-y: linear-gradient(to bottom, rgba(0,0,0,0.000) 0.0%, rgba(0,0,0,0.016) 3.5%, rgba(0,0,0,0.104) 7.0%, rgba(0,0,0,0.275) 10.5%, rgba(0,0,0,0.500) 14.0%, rgba(0,0,0,0.725) 17.5%, rgba(0,0,0,0.896) 21.0%, rgba(0,0,0,0.984) 24.5%, rgba(0,0,0,1.000) 28.0%, rgba(0,0,0,1.000) 72.0%, rgba(0,0,0,0.984) 75.5%, rgba(0,0,0,0.896) 79.0%, rgba(0,0,0,0.725) 82.5%, rgba(0,0,0,0.500) 86.0%, rgba(0,0,0,0.275) 89.5%, rgba(0,0,0,0.104) 93.0%, rgba(0,0,0,0.016) 96.5%, rgba(0,0,0,0.000) 100.0%);
+  --about-scene-halo-round: radial-gradient(ellipse 78% 78% at 50% 50%, #000 0%, #000 60%, rgba(0,0,0,0.991) 64.0%, rgba(0,0,0,0.942) 68.0%, rgba(0,0,0,0.837) 72.0%, rgba(0,0,0,0.683) 76.0%, rgba(0,0,0,0.500) 80.0%, rgba(0,0,0,0.317) 84.0%, rgba(0,0,0,0.163) 88.0%, rgba(0,0,0,0.058) 92.0%, rgba(0,0,0,0.009) 96.0%, rgba(0,0,0,0.000) 100.0%);
   --about-scene-day: 1;                     /* the About card's Brooklyn scene: day (1) or night (0) */
   --about-scene-blend: multiply;
   --about-scene-grain: 0.35;
-  --about-scene-halo: 0.75;
-  --about-scene-halo-blur: 22px;
+  --about-scene-halo: 0.9;
+  --about-scene-halo-blur: 36px;
   --about-body-gap: 24px;                   /* between the bio and the résumé, at the least */
   --job-gap: 14px;
-  --job-row-pad: 1.2cqh;
-  --job-text-size: 2.1cqh;                  /* 16px on the full-size card; everything scales with it */
+  --job-row-pad: 0.95cqh;
+  --job-text-size: 1.95cqh;                  /* 16px on the full-size card; everything scales with it */
   --about-blur: 16px;                       /* background blur behind the card */
   --scrim-grain: 0.6;
   --scrim-grain-blend: overlay;
