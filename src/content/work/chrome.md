@@ -8,14 +8,15 @@ cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
   angle: 30
-  palette: mint
+  palette: cobalt
   alt: Chrome on iPhone, pulling down to refresh, opening the menu and switching tabs
   video:
-    webm: images/work/chrome.webm
-    mp4: images/work/chrome.mp4
-    poster: images/work/chrome.jpg
-    start: 8.5
+    webm: images/work/chrome-2.webm
+    mp4: images/work/chrome-2.mp4
+    poster: images/work/chrome-2.jpg
+    start: 18.5
     device: iphone-recorded
+    rest: [0.5, 0.36, 1.25]   # thumbnail: the tab switcher's grid of tabs
     # [seconds, x, y, zoom]: held shots on each interaction (pull to refresh,
     # the menu, the tab switcher), with the full view at the start and end so
     # the loop is seamless.

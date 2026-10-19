@@ -41,9 +41,9 @@ const work = defineCollection({
       // (shades of sage), violet (lavender grey rising to a dusky violet glow)
       // blue (aqua mist rising to a baby-blue glow) or rose (blush rising to a
       // dusky rose glow), stone (pale stone rising to a soft warm-grey glow) indigo (periwinkle
-      // mist rising to a soft periwinkle glow) or mint (pale mint rising to a soft
-      // sea-glass glow).
-      palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose', 'stone', 'indigo', 'mint']).optional(),
+      // mist rising to a soft periwinkle glow) or cobalt (clear sky blue rising to a
+      // rich Google-blue glow).
+      palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose', 'stone', 'indigo', 'cobalt']).optional(),
       // Turns the gradient (degrees) so the covers don't all glow from the
       // same side; 0 is deep at the top, glow at the bottom.
       angle: z.number().optional(),
