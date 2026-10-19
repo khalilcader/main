@@ -89,10 +89,10 @@
   --about-radius: var(--cover-radius);      /* same corners as the cards */
   --about-close-inset: 24px;                /* close button, from the card's top-left corner */
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
-  --about-pad: 88px;                        /* copy inset from the card's sides */
-  --about-text-size: 2.35cqh;               /* about 18px on the full-size card */
+  --about-pad: 64px;                        /* copy inset from the card's sides */
+  --about-text-size: 2.75cqh;               /* about 21px on the full-size card */
   --about-scene-height: 48cqh;              /* the illustration's height at the top of the card */
-  --about-scene-top: 3cqh;                  /* below the close button */
+  --about-scene-top: 0cqh;                  /* below the close button */
   --about-scene-width: 70cqh;               /* a touch wider than the text */
   --about-scene-opacity: 0.8;
   --about-scene-overlap: -1cqh;              /* negative: a gap between its fade and the bio */
