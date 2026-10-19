@@ -91,17 +91,17 @@
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
   --about-pad: 72px;                        /* copy inset from the card's sides */
   --about-text-size: 2.3cqh;                /* about 17.5px on the full-size card */
-  --about-scene-height: 47cqh;              /* the illustration's height at the top of the card */
-  --about-scene-top: 5cqh;                  /* below the close button */
-  --about-scene-bleed: 24px;                /* its feathered edges reach this far past the text */
-  --about-scene-overlap: -3.5cqh;              /* negative: a gap between its fade and the bio */
-  --about-scene-round: radial-gradient(ellipse 53% 53% at 50% 50%, #000 0%, #000 34%, rgba(0,0,0,0.995) 39.5%, rgba(0,0,0,0.965) 45.0%, rgba(0,0,0,0.896) 50.5%, rgba(0,0,0,0.790) 56.0%, rgba(0,0,0,0.653) 61.5%, rgba(0,0,0,0.500) 67.0%, rgba(0,0,0,0.347) 72.5%, rgba(0,0,0,0.210) 78.0%, rgba(0,0,0,0.104) 83.5%, rgba(0,0,0,0.035) 89.0%, rgba(0,0,0,0.005) 94.5%, rgba(0,0,0,0.000) 100.0%);
-  --about-scene-halo-round: radial-gradient(ellipse 56% 56% at 50% 50%, #000 0%, #000 44%, rgba(0,0,0,0.995) 48.7%, rgba(0,0,0,0.965) 53.3%, rgba(0,0,0,0.896) 58.0%, rgba(0,0,0,0.790) 62.7%, rgba(0,0,0,0.653) 67.3%, rgba(0,0,0,0.500) 72.0%, rgba(0,0,0,0.347) 76.7%, rgba(0,0,0,0.210) 81.3%, rgba(0,0,0,0.104) 86.0%, rgba(0,0,0,0.035) 90.7%, rgba(0,0,0,0.005) 95.3%, rgba(0,0,0,0.000) 100.0%);
+  --about-scene-height: 50cqh;              /* the illustration's height at the top of the card */
+  --about-scene-top: 4cqh;                  /* below the close button */
+  --about-scene-bleed: 52px;                /* its feathered edges reach this far past the text */
+  --about-scene-overlap: -2cqh;              /* negative: a gap between its fade and the bio */
+  --about-scene-round: radial-gradient(ellipse 53% 53% at 50% 50%, #000 0%, #000 44%, rgba(0,0,0,0.995) 48.7%, rgba(0,0,0,0.965) 53.3%, rgba(0,0,0,0.896) 58.0%, rgba(0,0,0,0.790) 62.7%, rgba(0,0,0,0.653) 67.3%, rgba(0,0,0,0.500) 72.0%, rgba(0,0,0,0.347) 76.7%, rgba(0,0,0,0.210) 81.3%, rgba(0,0,0,0.104) 86.0%, rgba(0,0,0,0.035) 90.7%, rgba(0,0,0,0.005) 95.3%, rgba(0,0,0,0.000) 100.0%);
+  --about-scene-halo-round: radial-gradient(ellipse 58% 58% at 50% 50%, #000 0%, #000 46%, rgba(0,0,0,0.995) 50.5%, rgba(0,0,0,0.965) 55.0%, rgba(0,0,0,0.896) 59.5%, rgba(0,0,0,0.790) 64.0%, rgba(0,0,0,0.653) 68.5%, rgba(0,0,0,0.500) 73.0%, rgba(0,0,0,0.347) 77.5%, rgba(0,0,0,0.210) 82.0%, rgba(0,0,0,0.104) 86.5%, rgba(0,0,0,0.035) 91.0%, rgba(0,0,0,0.005) 95.5%, rgba(0,0,0,0.000) 100.0%);
   --about-scene-day: 1;                     /* the About card's Brooklyn scene: day (1) or night (0) */
   --about-scene-blend: multiply;
   --about-scene-grain: 0.35;
-  --about-scene-halo: 0.9;
-  --about-scene-halo-blur: 48px;
+  --about-scene-halo: 1;
+  --about-scene-halo-blur: 64px;
   --about-body-gap: 24px;                   /* between the bio and the résumé, at the least */
   --job-gap: 14px;
   --job-row-pad: 0.95cqh;
