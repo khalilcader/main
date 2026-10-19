@@ -402,7 +402,12 @@ function init(stage: HTMLElement) {
   }
 
   function tap(c: Card | null) {
-    if (mode === 'grid') { if (gridOpen >= 0) closeGrid(); else if (c) openGrid(c); return; }
+    if (mode === 'grid') {
+      // Open: tapping another cover brings it forward in its place; anywhere else closes.
+      if (gridOpen >= 0) { const other = c && c.i !== gridOpen ? c : null; closeGrid(); if (other) openGrid(other); }
+      else if (c) openGrid(c);
+      return;
+    }
     if (p.t >= 0.5) {
       const cur = nearest(centerBig, S.big.to ?? S.big.pos);
       if (c && c.i !== cur) { S.big.to = centerBig(c.i); anchor = c.i; }
@@ -616,7 +621,9 @@ function init(stage: HTMLElement) {
   });
   stage.addEventListener('focusin', (e) => {
     const c = cardOf(e.target);
-    if (!c) return;
+    // Focus that comes with a press is the tap's to handle; following it here
+    // would centre the cover first and turn the tap into a close.
+    if (!c || ptr) return;
     if (mode === 'row' && p.t >= 0.5) { S.big.to = centerBig(c.i); anchor = c.i; return; }
     if (mode === 'grid' && gridOpen >= 0) return;
     const s = layer(), r = c[mode];
