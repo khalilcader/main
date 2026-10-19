@@ -40,8 +40,8 @@ const work = defineCollection({
       // The gradient's colours: warm (stone rising to an ember glow), cool
       // (shades of sage), violet (lavender grey rising to a dusky violet glow)
       // blue (aqua mist rising to a baby-blue glow) or rose (blush rising to a
-      // dusky rose glow).
-      palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose']).optional(),
+      // dusky rose glow) or gold (parchment rising to a soft honey glow).
+      palette: z.enum(['warm', 'cool', 'violet', 'blue', 'rose', 'gold']).optional(),
       // A still image filling the cover.
       image: z.string().optional(),
       // Describes the cover for screen readers.
