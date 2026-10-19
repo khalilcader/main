@@ -90,11 +90,12 @@
   --about-close-inset: 24px;                /* close button, from the card's top-left corner */
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
   --about-pad: 88px;                        /* copy inset from the card's sides */
-  --about-text-size: 2.5cqh;                /* about 19px on the full-size card */
-  --about-scene-height: 40cqh;              /* the illustration's height at the top of the card */
-  --about-scene-top: 5cqh;                  /* below the close button */
-  --about-scene-inset: 16px;                /* from the card's sides; the fade spans the gap to the text */
-  --about-scene-overlap: -6cqh;              /* negative: a gap between its fade and the bio */
+  --about-text-size: 2.35cqh;               /* about 18px on the full-size card */
+  --about-scene-height: 48cqh;              /* the illustration's height at the top of the card */
+  --about-scene-top: 3cqh;                  /* below the close button */
+  --about-scene-width: 70cqh;               /* a touch wider than the text */
+  --about-scene-opacity: 0.8;
+  --about-scene-overlap: -1cqh;              /* negative: a gap between its fade and the bio */
   --about-scene-day: 1;                     /* the About card's Brooklyn scene: day (1) or night (0) */
   --about-scene-blend: multiply;
   --about-scene-grain: 0.35;
@@ -104,12 +105,12 @@
   /* The picture: a soft rounded rectangle, fading over its outer edge along a
      gentle (sine) curve. The glow: a long radial tail that fades out along
      the same curve, eased further, to nothing at its own edge. */
-  --about-scene-x: linear-gradient(to right, rgba(0,0,0,0.000) 0.0%, rgba(0,0,0,0.010) 0.9%, rgba(0,0,0,0.038) 1.8%, rgba(0,0,0,0.084) 2.6%, rgba(0,0,0,0.146) 3.5%, rgba(0,0,0,0.222) 4.4%, rgba(0,0,0,0.309) 5.2%, rgba(0,0,0,0.402) 6.1%, rgba(0,0,0,0.500) 7.0%, rgba(0,0,0,0.598) 7.9%, rgba(0,0,0,0.691) 8.8%, rgba(0,0,0,0.778) 9.6%, rgba(0,0,0,0.854) 10.5%, rgba(0,0,0,0.916) 11.4%, rgba(0,0,0,0.962) 12.2%, rgba(0,0,0,0.990) 13.1%, rgba(0,0,0,1.000) 14.0%, rgba(0,0,0,1.000) 86.0%, rgba(0,0,0,0.990) 86.9%, rgba(0,0,0,0.962) 87.8%, rgba(0,0,0,0.916) 88.6%, rgba(0,0,0,0.854) 89.5%, rgba(0,0,0,0.778) 90.4%, rgba(0,0,0,0.691) 91.2%, rgba(0,0,0,0.598) 92.1%, rgba(0,0,0,0.500) 93.0%, rgba(0,0,0,0.402) 93.9%, rgba(0,0,0,0.309) 94.8%, rgba(0,0,0,0.222) 95.6%, rgba(0,0,0,0.146) 96.5%, rgba(0,0,0,0.084) 97.4%, rgba(0,0,0,0.038) 98.2%, rgba(0,0,0,0.010) 99.1%, rgba(0,0,0,0.000) 100.0%);
-  --about-scene-y: linear-gradient(to bottom, rgba(0,0,0,0.000) 0.0%, rgba(0,0,0,0.010) 1.2%, rgba(0,0,0,0.038) 2.5%, rgba(0,0,0,0.084) 3.8%, rgba(0,0,0,0.146) 5.0%, rgba(0,0,0,0.222) 6.2%, rgba(0,0,0,0.309) 7.5%, rgba(0,0,0,0.402) 8.8%, rgba(0,0,0,0.500) 10.0%, rgba(0,0,0,0.598) 11.2%, rgba(0,0,0,0.691) 12.5%, rgba(0,0,0,0.778) 13.8%, rgba(0,0,0,0.854) 15.0%, rgba(0,0,0,0.916) 16.2%, rgba(0,0,0,0.962) 17.5%, rgba(0,0,0,0.990) 18.8%, rgba(0,0,0,1.000) 20.0%, rgba(0,0,0,1.000) 80.0%, rgba(0,0,0,0.990) 81.2%, rgba(0,0,0,0.962) 82.5%, rgba(0,0,0,0.916) 83.8%, rgba(0,0,0,0.854) 85.0%, rgba(0,0,0,0.778) 86.2%, rgba(0,0,0,0.691) 87.5%, rgba(0,0,0,0.598) 88.8%, rgba(0,0,0,0.500) 90.0%, rgba(0,0,0,0.402) 91.2%, rgba(0,0,0,0.309) 92.5%, rgba(0,0,0,0.222) 93.8%, rgba(0,0,0,0.146) 95.0%, rgba(0,0,0,0.084) 96.2%, rgba(0,0,0,0.038) 97.5%, rgba(0,0,0,0.010) 98.8%, rgba(0,0,0,0.000) 100.0%);
+  --about-scene-x: linear-gradient(to right, rgba(0,0,0,0.000) 0.0%, rgba(0,0,0,0.010) 1.9%, rgba(0,0,0,0.038) 3.8%, rgba(0,0,0,0.084) 5.6%, rgba(0,0,0,0.146) 7.5%, rgba(0,0,0,0.222) 9.4%, rgba(0,0,0,0.309) 11.2%, rgba(0,0,0,0.402) 13.1%, rgba(0,0,0,0.500) 15.0%, rgba(0,0,0,0.598) 16.9%, rgba(0,0,0,0.691) 18.8%, rgba(0,0,0,0.778) 20.6%, rgba(0,0,0,0.854) 22.5%, rgba(0,0,0,0.916) 24.4%, rgba(0,0,0,0.962) 26.2%, rgba(0,0,0,0.990) 28.1%, rgba(0,0,0,1.000) 30.0%, rgba(0,0,0,1.000) 70.0%, rgba(0,0,0,0.990) 71.9%, rgba(0,0,0,0.962) 73.8%, rgba(0,0,0,0.916) 75.6%, rgba(0,0,0,0.854) 77.5%, rgba(0,0,0,0.778) 79.4%, rgba(0,0,0,0.691) 81.2%, rgba(0,0,0,0.598) 83.1%, rgba(0,0,0,0.500) 85.0%, rgba(0,0,0,0.402) 86.9%, rgba(0,0,0,0.309) 88.8%, rgba(0,0,0,0.222) 90.6%, rgba(0,0,0,0.146) 92.5%, rgba(0,0,0,0.084) 94.4%, rgba(0,0,0,0.038) 96.2%, rgba(0,0,0,0.010) 98.1%, rgba(0,0,0,0.000) 100.0%);
+  --about-scene-y: linear-gradient(to bottom, rgba(0,0,0,0.000) 0.0%, rgba(0,0,0,0.010) 1.0%, rgba(0,0,0,0.038) 2.0%, rgba(0,0,0,0.084) 3.0%, rgba(0,0,0,0.146) 4.0%, rgba(0,0,0,0.222) 5.0%, rgba(0,0,0,0.309) 6.0%, rgba(0,0,0,0.402) 7.0%, rgba(0,0,0,0.500) 8.0%, rgba(0,0,0,0.598) 9.0%, rgba(0,0,0,0.691) 10.0%, rgba(0,0,0,0.778) 11.0%, rgba(0,0,0,0.854) 12.0%, rgba(0,0,0,0.916) 13.0%, rgba(0,0,0,0.962) 14.0%, rgba(0,0,0,0.990) 15.0%, rgba(0,0,0,1.000) 16.0%, rgba(0,0,0,1.000) 68.0%, rgba(0,0,0,0.990) 70.0%, rgba(0,0,0,0.962) 72.0%, rgba(0,0,0,0.916) 74.0%, rgba(0,0,0,0.854) 76.0%, rgba(0,0,0,0.778) 78.0%, rgba(0,0,0,0.691) 80.0%, rgba(0,0,0,0.598) 82.0%, rgba(0,0,0,0.500) 84.0%, rgba(0,0,0,0.402) 86.0%, rgba(0,0,0,0.309) 88.0%, rgba(0,0,0,0.222) 90.0%, rgba(0,0,0,0.146) 92.0%, rgba(0,0,0,0.084) 94.0%, rgba(0,0,0,0.038) 96.0%, rgba(0,0,0,0.010) 98.0%, rgba(0,0,0,0.000) 100.0%);
   --about-scene-glow: radial-gradient(ellipse 50% 50% at 50% 50%, #000 0%, #000 18%, rgba(0,0,0,0.988) 22.6%, rgba(0,0,0,0.952) 27.1%, rgba(0,0,0,0.895) 31.7%, rgba(0,0,0,0.820) 36.2%, rgba(0,0,0,0.730) 40.8%, rgba(0,0,0,0.631) 45.3%, rgba(0,0,0,0.528) 49.9%, rgba(0,0,0,0.426) 54.4%, rgba(0,0,0,0.330) 59.0%, rgba(0,0,0,0.243) 63.6%, rgba(0,0,0,0.169) 68.1%, rgba(0,0,0,0.109) 72.7%, rgba(0,0,0,0.064) 77.2%, rgba(0,0,0,0.032) 81.8%, rgba(0,0,0,0.013) 86.3%, rgba(0,0,0,0.004) 90.9%, rgba(0,0,0,0.000) 95.4%, rgba(0,0,0,0.000) 100.0%);
   --about-body-gap: 24px;                   /* between the bio and the résumé, at the least */
   --job-gap: 14px;
-  --job-row-pad: 0.95cqh;
+  --job-row-pad: 0.85cqh;
   --job-text-size: 1.95cqh;                  /* 16px on the full-size card; everything scales with it */
   --about-blur: 16px;                       /* background blur behind the card */
   --scrim-grain: 0.6;
@@ -284,6 +285,7 @@
     --color-gradient-blue-light: #1d4552;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
     --about-scene-day: 0;
+    --about-scene-opacity: 0.9;
     --about-scene-blend: screen;
     --about-scene-grain: 0.25;
     --color-daylight-paper: #1e2330;
@@ -346,6 +348,7 @@
   --color-gradient-blue-light: #1d4552;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
   --about-scene-day: 0;
+  --about-scene-opacity: 0.9;
   --about-scene-blend: screen;
   --about-scene-grain: 0.25;
   --color-daylight-paper: #1e2330;
