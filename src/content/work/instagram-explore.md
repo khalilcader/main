@@ -2,7 +2,7 @@
 title: Instagram Explore
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
-year: "20XX"
+year: "2021"
 order: 5
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
