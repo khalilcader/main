@@ -22,12 +22,12 @@ cover:
     camera:
       - [0, 0.5, 0.5, 1]
       - [1.2, 0.5, 0.5, 1]
-      - [2.2, 0.5, 0.45, 1.2]      # browse the topics in Explore
-      - [12.0, 0.5, 0.45, 1.2]
+      - [2.2, 0.5, 0.36, 1.4]      # browse the topics in Explore
+      - [12.0, 0.5, 0.36, 1.4]
       - [13.0, 0.6, 0.6, 1.25]     # star Nail Art; the toast confirms
       - [18.0, 0.6, 0.6, 1.25]
-      - [19.0, 0.5, 0.5, 1.2]      # keep browsing
-      - [23.6, 0.5, 0.5, 1.2]
+      - [19.0, 0.5, 0.36, 1.4]     # keep browsing
+      - [23.6, 0.5, 0.36, 1.4]
       - [24.6, 0.62, 0.55, 1.25]   # hide Vinyasa Yoga
       - [26.0, 0.62, 0.55, 1.25]
       - [27.0, 0.5, 0.62, 1.25]    # Posts hidden: snooze it for 30 days
