@@ -96,6 +96,10 @@
   --job-logo-radius: 10px;
   --job-gap: 14px;
   --job-row-pad: 12px;
+  --job-glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.4));
+  --job-glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 1px rgba(0, 0, 0, 0.05);
+  --color-job-glass-rim: rgba(0, 0, 0, 0.1);
+  --color-job-glass-gloss: rgba(255, 255, 255, 0.8);
   --about-blur: 16px;                       /* background blur behind the card */
   --scrim-grain: 0.6;
   --scrim-grain-blend: overlay;
@@ -268,6 +272,10 @@
     --color-gradient-blue-base: #142328;
     --color-gradient-blue-light: #1d4552;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
+    --job-glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+    --job-glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 1px rgba(0, 0, 0, 0.3);
+    --color-job-glass-rim: rgba(255, 255, 255, 0.12);
+    --color-job-glass-gloss: rgba(255, 255, 255, 0.12);
     --color-daylight-paper: #1e2330;
     --color-daylight-shadow: #080a10;
     --daylight-preset: dark;
@@ -327,6 +335,10 @@
   --color-gradient-blue-base: #142328;
   --color-gradient-blue-light: #1d4552;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
+  --job-glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+  --job-glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 1px rgba(0, 0, 0, 0.3);
+  --color-job-glass-rim: rgba(255, 255, 255, 0.12);
+  --color-job-glass-gloss: rgba(255, 255, 255, 0.12);
   --color-daylight-paper: #1e2330;
   --color-daylight-shadow: #080a10;
   --daylight-preset: dark;
