@@ -8,7 +8,7 @@ cover:
   aspect: 1.25   # 771 × 617: wide, for desktop
   shader: gradient
   angle: 30
-  palette: clay
+  palette: mauve
   alt: FigJam on desktop, asking AI from the toolbar to make a mind map for brainstorming product features, which then fills the board
   video:
     webm: images/work/figjam-ai.webm

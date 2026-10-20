@@ -47,9 +47,9 @@ a { color: inherit; }
   background: var(--surface-bg, none);
   /* A plain rounded fallback under the smoothed clip: while a surface
      animates, browsers can drop the clip-path for a frame on a backdrop-
-     filtered layer, which flashed square corners. */
+     filtered layer, which flashed square corners. (No will-change here: a
+     layer per surface ran the GPU out of memory and tiles went blank.) */
   border-radius: calc(var(--smooth-r, 0px) + var(--smooth-bw, 0px));
-  will-change: transform;
   -webkit-backdrop-filter: var(--surface-blur, none);
   backdrop-filter: var(--surface-blur, none);
   transition: background-color 0.12s ease-out;
