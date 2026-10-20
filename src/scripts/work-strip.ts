@@ -21,7 +21,7 @@ const TUNING = {
   edgeStart: 0.33,                  // a row cover starts to blur when its inner edge is this share of the screen from the edge
   edgeW: 8, edgeBlur: 7, edgeCurve: 5, edgeFade: 0.25,
 };
-const EDGE_K = 280, EDGE_C = 33;     // overscroll spring-back (critically damped, quick)
+const EDGE_K = 420, EDGE_C = 41;     // overscroll spring-back (critically damped, quick)
 const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under critical)
 const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
@@ -49,7 +49,7 @@ const FLING_D = 230;                 // focused cover: drag this far (or flick) 
 const FIGMA_ROW_H = 617, FIGMA_VH = 1024, FIGMA_BELOW = 183;  // row height, frame height, space under the row
 
 type Rect = { x: number; y: number; w: number; h: number };
-type Scroll = { pos: number; vel: number; min: number; max: number; wheel: boolean; to: number | null; raw: number; wt: number; from: number | null };
+type Scroll = { pos: number; vel: number; min: number; max: number; wheel: boolean; to: number | null; raw: number; wt: number; from: number | null; lastD: number; fading: number; coast: boolean };
 
 const stage = document.getElementById('stage');
 if (stage) init(stage);
@@ -106,6 +106,7 @@ function init(stage: HTMLElement) {
     video: el.querySelector<HTMLVideoElement>('video'),
     playing: false, dimmed: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
+    gk: 1, gBlur: -1,    // grid: the card's scale, and the lightbox blur it was last drawn with
     gm: 0, rLast: -1,    // corners: 0 sized for the row, 1 for the grid (shapeCorners); last radius drawn
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
@@ -169,7 +170,7 @@ function init(stage: HTMLElement) {
       const open = mode === 'row' ? c.i === centred : c.i === gridOpen;
       const hover = c.i === hovered && !reduce && !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const want = open || hover;
-      c.shader?.setPaused(!want || c.dimmed);
+      c.shader?.setPaused(!want || c.dimmed || c.gBlur > 0);
       if (!c.video || want === c.playing) continue;
       c.playing = want;
       if (want) { loadVideo(c.video); c.video.currentTime = 0; c.video.play().catch(() => {}); }
@@ -182,7 +183,7 @@ function init(stage: HTMLElement) {
   const p = new Spring(0);          // row -> focus progress
   const gp = new Spring(0);         // grid lightbox progress
   let anchor = 0, gridOpen = -1, gridActive = -1, pull = 0;
-  const mk = (): Scroll => ({ pos: 0, vel: 0, min: 0, max: 0, wheel: false, to: null, raw: 0, wt: 0, from: null });
+  const mk = (): Scroll => ({ pos: 0, vel: 0, min: 0, max: 0, wheel: false, to: null, raw: 0, wt: 0, from: null, lastD: 0, fading: 0, coast: false });
   const S = { row: mk(), big: mk(), grid: mk() };
   let vw = 0, vh = 0, pad = 16, rowGap = 24, focusGap = 24, gridTop = 0, dragDist = 0;
   let simT = 0;
@@ -654,10 +655,18 @@ function init(stage: HTMLElement) {
     const s = layer();
     const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? dimOf(s) : 1;
     const d = (s !== S.grid && Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * unit;
+    // Trackpad momentum keeps sending ever-smaller deltas for a second or
+    // more after the fingers lift. Past an edge, once they've shrunk a few
+    // times in a row, it's momentum: drop the rest of that glide so the edge
+    // springs straight back, as native scrolling does.
+    const out = s.pos < s.min || s.pos > s.max;
+    s.fading = Math.abs(d) < Math.abs(s.lastD) && Math.sign(d) === Math.sign(s.lastD) ? s.fading + 1 : 0;
+    s.lastD = d;
+    clearTimeout(s.wt); s.wt = window.setTimeout(() => { s.wheel = false; s.coast = false; s.lastD = 0; s.fading = 0; }, 140);
+    if (s.coast || (out && s.fading >= 3)) { s.coast = true; s.wheel = false; return; }
     if (!s.wheel) s.raw = unrubberClamp(s.pos, s, rubberDim(s));
     s.raw += d; s.pos = rubberClamp(s.raw, s, rubberDim(s));
     s.vel = 0; s.to = null; s.from = null; s.wheel = true;
-    clearTimeout(s.wt); s.wt = window.setTimeout(() => { s.wheel = false; }, 140);
   }, { passive: false });
 
   window.addEventListener('keydown', (e) => {
@@ -905,6 +914,7 @@ function init(stage: HTMLElement) {
       const hs = 1 + (HOVER_SCALE - 1) * (reduce ? 0 : c.hv.v);
       const tw = w2 * hs;
       st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;
+      c.gk = tw / c.W;
       // The shadow deepens and softens with the lift.
       const sh = Math.round(clamp(c.hv.v, 0, 1) * 100) / 100;
       if (sh !== c.shLast) { c.shLast = sh; c.liftShadow.style.opacity = sh > 0 ? String(sh) : ''; }
@@ -1011,6 +1021,17 @@ function init(stage: HTMLElement) {
       backdrop.style.opacity = String(bo);
       // Its grain fades with it, up to the theme's grain strength.
       if (backdropGrain) backdropGrain.style.opacity = (bo * (parseFloat(getComputedStyle(backdropGrain).getPropertyValue('--scrim-grain')) || 0)).toFixed(3);
+    }
+    // Grid lightbox: every other card blurs as a whole, shape and all, so the
+    // blur is as strong at its edges as in its middle (one backdrop blur over
+    // the page went sharper toward each cover's edge). In the card's own px,
+    // since it's scaled.
+    const lbBlur = token('--backdrop-blur');
+    for (const c of cards) {
+      const b = c.i === gridActive ? 0 : Math.round(bo * lbBlur * 2) / 2;
+      if (b === c.gBlur) continue;
+      c.gBlur = b;
+      c.el.style.filter = b > 0 ? `blur(${(b / c.gk).toFixed(2)}px)` : '';
     }
     // The focus view is near full screen, so the name steps aside for it.
     // Focus mode (focus strip or grid lightbox): the name and the view controls
