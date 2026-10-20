@@ -104,7 +104,7 @@ function init(stage: HTMLElement) {
     label: el.querySelector<HTMLElement>('.label'),
     labelLast: '',
     video: el.querySelector<HTMLVideoElement>('video'),
-    playing: false, dimmed: false,
+    playing: false, dimmed: false, vt: 0, posterBehind: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
     gk: 1, gBlur: -1,    // grid: the card's scale, and the lightbox blur it was last drawn with
     gm: 0, rLast: -1,    // corners: 0 sized for the row, 1 for the grid (shapeCorners); last radius drawn
@@ -156,6 +156,8 @@ function init(stage: HTMLElement) {
   stage.addEventListener('focusout', () => { keyFocused = -1; });
   for (const c of cards) {
     if (c.video) restOn(c.video);
+    const scr = c.video?.parentElement;
+    c.posterBehind = !!scr && getComputedStyle(scr).backgroundImage !== 'none';
     c.el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hovered = c.i; });
     c.el.addEventListener('pointerleave', () => { if (hovered === c.i) hovered = -1; });
   }
@@ -173,8 +175,27 @@ function init(stage: HTMLElement) {
       c.shader?.setPaused(!want || c.dimmed || c.gBlur > 0);
       if (!c.video || want === c.playing) continue;
       c.playing = want;
-      if (want) { loadVideo(c.video); c.video.currentTime = 0; c.video.play().catch(() => {}); }
-      else { c.video.pause(); unloadVideo(c.video); }
+      const v = c.video;
+      clearTimeout(c.vt);
+      if (want) {
+        if (!v.querySelector('source[src]')) {
+          // Freshly loaded: it plays from the beginning, fading in over the
+          // poster (the thumbnail frame) once its first frame is up, rather
+          // than cutting to it (mid-flight, when a cover opens).
+          loadVideo(v); v.currentTime = 0;
+          if (c.posterBehind && !reduce) {
+            v.style.opacity = '0';
+            v.addEventListener('playing', () => { if (c.playing) v.style.opacity = ''; }, { once: true });
+          } else v.style.opacity = '';
+        } else v.style.opacity = '';   // caught while fading out: back in, playing on
+        v.play().catch(() => {});
+      } else {
+        // Fade to the poster behind it (the thumbnail frame), then let go of
+        // the video; without a poster behind it, stop at once.
+        const fade = c.posterBehind && !reduce;
+        if (fade) v.style.opacity = '0';
+        c.vt = window.setTimeout(() => { v.pause(); unloadVideo(v); v.style.opacity = ''; }, fade ? 260 : 0);
+      }
     }
   }
 
@@ -280,7 +301,7 @@ function init(stage: HTMLElement) {
   // the grid they share a width, so there the corners match the narrowest
   // (portrait) cover's instead, or a wide cover would come out sharper. Each
   // cover eases between the two (cornerMix) as the view changes.
-  let lastGridScrolled = false, lastGridBar = false;
+  let lastGridScrolled = false;
   let cornerBase = 0, cornerSmoothing = 0.6, cornerBorder = 1, refAspect = 1;
   function updateCorners() {
     cornerBase = token('--cover-radius') / token('--row-height');
@@ -892,14 +913,10 @@ function init(stage: HTMLElement) {
     const sc = reflow(), fb = mode === 'row' ? 1 - pv : 0;
     const [eL, eR] = edgeAmounts(pv), edgeZone = edges[0].offsetWidth || vw * 0.16;
     // Grid view, scrolled: the header tucks up and its frosted bar
-    // (WorkStrip.astro) comes in; both stay put while covers open and close.
-    // An open cover lifts the whole stage (cover and tint) over the bar rather
-    // than fading the bar out: animating a 50px backdrop blur's opacity over
-    // moving covers flickered. It drops back as soon as the cover closes.
+    // (WorkStrip.astro) comes in; both stay put while covers open and close
+    // (the open cover rises over the bar, the lightbox's tint fades over it).
     const gridScrolled = mode === 'grid' && S.grid.pos > 2;
     if (gridScrolled !== lastGridScrolled) { lastGridScrolled = gridScrolled; document.documentElement.toggleAttribute('data-grid-scrolled', gridScrolled); }
-    const lifted = mode === 'grid' && gridOpen >= 0;
-    if (lifted !== lastGridBar) { lastGridBar = lifted; document.documentElement.toggleAttribute('data-grid-open', lifted); }
     const gmK = reduce ? 1 : 1 - Math.exp(-dt * 6);
     for (const c of cards) {
       c.gm += ((mode === 'grid' ? 1 : 0) - c.gm) * gmK;
