@@ -176,6 +176,7 @@
   --device-height: 86%;                     /* iPhone frame: share of the cover's height */
   --device-width-landscape: 86%;            /* iPad frame: share of the cover's width */
   --desktop-radius: 10px;                   /* desktop recordings: the window's corners */
+  --film-radius: 24px;                      /* filmed footage: soft, round corners */
   --device-bleed: 2px;                      /* the screen reaches this far under the frame */
   --device-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
   --glass-height: 84%;                      /* of the cover's height; leaves some backdrop above and below */
