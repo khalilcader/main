@@ -166,8 +166,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   /* Grid lightbox: everything else fades to the page. */
   .backdrop {
     position: absolute; inset: 0; z-index: 10; pointer-events: none;
-    background: var(--color-scrim);
-    -webkit-backdrop-filter: blur(var(--backdrop-blur)); backdrop-filter: blur(var(--backdrop-blur));
+    background: var(--color-scrim);   /* the cards under it blur themselves (work-strip.ts) */
     opacity: 0;
   }
   /* Same grain as the About overlay: overlay in light mode; in dark, plain
