@@ -131,6 +131,19 @@ function init(stage: HTMLElement) {
     // nothing to do, and no decoder held for a cover nobody has played.
     if (v.readyState >= 1) seek();
   };
+  // A video is loaded only while it plays: stopping drops its source, so its
+  // decoder and frames leave GPU memory and the poster (the start frame)
+  // shows again. Covers hovered one after another otherwise stayed loaded,
+  // and with enough of them the page ran short and flickered.
+  const loadVideo = (v: HTMLVideoElement) => {
+    let changed = false;
+    v.querySelectorAll('source').forEach((s) => { if (!s.getAttribute('src') && s.dataset.src) { s.src = s.dataset.src; changed = true; } });
+    if (changed) v.load();
+  };
+  const unloadVideo = (v: HTMLVideoElement) => {
+    v.querySelectorAll('source').forEach((s) => { if (s.getAttribute('src')) { s.dataset.src = s.getAttribute('src')!; s.removeAttribute('src'); } });
+    v.load();
+  };
   let hovered = -1;
   // The card with keyboard focus, tracked by events: asking :focus-visible every
   // frame forced a style recalculation per card per frame.
@@ -159,8 +172,8 @@ function init(stage: HTMLElement) {
       c.shader?.setPaused(!want || c.dimmed);
       if (!c.video || want === c.playing) continue;
       c.playing = want;
-      if (want) { c.video.currentTime = 0; c.video.play().catch(() => {}); }
-      else { c.video.pause(); restOn(c.video); }
+      if (want) { loadVideo(c.video); c.video.currentTime = 0; c.video.play().catch(() => {}); }
+      else { c.video.pause(); unloadVideo(c.video); }
     }
   }
 
