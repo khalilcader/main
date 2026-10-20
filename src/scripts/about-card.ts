@@ -168,7 +168,8 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     }
     scrim!.style.opacity = ''; grain!.style.opacity = '';
     animateTo('big');
-    closeBtn!.focus({ preventScroll: true });
+    // Not on phones: there it lit the X as if hovered (iOS treats it as keyboard focus).
+    if (!sheet) closeBtn!.focus({ preventScroll: true });
   }
   function close() {
     if (state === 'closed' || state === 'closing') return;
