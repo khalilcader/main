@@ -418,8 +418,8 @@ function init(stage: HTMLElement) {
 
   function tap(c: Card | null) {
     if (mode === 'grid') {
-      // Open: tapping another cover brings it forward in its place; anywhere else closes.
-      if (gridOpen >= 0) { const other = c && c.i !== gridOpen ? c : null; closeGrid(); if (other) openGrid(other); }
+      // Open: a tap anywhere, the blurred covers behind included, closes it.
+      if (gridOpen >= 0) closeGrid();
       else if (c) openGrid(c);
       return;
     }
