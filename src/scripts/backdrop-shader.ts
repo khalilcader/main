@@ -158,7 +158,10 @@ function rgb(css: string): number[] {
 }
 
 export function mountBackdrop(canvas: HTMLCanvasElement) {
-  const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
+  const gl = canvas.getContext('webgl', { antialias: false, alpha: false, preserveDrawingBuffer: true });
+  // preserveDrawingBuffer: the shader draws at 30fps, and between draws the
+  // backdrop blurs above it (header scrim, label pills) would otherwise
+  // sample a cleared buffer and flash.
   if (!gl) return null;  // no WebGL: the canvas's CSS background (the base tone) shows instead
 
   const compile = (type: number, src: string) => {

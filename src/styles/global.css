@@ -45,6 +45,11 @@ a { color: inherit; }
   position: absolute; inset: calc(-1 * var(--smooth-bw, 0px)); z-index: -1;
   pointer-events: none;
   background: var(--surface-bg, none);
+  /* A plain rounded fallback under the smoothed clip: while a surface
+     animates, browsers can drop the clip-path for a frame on a backdrop-
+     filtered layer, which flashed square corners. */
+  border-radius: calc(var(--smooth-r, 0px) + var(--smooth-bw, 0px));
+  will-change: transform;
   -webkit-backdrop-filter: var(--surface-blur, none);
   backdrop-filter: var(--surface-blur, none);
   transition: background-color 0.12s ease-out;
