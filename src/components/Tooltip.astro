@@ -32,6 +32,9 @@ const { shortcut, below = false } = Astro.props;
     transition: opacity 0.08s ease-in, transform 0.08s ease-in;
   }
   .tip.below { bottom: auto; top: calc(100% + var(--tip-gap)); transform-origin: 50% 0; transform: translate(-50%, -3px) scale(0.96); }
+  /* In the header once it's tucked up against the top (grid, scrolled),
+     there's no room above: tips open underneath. */
+  :global(html[data-grid-scrolled] .site-header) .tip { bottom: auto; top: calc(100% + var(--tip-gap)); transform-origin: 50% 0; transform: translate(-50%, -3px) scale(0.96); }
   kbd { font: inherit; opacity: 0.5; }
   /* Show after a short pause, quickly and softly. */
   :global(.has-tip:focus-visible) > .tip,
