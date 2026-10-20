@@ -59,6 +59,7 @@ if (stage) (document.documentElement.classList.contains('mobile') ? initMobile :
 // playing. Tapping one plays its recording in the system's own player (which
 // zooms out of the cover, and swipes away to close).
 function initMobile(stage: HTMLElement) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   // Scrolled: the header tucks up over its frosted bar and hairline
   // (WorkStrip.astro, SiteHeader.astro), the same as the desktop grid.
   let scrolled = false;
@@ -84,9 +85,13 @@ function initMobile(stage: HTMLElement) {
   const shape = (cover: HTMLElement) => {
     const w = cover.offsetWidth, h = cover.offsetHeight;
     if (!w || !h) return;
-    const d = squirclePath(w, h, Math.min(share * h, w / 2, h / 2), smooth);
-    cover.style.clipPath = `path("${d}")`;
-    cover.querySelector('.outline path')?.setAttribute('d', d);
+    const r = Math.min(share * h, w / 2, h / 2);
+    cover.style.clipPath = `path("${squirclePath(w, h, r, smooth)}")`;
+    // The hairline sits wholly inside the clip (half a pixel in), so it's the
+    // same weight all the way round rather than half cut off by it.
+    const o = cover.querySelector('.outline path');
+    o?.setAttribute('d', squirclePath(w - 1, h - 1, r - 0.5, smooth));
+    o?.setAttribute('transform', 'translate(0.5 0.5)');
   };
   // Two staggered columns: each cover goes in the shorter one so far.
   const cols = [0, 1].map(() => { const c = document.createElement('div'); c.className = 'col'; stage.appendChild(c); return c; });
@@ -98,26 +103,97 @@ function initMobile(stage: HTMLElement) {
   }
   const ro = new ResizeObserver((es) => es.forEach((e) => shape(e.target as HTMLElement)));
   stage.querySelectorAll<HTMLElement>('.card .cover').forEach((c) => { shape(c); ro.observe(c); });
-  for (const card of stage.querySelectorAll<HTMLElement>('.card')) {
-    const v = card.querySelector('video');
-    if (!v) continue;
-    const done = () => {
-      v.pause(); v.controls = false; v.setAttribute('playsinline', '');
-      v.load();   // back to the poster (the thumbnail)
-    };
-    v.addEventListener('webkitendfullscreen', done);
-    v.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) done(); });
-    card.addEventListener('click', () => {
-      // Without playsinline an iPhone plays it full screen in its own player.
-      v.removeAttribute('playsinline'); v.controls = true; v.currentTime = 0;
-      v.play().catch(() => {});
-      const fs = v as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
-      try {
-        if (v.requestFullscreen && !fs.webkitEnterFullscreen) v.requestFullscreen().catch(() => {});
-        else fs.webkitEnterFullscreen?.();
-      } catch (err) { /* already going full screen */ }
-    });
+  // Tap: the cover grows to fill the screen and plays as it does on desktop
+  // (frame, gradient, camera); swipe it down (or tap the X, or press Esc) and
+  // it shrinks back into its place.
+  const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+  const scrim = document.createElement('div'); scrim.className = 'viewer-scrim'; scrim.hidden = true;
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'viewer-close'; closeBtn.type = 'button'; closeBtn.setAttribute('aria-label', 'Close');
+  closeBtn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+  scrim.appendChild(closeBtn);
+  document.body.appendChild(scrim);
+  let open: null | { cover: HTMLElement; ph: HTMLElement; v: HTMLVideoElement | null; busy: boolean } = null;
+  const rectOf = (el: HTMLElement) => { const r = el.getBoundingClientRect(); return { left: r.left, top: r.top, width: r.width, height: r.height }; };
+  const target = (a: number) => {
+    const pad = 12, top = 64, bottom = 32;
+    let w = innerWidth - 2 * pad, h = w / a;
+    const maxH = innerHeight - top - bottom;
+    if (h > maxH) { h = maxH; w = h * a; }
+    return { left: (innerWidth - w) / 2, top: top + (maxH - h) / 2, width: w, height: h };
+  };
+  const px = (r: { left: number; top: number; width: number; height: number }) =>
+    ({ left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+  function show(card: HTMLElement) {
+    if (open) return;
+    const cover = card.querySelector<HTMLElement>('.cover')!;
+    const a = parseFloat(card.dataset.aspect || '1') || 1;
+    const from = rectOf(cover);
+    const ph = document.createElement('div'); ph.className = 'cover-ph'; ph.style.aspectRatio = String(a);
+    cover.before(ph);
+    cover.classList.add('viewing');
+    Object.assign(cover.style, px(from));
+    const to = target(a);
+    scrim.hidden = false;
+    scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 350, easing: 'ease-out', fill: 'both' });
+    const an = cover.animate([px(from), px(to)], { duration: reduce ? 0 : 450, easing: EASE });
+    Object.assign(cover.style, px(to));
+    const v = cover.querySelector('video');
+    open = { cover, ph, v, busy: true };
+    an.finished.then(() => { if (open) open.busy = false; shapeGlassFrames(stage); });
+    if (v) { v.currentTime = 0; v.play().catch(() => {}); }
+    document.documentElement.toggleAttribute('data-viewing', true);
   }
+  function hide() {
+    if (!open) return;
+    const { cover, ph, v } = open; open = null;
+    v?.pause();
+    const from = rectOf(cover), to = rectOf(ph);
+    scrim.getAnimations().forEach((x) => x.cancel());
+    scrim.animate([{ opacity: getComputedStyle(scrim).opacity }, { opacity: 0 }], { duration: 300, easing: 'ease-out', fill: 'both' })
+      .finished.then((x) => { scrim.hidden = true; x.cancel(); });
+    cover.style.transform = '';
+    cover.animate([{ ...px(from), transform: dragY ? `translateY(${dragY}px)` : 'none' }, { ...px(to), transform: 'none' }], { duration: reduce ? 0 : 400, easing: EASE })
+      .finished.then(() => {
+        cover.classList.remove('viewing');
+        cover.style.left = cover.style.top = cover.style.width = cover.style.height = '';
+        ph.remove();
+        if (v) v.load();   // back to the poster (the thumbnail)
+        shapeGlassFrames(stage);
+      });
+    Object.assign(cover.style, px(to));
+    dragY = 0;
+    document.documentElement.toggleAttribute('data-viewing', false);
+  }
+  // Swipe down to close: the cover follows the finger and the page shows through.
+  let dragY = 0, y0 = 0, t0 = 0, dragging = false;
+  scrim.addEventListener('pointerdown', (e) => {
+    if (!open || open.busy || (e.target as Element).closest('button')) return;
+    dragging = true; y0 = e.clientY; t0 = performance.now(); dragY = 0;
+    scrim.setPointerCapture(e.pointerId);
+  });
+  scrim.addEventListener('pointermove', (e) => {
+    if (!dragging || !open) return;
+    const raw = e.clientY - y0;
+    dragY = raw > 0 ? raw : -Math.sqrt(-raw) * 2;
+    open.cover.style.transform = `translateY(${dragY}px)`;
+    scrim.getAnimations().forEach((x) => x.cancel());
+    scrim.style.opacity = String(Math.max(0, 1 - Math.max(0, dragY) / (innerHeight * 0.6)));
+  });
+  const release = () => {
+    if (!dragging || !open) return;
+    dragging = false;
+    const v = dragY / Math.max(1, performance.now() - t0);
+    if (dragY > 100 || (dragY > 20 && v > 0.5)) { scrim.style.opacity = ''; hide(); return; }
+    if (Math.abs(dragY) < 6) { dragY = 0; open.cover.style.transform = ''; scrim.style.opacity = ''; hide(); return; }   // a tap outside closes
+    open.cover.animate([{ transform: `translateY(${dragY}px)` }, { transform: 'none' }], { duration: 300, easing: EASE });
+    open.cover.style.transform = ''; scrim.style.opacity = ''; dragY = 0;
+  };
+  scrim.addEventListener('pointerup', release);
+  scrim.addEventListener('pointercancel', release);
+  closeBtn.addEventListener('click', () => hide());
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
+  for (const card of stage.querySelectorAll<HTMLElement>('.card')) card.addEventListener('click', () => show(card));
 }
 
 function init(stage: HTMLElement) {
