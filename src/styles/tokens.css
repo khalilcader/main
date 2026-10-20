@@ -309,6 +309,8 @@
     --sheet-grabber-height: 5px;
     --mobile-bottom-pad: 64px;
     --mobile-col-gap: 12px;
+    --label-below-size: 15px;               /* phones: card titles, and the year under them (nothing under 13) */
+    --label-year-size: 13px;
     --viewer-blur: 24px;                    /* phones: the list behind a cover that's open full screen */
     --page-pad: 12px;                       /* phones: the same as between the columns, so covers stay as big as they can */
     --cover-radius-share: 0.11;             /* phones: a cover's corner, as a share of its width (the same on every cover) */
