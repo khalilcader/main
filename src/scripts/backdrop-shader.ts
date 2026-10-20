@@ -158,39 +158,53 @@ function rgb(css: string): number[] {
   return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
 }
 
-export function mountBackdrop(canvas: HTMLCanvasElement) {
-  const gl = canvas.getContext('webgl', { antialias: false, alpha: false, preserveDrawingBuffer: true });
-  // preserveDrawingBuffer: the shader draws at 30fps, and between draws the
-  // backdrop blurs above it (header scrim, label pills) would otherwise
-  // sample a cleared buffer and flash.
-  if (!gl) return null;  // no WebGL: the canvas's CSS background (the base tone) shows instead
-
+// One WebGL context for every cover. A dozen covers each with their own
+// context, under glass (backdrop filters), made the GPU drop and redraw
+// layers: covers flickered whenever another one changed. Each cover is a
+// plain 2D canvas; the shared context renders a frame and it is copied in.
+let shared: null | { canvas: HTMLCanvasElement; gl: WebGLRenderingContext; progs: Record<string, { prog: WebGLProgram; U: Record<string, WebGLUniformLocation | null> }> } = null;
+function getShared() {
+  if (shared) return shared;
+  const canvas = document.createElement('canvas');
+  const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
+  if (!gl) return null;
   const compile = (type: number, src: string) => {
-    const s = gl.createShader(type)!;
-    gl.shaderSource(s, src);
-    gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) || 'shader');
-    return s;
+    const sh = gl.createShader(type)!;
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh) || 'shader');
+    return sh;
   };
-  const prog = gl.createProgram()!;
-  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+  const vert = compile(gl.VERTEX_SHADER, VERT);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const progs: NonNullable<typeof shared>['progs'] = {};
+  for (const [kind, frag] of [['backdrop', FRAG], ['gradient', GRADIENT_FRAG]] as const) {
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, vert);
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) || 'link');
+    const U = Object.fromEntries(['uRes', 'uTime', 'uScale', 'uDeep', 'uBase', 'uLight', 'uAngle']
+      .map((n) => [n, gl.getUniformLocation(prog, n)]));
+    progs[kind] = { prog, U };
+  }
+  return (shared = { canvas, gl, progs });
+}
+
+export function mountBackdrop(canvas: HTMLCanvasElement) {
+  const sh = getShared();
+  const ctx = canvas.getContext('2d', { alpha: false });
+  if (!sh || !ctx) return null;  // no WebGL: the canvas's CSS background (the base tone) shows instead
+  const { gl } = sh;
   const kind = canvas.dataset.shader === 'gradient' ? 'gradient' : 'backdrop';
   const palette = canvas.dataset.palette;
   const tokens = kind === 'gradient' && palette && palette !== 'warm' ? `gradient-${palette}` : kind;
-  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, kind === 'gradient' ? GRADIENT_FRAG : FRAG));
-  gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) || 'link');
-  gl.useProgram(prog);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const { prog, U } = sh.progs[kind];
   const aPos = gl.getAttribLocation(prog, 'aPos');
-  gl.enableVertexAttribArray(aPos);
-  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-  const U = Object.fromEntries(['uRes', 'uTime', 'uScale', 'uDeep', 'uBase', 'uLight', 'uAngle']
-    .map((n) => [n, gl.getUniformLocation(prog, n)]));
+  const angle = (parseFloat(canvas.dataset.angle || '0') || 0) * Math.PI / 180;
+  let colors = { deep: [0, 0, 0], base: [0, 0, 0], light: [0, 0, 0] };
 
-  gl.uniform1f(U.uAngle, (parseFloat(canvas.dataset.angle || '0') || 0) * Math.PI / 180);
   let running = false, raf = 0, time = 40, last = 0, lastDraw = 0;
   const draw = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
@@ -198,17 +212,30 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
     const w = Math.max(1, Math.round(canvas.offsetWidth * dpr));
     const h = Math.max(1, Math.round(canvas.offsetHeight * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    const sc = sh.canvas;
+    if (sc.width < w || sc.height < h) { sc.width = Math.max(sc.width, w); sc.height = Math.max(sc.height, h); }
+    gl.useProgram(prog);
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
     gl.viewport(0, 0, w, h);
     gl.uniform2f(U.uRes, w, h);
     gl.uniform1f(U.uScale, dpr);
     gl.uniform1f(U.uTime, time);
+    gl.uniform1f(U.uAngle, angle);
+    gl.uniform3fv(U.uDeep, colors.deep);
+    gl.uniform3fv(U.uBase, colors.base);
+    gl.uniform3fv(U.uLight, colors.light);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // The viewport sits at the bottom left of the shared canvas (GL's origin).
+    ctx.drawImage(sc, 0, sc.height - h, w, h, 0, 0, w, h);
   };
   const applyColors = () => {
     const cs = getComputedStyle(canvas);
-    gl.uniform3fv(U.uDeep, rgb(cs.getPropertyValue(`--color-${tokens}-deep`)));
-    gl.uniform3fv(U.uBase, rgb(cs.getPropertyValue(`--color-${tokens}-base`)));
-    gl.uniform3fv(U.uLight, rgb(cs.getPropertyValue(`--color-${tokens}-light`)));
+    colors = {
+      deep: rgb(cs.getPropertyValue(`--color-${tokens}-deep`)),
+      base: rgb(cs.getPropertyValue(`--color-${tokens}-base`)),
+      light: rgb(cs.getPropertyValue(`--color-${tokens}-light`)),
+    };
     if (!running) draw();
   };
   const frame = (now: number) => {
