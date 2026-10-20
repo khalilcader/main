@@ -27,6 +27,7 @@ const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (n
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
 const HV_K = 600, HV_C = 44;         // hover lift: quick and smooth (ζ ≈ 0.9, no visible overshoot)
 const FOCUS_FADE = 2.2;
+const GRID_FOCUS_FADE = 4.5;         // the grid lightbox clears the header sooner: gone a fifth of the way in
 // Focus-mode spacing (experiment):
 //   'row'       a zoomed-in row: the row's gap scaled up with the covers, so
 //               neighbours sit right beside the open cover
@@ -1097,12 +1098,12 @@ function init(stage: HTMLElement) {
       }
     }
     // The header's frosted bar fades out as the lightbox comes in.
-    topScrim?.style.setProperty('--lb', String(bo));
+    topScrim?.style.setProperty('--lb', clamp(bo * GRID_FOCUS_FADE, 0, 1).toFixed(3));
     // The focus view is near full screen, so the name steps aside for it.
     // Focus mode (focus strip or grid lightbox): the name and the view controls
     // step aside, and a close button takes the name's place.
     const focusAmt = mode === 'row' ? pv : gridActive >= 0 ? gpv : 0;
-    const wo = Math.round((1 - clamp(focusAmt * FOCUS_FADE, 0, 1)) * 100) / 100;
+    const wo = Math.round((1 - clamp(focusAmt * (mode === 'row' ? FOCUS_FADE : GRID_FOCUS_FADE), 0, 1)) * 100) / 100;
     if (wo !== whoOpacity) { whoOpacity = wo; who.style.opacity = wo < 1 ? String(wo) : ''; who.style.visibility = wo < 0.01 ? 'hidden' : ''; }
     if (wo !== chromeLast) {
       chromeLast = wo;
