@@ -17,8 +17,14 @@ const { title = 'Khalil Cader', description = 'Khalil Cader, product designer.' 
     <!-- Before first paint: mark JS as available, and apply a pinned theme so it never flashes. -->
     <script is:inline>
       document.documentElement.classList.add('js');
+      // Phones get their own simple layout (a vertical list; see
+      // scripts/work-strip.ts). Crossing the breakpoint reloads into the other.
+      const phone = matchMedia('(max-width: 639px)');
+      if (phone.matches) document.documentElement.classList.add('mobile');
+      phone.addEventListener('change', () => location.reload());
       try {
-        const t = localStorage.getItem('theme');
+        // No theme switcher on phones: they follow the system.
+        const t = phone.matches ? null : localStorage.getItem('theme');
         if (t === 'light' || t === 'dark') document.documentElement.dataset.scheme = t;
       } catch (e) {}
     </script>

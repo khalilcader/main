@@ -115,6 +115,10 @@ const { tools = true } = Astro.props;
     pointer-events: none;
   }
   .site-header > * { pointer-events: auto; }
+  /* Phones: the header scrolls away with the list, and there's no theme or
+     view switcher (the theme follows the system). */
+  :global(html.mobile) .site-header { position: absolute; }
+  :global(html.mobile) #view-tools { display: none; }
   /* Grid view, scrolled: the header tucks up to sit 16px (its padding) from
      the top, over the frosted bar (WorkStrip.astro), leaving more room for
      the covers. Moved by top, not a transform: a transform would make the
