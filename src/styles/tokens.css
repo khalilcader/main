@@ -310,6 +310,7 @@
     --sheet-grabber-height: 5px;
     --mobile-bottom-pad: 64px;
     --mobile-col-gap: 12px;
+    --mobile-bar-blur: 50px;                /* phones: the frosted bar behind the sticky header */
     --label-below-size: 15px;               /* phones: card titles, and the year under them (nothing under 13) */
     --label-year-size: 13px;
     --label-below-gap: 8px;                 /* phones: titles closer to their covers */
