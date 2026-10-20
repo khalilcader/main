@@ -8,7 +8,7 @@ cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
   angle: 160
-  palette: ember
+  palette: fuchsia
   alt: The Figma app on an iPhone home screen, long-pressing its icon, choosing Change Icon, and picking a new app icon from a sheet
   video:
     webm: images/work/change-icon.webm
