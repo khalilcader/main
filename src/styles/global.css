@@ -91,6 +91,12 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   transition: opacity 0.15s ease-out;
 }
 html:not(.has-cursor) .cursor { display: none; }
+/* Safari can't apply the SVG lens to what's behind the bubble: a plain
+   frosted blur there instead (the halo over controls stays as it is). */
+html.safari .cursor:not(.halo) {
+  -webkit-backdrop-filter: blur(var(--cursor-safari-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--cursor-safari-blur)) saturate(var(--glass-saturate));
+}
 .cursor.shown { opacity: 1; }
 .cursor.halo {
   background: var(--color-cursor-halo);

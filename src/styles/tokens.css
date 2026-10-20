@@ -122,6 +122,7 @@
   /* Tooltips */
   --tip-gap: 8px;
   --cursor-size: 44px;                      /* custom cursor: the glass bubble */
+  --cursor-safari-blur: 6px;                /* Safari: the bubble's frosted blur, in place of the lens */
   --cursor-size-grow: 60px;                 /* ...over a card: a bigger lens on the work */
   --cursor-shadow: 0 0 0 1px var(--color-cursor-ring), 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 0 12px rgba(255, 255, 255, 0.12);
   --cursor-halo: 6px;                       /* over a control: how far the halo reaches past it */
