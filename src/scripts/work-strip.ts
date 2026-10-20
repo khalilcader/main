@@ -85,7 +85,7 @@ function initMobile(stage: HTMLElement) {
   const shape = (cover: HTMLElement) => {
     const w = cover.offsetWidth, h = cover.offsetHeight;
     if (!w || !h) return;
-    const r = Math.min(share * h, w / 2, h / 2);
+    const r = Math.min(share * w, w / 2, h / 2);   // a share of the width: every column is the same width, so every corner matches
     cover.style.clipPath = `path("${squirclePath(w, h, r, smooth)}")`;
     // The hairline sits wholly inside the clip (half a pixel in), so it's the
     // same weight all the way round rather than half cut off by it.
