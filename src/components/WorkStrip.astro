@@ -217,7 +217,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     opacity: 0; transition: opacity 0.3s ease-out;
   }
   :global(.js) .top-scrim { display: block; }
-  :global(html[data-grid-scrolled]) .top-scrim { opacity: 1; }
+  :global(html[data-grid-bar]) .top-scrim { opacity: 1; }
   .top-scrim::before {
     content: ""; position: absolute; inset: 0;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);

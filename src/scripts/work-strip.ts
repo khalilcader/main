@@ -280,7 +280,7 @@ function init(stage: HTMLElement) {
   // the grid they share a width, so there the corners match the narrowest
   // (portrait) cover's instead, or a wide cover would come out sharper. Each
   // cover eases between the two (cornerMix) as the view changes.
-  let lastGridScrolled = false;
+  let lastGridScrolled = false, lastGridBar = false;
   let cornerBase = 0, cornerSmoothing = 0.6, cornerBorder = 1, refAspect = 1;
   function updateCorners() {
     cornerBase = token('--cover-radius') / token('--row-height');
@@ -891,10 +891,13 @@ function init(stage: HTMLElement) {
     const gpv = clamp(gp.v, 0, 1), pv = clamp(p.v, 0, 1);
     const sc = reflow(), fb = mode === 'row' ? 1 - pv : 0;
     const [eL, eR] = edgeAmounts(pv), edgeZone = edges[0].offsetWidth || vw * 0.16;
-    // Grid view, scrolled: the header's scrim comes in (WorkStrip.astro),
-    // but not over a cover that's open, until it has settled back in.
-    const gridScrolled = mode === 'grid' && S.grid.pos > 2 && gridActive < 0;
+    // Grid view, scrolled: the header tucks up and stays put while covers
+    // open and close (so it and the close chip don't jump); its frosted bar
+    // (WorkStrip.astro) steps aside for an open cover until it settles back.
+    const gridScrolled = mode === 'grid' && S.grid.pos > 2;
     if (gridScrolled !== lastGridScrolled) { lastGridScrolled = gridScrolled; document.documentElement.toggleAttribute('data-grid-scrolled', gridScrolled); }
+    const gridBar = gridScrolled && gridActive < 0;
+    if (gridBar !== lastGridBar) { lastGridBar = gridBar; document.documentElement.toggleAttribute('data-grid-bar', gridBar); }
     const gmK = reduce ? 1 : 1 - Math.exp(-dt * 6);
     for (const c of cards) {
       c.gm += ((mode === 'grid' ? 1 : 0) - c.gm) * gmK;
