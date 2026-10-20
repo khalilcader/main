@@ -219,6 +219,9 @@
   --color-gradient-indigo-deep: #eff0f7;    /* top: pale periwinkle mist */
   --color-gradient-indigo-base: #e0e3f2;
   --color-gradient-indigo-light: #aab4df;   /* bottom: a soft periwinkle glow */
+  --color-gradient-linen-deep: #efede9;     /* top: Khalil's deck, warm off-white */
+  --color-gradient-linen-base: #e7e4df;
+  --color-gradient-linen-light: #cfcbc4;    /* bottom: a soft warm grey */
   --color-gradient-lagoon-deep: #eaf3f6;
   --color-gradient-lagoon-base: #d0e6ee;
   --color-gradient-lagoon-light: #5fb0c9;   /* bottom: a blue-teal glow */
@@ -366,6 +369,9 @@
     --color-gradient-iris-deep: #110f1d;
     --color-gradient-iris-base: #19162e;
     --color-gradient-iris-light: #352c78;
+    --color-gradient-linen-deep: #141413;
+    --color-gradient-linen-base: #1b1a18;
+    --color-gradient-linen-light: #34312d;
     --color-gradient-lagoon-deep: #0d1416;
     --color-gradient-lagoon-base: #122024;
     --color-gradient-lagoon-light: #1d4652;
@@ -490,6 +496,9 @@
   --color-gradient-iris-deep: #110f1d;
   --color-gradient-iris-base: #19162e;
   --color-gradient-iris-light: #352c78;
+  --color-gradient-linen-deep: #141413;
+  --color-gradient-linen-base: #1b1a18;
+  --color-gradient-linen-light: #34312d;
   --color-gradient-lagoon-deep: #0d1416;
   --color-gradient-lagoon-base: #122024;
   --color-gradient-lagoon-light: #1d4652;

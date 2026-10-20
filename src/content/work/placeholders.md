@@ -11,9 +11,9 @@ cover:
   palette: lagoon
   alt: A fresh FigJam file on desktop, hovering suggestions in a starter panel to preview placeholder layouts on the board, then filling in stickies
   video:
-    webm: images/work/placeholders.webm
-    mp4: images/work/placeholders.mp4
-    poster: images/work/placeholders.jpg
+    webm: images/work/placeholders-2.webm
+    mp4: images/work/placeholders-2.mp4
+    poster: images/work/placeholders-2.jpg
     start: 4
     device: desktop-mac
     rest: [0.4, 0.36, 1.3]   # thumbnail: the starter panel beside the placeholder stickies, the window's top-left corner in
