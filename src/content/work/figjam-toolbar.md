@@ -14,9 +14,9 @@ cover:
     webm: images/work/figjam-toolbar.webm
     mp4: images/work/figjam-toolbar.mp4
     poster: images/work/figjam-toolbar.jpg
-    start: 55
+    start: 11
     device: desktop
-    rest: [0.5, 0.62, 1.32]   # thumbnail: the board filled from the toolbar, backdrop below the window
+    rest: [0.5, 0.78, 2]   # thumbnail: the toolbar alone, the marker colours open
     # [seconds, x, y, zoom]
     camera:
       - [0, 0.5, 0.5, 1]
