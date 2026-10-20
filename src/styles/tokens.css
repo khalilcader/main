@@ -17,6 +17,7 @@
   --color-button-bg: rgba(255, 255, 255, 0.35);  /* glass: the blurred page shows through */
   --color-button-border: rgba(0, 0, 0, 0.11);
   --color-divider: rgba(0, 0, 0, 0.1);
+  --color-top-bar: color-mix(in srgb, var(--color-bg) 62%, transparent);   /* frosted bar behind the header (grid, scrolled) */
   --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
   --color-cursor-halo: rgba(0, 0, 0, 0.07);
   --color-cursor-ring: rgba(0, 0, 0, 0.1);    /* hairline round the glass bubble, so it reads on white */
@@ -150,7 +151,8 @@
   --close-inset: 40px;                      /* focus-mode close button, from the top-left corner */
   --tool-size: 30px;                        /* 40 tall: 4 + 30 + 4 + 1px border each side; tiles touch */
   --divider-height: 22px;                   /* between the close button and the focus title */
-  --top-scrim-height: calc(var(--header-top) + 220px);   /* grid view: the band behind the header once scrolled */
+  --top-bar-height: calc(var(--header-top) + 88px + 16px);   /* grid view, scrolled: frosted bar to 16px below the header */
+  --top-bar-blur: 50px;
   --top-scrim-grain: 0.12;
   --top-scrim-grain-filter: none;
   --close-height: 46px;                     /* focus mode's close + title bar: as tall as the card labels */
