@@ -295,6 +295,8 @@
 
 @media (max-width: 639px) {
   :root {
+    --mobile-card-gap: 40px;                /* phones: between covers in the list (title included) */
+    --mobile-bottom-pad: 64px;
     --header-top: 16px;
     --row-gap-below-header: 32px;
     --row-gap: 12px;

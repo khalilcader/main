@@ -53,7 +53,41 @@ type Rect = { x: number; y: number; w: number; h: number };
 type Scroll = { pos: number; vel: number; min: number; max: number; wheel: boolean; to: number | null; raw: number; wt: number; from: number | null; lastD: number; fading: number; coast: boolean };
 
 const stage = document.getElementById('stage');
-if (stage) init(stage);
+if (stage) (document.documentElement.classList.contains('mobile') ? initMobile : init)(stage);
+
+// Phones: a plain vertical list of covers at rest, titles under them, nothing
+// playing. Tapping one plays its recording in the system's own player (which
+// zooms out of the cover, and swipes away to close).
+function initMobile(stage: HTMLElement) {
+  shapeGlassFrames(stage);
+  mountCameras(stage);
+  for (const cv of stage.querySelectorAll<HTMLCanvasElement>('canvas[data-shader]')) {
+    try {
+      const sh = mountBackdrop(cv);
+      requestAnimationFrame(() => requestAnimationFrame(() => sh.setPaused(true)));   // one frame, then still
+    } catch (err) { console.warn('Backdrop shader failed', err); }
+  }
+  for (const card of stage.querySelectorAll<HTMLElement>('.card')) {
+    const v = card.querySelector('video');
+    if (!v) continue;
+    const done = () => {
+      v.pause(); v.controls = false; v.setAttribute('playsinline', '');
+      v.load();   // back to the poster (the thumbnail)
+    };
+    v.addEventListener('webkitendfullscreen', done);
+    v.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) done(); });
+    card.addEventListener('click', () => {
+      // Without playsinline an iPhone plays it full screen in its own player.
+      v.removeAttribute('playsinline'); v.controls = true; v.currentTime = 0;
+      v.play().catch(() => {});
+      const fs = v as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
+      try {
+        if (v.requestFullscreen && !fs.webkitEnterFullscreen) v.requestFullscreen().catch(() => {});
+        else fs.webkitEnterFullscreen?.();
+      } catch (err) { /* already going full screen */ }
+    });
+  }
+}
 
 function init(stage: HTMLElement) {
   const backdrop = document.getElementById('backdrop')!;

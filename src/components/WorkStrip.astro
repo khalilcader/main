@@ -83,6 +83,37 @@ const base = import.meta.env.BASE_URL;
     cursor: inherit;
   }
   :global(.js) .card :global(.cover) { border: 0; }
+  /* Phones (html.mobile, see Base.astro): a plain vertical list, each cover
+     full width at rest with its title and year under it. No shadows, no
+     autoplay; a tap plays it in the system's player (work-strip.ts). */
+  :global(html.mobile) .stage {
+    position: static; display: flex; flex-direction: column; gap: var(--mobile-card-gap);
+    overflow: visible; touch-action: auto; cursor: auto; user-select: auto; -webkit-user-select: auto;
+    padding: calc(env(safe-area-inset-top, 0px) + var(--header-top) + var(--header-pad) * 2 + var(--photo-height) + var(--row-gap-below-header)) var(--page-pad) var(--mobile-bottom-pad);
+  }
+  :global(html.mobile) .card {
+    position: relative; width: 100%; height: auto; aspect-ratio: auto;
+    transform: none !important; opacity: 1 !important; filter: none !important; visibility: visible !important;
+    will-change: auto; cursor: pointer;
+  }
+  :global(html.mobile) .card :global(.cover) {
+    position: relative; inset: auto; width: 100%; aspect-ratio: var(--aspect);
+    border: var(--cover-border-width) solid var(--color-cover-border); border-radius: var(--cover-radius);
+  }
+  :global(html.mobile) .card :global(.outline),
+  :global(html.mobile) .shadow, :global(html.mobile) .veil,
+  :global(html.mobile) .stills, :global(html.mobile) .backdrop, :global(html.mobile) .backdrop-grain,
+  :global(html.mobile) .edge, :global(html.mobile) .top-scrim { display: none; }
+  :global(html.mobile) .label {
+    position: static; display: block; transform: none; opacity: 1;
+    margin-top: var(--label-below-gap); padding: 0; border: 0; background: none;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    font-size: var(--label-below-size); text-align: center; white-space: normal;
+    --show: 1;
+  }
+  :global(html.mobile) .label > :global(.smooth-layer),
+  :global(html.mobile) .label > :global(.smooth-border),
+  :global(html.mobile) .label::before { display: none; }
   /* No focus ring: a focused cover lifts and shows its title, like hover (script). */
   .card:focus-visible { outline: none; }
 
