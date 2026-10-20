@@ -893,10 +893,10 @@ function init(stage: HTMLElement) {
     const [eL, eR] = edgeAmounts(pv), edgeZone = edges[0].offsetWidth || vw * 0.16;
     // Grid view, scrolled: the header tucks up and stays put while covers
     // open and close (so it and the close chip don't jump); its frosted bar
-    // (WorkStrip.astro) steps aside for an open cover until it settles back.
+    // (WorkStrip.astro) steps aside while a cover is open.
     const gridScrolled = mode === 'grid' && S.grid.pos > 2;
     if (gridScrolled !== lastGridScrolled) { lastGridScrolled = gridScrolled; document.documentElement.toggleAttribute('data-grid-scrolled', gridScrolled); }
-    const gridBar = gridScrolled && gridActive < 0;
+    const gridBar = gridScrolled && gridOpen < 0;   // back as soon as a cover starts closing
     if (gridBar !== lastGridBar) { lastGridBar = gridBar; document.documentElement.toggleAttribute('data-grid-bar', gridBar); }
     const gmK = reduce ? 1 : 1 - Math.exp(-dt * 6);
     for (const c of cards) {
