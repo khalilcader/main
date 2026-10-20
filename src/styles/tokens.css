@@ -302,7 +302,7 @@
     --sheet-radius: 28px;                   /* phones: the About sheet's top corners (edge to edge, flush with the bottom) */
     --sheet-text-size: clamp(16px, min(4.6vw, 2.5dvh), 18px);   /* 18px on most phones; a little less on the smallest */
     --sheet-job-size: 15px;
-    --sheet-scene-height: clamp(100px, calc(100dvh - 560px), 230px);   /* the picture: whatever height the screen spares, so the sheet always fits */
+    --sheet-scene-height: clamp(110px, calc(100dvh - 470px), 230px);   /* the picture: whatever height the screen spares, so the sheet always fits */
     --sheet-scene-top: 40px;                /* below the grab handle and close button */
     --sheet-body-top: 8px;                  /* the bio, under the picture's fade */
     --sheet-body-gap: 32px;                 /* bio to jobs */
