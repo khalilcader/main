@@ -96,7 +96,7 @@ function init(stage: HTMLElement) {
   // The covers' own layer (the grid lightbox blurs it as one), and the
   // header's frosted bar.
   const cardLayer = document.getElementById('cards')!;
-  const topScrim = stage.querySelector<HTMLElement>('.top-scrim');
+  const topScrim = document.querySelector<HTMLElement>('.top-scrim');
   let cardOut = -1, lbLast = -1;
   const cards = [...stage.querySelectorAll<HTMLElement>('.card')].map((el, i) => ({
     i, el, a: parseFloat(el.dataset.aspect || '1'),
@@ -1072,7 +1072,7 @@ function init(stage: HTMLElement) {
     }
     const lb = Math.round(bo * token('--backdrop-blur') * 2) / 2;
     if (lb !== lbLast) { lbLast = lb; cardLayer.style.filter = lb > 0 ? `blur(${lb}px)` : ''; }
-    // The header's frosted bar (inside the stage, under the tint) fades with it.
+    // The header's frosted bar fades out as the lightbox comes in.
     topScrim?.style.setProperty('--lb', String(bo));
     // The focus view is near full screen, so the name steps aside for it.
     // Focus mode (focus strip or grid lightbox): the name and the view controls
