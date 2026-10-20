@@ -5,7 +5,8 @@ Personal portfolio site for Khalil Cader, a product designer. The design is done
 ## Stack
 - Astro (static site), plain CSS. No CSS framework, no UI library.
 - Case studies are markdown files in `src/content/work/` (schema in `src/content.config.ts`).
-- Deploys to GitHub Pages via `.github/workflows/deploy.yml` on every push to `main`.
+- Deploys to GitHub Pages via `.github/workflows/deploy.yml` on every push to `main` (khalilcader.github.io/main). Moving to Vercel on Khalil's own domain: there, set the `SITE` env var to the domain (link previews and canonical URLs use it); `BASE` stays unset (`/`).
+- Case-study pages are shelved: `src/pages/work/_[slug].astro` (the underscore keeps Astro from building it). Rename it back to `[slug].astro` once the write-ups are real.
 
 ## Working from Figma
 - Figma is the source of truth. Match spacing, type, and color exactly; if the design is ambiguous, ask instead of guessing.
