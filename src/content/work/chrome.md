@@ -11,9 +11,9 @@ cover:
   palette: cobalt
   alt: Chrome on iPhone, pulling down to refresh, opening the menu and switching tabs
   video:
-    webm: images/work/chrome-2.webm
-    mp4: images/work/chrome-2.mp4
-    poster: images/work/chrome-2.jpg
+    webm: images/work/chrome-3.webm
+    mp4: images/work/chrome-3.mp4
+    poster: images/work/chrome-3.jpg
     start: 18.5
     device: iphone-recorded
     rest: [0.5, 0.36, 1.25]   # thumbnail: the tab switcher's grid of tabs
