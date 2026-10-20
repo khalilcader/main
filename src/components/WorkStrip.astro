@@ -37,7 +37,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
 <div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <!-- Grid view: protects the header once the covers scroll under it. -->
-<div class="top-scrim" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="top-scrim" aria-hidden="true"><i></i><i></i><i></i></div>
 
 <script>
   import '../scripts/work-strip';
@@ -222,14 +222,13 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   }
   :global(html[data-grid-scrolled]) .top-scrim i, :global(html[data-grid-scrolled]) .top-scrim::after { opacity: 1; }
   .top-scrim i { -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
-  .top-scrim i:nth-child(1) { --b: 1px; bottom: 0.0%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
-  .top-scrim i:nth-child(2) { --b: 2px; bottom: 12.5%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
-  .top-scrim i:nth-child(3) { --b: 3px; bottom: 25.0%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
-  .top-scrim i:nth-child(4) { --b: 5px; bottom: 37.5%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
-  .top-scrim i:nth-child(5) { --b: 8px; bottom: 50.0%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
-  .top-scrim i:nth-child(6) { --b: 12px; bottom: 62.5%; height: 37.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
-  .top-scrim i:nth-child(7) { --b: 18px; bottom: 75%; height: 25%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 50%, #000 100%); mask-image: linear-gradient(to top, transparent 0%, #000 50%, #000 100%); }
-  .top-scrim i:nth-child(8) { --b: 24px; bottom: 87.5%; height: 12.5%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 100%); mask-image: linear-gradient(to top, transparent 0%, #000 100%); }
+  /* Three blur steps, not eight: each backdrop-filtered layer re-blurs
+     everything under it every frame, and eight of them full width over the
+     grid's videos and shaders made the page flicker. Overlapping eased masks
+     keep the steps from showing. */
+  .top-scrim i:nth-child(1) { --b: 3px; bottom: 0; height: 60%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 70%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 70%, transparent 100%); }
+  .top-scrim i:nth-child(2) { --b: 9px; bottom: 30%; height: 50%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 70%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 70%, transparent 100%); }
+  .top-scrim i:nth-child(3) { --b: 18px; bottom: 58%; height: 42%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 55%, #000 100%); mask-image: linear-gradient(to top, transparent 0%, #000 55%, #000 100%); }
   .top-scrim::after {
     content: ""; top: 0; bottom: 0;
     background: linear-gradient(color-mix(in srgb, var(--color-bg) 78%, transparent) 0%, color-mix(in srgb, var(--color-bg) 78%, transparent) 10%, color-mix(in srgb, var(--color-bg) 67%, transparent) 20%, color-mix(in srgb, var(--color-bg) 55%, transparent) 30%, color-mix(in srgb, var(--color-bg) 44%, transparent) 40%, color-mix(in srgb, var(--color-bg) 33%, transparent) 50%, color-mix(in srgb, var(--color-bg) 24%, transparent) 60%, color-mix(in srgb, var(--color-bg) 15%, transparent) 70%, color-mix(in srgb, var(--color-bg) 8%, transparent) 80%, color-mix(in srgb, var(--color-bg) 3%, transparent) 90%, color-mix(in srgb, var(--color-bg) 0%, transparent) 100%);
