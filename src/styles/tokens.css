@@ -299,11 +299,12 @@
   :root {
     --mobile-card-gap: 28px;                /* phones: between covers in the list (title included) */
     --sheet-inset: 8px;                     /* phones: the About sheet, off the screen's edges */
-    --sheet-height: 640px;
-    --sheet-text-size: clamp(16px, 2.45dvh, 20px);   /* as big as the sheet's height allows */
-    --sheet-scene-height: 180px;
+    --sheet-height: 760px;                  /* tall enough that the whole bio and jobs fit without scrolling */
+    --sheet-text-size: clamp(16px, min(4.6vw, 2.5dvh), 18px);   /* 18px on most phones; a little less on the smallest */
+    --sheet-job-size: 15px;
+    --sheet-scene-height: clamp(100px, 20dvh, 180px);   /* smaller on short screens so the jobs fit */
     --sheet-pad: 28px;                      /* copy inset from the sheet's sides */
-    --sheet-top-gap: 64px;                  /* at least this much page shows above it */
+    --sheet-top-gap: 48px;                  /* at least this much page shows above it */
     --sheet-grabber-top: 8px;
     --sheet-grabber-width: 36px;
     --sheet-grabber-height: 5px;
@@ -311,6 +312,7 @@
     --mobile-col-gap: 12px;
     --label-below-size: 15px;               /* phones: card titles, and the year under them (nothing under 13) */
     --label-year-size: 13px;
+    --label-below-gap: 8px;                 /* phones: titles closer to their covers */
     --viewer-blur: 24px;                    /* phones: the list behind a cover that's open full screen */
     --page-pad: 12px;                       /* phones: the same as between the columns, so covers stay as big as they can */
     --cover-radius-share: 0.11;             /* phones: a cover's corner, as a share of its width (the same on every cover) */
