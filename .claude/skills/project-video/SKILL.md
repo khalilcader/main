@@ -52,7 +52,10 @@ of them more than once.
 - Never let the bezel run along the cover's edges, and never let the bottom
   of the phone touch the cover's bottom edge. Every shot is one of two kinds:
   the device with backdrop around it (below it too), or pushed in far enough
-  that the screen alone fills the cover. No in-between holds.
+  that the screen alone fills the cover with app content clear of the edges.
+  Khalil dislikes UI (cards, bubbles) cut by the cover's edges, so when the
+  app's cards span the screen, stay on the device-with-backdrop shot and get
+  motion from gentle drifts in zoom and position instead.
 - The thumbnail (`rest`) is the frame Khalil names (a timestamp or a photo):
   match it exactly, including how much backdrop shows.
 
