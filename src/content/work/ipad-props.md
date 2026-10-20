@@ -3,7 +3,7 @@ title: iPad Props
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2023"
-order: 17
+order: 7
 cover:
   aspect: 1.25   # 771 × 617: wide, for landscape footage
   shader: gradient

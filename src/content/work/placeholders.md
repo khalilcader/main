@@ -3,7 +3,7 @@ title: Placeholders
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2022"
-order: 22
+order: 19
 cover:
   aspect: 1.25   # 771 × 617: wide, for desktop
   shader: gradient

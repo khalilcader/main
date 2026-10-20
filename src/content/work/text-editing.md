@@ -3,7 +3,7 @@ title: Text Editing
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2023"
-order: 19
+order: 99
 hidden: true   # shelved for now; delete this line to bring it back
 cover:
   aspect: 1.25   # 771 × 617: wide, for the iPad
