@@ -50,7 +50,7 @@ const FLING_D = 230;                 // focused cover: drag this far (or flick) 
 const FIGMA_ROW_H = 617, FIGMA_VH = 1024, FIGMA_BELOW = 183;  // row height, frame height, space under the row
 
 type Rect = { x: number; y: number; w: number; h: number };
-type Scroll = { pos: number; vel: number; min: number; max: number; wheel: boolean; to: number | null; raw: number; wt: number; from: number | null; lastD: number; fading: number; coast: boolean };
+type Scroll = { pos: number; vel: number; min: number; max: number; wheel: boolean; to: number | null; raw: number; wt: number; from: number | null; lastD: number; fading: number; coast: boolean; goal: number | null };
 
 const stage = document.getElementById('stage');
 if (stage) (document.documentElement.classList.contains('mobile') ? initMobile : init)(stage);
@@ -397,7 +397,7 @@ function init(stage: HTMLElement) {
   const p = new Spring(0);          // row -> focus progress
   const gp = new Spring(0);         // grid lightbox progress
   let anchor = 0, gridOpen = -1, gridActive = -1, pull = 0;
-  const mk = (): Scroll => ({ pos: 0, vel: 0, min: 0, max: 0, wheel: false, to: null, raw: 0, wt: 0, from: null, lastD: 0, fading: 0, coast: false });
+  const mk = (): Scroll => ({ pos: 0, vel: 0, min: 0, max: 0, wheel: false, to: null, raw: 0, wt: 0, from: null, lastD: 0, fading: 0, coast: false, goal: null });
   const S = { row: mk(), big: mk(), grid: mk() };
   let vw = 0, vh = 0, pad = 16, rowGap = 24, focusGap = 24, gridTop = 0, dragDist = 0;
   let simT = 0;
@@ -483,7 +483,7 @@ function init(stage: HTMLElement) {
     }
     updateCorners();
     shapeGlassFrames(stage);
-    for (const s of Object.values(S)) { s.pos = clamp(s.pos, s.min, s.max); s.to = null; }
+    for (const s of Object.values(S)) { s.pos = clamp(s.pos, s.min, s.max); s.to = null; s.goal = null; }
   }
 
   // Cover shadow sizes [rest y, rest blur, lifted y, lifted blur] at row size.
@@ -879,8 +879,12 @@ function init(stage: HTMLElement) {
     s.lastD = d;
     clearTimeout(s.wt); s.wt = window.setTimeout(() => { s.wheel = false; s.coast = false; s.lastD = 0; s.fading = 0; }, 140);
     if (s.coast || (out && s.fading >= 3)) { s.coast = true; s.wheel = false; return; }
-    if (!s.wheel) s.raw = unrubberClamp(s.pos, s, rubberDim(s));
-    s.raw += d; s.pos = rubberClamp(s.raw, s, rubberDim(s));
+    if (!s.wheel) s.raw = unrubberClamp(s.goal ?? s.pos, s, rubberDim(s));
+    // The scroll eases toward where the wheel has got to, every frame, rather
+    // than jumping there on each event: a trackpad sends ~60 events a second,
+    // a ProMotion screen draws 120, so jumping moved some frames twice and
+    // others not at all, and read as finicky.
+    s.raw += d; s.goal = rubberClamp(s.raw, s, rubberDim(s));
     s.vel = 0; s.to = null; s.from = null; s.wheel = true;
   }, { passive: false });
 
@@ -999,6 +1003,14 @@ function init(stage: HTMLElement) {
     return Math.sign(v) * (u / a - (b / a) * T);
   }
   function stepScroll(s: Scroll, dt: number) {
+    // A drag, a keyboard step or a snap takes over from the wheel's easing.
+    if (s.goal != null && (s.to != null || (ptr && ptr.kind === 'scroll' && ptr.s === s))) s.goal = null;
+    if (s.goal != null) {
+      const k = reduce ? 1 : 1 - Math.exp(-dt * 28);   // catches up within a couple of frames
+      s.pos += (s.goal - s.pos) * k;
+      if (!s.wheel && Math.abs(s.goal - s.pos) < 0.3) { s.pos = s.goal; s.goal = null; }
+      if (s.wheel || s.goal != null) return;
+    }
     if ((ptr && ptr.kind === 'scroll' && ptr.s === s) || s.wheel) return;
     const fn = snapFn(s);
     if (fn && s.to == null) {
@@ -1047,7 +1059,7 @@ function init(stage: HTMLElement) {
   const still = (sp: Spring, e: number) => sp.near(e);
   function atRest(now: number) {
     if (ptr) return false;
-    for (const s of [S.row, S.big, S.grid]) if (s.wheel || s.to != null || s.vel || s.pos < s.min || s.pos > s.max) return false;
+    for (const s of [S.row, S.big, S.grid]) if (s.wheel || s.goal != null || s.to != null || s.vel || s.pos < s.min || s.pos > s.max) return false;
     if (!still(p, 1e-4) || !still(gp, 1e-4)) return false;   // these scale whole covers
     for (const c of cards) {
       if (now < c.delay || !c.follow && !c.held) return false;
