@@ -10,7 +10,7 @@ interface Props {
   poster: string;
   start?: number;   // seconds; the frame the cover rests on
   camera?: [number, number, number, number][];   // see scripts/camera.ts
-  device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop' | 'desktop-wide' | 'film';
+  device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop' | 'desktop-wide' | 'desktop-mac' | 'film';
   rest?: [number, number, number];   // see scripts/camera.ts
 }
 const DEVICES = {
@@ -26,6 +26,8 @@ const DEVICES = {
   desktop: { src: '', w: 1600, h: 1000, x0: 0, y0: 0, x1: 1600, y1: 1000, r: 0 },
   // The same for a 16:9 recording (cropped into 16:10 it lost its sides).
   'desktop-wide': { src: '', w: 1600, h: 900, x0: 0, y0: 0, x1: 1600, y1: 900, r: 0 },
+  // And a Mac app window recorded whole, title bar included (about 3:2).
+  'desktop-mac': { src: '', w: 1600, h: 1050, x0: 0, y0: 0, x1: 1600, y1: 1050, r: 0 },
   // No frame: filmed footage (16:9), a plain picture with soft round corners.
   film: { src: '', w: 1600, h: 900, x0: 0, y0: 0, x1: 1600, y1: 900, r: 0 },
 };
@@ -41,7 +43,7 @@ const shape = [
 ].join('; ');
 ---
 <div class="glass-frame" data-device={device} style={shape} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
-  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
+  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
          video decoder and its frames in GPU memory. -->
@@ -52,7 +54,7 @@ const shape = [
   </div>
   {d.src && <img class="device" src={frame} alt="" width={d.w} height={d.h} draggable="false" />}
   <!-- Desktop: the window's outer border, the same smoothed outer border as the controls. -->
-  {(device === 'desktop' || device === 'desktop-wide') && <div class="window-edge" data-smooth="surface" aria-hidden="true"></div>}
+  {(device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac') && <div class="window-edge" data-smooth="surface" aria-hidden="true"></div>}
 </div>
 
 <style>
@@ -62,10 +64,10 @@ const shape = [
     filter: drop-shadow(var(--device-shadow));
   }
   /* Landscape devices are sized by width instead. */
-  .glass-frame[data-device="ipad"], .glass-frame[data-device="desktop"], .glass-frame[data-device="desktop-wide"], .glass-frame[data-device="film"] { height: auto; width: var(--device-width-landscape); }
+  .glass-frame[data-device="ipad"], .glass-frame[data-device="desktop"], .glass-frame[data-device="desktop-wide"], .glass-frame[data-device="desktop-mac"], .glass-frame[data-device="film"] { height: auto; width: var(--device-width-landscape); }
   /* Desktop: the recording itself as a window, with smoothed corners, a
      hairline border and the device's soft shadow (on the frame, outside the clip). */
-  .glass-frame[data-device="desktop"] .screen, .glass-frame[data-device="desktop-wide"] .screen {
+  .glass-frame[data-device="desktop"] .screen, .glass-frame[data-device="desktop-wide"] .screen, .glass-frame[data-device="desktop-mac"] .screen {
     inset: 0; background: var(--color-cover-bg);
     border-radius: var(--desktop-radius);   /* smoothed by the clip (smooth-corners.ts) */
   }
