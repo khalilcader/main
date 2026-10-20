@@ -15,28 +15,18 @@ cover:
     mp4: images/work/research-4.mp4
     poster: images/work/research-4.jpg
     start: 9
-    rest: [0.5, 0.6, 1.3]   # thumbnail (framing A): searching Slack at 0:28, backdrop below the phone
-    # [seconds, x, y, zoom]: starts on the thumbnail framing, then pushes in on
-    # the tool calls (Slack, Calendar, Gmail, Drive) with the bottom bar out of
-    # frame, eases back for the summary and the tap, and returns to the
-    # thumbnail framing for the loop. Centred; never high enough to show the
-    # app's top bar.
+    rest: [0.5, 0.612, 1.25]   # thumbnail (framing A): searching Slack at 0:28, backdrop below the phone
+    # [seconds, x, y, zoom]: only two shots, so the frame never sits halfway:
+    # the whole lower phone with teal below it (the thumbnail), or pushed in
+    # until the screen fills the cover (no bezel along its edges). Never high
+    # enough to show the app's top bar.
     camera:
-      - [0, 0.5, 0.6, 1.3]
-      - [3.5, 0.5, 0.6, 1.3]
-      - [5.5, 0.5, 0.5, 1.75]      # searching Slack
-      - [12.0, 0.5, 0.5, 1.75]
-      - [13.5, 0.5, 0.52, 1.65]    # Calendar
-      - [19.5, 0.5, 0.52, 1.65]
-      - [21.0, 0.5, 0.5, 1.75]     # Gmail
-      - [27.5, 0.5, 0.5, 1.75]
-      - [29.0, 0.5, 0.52, 1.65]    # Drive
-      - [33.0, 0.5, 0.52, 1.65]
-      - [34.5, 0.5, 0.58, 1.4]     # done; the summary streams in
-      - [40.5, 0.5, 0.58, 1.4]
-      - [41.3, 0.5, 0.55, 1.6]     # tap Worked for 10 minutes; the sheet opens
-      - [42.6, 0.5, 0.55, 1.6]
-      - [43.4, 0.5, 0.6, 1.3]
+      - [0, 0.5, 0.612, 1.25]
+      - [3.5, 0.5, 0.612, 1.25]
+      - [5.0, 0.5, 0.5, 1.9]       # in on the tool calls: Slack, Calendar, Gmail, Drive
+      - [33.0, 0.5, 0.5, 1.9]
+      - [34.5, 0.5, 0.612, 1.25]      # out for the summary
+      - [43.4, 0.5, 0.612, 1.25]      # and the tap that opens its steps
 ---
 
 Placeholder case study.

@@ -49,8 +49,10 @@ of them more than once.
   static for long, never jittery. Keep the phone centred horizontally.
 - Never show the app's top bar or the top of the phone when Khalil says the
   action is lower down; check every keyframe, not just the thumbnail.
-- When the cover is zoomed, still leave backdrop padding below the device so
-  it doesn't run off the bottom of the cover, and some backdrop either side.
+- Never let the bezel run along the cover's edges, and never let the bottom
+  of the phone touch the cover's bottom edge. Every shot is one of two kinds:
+  the device with backdrop around it (below it too), or pushed in far enough
+  that the screen alone fills the cover. No in-between holds.
 - The thumbnail (`rest`) is the frame Khalil names (a timestamp or a photo):
   match it exactly, including how much backdrop shows.
 
