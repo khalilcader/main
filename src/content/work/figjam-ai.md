@@ -3,7 +3,7 @@ title: FigJam AI
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2023"
-order: 12
+order: 8
 cover:
   aspect: 1.25   # 771 × 617: wide, for desktop
   shader: gradient
