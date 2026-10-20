@@ -299,7 +299,7 @@
 @media (max-width: 639px) {
   :root {
     --mobile-card-gap: 28px;                /* phones: between covers in the list (title included) */
-    --sheet-inset: 8px;                     /* phones: the About sheet, off the screen's edges */
+    --sheet-radius: 28px;                   /* phones: the About sheet's top corners (edge to edge, flush with the bottom) */
     --sheet-text-size: clamp(16px, min(4.6vw, 2.5dvh), 18px);   /* 18px on most phones; a little less on the smallest */
     --sheet-job-size: 15px;
     --sheet-scene-height: clamp(100px, calc(100dvh - 560px), 230px);   /* the picture: whatever height the screen spares, so the sheet always fits */
