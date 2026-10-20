@@ -322,16 +322,14 @@ const base = import.meta.env.BASE_URL;
     display: none;
     position: fixed; left: 0; right: 0; top: 0; z-index: 25; pointer-events: none;
     height: calc(env(safe-area-inset-top, 0px) + var(--top-bar-height));
-    background: var(--color-bg);   /* desktop: solid, like the page: nothing to redraw as covers scroll under it */
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(var(--top-bar-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--top-bar-blur)) saturate(var(--glass-saturate));
     border-bottom: 1px solid var(--color-divider);
     opacity: 0; transition: opacity 0.3s ease-out;
   }
-  /* Phones: frosted, the list blurred under it (still covers, so cheap there). */
-  :global(html.mobile) .top-scrim {
-    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
-    -webkit-backdrop-filter: blur(var(--mobile-bar-blur)) saturate(var(--glass-saturate));
-    backdrop-filter: blur(var(--mobile-bar-blur)) saturate(var(--glass-saturate));
-  }
+  /* Safari: a near-solid tint instead (it redraws live blurs slowly). */
+  :global(html.safari:not(.mobile)) .top-scrim { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--color-bg) 96%, transparent); }
   :global(.js) .top-scrim { display: block; }
   :global(html[data-grid-scrolled]) .top-scrim { opacity: calc(1 - var(--lb, 0)); }   /* fades out as a cover opens */
   :global(html[data-focus]) .top-scrim { transition: none; }   /* following the cover, not lagging behind it */

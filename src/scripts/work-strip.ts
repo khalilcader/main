@@ -27,6 +27,7 @@ const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (n
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
 const HV_K = 600, HV_C = 44;         // hover lift: quick and smooth (ζ ≈ 0.9, no visible overshoot)
 const FOCUS_FADE = 2.2;
+const HOVER_PLAY_DELAY = 180;       // ms the cursor rests on a cover before it plays
 // Safari redraws blurs and blended layers far more slowly than Chrome; it
 // gets a lighter version of the same look (html.safari, WorkStrip.astro).
 const SAFARI = /^((?!chrome|chromium|crios|fxios|android).)*safari/i.test(navigator.userAgent);
@@ -342,7 +343,7 @@ function init(stage: HTMLElement) {
     v.querySelectorAll('source').forEach((s) => { if (s.getAttribute('src')) { s.dataset.src = s.getAttribute('src')!; s.removeAttribute('src'); } });
     v.load();
   };
-  let hovered = -1;
+  let hovered = -1, hoverSince = 0, lastScrollAt = 0;
   // The card with keyboard focus, tracked by events: asking :focus-visible every
   // frame forced a style recalculation per card per frame.
   let keyFocused = -1;
@@ -355,7 +356,7 @@ function init(stage: HTMLElement) {
     if (c.video) restOn(c.video);
     const scr = c.video?.parentElement;
     c.posterBehind = !!scr && getComputedStyle(scr).backgroundImage !== 'none';
-    c.el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hovered = c.i; });
+    c.el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { hovered = c.i; hoverSince = performance.now(); setTimeout(wake, HOVER_PLAY_DELAY + 20); } });
     c.el.addEventListener('pointerleave', () => { if (hovered === c.i) hovered = -1; });
   }
   // Backdrop shaders follow the same rule (still otherwise, which saves the
@@ -365,9 +366,19 @@ function init(stage: HTMLElement) {
     // In focus, the card at the centre plays (it changes as you swipe), not
     // the one first opened.
     const centred = mode === 'row' && p.t >= 0.5 ? nearest(centerBig, S.big.pos) : -1;
+    const moving = (s: Scroll) => s.wheel || s.goal != null || Math.abs(s.vel) > 5 || (ptr?.kind === 'scroll' && ptr.s === s);
+    const now = performance.now();
+    if (moving(mode === 'grid' ? S.grid : S.row)) lastScrollAt = now;
+    // Rested: the cursor has been on this cover, with nothing scrolling, a moment.
+    const rested = now - Math.max(hoverSince, lastScrollAt) > HOVER_PLAY_DELAY;
     for (const c of cards) {
       const open = mode === 'row' ? c.i === centred : c.i === gridOpen;
-      const hover = c.i === hovered && !reduce && !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
+      // Hover plays only once the cursor has rested on a cover and nothing is
+      // scrolling: scrolling slid covers under a still cursor, starting and
+      // tearing down a video each, dozens a second, and Chrome dropped frames.
+      // One already playing carries on while it stays under the cursor.
+      const hover = c.i === hovered && !reduce && !ptr && (c.playing || rested)
+        && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const want = open || hover;
       c.shader?.setPaused(!want || c.dimmed);
       if (!c.video || want === c.playing) continue;
