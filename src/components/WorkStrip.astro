@@ -93,6 +93,7 @@ const base = import.meta.env.BASE_URL;
     padding: calc(env(safe-area-inset-top, 0px) + var(--header-top) + var(--header-pad) * 2 + var(--photo-height) + var(--row-gap-below-header)) var(--page-pad) var(--mobile-bottom-pad);
   }
   :global(html.mobile) .card {
+    container-type: inline-size;
     position: relative; width: 100%; height: auto; aspect-ratio: auto;
     transform: none !important; opacity: 1 !important; filter: none !important; visibility: visible !important;
     will-change: auto; cursor: pointer;
@@ -105,7 +106,7 @@ const base = import.meta.env.BASE_URL;
   :global(html.mobile) .card[data-wide] { grid-column: span 2; }
   :global(html.mobile) .card :global(.cover) {
     position: relative; inset: auto; width: 100%; aspect-ratio: var(--aspect);
-    border: var(--cover-border-width) solid var(--color-cover-border); border-radius: var(--cover-radius);
+    border: var(--cover-border-width) solid var(--color-cover-border); border-radius: calc(var(--cover-radius-share) * 100cqw / var(--aspect));   /* in proportion to the cover, as on desktop */
   }
   :global(html.mobile) .card :global(.outline),
   :global(html.mobile) .shadow, :global(html.mobile) .veil,
