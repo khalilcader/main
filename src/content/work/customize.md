@@ -8,7 +8,7 @@ cover:
   aspect: 1.25   # 771 × 617: wide, for the iPad
   shader: gradient
   angle: 220
-  palette: lemon
+  palette: lilac
   alt: FigJam on iPad, opening Customize toolbar from the plus menu, dragging tools out of the toolbar and a table into it
   video:
     webm: images/work/customize.webm
