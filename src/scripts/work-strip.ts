@@ -891,13 +891,15 @@ function init(stage: HTMLElement) {
     const gpv = clamp(gp.v, 0, 1), pv = clamp(p.v, 0, 1);
     const sc = reflow(), fb = mode === 'row' ? 1 - pv : 0;
     const [eL, eR] = edgeAmounts(pv), edgeZone = edges[0].offsetWidth || vw * 0.16;
-    // Grid view, scrolled: the header tucks up and stays put while covers
-    // open and close (so it and the close chip don't jump); its frosted bar
-    // (WorkStrip.astro) steps aside while a cover is open.
+    // Grid view, scrolled: the header tucks up and its frosted bar
+    // (WorkStrip.astro) comes in; both stay put while covers open and close.
+    // An open cover lifts the whole stage (cover and tint) over the bar rather
+    // than fading the bar out: animating a 50px backdrop blur's opacity over
+    // moving covers flickered. It drops back as soon as the cover closes.
     const gridScrolled = mode === 'grid' && S.grid.pos > 2;
     if (gridScrolled !== lastGridScrolled) { lastGridScrolled = gridScrolled; document.documentElement.toggleAttribute('data-grid-scrolled', gridScrolled); }
-    const gridBar = gridScrolled && gridOpen < 0;   // back as soon as a cover starts closing
-    if (gridBar !== lastGridBar) { lastGridBar = gridBar; document.documentElement.toggleAttribute('data-grid-bar', gridBar); }
+    const lifted = mode === 'grid' && gridOpen >= 0;
+    if (lifted !== lastGridBar) { lastGridBar = lifted; document.documentElement.toggleAttribute('data-grid-open', lifted); }
     const gmK = reduce ? 1 : 1 - Math.exp(-dt * 6);
     for (const c of cards) {
       c.gm += ((mode === 'grid' ? 1 : 0) - c.gm) * gmK;
