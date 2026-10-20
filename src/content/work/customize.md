@@ -3,7 +3,7 @@ title: Customize
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2023"
-order: 10
+order: 11
 cover:
   aspect: 1.25   # 771 × 617: wide, for the iPad
   shader: gradient

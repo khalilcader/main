@@ -26,6 +26,7 @@ const base = import.meta.env.BASE_URL;
       data-cursor-grow
       data-i={i}
       data-slug={item.id}
+      data-wide={item.data.cover.aspect > 1 ? '' : undefined}
       data-still={still(item.id) ? [still(item.id).l, still(item.id).t, still(item.id).w, still(item.id).h].join(',') : undefined}
       data-aspect={item.data.cover.aspect}
       aria-label={`${item.data.title}. ${item.data.cover.alt}`}
@@ -92,18 +93,25 @@ const base = import.meta.env.BASE_URL;
     padding: calc(env(safe-area-inset-top, 0px) + var(--header-top) + var(--header-pad) * 2 + var(--photo-height) + var(--row-gap-below-header)) var(--page-pad) var(--mobile-bottom-pad);
   }
   :global(html.mobile) .card {
+    container-type: inline-size;
     position: relative; width: 100%; height: auto; aspect-ratio: auto;
     transform: none !important; opacity: 1 !important; filter: none !important; visibility: visible !important;
     will-change: auto; cursor: pointer;
   }
+  /* Two columns: landscape covers (iPad, desktop) span both, phone covers
+     sit in pairs, packed densely so no gaps are left. */
+  :global(html.mobile) .stage {
+    display: grid; grid-template-columns: 1fr 1fr; grid-auto-flow: dense; column-gap: var(--mobile-col-gap);
+  }
+  :global(html.mobile) .card[data-wide] { grid-column: span 2; }
   :global(html.mobile) .card :global(.cover) {
     position: relative; inset: auto; width: 100%; aspect-ratio: var(--aspect);
-    border: var(--cover-border-width) solid var(--color-cover-border); border-radius: var(--cover-radius);
+    border: var(--cover-border-width) solid var(--color-cover-border); border-radius: calc(var(--cover-radius-share) * 100cqw / var(--aspect));   /* in proportion to the cover, as on desktop */
   }
   :global(html.mobile) .card :global(.outline),
   :global(html.mobile) .shadow, :global(html.mobile) .veil,
   :global(html.mobile) .stills, :global(html.mobile) .backdrop, :global(html.mobile) .backdrop-grain,
-  :global(html.mobile) .edge, :global(html.mobile) .top-scrim { display: none; }
+  :global(html.mobile) .edge { display: none; }
   :global(html.mobile) .label {
     position: static; display: block; transform: none; opacity: 1;
     margin-top: var(--label-below-gap); padding: 0; border: 0; background: none;

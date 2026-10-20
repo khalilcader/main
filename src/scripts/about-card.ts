@@ -30,6 +30,9 @@ const avatar = who?.querySelector<HTMLElement>('.photo');
 
 if (dialog && card && scrim && grain && closeBtn && who && avatar) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Phones: a bottom sheet instead, sliding up from the bottom edge and
+  // dragged down to dismiss (the card's styles change with it, AboutCard.astro).
+  const sheet = document.documentElement.classList.contains('mobile');
   let state: 'closed' | 'opening' | 'open' | 'closing' = 'closed';
   let anims: Animation[] = [];
 
@@ -42,6 +45,14 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
   type Geo = { dx: number; dy: number; sx: number; sy: number };
   let geo: Geo = { dx: 0, dy: 0, sx: 1, sy: 1 };
   function ends(): { small: State; big: State } {
+    if (sheet) {
+      const g = String(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scrim-grain')) || 0);
+      const off = card!.offsetHeight + 40;
+      return {
+        small: { card: { transform: `translateY(${off}px)` }, faces: {}, scrim: { opacity: 0 }, grain: { opacity: 0 } },
+        big: { card: { transform: 'translateY(0px)' }, faces: {}, scrim: { opacity: 1 }, grain: { opacity: g } },
+      };
+    }
     const a = avatar!.getBoundingClientRect();
     card!.style.transform = 'none';
     const c = card!.getBoundingClientRect();
@@ -80,10 +91,10 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
 
   // Animate to one end with the same ease-out either way, starting from wherever
   // the card is now (so an interrupted open or close turns around smoothly).
-  function animateTo(to: 'small' | 'big') {
+  function animateTo(to: 'small' | 'big', fromNow = false) {
     const e = ends();
     let from = to === 'big' ? e.small : e.big;
-    if (anims.length) {
+    if (anims.length || fromNow) {
       const cc = getComputedStyle(card!), fc = getComputedStyle(faces[0]);
       from = {
         card: reduce ? { opacity: cc.opacity } : { transform: cc.transform, borderRadius: cc.borderRadius },
@@ -93,9 +104,10 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
       };
       anims.forEach((an) => an.cancel());
     }
+    if (sheet) from = { ...from, faces: {} };   // the sheet's faces don't change shape
     const target = e[to];
     // A close from fully open gets its own, slower shape (see CLOSE_*).
-    const shaped = to === 'small' && !anims.length && !reduce;
+    const shaped = to === 'small' && !anims.length && !reduce && !sheet && !fromNow;
     const opts: KeyframeAnimationOptions = shaped
       ? { duration: CLOSE_DURATION, easing: 'linear', fill: 'both' }
       : { duration: reduce ? 200 : DURATION, easing: reduce ? 'ease-out' : EASE, fill: 'both' };
@@ -117,7 +129,7 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
       card!.animate(cardFrames, opts),
       scrim!.animate([from.scrim, target.scrim], otherOpts),
       grain!.animate([from.grain, target.grain], otherOpts),
-      ...faces.map((f) => f.animate([from.faces, target.faces], otherOpts)),
+      ...(sheet ? [] : faces.map((f) => f.animate([from.faces, target.faces], otherOpts))),
     ];
     state = to === 'big' ? 'opening' : 'closing';
     const mine = anims;
@@ -152,7 +164,7 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     card!.dataset.small = flipped ? 'book' : 'photo';
     if (state === 'closed') {
       dialog!.hidden = false; scrim!.hidden = false; grain!.hidden = false;
-      avatar!.style.visibility = 'hidden';   // the card takes its place
+      if (!sheet) avatar!.style.visibility = 'hidden';   // the card takes its place
     }
     scrim!.style.opacity = ''; grain!.style.opacity = '';
     animateTo('big');
@@ -163,6 +175,44 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     card!.dataset.small = 'photo';   // lands back on the avatar's photo side
     scrim!.style.opacity = ''; grain!.style.opacity = '';
     animateTo('small');
+  }
+
+  // The sheet follows a finger dragging it down, and goes when let go far or
+  // fast enough; otherwise it springs back up. Dragging up resists.
+  if (sheet) {
+    let y0 = 0, dy = 0, t0 = 0, dragging = false;
+    const scrimFull = () => 1;
+    card.addEventListener('pointerdown', (e) => {
+      if ((state !== 'open' && state !== 'opening') || (e.target as Element).closest('button')) return;
+      // Caught while still sliding up: hold it where it is.
+      let base = 0;
+      if (state === 'opening') {
+        base = new DOMMatrix(getComputedStyle(card).transform).m42;
+        anims.forEach((an) => an.cancel()); anims = []; state = 'open';
+        scrim.style.opacity = '1';
+        card.style.transform = `translateY(${base}px)`;
+      }
+      dragging = true; y0 = e.clientY - base; dy = base; t0 = performance.now();
+      card.setPointerCapture(e.pointerId);
+    });
+    card.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const raw = e.clientY - y0;
+      dy = raw > 0 ? raw : -Math.sqrt(-raw) * 2;
+      card.style.transform = `translateY(${dy}px)`;
+      scrim.style.opacity = String(scrimFull() * Math.max(0, 1 - Math.max(0, dy) / card.offsetHeight));
+    });
+    const release = () => {
+      if (!dragging) return;
+      dragging = false;
+      const v = dy / Math.max(1, performance.now() - t0);   // px per ms, overall
+      const go = dy > card.offsetHeight * 0.25 || (dy > 24 && v > 0.5);
+      animateTo(go ? 'small' : 'big', true);
+      card.style.transform = '';
+      if (!go) state = 'opening';
+    };
+    card.addEventListener('pointerup', release);
+    card.addEventListener('pointercancel', release);
   }
 
   who.addEventListener('click', (e) => { e.preventDefault(); open(); });
