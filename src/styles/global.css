@@ -97,6 +97,7 @@ html:not(.has-cursor) .cursor { display: none; }
 html.safari .cursor:not(.halo) {
   -webkit-backdrop-filter: blur(var(--cursor-safari-blur)) saturate(var(--glass-saturate));
   backdrop-filter: blur(var(--cursor-safari-blur)) saturate(var(--glass-saturate));
+  background: var(--color-cursor-safari);
   box-shadow: none;
 }
 html.safari .cursor::before { display: none; }
