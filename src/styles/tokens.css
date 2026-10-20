@@ -225,6 +225,12 @@
   --color-gradient-lilac-deep: #f3f1f8;     /* top: pale lilac */
   --color-gradient-lilac-base: #e4def2;
   --color-gradient-lilac-light: #b6a6dc;    /* bottom: a soft lilac glow */
+  --color-gradient-sand-deep: #f7f4ee;      /* top: pale sand */
+  --color-gradient-sand-base: #ece5d8;
+  --color-gradient-sand-light: #cdbd9f;     /* bottom: a soft warm sand glow */
+  --color-gradient-mauve-deep: #f6f0f2;     /* top: pale mauve */
+  --color-gradient-mauve-base: #eadde2;
+  --color-gradient-mauve-light: #c39aab;    /* bottom: a soft dusty mauve glow */
   --color-gradient-olive-deep: #f3f4ea;     /* top: pale olive mist */
   --color-gradient-olive-base: #e2e5cf;
   --color-gradient-olive-light: #a9b27c;    /* bottom: a soft olive glow */
@@ -339,6 +345,12 @@
     --color-gradient-lilac-deep: #141219;
     --color-gradient-lilac-base: #1c1826;
     --color-gradient-lilac-light: #352c4f;
+    --color-gradient-sand-deep: #161512;
+    --color-gradient-sand-base: #201d18;
+    --color-gradient-sand-light: #3e372b;
+    --color-gradient-mauve-deep: #171214;
+    --color-gradient-mauve-base: #22191d;
+    --color-gradient-mauve-light: #432b36;
     --color-gradient-olive-deep: #13140f;
     --color-gradient-olive-base: #1c1e14;
     --color-gradient-olive-light: #3a3f24;
@@ -433,6 +445,12 @@
   --color-gradient-lilac-deep: #141219;
   --color-gradient-lilac-base: #1c1826;
   --color-gradient-lilac-light: #352c4f;
+  --color-gradient-sand-deep: #161512;
+  --color-gradient-sand-base: #201d18;
+  --color-gradient-sand-light: #3e372b;
+  --color-gradient-mauve-deep: #171214;
+  --color-gradient-mauve-base: #22191d;
+  --color-gradient-mauve-light: #432b36;
   --color-gradient-olive-deep: #13140f;
   --color-gradient-olive-base: #1c1e14;
   --color-gradient-olive-light: #3a3f24;
