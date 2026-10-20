@@ -76,7 +76,11 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   width: var(--cursor-size); height: var(--cursor-size); border-radius: 50%;
   pointer-events: none; opacity: 0;
   background: var(--color-cursor);
-  -webkit-backdrop-filter: url(#cursor-lens); backdrop-filter: url(#cursor-lens);
+  /* A plain frosted blur. The SVG lens (url(#cursor-lens), scripts/cursor.ts)
+     re-ran three displacement maps over everything under the cursor each
+     frame; Chrome rendered blank tiles and flickered with it over the videos,
+     shaders and other glass. */
+  -webkit-backdrop-filter: blur(var(--cursor-blur)) saturate(1.15); backdrop-filter: blur(var(--cursor-blur)) saturate(1.15);
   box-shadow: var(--cursor-shadow);
   transition: opacity 0.15s ease-out, background-color 0.15s ease-out, box-shadow 0.15s ease-out;
   will-change: transform;
