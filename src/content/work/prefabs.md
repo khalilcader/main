@@ -8,12 +8,12 @@ cover:
   aspect: 1.25   # 771 × 617: wide, for desktop
   shader: gradient
   angle: 110
-  palette: lemon
+  palette: mint
   alt: Figma prototyping on desktop, adding an Animate in scroll prefab from the Prefabs panel, then scrolling the prototype as cards scale and fade in
   video:
-    webm: images/work/prefabs.webm
-    mp4: images/work/prefabs.mp4
-    poster: images/work/prefabs.jpg
+    webm: images/work/prefabs-2.webm
+    mp4: images/work/prefabs-2.mp4
+    poster: images/work/prefabs-2.jpg
     start: 13
     device: desktop
     rest: [0.7, 0.42, 1.45]   # thumbnail: the Prefabs panel, Animate in and its preview

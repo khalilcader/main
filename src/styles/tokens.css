@@ -219,6 +219,15 @@
   --color-gradient-indigo-deep: #eff0f7;    /* top: pale periwinkle mist */
   --color-gradient-indigo-base: #e0e3f2;
   --color-gradient-indigo-light: #aab4df;   /* bottom: a soft periwinkle glow */
+  --color-gradient-slate-deep: #eef1f4;
+  --color-gradient-slate-base: #dbe2ea;
+  --color-gradient-slate-light: #93a7bf;   /* bottom: a cool slate glow */
+  --color-gradient-mint-deep: #eef6f1;
+  --color-gradient-mint-base: #d6ecdf;
+  --color-gradient-mint-light: #86c9a2;   /* bottom: a soft mint glow */
+  --color-gradient-caramel-deep: #f7f0e8;
+  --color-gradient-caramel-base: #ecdcc8;
+  --color-gradient-caramel-light: #c99a63;   /* bottom: a caramel glow */
   --color-gradient-iris-deep: #efeefb;      /* top: pale iris */
   --color-gradient-iris-base: #dddaf7;
   --color-gradient-iris-light: #7d75e3;     /* bottom: a rich indigo glow */
@@ -351,6 +360,15 @@
     --color-gradient-iris-deep: #110f1d;
     --color-gradient-iris-base: #19162e;
     --color-gradient-iris-light: #352c78;
+    --color-gradient-slate-deep: #0f1215;
+    --color-gradient-slate-base: #161b21;
+    --color-gradient-slate-light: #2c3a4b;
+    --color-gradient-mint-deep: #0e1511;
+    --color-gradient-mint-base: #132019;
+    --color-gradient-mint-light: #21483a;
+    --color-gradient-caramel-deep: #16120e;
+    --color-gradient-caramel-base: #221a12;
+    --color-gradient-caramel-light: #4d3519;
     --color-gradient-cobalt-deep: #0c1428;
     --color-gradient-cobalt-base: #10204a;
     --color-gradient-cobalt-light: #1d48a6;
@@ -460,6 +478,15 @@
   --color-gradient-iris-deep: #110f1d;
   --color-gradient-iris-base: #19162e;
   --color-gradient-iris-light: #352c78;
+  --color-gradient-slate-deep: #0f1215;
+  --color-gradient-slate-base: #161b21;
+  --color-gradient-slate-light: #2c3a4b;
+  --color-gradient-mint-deep: #0e1511;
+  --color-gradient-mint-base: #132019;
+  --color-gradient-mint-light: #21483a;
+  --color-gradient-caramel-deep: #16120e;
+  --color-gradient-caramel-base: #221a12;
+  --color-gradient-caramel-light: #4d3519;
   --color-gradient-cobalt-deep: #0c1428;
   --color-gradient-cobalt-base: #10204a;
   --color-gradient-cobalt-light: #1d48a6;
