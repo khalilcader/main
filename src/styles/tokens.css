@@ -226,6 +226,12 @@
   --color-gradient-clay-deep: #f7efe9;      /* top: pale clay */
   --color-gradient-clay-base: #efdccf;
   --color-gradient-clay-light: #d99a7c;     /* bottom: a soft terracotta glow */
+  --color-gradient-coral-deep: #fcefe9;     /* top: pale coral */
+  --color-gradient-coral-base: #f9d8c8;
+  --color-gradient-coral-light: #f0835a;    /* bottom: a reddish-orange glow */
+  --color-gradient-ember-deep: #fdece6;     /* top: pale ember */
+  --color-gradient-ember-base: #f9cfbf;
+  --color-gradient-ember-light: #e85f3c;    /* bottom: a redder orange glow */
   --color-gradient-lilac-deep: #f3f1f8;     /* top: pale lilac */
   --color-gradient-lilac-base: #e4def2;
   --color-gradient-lilac-light: #b6a6dc;    /* bottom: a soft lilac glow */
@@ -346,6 +352,12 @@
     --color-gradient-clay-deep: #181210;
     --color-gradient-clay-base: #251a15;
     --color-gradient-clay-light: #4f3022;
+    --color-gradient-coral-deep: #1a110d;
+    --color-gradient-coral-base: #2b1811;
+    --color-gradient-coral-light: #6b2c16;
+    --color-gradient-ember-deep: #1b100d;
+    --color-gradient-ember-base: #2d1610;
+    --color-gradient-ember-light: #742614;
     --color-gradient-lilac-deep: #141219;
     --color-gradient-lilac-base: #1c1826;
     --color-gradient-lilac-light: #352c4f;
@@ -446,6 +458,12 @@
   --color-gradient-clay-deep: #181210;
   --color-gradient-clay-base: #251a15;
   --color-gradient-clay-light: #4f3022;
+  --color-gradient-coral-deep: #1a110d;
+  --color-gradient-coral-base: #2b1811;
+  --color-gradient-coral-light: #6b2c16;
+  --color-gradient-ember-deep: #1b100d;
+  --color-gradient-ember-base: #2d1610;
+  --color-gradient-ember-light: #742614;
   --color-gradient-lilac-deep: #141219;
   --color-gradient-lilac-base: #1c1826;
   --color-gradient-lilac-light: #352c4f;
