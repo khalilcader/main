@@ -899,7 +899,7 @@ function init(stage: HTMLElement) {
     if (tk !== lastTuck) {
       lastTuck = tk;
       document.documentElement.style.setProperty('--header-tuck', `${tk}px`);
-      document.documentElement.style.setProperty('--header-tuck-k', tuckMax ? (tk / tuckMax).toFixed(3) : '0');
+      document.documentElement.toggleAttribute('data-header-stuck', tuckOn && tk >= tuckMax - 0.5);
     }
     const gridScrolled = tuckOn && tk > tuckMax / 2;
     if (gridScrolled !== lastGridScrolled) { lastGridScrolled = gridScrolled; document.documentElement.toggleAttribute('data-grid-scrolled', gridScrolled); }

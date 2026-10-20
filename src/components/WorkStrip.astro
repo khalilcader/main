@@ -215,9 +215,10 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     border-bottom: 1px solid var(--color-divider);
     -webkit-backdrop-filter: blur(var(--top-bar-blur)) saturate(var(--glass-saturate));
     backdrop-filter: blur(var(--top-bar-blur)) saturate(var(--glass-saturate));
-    opacity: var(--header-tuck-k, 0);   /* comes in as the header rides up */
+    opacity: 0; transition: opacity 0.2s ease-out;
   }
   :global(.js) .top-scrim { display: block; }
+  :global(html[data-header-stuck]) .top-scrim { opacity: 1; }   /* only once the header has stuck */
   .top-scrim::before {
     content: ""; position: absolute; inset: 0;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
