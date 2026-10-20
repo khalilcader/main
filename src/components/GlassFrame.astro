@@ -10,7 +10,7 @@ interface Props {
   poster: string;
   start?: number;   // seconds; the frame the cover rests on
   camera?: [number, number, number, number][];   // see scripts/camera.ts
-  device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop';
+  device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop' | 'film';
   rest?: [number, number, number];   // see scripts/camera.ts
 }
 const DEVICES = {
@@ -24,6 +24,8 @@ const DEVICES = {
   // No frame: a desktop recording (16:10) shown as a window, its corners and
   // border drawn by smooth-corners.ts.
   desktop: { src: '', w: 1600, h: 1000, x0: 0, y0: 0, x1: 1600, y1: 1000, r: 0 },
+  // No frame: filmed footage (16:9), a plain picture with soft round corners.
+  film: { src: '', w: 1600, h: 900, x0: 0, y0: 0, x1: 1600, y1: 900, r: 0 },
 };
 const { webm, mp4, poster, start = 0, camera, device = 'iphone', rest } = Astro.props;
 const d = DEVICES[device];
@@ -37,7 +39,7 @@ const shape = [
 ].join('; ');
 ---
 <div class="glass-frame" data-device={device} style={shape} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
-  <div class="screen" data-smooth={device === 'desktop' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
+  <div class="screen" data-smooth={device === 'desktop' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
          video decoder and its frames in GPU memory. -->
@@ -58,12 +60,17 @@ const shape = [
     filter: drop-shadow(var(--device-shadow));
   }
   /* Landscape devices are sized by width instead. */
-  .glass-frame[data-device="ipad"], .glass-frame[data-device="desktop"] { height: auto; width: var(--device-width-landscape); }
+  .glass-frame[data-device="ipad"], .glass-frame[data-device="desktop"], .glass-frame[data-device="film"] { height: auto; width: var(--device-width-landscape); }
   /* Desktop: the recording itself as a window, with smoothed corners, a
      hairline border and the device's soft shadow (on the frame, outside the clip). */
   .glass-frame[data-device="desktop"] .screen {
     inset: 0; background: var(--color-cover-bg);
     border-radius: var(--desktop-radius);   /* smoothed by the clip (smooth-corners.ts) */
+  }
+  /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
+  .glass-frame[data-device="film"] .screen {
+    inset: 0; background: var(--color-cover-bg);
+    border-radius: var(--film-radius);   /* smoothed by the clip (smooth-corners.ts) */
   }
   .window-edge {
     position: absolute; inset: 0; pointer-events: none;
