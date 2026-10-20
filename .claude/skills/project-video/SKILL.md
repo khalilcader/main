@@ -22,10 +22,16 @@ of them more than once.
 - Sit the video flush against the bezel: no black display edge or padding
   inside the frame.
 - Breathing room at the bottom: the home indicator and the bar above it (tab
-  bar, composer, dictation bar) need clear space above the bezel. If the
-  recording is tight, stretch the blank strip between the bar and the home
-  indicator (and only that strip); never squash or band the UI, and never add
-  a band at the top over content.
+  bar, composer, dictation bar) need clear space above the bezel. The approved
+  recipe (Tool Use, Oct 2026: Khalil said "nice, remember this") is
+  `scripts/rebottom.py`: the content down to the end of the bar/disclaimer
+  moves up by P1 + P2, the area below is rebuilt from the screen's own flat
+  colour (never stretched, so the recording's rounded corners and wallpaper
+  never show), and the home indicator is redrawn P2 above the bottom. Values
+  that landed: P1 = 16, P2 = 10 on an ~800 x 1740 screen (roughly 1% and 0.6%
+  of the height). More than that reads as too much; less reads cramped. Fill
+  the recording's rounded corners with the screen colour first. Never stretch
+  the UI itself or add a band at the top over content.
 - Status bar: never cramped against the top; it sits beside the notch / island.
 - Fill the recording's own rounded corners so nothing black peeks out.
 - If the recording already shows a device, use it (`iphone-recorded`) instead

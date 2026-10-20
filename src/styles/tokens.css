@@ -215,6 +215,15 @@
   --color-gradient-cobalt-deep: #d9e6fd;    /* top: clear sky blue */
   --color-gradient-cobalt-base: #bcd3fb;
   --color-gradient-cobalt-light: #6b9af0;   /* bottom: a rich Google-blue glow */
+  --color-gradient-teal-deep: #eaf5f3;      /* top: pale seafoam */
+  --color-gradient-teal-base: #cfe8e3;
+  --color-gradient-teal-light: #7fc4b8;     /* bottom: a soft teal glow */
+  --color-gradient-clay-deep: #f7efe9;      /* top: pale clay */
+  --color-gradient-clay-base: #efdccf;
+  --color-gradient-clay-light: #d99a7c;     /* bottom: a soft terracotta glow */
+  --color-gradient-lilac-deep: #f3f1f8;     /* top: pale lilac */
+  --color-gradient-lilac-base: #e4def2;
+  --color-gradient-lilac-light: #b6a6dc;    /* bottom: a soft lilac glow */
   --color-gradient-lemon-deep: #fbf9ec;     /* top: pale butter */
   --color-gradient-lemon-base: #f5eecb;
   --color-gradient-lemon-light: #e6d470;    /* bottom: a soft lemon glow */
@@ -317,6 +326,15 @@
     --color-gradient-cobalt-deep: #0c1428;
     --color-gradient-cobalt-base: #10204a;
     --color-gradient-cobalt-light: #1d48a6;
+    --color-gradient-teal-deep: #0f1716;
+    --color-gradient-teal-base: #132320;
+    --color-gradient-teal-light: #1d4a42;
+    --color-gradient-clay-deep: #181210;
+    --color-gradient-clay-base: #251a15;
+    --color-gradient-clay-light: #4f3022;
+    --color-gradient-lilac-deep: #141219;
+    --color-gradient-lilac-base: #1c1826;
+    --color-gradient-lilac-light: #352c4f;
     --color-gradient-lemon-deep: #16150f;
     --color-gradient-lemon-base: #201e12;
     --color-gradient-lemon-light: #47401c;
@@ -399,6 +417,15 @@
   --color-gradient-cobalt-deep: #0c1428;
   --color-gradient-cobalt-base: #10204a;
   --color-gradient-cobalt-light: #1d48a6;
+  --color-gradient-teal-deep: #0f1716;
+  --color-gradient-teal-base: #132320;
+  --color-gradient-teal-light: #1d4a42;
+  --color-gradient-clay-deep: #181210;
+  --color-gradient-clay-base: #251a15;
+  --color-gradient-clay-light: #4f3022;
+  --color-gradient-lilac-deep: #141219;
+  --color-gradient-lilac-base: #1c1826;
+  --color-gradient-lilac-light: #352c4f;
   --color-gradient-lemon-deep: #16150f;
   --color-gradient-lemon-base: #201e12;
   --color-gradient-lemon-light: #47401c;
