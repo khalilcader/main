@@ -3,7 +3,7 @@ title: Chunky Markers
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2023"
-order: 9
+order: 12
 cover:
   aspect: 1.25   # 771 × 617: wide, for the iPad
   shader: gradient
