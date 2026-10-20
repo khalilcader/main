@@ -124,17 +124,7 @@ const jobs = [
   .about-grabber { display: none; }
   /* Phones: a bottom sheet, full width with a small inset, dragged down to
      close (about-card.ts). */
-  :global(html.mobile) .about { align-items: flex-end; padding: 0; }
-  /* Edge to edge, flush with the bottom: only the top corners are rounded, and
-     the content keeps clear of the home indicator. */
-  :global(html.mobile) .about-card { border-radius: var(--sheet-radius) var(--sheet-radius) 0 0; }
-  :global(html.mobile) .about-front .about-surface {
-    /* A clip, not just overflow + radius (iOS doesn't round composited content
-       like the light canvas with those); about-card.ts sets the smoothed one. */
-    clip-path: inset(0 round var(--sheet-radius) var(--sheet-radius) 0 0); border-radius: var(--sheet-radius) var(--sheet-radius) 0 0 !important;
-    border-bottom: 0; border-left: 0; border-right: 0; overflow: hidden !important;   /* .smooth-clip forces visible */
-  }
-  :global(html.mobile) .about-front .about-surface > :global(.smooth-border) { display: none; }
+  :global(html.mobile) .about { align-items: flex-end; padding: var(--sheet-inset); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--sheet-inset)); }
   :global(html.mobile) .about-card {
     width: 100%; height: auto; max-height: calc(100dvh - var(--sheet-top-gap)); aspect-ratio: auto;
     transform-style: flat; touch-action: none;
@@ -145,7 +135,7 @@ const jobs = [
   :global(html.mobile) .about-front, :global(html.mobile) .about-front .about-surface { height: auto; }
   :global(html.mobile) .about-front .about-surface { container-type: inline-size; }
   :global(html.mobile) .about-scene { position: relative; top: auto; left: auto; translate: none; margin: var(--sheet-scene-top) auto 0; }
-  :global(html.mobile) .about-body { position: relative; inset: auto; padding: var(--sheet-body-top) var(--about-pad) calc(var(--about-pad) + env(safe-area-inset-bottom, 0px)); gap: var(--sheet-body-gap); }
+  :global(html.mobile) .about-body { position: relative; inset: auto; padding: var(--sheet-body-top) var(--about-pad) var(--about-pad); gap: var(--sheet-body-gap); }
   :global(html.mobile) .about-jobs { margin-top: 0; }
   :global(html.mobile) .about-card { --about-text-size: var(--sheet-text-size); --about-scene-height: var(--sheet-scene-height); --about-pad: var(--sheet-pad); --job-text-size: var(--sheet-job-size); }
   :global(html.mobile) .about-grabber {
