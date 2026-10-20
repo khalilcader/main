@@ -16,17 +16,24 @@ cover:
     poster: images/work/research-4.jpg
     start: 9
     rest: [0.5, 0.612, 1.25]   # thumbnail (framing A): searching Slack at 0:28, backdrop below the phone
-    # [seconds, x, y, zoom]: only two shots, so the frame never sits halfway:
-    # the whole lower phone with teal below it (the thumbnail), or pushed in
-    # until the screen fills the cover (no bezel along its edges). Never high
-    # enough to show the app's top bar.
+    # [seconds, x, y, zoom]: always the lower phone with teal around and below
+    # it (no edge-to-edge screen: the tool cards span the screen, so a closer
+    # shot cuts them at the cover's edges). Motion comes from gentle drifts
+    # between two safe framings; each zoom's height keeps the app's top bar
+    # out of frame.
     camera:
       - [0, 0.5, 0.612, 1.25]
       - [3.5, 0.5, 0.612, 1.25]
-      - [5.0, 0.5, 0.5, 1.9]       # in on the tool calls: Slack, Calendar, Gmail, Drive
-      - [33.0, 0.5, 0.5, 1.9]
-      - [34.5, 0.5, 0.612, 1.25]      # out for the summary
-      - [43.4, 0.5, 0.612, 1.25]      # and the tap that opens its steps
+      - [6.0, 0.49, 0.6, 1.29]     # Slack
+      - [12.0, 0.49, 0.6, 1.29]
+      - [14.5, 0.51, 0.622, 1.22]  # Calendar
+      - [19.5, 0.51, 0.622, 1.22]
+      - [22.0, 0.49, 0.6, 1.29]    # Gmail
+      - [27.5, 0.49, 0.6, 1.29]
+      - [30.0, 0.51, 0.622, 1.22]  # Drive
+      - [34.0, 0.51, 0.622, 1.22]
+      - [36.5, 0.5, 0.612, 1.25]   # the summary, and the tap that opens its steps
+      - [43.4, 0.5, 0.612, 1.25]
 ---
 
 Placeholder case study.
