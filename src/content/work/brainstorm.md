@@ -8,7 +8,7 @@ cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
   angle: 140
-  palette: clay
+  palette: coral
   alt: FigJam on iPhone, joining a timed sticky brainstorm, writing a sticky to answer the prompt, then voting on the team's ideas
   video:
     webm: images/work/brainstorm.webm
