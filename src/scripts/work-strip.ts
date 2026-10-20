@@ -1048,6 +1048,20 @@ function init(stage: HTMLElement) {
     }
   }
 
+  // Covers are laid out at their largest size and scaled down with a
+  // transform. With will-change: transform, Chrome keeps each one's texture at
+  // the biggest scale it has been drawn at, so once covers had been open, all
+  // 21 held full-size textures even as small grid tiles, and Chrome ran out of
+  // graphics memory and dropped tiles (flicker). Once things come to rest in a
+  // new arrangement, each cover's layer is rebuilt at the size it now shows.
+  let rasterKey = '';
+  function rerasterAtRest() {
+    const key = `${mode}|${gridActive}|${p.t >= 0.5 ? 1 : 0}|${vw}x${vh}`;
+    if (key === rasterKey) return;
+    rasterKey = key;
+    for (const c of cards) c.el.style.willChange = 'auto';
+    requestAnimationFrame(() => { for (const c of cards) c.el.style.willChange = ''; });
+  }
   let last = performance.now(), whoOpacity = -1;
   // The loop sleeps once everything has settled (so an idle page costs
   // nothing), and any input wakes it.
@@ -1320,7 +1334,7 @@ function init(stage: HTMLElement) {
     syncVideos();
     // A few calm frames in a row, and it sleeps until the next input.
     calm = atRest(now) ? calm + 1 : 0;
-    if (calm > 30) { running = false; return; }
+    if (calm > 30) { rerasterAtRest(); running = false; return; }
     requestAnimationFrame(tick);
   }
 
