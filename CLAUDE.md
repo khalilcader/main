@@ -18,3 +18,6 @@ Personal portfolio site for Khalil Cader, a product designer. The design is done
 - Images go in `public/images/`; use descriptive alt text.
 - Keep JavaScript to a minimum; use it only where an interaction needs it.
 - Run `npm run build` before committing to make sure the site builds.
+
+## Project videos
+- Adding or adjusting a project cover video: follow `.claude/skills/project-video/SKILL.md` (cropping, bottom room, touch circle, camera, thumbnail, background). Show options before committing judgement calls.
