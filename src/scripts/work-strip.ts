@@ -1208,7 +1208,9 @@ function init(stage: HTMLElement) {
           focusFade = df * df * (3 - 2 * df);
           focusBlur = P.focusBlur * Math.pow(dk, 1.5);
         }
-        const blur = Math.max(focusBlur, rowBlur);
+        // Safari: no live blur on the covers at all (it re-rasterised them every
+        // frame); they dim and fade as they leave instead.
+        const blur = SAFARI ? 0 : Math.max(focusBlur, rowBlur);
         const fade = Math.max(focusFade, P.rowFade * ek * ek * (3 - 2 * ek));  // smoothstep
         // Focus blurs the whole cover (shape included) as it drifts away; the
         // row's light edge blur only softens the media inside, so the cover's
@@ -1222,7 +1224,7 @@ function init(stage: HTMLElement) {
         // In focus, a heavy blur would be cut hard by the squircle clip, so a
         // round corner a little larger stands in. The row's light blur keeps the
         // clip, so its corners stay smoothed.
-        const blurred = focusBlur > 3;
+        const blurred = !SAFARI && focusBlur > 3;
         if (blurred !== c.blurred) {
           c.blurred = blurred;
           c.cover.style.clipPath = blurred ? '' : c.clip;
