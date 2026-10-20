@@ -11,9 +11,9 @@ cover:
   palette: coral
   alt: FigJam on iPhone, joining a timed sticky brainstorm, writing a sticky to answer the prompt, then voting on the team's ideas
   video:
-    webm: images/work/brainstorm.webm
-    mp4: images/work/brainstorm.mp4
-    poster: images/work/brainstorm.jpg
+    webm: images/work/brainstorm-2.webm
+    mp4: images/work/brainstorm-2.mp4
+    poster: images/work/brainstorm-2.jpg
     start: 14
     rest: [0.5, 0.36, 1.3]   # thumbnail: the prompt and a sticky being written
     # [seconds, x, y, zoom]
