@@ -1,7 +1,6 @@
 import { defineConfig } from 'astro/config';
 
-// Vercel serves khalilcader.com at the root, with nothing to set. The GitHub
-// Pages copy (khalilcader.github.io/main) gets SITE and BASE from its workflow.
+// Vercel builds every push to main and serves it at khalilcader.com, from the root.
 // If the repo is renamed to khalilcader.github.io (or a custom domain is added),
 // BASE becomes "/" and nothing here needs to change.
 export default defineConfig({
