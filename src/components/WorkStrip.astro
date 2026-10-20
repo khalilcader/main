@@ -98,17 +98,15 @@ const base = import.meta.env.BASE_URL;
     transform: none !important; opacity: 1 !important; filter: none !important; visibility: visible !important;
     will-change: auto; cursor: pointer;
   }
-  /* Two columns: landscape covers (iPad, desktop) span both, phone covers
-     sit in pairs, packed densely so no gaps are left. */
-  :global(html.mobile) .stage {
-    display: grid; grid-template-columns: 1fr 1fr; grid-auto-flow: dense; column-gap: var(--mobile-col-gap);
-  }
-  :global(html.mobile) .card[data-wide] { grid-column: span 2; }
+  /* Two staggered columns, like the desktop grid: every cover half width,
+     each placed in whichever column is shorter (work-strip.ts). */
+  :global(html.mobile) .stage { flex-direction: row; align-items: flex-start; gap: var(--mobile-col-gap); }
+  :global(html.mobile) .stage > :global(.col) { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: var(--mobile-card-gap); }
   :global(html.mobile) .card :global(.cover) {
     position: relative; inset: auto; width: 100%; aspect-ratio: var(--aspect);
-    border: var(--cover-border-width) solid var(--color-cover-border); border-radius: calc(var(--cover-radius-share) * 100cqw / var(--aspect));   /* in proportion to the cover, as on desktop */
+    border: 0; border-radius: calc(var(--cover-radius-share) * 100cqw / var(--aspect));   /* until the script's smoothed clip (and outline) take over */
   }
-  :global(html.mobile) .card :global(.outline),
+  :global(html.mobile) .card :global(.outline) { stroke-width: calc(var(--cover-border-width) * 2); }   /* half falls outside the clip */
   :global(html.mobile) .shadow, :global(html.mobile) .veil,
   :global(html.mobile) .stills, :global(html.mobile) .backdrop, :global(html.mobile) .backdrop-grain,
   :global(html.mobile) .edge { display: none; }

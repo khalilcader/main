@@ -76,6 +76,28 @@ function initMobile(stage: HTMLElement) {
       requestAnimationFrame(() => requestAnimationFrame(() => sh.setPaused(true)));   // one frame, then still
     } catch (err) { console.warn('Backdrop shader failed', err); }
   }
+  // Smoothed corners, the same squircle as on desktop: a clip on the cover
+  // and its outline drawn along it, in proportion to each cover's height.
+  const rootCss = getComputedStyle(document.documentElement);
+  const share = parseFloat(rootCss.getPropertyValue('--cover-radius-share')) || 0.07;
+  const smooth = parseFloat(rootCss.getPropertyValue('--cover-smoothing')) || 0.6;
+  const shape = (cover: HTMLElement) => {
+    const w = cover.offsetWidth, h = cover.offsetHeight;
+    if (!w || !h) return;
+    const d = squirclePath(w, h, Math.min(share * h, w / 2, h / 2), smooth);
+    cover.style.clipPath = `path("${d}")`;
+    cover.querySelector('.outline path')?.setAttribute('d', d);
+  };
+  // Two staggered columns: each cover goes in the shorter one so far.
+  const cols = [0, 1].map(() => { const c = document.createElement('div'); c.className = 'col'; stage.appendChild(c); return c; });
+  const heights = [0, 0];
+  for (const card of stage.querySelectorAll<HTMLElement>(':scope > .card')) {
+    const k = heights[0] <= heights[1] ? 0 : 1;
+    cols[k].appendChild(card);
+    heights[k] += 1 / (parseFloat(card.dataset.aspect || '1') || 1) + 0.35;   // the cover, in column widths, and its title
+  }
+  const ro = new ResizeObserver((es) => es.forEach((e) => shape(e.target as HTMLElement)));
+  stage.querySelectorAll<HTMLElement>('.card .cover').forEach((c) => { shape(c); ro.observe(c); });
   for (const card of stage.querySelectorAll<HTMLElement>('.card')) {
     const v = card.querySelector('video');
     if (!v) continue;

@@ -119,6 +119,7 @@ const { tools = true } = Astro.props;
      header sticks, tucking up over the frosted bar once the list scrolls, as
      in the desktop grid. */
   :global(html.mobile) #view-tools { display: none; }
+  :global(html.mobile) .site-header { padding-left: 0; padding-right: 0; }   /* the avatar lines up with the covers */
   /* Grid view, scrolled: the header tucks up to sit 16px (its padding) from
      the top, over the frosted bar (WorkStrip.astro), leaving more room for
      the covers. Moved by top, not a transform: a transform would make the
