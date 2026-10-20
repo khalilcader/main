@@ -17,6 +17,8 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
        fades over it, with the bar itself never changing (fading or popping
        a 50px backdrop blur over moving covers flickered). -->
   <div class="top-scrim" aria-hidden="true"></div>
+  <!-- The covers' layer: the grid lightbox blurs it as one (an open cover steps out of it). -->
+  <div class="cards" id="cards">
   {work.map((item, i) => (
     <button
       class="card"
@@ -37,6 +39,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       <div class="veil"></div>
     </button>
   ))}
+  </div>
 </div>
 
 <div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -69,6 +72,8 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     cursor: grab;
   }
   :global(.js) .stage.dragging { cursor: grabbing; }
+  .cards { display: contents; }   /* without JS: the cards sit in the stage's row */
+  :global(.js) .cards { display: block; position: absolute; inset: 0; z-index: 1; }   /* under the frosted bar (15) and the lightbox (16) */
   :global(.js) .card {
     position: absolute; left: 0; top: 0; height: auto; aspect-ratio: auto;
     transform-origin: 0 0; will-change: transform;
@@ -220,7 +225,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     opacity: 0; transition: opacity 0.3s ease-out;
   }
   :global(.js) .top-scrim { display: block; }
-  :global(html[data-grid-scrolled]) .top-scrim { opacity: 1; }
+  :global(html[data-grid-scrolled]) .top-scrim { opacity: calc(1 - var(--lb, 0)); }   /* fades out under an opening cover's tint */
   .top-scrim::before {
     content: ""; position: absolute; inset: 0;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);

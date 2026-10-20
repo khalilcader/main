@@ -93,6 +93,11 @@ function init(stage: HTMLElement) {
   const unrubberClamp = (pos: number, s: Scroll, d: number) => pos < s.min ? s.min - unrubber(s.min - pos, d) : pos > s.max ? s.max + unrubber(pos - s.max, d) : pos;
 
   // ---- cards ----
+  // The covers' own layer (the grid lightbox blurs it as one), and the
+  // header's frosted bar.
+  const cardLayer = document.getElementById('cards')!;
+  const topScrim = stage.querySelector<HTMLElement>('.top-scrim');
+  let cardOut = -1, lbLast = -1;
   const cards = [...stage.querySelectorAll<HTMLElement>('.card')].map((el, i) => ({
     i, el, a: parseFloat(el.dataset.aspect || '1'),
     cover: el.querySelector<HTMLElement>('.cover')!,
@@ -106,7 +111,6 @@ function init(stage: HTMLElement) {
     video: el.querySelector<HTMLVideoElement>('video'),
     playing: false, dimmed: false, vt: 0, posterBehind: false,
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
-    gk: 1, gBlur: -1,    // grid: the card's scale, and the lightbox blur it was last drawn with
     gm: 0, rLast: -1,    // corners: 0 sized for the row, 1 for the grid (shapeCorners); last radius drawn
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
@@ -172,7 +176,7 @@ function init(stage: HTMLElement) {
       const open = mode === 'row' ? c.i === centred : c.i === gridOpen;
       const hover = c.i === hovered && !reduce && !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const want = open || hover;
-      c.shader?.setPaused(!want || c.dimmed || c.gBlur > 0);
+      c.shader?.setPaused(!want || c.dimmed || (lbLast > 0 && c.i !== cardOut));
       if (!c.video || want === c.playing) continue;
       c.playing = want;
       const v = c.video;
@@ -410,6 +414,13 @@ function init(stage: HTMLElement) {
   function openGrid(c: Card) {
     gridOpen = gridActive = c.i; c.follow = false; gp.t = 1;
     S.grid.vel = 0; S.grid.to = null;
+  }
+  // Back into the covers' layer, in its place (tab order follows the DOM).
+  function putBack(c: Card) {
+    const focused = document.activeElement === c.el;
+    const next = cards.find((d) => d.i > c.i && d.el.parentElement === cardLayer);
+    cardLayer.insertBefore(c.el, next ? next.el : null);
+    if (focused) c.el.focus({ preventScroll: true });
   }
   function closeGrid(vel?: { x: number; y: number }) {
     if (gridOpen < 0) return;
@@ -936,7 +947,6 @@ function init(stage: HTMLElement) {
       const hs = 1 + (HOVER_SCALE - 1) * (reduce ? 0 : c.hv.v);
       const tw = w2 * hs;
       st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;
-      c.gk = tw / c.W;
       // The shadow deepens and softens with the lift.
       const sh = Math.round(clamp(c.hv.v, 0, 1) * 100) / 100;
       if (sh !== c.shLast) { c.shLast = sh; c.liftShadow.style.opacity = sh > 0 ? String(sh) : ''; }
@@ -1044,19 +1054,26 @@ function init(stage: HTMLElement) {
       // Its grain fades with it, up to the theme's grain strength.
       if (backdropGrain) backdropGrain.style.opacity = (bo * (parseFloat(getComputedStyle(backdropGrain).getPropertyValue('--scrim-grain')) || 0)).toFixed(3);
     }
-    // Grid lightbox: every other card blurs as a whole, shape and all, so the
-    // blur is as strong at its edges as in its middle (one backdrop blur over
-    // the page went sharper toward each cover's edge). In the card's own px,
-    // since it's scaled. It comes in three steps under the fading tint rather
-    // than eased: re-blurring every card each frame flickered.
-    const lbBlur = token('--backdrop-blur');
-    const lbStep = bo > 0.7 ? 1 : bo > 0.4 ? 0.66 : bo > 0.12 ? 0.33 : 0;
-    for (const c of cards) {
-      const b = c.i === gridActive ? 0 : Math.round(lbBlur * lbStep * 2) / 2;
-      if (b === c.gBlur) continue;
-      c.gBlur = b;
-      c.el.style.filter = b > 0 ? `blur(${(b / c.gk).toFixed(2)}px)` : '';
+    // Grid lightbox: the open card steps out of the covers' layer, and that
+    // whole layer blurs as one: a true blur, as strong at every cover's edge
+    // as in its middle, from a single surface. (A backdrop blur over the page
+    // skipped parts of some covers, their device bezels staying sharp; a
+    // blur on every card made the browser redraw them all, blank for a frame,
+    // as it came off.)
+    const out = mode === 'grid' && gridActive >= 0 ? gridActive : -1;
+    if (out !== cardOut) {
+      if (cardOut >= 0) putBack(cards[cardOut]);
+      cardOut = out;
+      if (out >= 0) {
+        const el = cards[out].el, focused = document.activeElement === el;
+        stage.appendChild(el);   // moved within one task, so its video plays on
+        if (focused) el.focus({ preventScroll: true });
+      }
     }
+    const lb = Math.round(bo * token('--backdrop-blur') * 2) / 2;
+    if (lb !== lbLast) { lbLast = lb; cardLayer.style.filter = lb > 0 ? `blur(${lb}px)` : ''; }
+    // The header's frosted bar (inside the stage, under the tint) fades with it.
+    topScrim?.style.setProperty('--lb', String(bo));
     // The focus view is near full screen, so the name steps aside for it.
     // Focus mode (focus strip or grid lightbox): the name and the view controls
     // step aside, and a close button takes the name's place.
