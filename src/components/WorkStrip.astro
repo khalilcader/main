@@ -12,6 +12,11 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   <div class="backdrop" id="backdrop"></div>
   <!-- Grain on its own layer above the blur, so its blend reaches the page. -->
   <div class="backdrop-grain" id="backdrop-grain"></div>
+  <!-- Grid view: protects the header once the covers scroll under it. Inside
+       the stage, so a cover opening rises over it and the lightbox's tint
+       fades over it, with the bar itself never changing (fading or popping
+       a 50px backdrop blur over moving covers flickered). -->
+  <div class="top-scrim" aria-hidden="true"></div>
   {work.map((item, i) => (
     <button
       class="card"
@@ -36,8 +41,6 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
 
 <div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-<!-- Grid view: protects the header once the covers scroll under it. -->
-<div class="top-scrim" aria-hidden="true"></div>
 
 <script>
   import '../scripts/work-strip';
@@ -165,7 +168,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
 
   /* Grid lightbox: everything else fades to the page. */
   .backdrop {
-    position: absolute; inset: 0; z-index: 10; pointer-events: none;
+    position: absolute; inset: 0; z-index: 16; pointer-events: none;
     background: var(--color-scrim);   /* the cards under it blur themselves (work-strip.ts) */
     opacity: 0;
   }
@@ -173,7 +176,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
      near-black speckles (a blend would lift the page, or trace the blurred
      cards' edges). Faded with the backdrop. */
   .backdrop-grain {
-    position: absolute; inset: 0; z-index: 10; pointer-events: none;
+    position: absolute; inset: 0; z-index: 16; pointer-events: none;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
     mix-blend-mode: var(--scrim-grain-blend); filter: var(--scrim-grain-filter);
     opacity: 0;
@@ -208,7 +211,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
      heavily blurred. One backdrop layer (cheap), with a little grain. */
   .top-scrim {
     display: none;
-    position: fixed; left: 0; right: 0; top: 0; z-index: 25; pointer-events: none;
+    position: fixed; left: 0; right: 0; top: 0; z-index: 15; pointer-events: none;   /* over the covers, under the lightbox (16) and an open cover (20) */
     height: calc(env(safe-area-inset-top, 0px) + var(--top-bar-height));
     background: var(--color-top-bar);
     border-bottom: 1px solid var(--color-divider);
@@ -218,7 +221,6 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   }
   :global(.js) .top-scrim { display: block; }
   :global(html[data-grid-scrolled]) .top-scrim { opacity: 1; }
-  :global(html[data-grid-open]) .stage { z-index: 26; }   /* an open cover and its tint over the bar */
   .top-scrim::before {
     content: ""; position: absolute; inset: 0;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
