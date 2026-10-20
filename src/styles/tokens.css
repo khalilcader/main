@@ -139,6 +139,7 @@
   --label-below-size: 14px;                 /* and is a touch smaller than the pills */
   --label-year-size: 12px;                  /* the year under it, smaller still */
   --label-year-gap: 2px;
+  --focus-year-gap: 8px;                    /* focus title bar: title, then the year */
   --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
   --label-pad-y: 12px;                      /* chunky pill */
   --label-pad-x: 20px;

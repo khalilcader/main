@@ -6,7 +6,7 @@ import cv2, numpy as np
 # 1680) moves up by P1+P2; under it, the screen's own colour, the home
 # indicator lifted P2 off the bottom. Built from flat colour, not stretched,
 # so the recording's rounded corners and the wallpaper behind them never show.
-P1, P2 = 16, 10
+P1, P2 = 34, 24
 def rebottom(im):
     H, W = im.shape[:2]
     bg = im[1700, 399].astype(np.float32)

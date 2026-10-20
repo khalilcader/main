@@ -28,8 +28,8 @@ of them more than once.
   moves up by P1 + P2, the area below is rebuilt from the screen's own flat
   colour (never stretched, so the recording's rounded corners and wallpaper
   never show), and the home indicator is redrawn P2 above the bottom. Values
-  that landed: P1 = 16, P2 = 10 on an ~800 x 1740 screen (roughly 1% and 0.6%
-  of the height). More than that reads as too much; less reads cramped. Fill
+  that landed: P1 = 34, P2 = 24 on an ~800 x 1740 screen (about 2% and 1.4%
+  of the height). Khalil tried 16 / 10 and preferred these. Fill
   the recording's rounded corners with the screen colour first. Never stretch
   the UI itself or add a band at the top over content.
 - Status bar: never cramped against the top; it sits beside the notch / island.
