@@ -127,7 +127,9 @@ function init(stage: HTMLElement) {
   const restOn = (v: HTMLVideoElement) => {
     const start = parseFloat(v.dataset.start || '0');
     const seek = () => { v.currentTime = Math.min(start, Math.max(0, (v.duration || start) - 0.1)); };
-    if (v.readyState >= 1) seek(); else v.addEventListener('loadedmetadata', seek, { once: true });
+    // Never loaded (preload="none"): its poster is already that frame, so
+    // nothing to do, and no decoder held for a cover nobody has played.
+    if (v.readyState >= 1) seek();
   };
   let hovered = -1;
   // The card with keyboard focus, tracked by events: asking :focus-visible every

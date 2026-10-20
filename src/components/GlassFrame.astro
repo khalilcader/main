@@ -38,8 +38,10 @@ const shape = [
 ---
 <div class="glass-frame" data-device={device} style={shape} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
   <div class="screen" data-smooth={device === 'desktop' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
-    <!-- Paused on `start` until the cover is hovered or opened (see work-strip.ts). -->
-    <video poster={poster} muted loop playsinline preload="auto" data-start={start}>
+    <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
+         (work-strip.ts); preload none, so a dozen idle covers don't each hold a
+         video decoder and its frames in GPU memory. -->
+    <video poster={poster} muted loop playsinline preload="none" data-start={start}>
       {webm && <source src={webm} type="video/webm" />}
       <source src={mp4} type="video/mp4" />
     </video>

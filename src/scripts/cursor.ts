@@ -143,9 +143,8 @@ if (el && fine.matches) {
   window.addEventListener('resize', wake);
 }
 
-// The glass bubble's lens: an SVG filter for what's behind the cursor
-// (backdrop-filter: url(#cursor-lens), Chrome). Not applied for now: it
-// caused blank tiles and flicker (global.css). A radial displacement map
+// The glass bubble's lens: an SVG filter the cursor applies to what's behind
+// it (backdrop-filter: url(#cursor-lens), Chrome). A radial displacement map
 // pulls the backdrop in toward the middle, magnifying it, and bends it harder
 // at the rim; red, green and blue bend by slightly different amounts, which
 // fringes the rim with colour. Sized in the cursor's own box, so it scales
