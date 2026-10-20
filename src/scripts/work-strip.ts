@@ -111,8 +111,19 @@ function initMobile(stage: HTMLElement) {
   const closeBtn = document.createElement('button');
   closeBtn.className = 'viewer-close'; closeBtn.type = 'button'; closeBtn.setAttribute('aria-label', 'Close');
   closeBtn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>';
-  scrim.appendChild(closeBtn);
-  document.body.appendChild(scrim);
+  // The close button with the open cover's title and year beside it, as in
+  // focus mode on desktop. Held at the screen's top left at its own size,
+  // even while the page is pinch-zoomed, so it's always there to close.
+  const bar = document.createElement('div'); bar.className = 'viewer-bar'; bar.hidden = true;
+  const title = document.createElement('span'); title.className = 'viewer-title';
+  bar.append(closeBtn, title);
+  document.body.append(scrim, bar);
+  const vv = window.visualViewport;
+  const pin = () => {
+    if (!vv || bar.hidden) return;
+    bar.style.transform = `translate(${vv.offsetLeft}px, ${vv.offsetTop}px) scale(${1 / vv.scale})`;
+  };
+  vv?.addEventListener('resize', pin); vv?.addEventListener('scroll', pin);
   let open: null | { cover: HTMLElement; ph: HTMLElement; v: HTMLVideoElement | null; busy: boolean } = null;
   const rectOf = (el: HTMLElement) => { const r = el.getBoundingClientRect(); return { left: r.left, top: r.top, width: r.width, height: r.height }; };
   const target = (a: number) => {
@@ -136,6 +147,9 @@ function initMobile(stage: HTMLElement) {
     const to = target(a);
     scrim.hidden = false;
     scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 350, easing: 'ease-out', fill: 'both' });
+    title.replaceChildren(...Array.from(card.querySelector('.label-text')?.childNodes ?? []).map((n) => n.cloneNode(true)));
+    bar.hidden = false; pin();
+    bar.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 350, easing: 'ease-out' });
     const an = cover.animate([px(from), px(to)], { duration: reduce ? 0 : 450, easing: EASE });
     Object.assign(cover.style, px(to));
     const v = cover.querySelector('video');
@@ -149,6 +163,7 @@ function initMobile(stage: HTMLElement) {
     const { cover, ph, v } = open; open = null;
     v?.pause();
     const from = rectOf(cover), to = rectOf(ph);
+    bar.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-out' }).finished.then(() => { if (!open) bar.hidden = true; });
     scrim.getAnimations().forEach((x) => x.cancel());
     scrim.animate([{ opacity: getComputedStyle(scrim).opacity }, { opacity: 0 }], { duration: 300, easing: 'ease-out', fill: 'both' })
       .finished.then((x) => { scrim.hidden = true; x.cancel(); });
