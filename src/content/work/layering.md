@@ -16,16 +16,16 @@ cover:
     poster: images/work/layering.jpg
     start: 7.6
     device: ipad
-    # [seconds, x, y, zoom]: pushed in on the cards and the context menu as the
-    # card is long-pressed, closer as it comes to the front (Khalil's pick,
-    # option B), with the full view at the start and end for the loop.
+    # [seconds, x, y, zoom]: in just far enough that the whole screen fills the
+    # cover, so the layers panel (at the screen's left edge), the cards and the
+    # menu all stay in view; a touch closer as the card comes to the front.
     camera:
       - [0, 0.5, 0.5, 1]
       - [0.8, 0.5, 0.5, 1]
-      - [1.8, 0.6, 0.45, 1.75]    # the layers panel opens; long-press the card
-      - [4.4, 0.6, 0.45, 1.75]
-      - [5.2, 0.58, 0.45, 1.85]    # the card comes to the front
-      - [7.4, 0.58, 0.45, 1.85]
+      - [1.8, 0.47, 0.5, 1.18]    # the layers panel opens; long-press the card
+      - [4.4, 0.47, 0.5, 1.18]
+      - [5.2, 0.47, 0.5, 1.22]    # the card comes to the front
+      - [7.4, 0.47, 0.5, 1.22]
       - [8.2, 0.5, 0.5, 1]
       - [8.7, 0.5, 0.5, 1]
 ---
