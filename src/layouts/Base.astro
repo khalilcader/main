@@ -5,7 +5,7 @@ interface Props {
   title?: string;
   description?: string;
 }
-const { title = 'Khalil Cader', description = 'Khalil Cader is a product designer at Anthropic, designing tools that shape how people think, collaborate, and create.' } = Astro.props;
+const { title = 'Khalil Cader — Product Designer', description = 'Khalil Cader is a product designer at Anthropic, designing tools that shape how people think, collaborate, and create.' } = Astro.props;
 const base = import.meta.env.BASE_URL;
 // Absolute, for link previews (set SITE to the live domain when deploying).
 const ogImage = new URL(`${base}og.png`, Astro.site).href;
@@ -30,6 +30,12 @@ const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
+    <!-- Who this is, for search engines. -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org', '@type': 'Person', name: 'Khalil Cader', jobTitle: 'Product Designer',
+      worksFor: { '@type': 'Organization', name: 'Anthropic' }, url: new URL(base, Astro.site).href,
+      image: new URL(`${base}images/khalil.jpg`, Astro.site).href, address: { '@type': 'PostalAddress', addressLocality: 'New York' },
+    })} />
     <!-- Before first paint: mark JS as available, and apply a pinned theme so it never flashes. -->
     <script is:inline>
       document.documentElement.classList.add('js');
