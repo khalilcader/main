@@ -114,8 +114,7 @@ const { tools = true } = Astro.props;
   /* Grid view, scrolled: the header tucks up to sit 16px (its padding) from
      the top, over the frosted bar (WorkStrip.astro), leaving more room for
      the covers. */
-  .site-header { transition: translate var(--header-collapse-duration) var(--header-collapse-ease); }
-  :global(html[data-grid-scrolled]) .site-header { translate: 0 calc(-1 * var(--header-top)); }
+  .site-header { translate: 0 calc(-1 * var(--header-tuck, 0px)); }
 
   .who {
     display: flex; align-items: center; gap: var(--space-3);

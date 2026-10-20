@@ -280,6 +280,7 @@ function init(stage: HTMLElement) {
   // (portrait) cover's instead, or a wide cover would come out sharper. Each
   // cover eases between the two (cornerMix) as the view changes.
   let lastGridScrolled = false;
+  let tuck = 0, lastTuck = -1, lastTuckOn = false, tuckEasing = false;
   let cornerBase = 0, cornerSmoothing = 0.6, cornerBorder = 1, refAspect = 1;
   function updateCorners() {
     cornerBase = token('--cover-radius') / token('--row-height');
@@ -884,7 +885,23 @@ function init(stage: HTMLElement) {
     const [eL, eR] = edgeAmounts(pv), edgeZone = edges[0].offsetWidth || vw * 0.16;
     // Grid view, scrolled: the header's scrim comes in (WorkStrip.astro),
     // but not over a cover that's open, until it has settled back in.
-    const gridScrolled = mode === 'grid' && S.grid.pos > 2 && gridActive < 0;
+    // The header rides up with the scroll, 1:1, until it sticks --header-top
+    // higher; it only eases on its own when a cover opens or the view changes.
+    const tuckOn = mode === 'grid' && gridActive < 0;
+    if (tuckOn !== lastTuckOn) { lastTuckOn = tuckOn; tuckEasing = true; }
+    const tuckMax = token('--header-top');
+    const tuckTo = tuckOn ? clamp(S.grid.pos, 0, tuckMax) : 0;
+    if (tuckEasing) {
+      tuck += (tuckTo - tuck) * (reduce ? 1 : 1 - Math.exp(-dt * 12));
+      if (Math.abs(tuckTo - tuck) < 0.3) { tuck = tuckTo; tuckEasing = false; }
+    } else tuck = tuckTo;
+    const tk = Math.round(tuck * 10) / 10;
+    if (tk !== lastTuck) {
+      lastTuck = tk;
+      document.documentElement.style.setProperty('--header-tuck', `${tk}px`);
+      document.documentElement.style.setProperty('--header-tuck-k', tuckMax ? (tk / tuckMax).toFixed(3) : '0');
+    }
+    const gridScrolled = tuckOn && tk > tuckMax / 2;
     if (gridScrolled !== lastGridScrolled) { lastGridScrolled = gridScrolled; document.documentElement.toggleAttribute('data-grid-scrolled', gridScrolled); }
     const gmK = reduce ? 1 : 1 - Math.exp(-dt * 6);
     for (const c of cards) {
@@ -1055,7 +1072,7 @@ function init(stage: HTMLElement) {
     slideEdges(eL, eR);
     syncVideos();
     // A few calm frames in a row, and it sleeps until the next input.
-    calm = atRest(now) ? calm + 1 : 0;
+    calm = atRest(now) && !tuckEasing ? calm + 1 : 0;
     if (calm > 30) { running = false; return; }
     requestAnimationFrame(tick);
   }
