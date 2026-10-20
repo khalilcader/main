@@ -140,7 +140,8 @@
   --label-below-size: 14px;                 /* and is a touch smaller than the pills */
   --label-year-size: 12px;                  /* the year under it, smaller still */
   --label-year-gap: 2px;
-  --focus-year-gap: 8px;                    /* focus title bar: title, then the year */
+  --focus-year-gap: 4px;                    /* focus mode: the year under the title */
+  --focus-year-size: 13px;
   --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
   --label-pad-y: 12px;                      /* chunky pill */
   --label-pad-x: 20px;
@@ -159,7 +160,7 @@
   --top-scrim-grain-filter: none;
   --close-height: 46px;                     /* focus mode's close + title bar: as tall as the card labels */
   --focus-title-size: 16px;                 /* project title beside the close button in focus mode */
-  --focus-title-gap: 12px;                  /* close button to the title */
+  --focus-title-gap: 16px;                  /* close button to the title */
 
   /* Covers */
   --cover-radius: 48px;                     /* at row height */
