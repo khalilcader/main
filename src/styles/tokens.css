@@ -152,6 +152,8 @@
   --tool-size: 30px;                        /* 40 tall: 4 + 30 + 4 + 1px border each side; tiles touch */
   --divider-height: 22px;                   /* between the close button and the focus title */
   --top-bar-height: 88px;                   /* grid view, scrolled: the header tucked up, 16px above and below its contents */
+  --header-collapse-duration: 0.35s;
+  --header-collapse-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --top-bar-blur: 50px;
   --top-scrim-grain: 0.12;
   --top-scrim-grain-filter: none;
