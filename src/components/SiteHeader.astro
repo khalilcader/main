@@ -191,6 +191,12 @@ const { tools = true } = Astro.props;
     top: calc(env(safe-area-inset-top, 0px) + var(--close-inset));
   }
   .close-group[hidden] { display: none; }
+  .close-group > :global(*) { opacity: var(--show, 1); }
+  .close-group { box-shadow: none; }
+  .close-group::before {
+    content: ""; position: absolute; inset: calc(-1 * var(--button-border-width)); z-index: -1;
+    border-radius: inherit; box-shadow: var(--button-shadow); opacity: var(--show, 1); pointer-events: none;
+  }
   /* As chunky and round as the card labels; the X's tile grows to match,
      its corners still concentric with the bar's. */
   .close-group.tools { height: var(--close-height); border-radius: var(--label-radius); }
@@ -208,6 +214,8 @@ const { tools = true } = Astro.props;
   /* The X's hover tile replaces the divider beside it. */
   .close-group:has(.tool:focus-visible) .divider { opacity: 0; }
   @media (hover: hover) { .close-group:has(.tool:hover) .divider { opacity: 0; } }
+  /* The year, after the title: lighter, like under the cards. */
+  .close-group .focus-title :global(.label-year) { display: inline; margin: 0 0 0 var(--focus-year-gap); color: var(--color-label-year); font-size: inherit; font-weight: 400; }
   .focus-title {
     padding: 0 var(--focus-title-pad);
     font-size: var(--focus-title-size); font-weight: var(--text-name-weight);

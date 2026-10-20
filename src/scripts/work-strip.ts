@@ -1013,16 +1013,17 @@ function init(stage: HTMLElement) {
       }
       if (closeGroup) {
         closeGroup.hidden = wo > 0.99;
-        // Exactly opaque once in: any opacity below 1 cuts its glass off from
-        // the page behind, and the blur drops out.
-        closeGroup.style.opacity = wo < 0.005 ? '' : String(1 - wo);
+        // Fades by its parts (SiteHeader.astro), never as a whole: opacity
+        // below 1 on the bar would cut its glass off from the page behind, so
+        // the blur would only appear once it settled.
+        closeGroup.style.setProperty('--show', wo < 0.005 ? '1' : String(1 - wo));
       }
     }
     // The close button's title names the cover in view: the one nearest the
     // centre of the focus strip, or the one open in the grid.
     if (focusTitle && focusAmt > 0) {
       const i = mode === 'row' ? nearest(centerBig, S.big.pos) : gridActive;
-      if (i >= 0 && i !== focusTitleIdx) { focusTitleIdx = i; focusTitle.textContent = cards[i].label?.textContent ?? ''; }
+      if (i >= 0 && i !== focusTitleIdx) { focusTitleIdx = i; focusTitle.replaceChildren(...Array.from(cards[i].label?.querySelector('.label-text')?.childNodes ?? []).map((n) => n.cloneNode(true))); }
     }
     if (FOCUS_SPACING !== 'offscreen') {
       // Only while a cover sits at the centre: mid-swipe the bands ease back to
