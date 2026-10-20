@@ -16,24 +16,24 @@ cover:
     poster: images/work/ipad-props.jpg
     start: 18
     device: film
-    rest: [0.56, 0.44, 1.75]   # thumbnail: the floating properties panel, expanded
-    # [seconds, x, y, zoom]: in close on whatever the hand is tuning, easing
-    # between the settings list and the floating panel.
+    rest: [0.5, 0.5, 1.02]   # thumbnail: the whole rounded video, caramel around it
+    # [seconds, x, y, zoom]: leaning toward whatever the hand is tuning, the
+    # caramel always showing around the video.
     camera:
-      - [0, 0.34, 0.6, 1.8]        # the settings list, scrolled by hand
-      - [3.5, 0.32, 0.62, 1.85]
-      - [5, 0.55, 0.45, 1.9]       # the floating panel
-      - [9, 0.56, 0.46, 1.95]
-      - [10.5, 0.55, 0.5, 2.15]    # its colour swatches
-      - [15, 0.56, 0.5, 2.2]
-      - [16.5, 0.56, 0.44, 1.75]   # the panel, expanded
-      - [18.5, 0.56, 0.44, 1.75]
-      - [20, 0.3, 0.5, 1.9]        # dark: material sliders
-      - [27, 0.32, 0.52, 1.95]
-      - [28.5, 0.62, 0.45, 1.7]    # the panel stretched taller
-      - [31.5, 0.63, 0.46, 1.75]
-      - [33, 0.66, 0.5, 1.95]      # and resized
-      - [37.6, 0.66, 0.5, 1.95]
+      - [0, 0.420, 0.550, 1.24]        # the settings list, scrolled by hand
+      - [3.5, 0.410, 0.560, 1.25]
+      - [5, 0.525, 0.475, 1.27]       # the floating panel
+      - [9, 0.530, 0.480, 1.28]
+      - [10.5, 0.525, 0.500, 1.34]    # its colour swatches
+      - [15, 0.530, 0.500, 1.36]
+      - [16.5, 0.530, 0.470, 1.23]   # the panel, expanded
+      - [18.5, 0.530, 0.470, 1.23]
+      - [20, 0.400, 0.500, 1.27]        # dark: material sliders
+      - [27, 0.410, 0.510, 1.28]
+      - [28.5, 0.560, 0.475, 1.21]    # the panel stretched taller
+      - [31.5, 0.565, 0.480, 1.23]
+      - [33, 0.580, 0.500, 1.28]      # and resized
+      - [37.6, 0.580, 0.500, 1.28]
 ---
 
 Placeholder case study.
