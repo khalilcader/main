@@ -300,7 +300,6 @@ const base = import.meta.env.BASE_URL;
   :global(html.safari) .edge { display: none !important; }   /* covers still fade at the edges */
   /* Safari: the grid's bar is a near-solid tint instead of a 50px live blur,
      and the grain over leaving covers isn't blended. */
-  :global(html.safari) .top-scrim { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--color-bg) 96%, transparent); }
   :global(html.safari) .veil::after { mix-blend-mode: normal; }
   .edge.l { left: 0; }
   .edge.r { right: 0; transform: scaleX(-1); }
@@ -323,9 +322,7 @@ const base = import.meta.env.BASE_URL;
     display: none;
     position: fixed; left: 0; right: 0; top: 0; z-index: 25; pointer-events: none;
     height: calc(env(safe-area-inset-top, 0px) + var(--top-bar-height));
-    background: var(--color-top-bar);
-    -webkit-backdrop-filter: blur(var(--top-bar-blur)) saturate(var(--glass-saturate));
-    backdrop-filter: blur(var(--top-bar-blur)) saturate(var(--glass-saturate));
+    background: var(--color-bg);   /* solid, like the page: nothing to redraw as covers scroll under it */
     border-bottom: 1px solid var(--color-divider);
     opacity: 0; transition: opacity 0.3s ease-out;
   }
