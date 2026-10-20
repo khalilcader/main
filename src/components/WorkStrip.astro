@@ -37,7 +37,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
 <div class="edge l" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="edge r" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <!-- Grid view: protects the header once the covers scroll under it. -->
-<div class="top-scrim" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="top-scrim" aria-hidden="true"></div>
 
 <script>
   import '../scripts/work-strip';
@@ -204,43 +204,25 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   .edge i:nth-child(5) { right: 50%; width: 37.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
   .edge i:nth-child(6) { right: 62.5%; width: 37.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); mask-image: linear-gradient(to left, transparent 0%, #000 33.33%, #000 66.67%, transparent 100%); }
   .edge i:nth-child(7) { right: 75%; width: 25%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 50%, #000 100%); mask-image: linear-gradient(to left, transparent 0%, #000 50%, #000 100%); }
-  /* Grid view, scrolled: a band across the top behind the header, the same
-     treatment as the row's edges: eight stacked backdrop blurs rising from
-     1px to 24px toward the top, each covering only its own strip and easing
-     into the next (no visible steps), the page colour fading in along an
-     eased curve, and a little grain. Each layer fades itself (opacity on a
-     parent would cut its blur off from the page). */
+  /* Grid view, scrolled: a frosted bar behind the header, its edge a hairline
+     a little below the header's controls; anything scrolled under it is
+     heavily blurred. One backdrop layer (cheap), with a little grain. */
   .top-scrim {
     display: none;
     position: fixed; left: 0; right: 0; top: 0; z-index: 25; pointer-events: none;
-    height: var(--top-scrim-height);
-  }
-  :global(.js) .top-scrim { display: block; }
-  .top-scrim i, .top-scrim::before, .top-scrim::after {
-    position: absolute; left: 0; right: 0; display: block;
+    height: calc(env(safe-area-inset-top, 0px) + var(--top-bar-height));
+    background: var(--color-top-bar);
+    border-bottom: 1px solid var(--color-divider);
+    -webkit-backdrop-filter: blur(var(--top-bar-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--top-bar-blur)) saturate(var(--glass-saturate));
     opacity: 0; transition: opacity 0.3s ease-out;
   }
-  :global(html[data-grid-scrolled]) .top-scrim i, :global(html[data-grid-scrolled]) .top-scrim::after { opacity: 1; }
-  .top-scrim i { -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); }
-  /* Three blur steps, not eight: each backdrop-filtered layer re-blurs
-     everything under it every frame, and eight of them full width over the
-     grid's videos and shaders made the page flicker. Overlapping eased masks
-     keep the steps from showing. */
-  .top-scrim i:nth-child(1) { --b: 3px; bottom: 0; height: 60%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 70%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 70%, transparent 100%); }
-  .top-scrim i:nth-child(2) { --b: 9px; bottom: 30%; height: 50%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 70%, transparent 100%); mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 70%, transparent 100%); }
-  .top-scrim i:nth-child(3) { --b: 18px; bottom: 58%; height: 42%; -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 55%, #000 100%); mask-image: linear-gradient(to top, transparent 0%, #000 55%, #000 100%); }
-  .top-scrim::after {
-    content: ""; top: 0; bottom: 0;
-    background: linear-gradient(color-mix(in srgb, var(--color-bg) 78%, transparent) 0%, color-mix(in srgb, var(--color-bg) 78%, transparent) 10%, color-mix(in srgb, var(--color-bg) 67%, transparent) 20%, color-mix(in srgb, var(--color-bg) 55%, transparent) 30%, color-mix(in srgb, var(--color-bg) 44%, transparent) 40%, color-mix(in srgb, var(--color-bg) 33%, transparent) 50%, color-mix(in srgb, var(--color-bg) 24%, transparent) 60%, color-mix(in srgb, var(--color-bg) 15%, transparent) 70%, color-mix(in srgb, var(--color-bg) 8%, transparent) 80%, color-mix(in srgb, var(--color-bg) 3%, transparent) 90%, color-mix(in srgb, var(--color-bg) 0%, transparent) 100%);
-  }
+  :global(.js) .top-scrim { display: block; }
+  :global(html[data-grid-scrolled]) .top-scrim { opacity: 1; }
   .top-scrim::before {
-    content: ""; top: 0; bottom: 0; z-index: 1;
+    content: ""; position: absolute; inset: 0;
     background-image: var(--grain); background-size: var(--grain-size) var(--grain-size);
-    /* Plain speckles, no blend mode: a blended layer here cuts the blurs
-       off from the page and they stop blurring. */
-    filter: var(--top-scrim-grain-filter);
-    -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent);
+    filter: var(--top-scrim-grain-filter); opacity: var(--top-scrim-grain);
   }
-  :global(html[data-grid-scrolled]) .top-scrim::before { opacity: var(--top-scrim-grain); }
   .edge i:nth-child(8) { right: 87.5%; width: 12.5%; -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 100%); mask-image: linear-gradient(to left, transparent 0%, #000 100%); }
 </style>
