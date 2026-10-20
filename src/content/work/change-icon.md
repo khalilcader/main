@@ -11,11 +11,11 @@ cover:
   palette: fuchsia
   alt: The Figma app on an iPhone home screen, long-pressing its icon, choosing Change Icon, and picking a new app icon from a sheet
   video:
-    webm: images/work/change-icon.webm
-    mp4: images/work/change-icon.mp4
-    poster: images/work/change-icon.jpg
+    webm: images/work/change-icon-2.webm
+    mp4: images/work/change-icon-2.mp4
+    poster: images/work/change-icon-2.jpg
     start: 9
-    device: iphone-recorded
+    device: iphone   # the recording cropped to its screen, in our frame
     rest: [0.5, 0.66, 1.25]   # thumbnail: the Choose Icon sheet, backdrop below the phone
     # [seconds, x, y, zoom]: the lower half, where it all happens (the dock,
     # the menu, the sheet), backdrop showing below the phone.
