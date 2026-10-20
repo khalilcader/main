@@ -219,6 +219,12 @@
   --color-gradient-indigo-deep: #eff0f7;    /* top: pale periwinkle mist */
   --color-gradient-indigo-base: #e0e3f2;
   --color-gradient-indigo-light: #aab4df;   /* bottom: a soft periwinkle glow */
+  --color-gradient-lagoon-deep: #eaf3f6;
+  --color-gradient-lagoon-base: #d0e6ee;
+  --color-gradient-lagoon-light: #5fb0c9;   /* bottom: a blue-teal glow */
+  --color-gradient-fuchsia-deep: #f6eef6;
+  --color-gradient-fuchsia-base: #ecd8ef;
+  --color-gradient-fuchsia-light: #c27ad0;   /* bottom: a pinkish-purple glow */
   --color-gradient-slate-deep: #eef1f4;
   --color-gradient-slate-base: #dbe2ea;
   --color-gradient-slate-light: #93a7bf;   /* bottom: a cool slate glow */
@@ -360,6 +366,12 @@
     --color-gradient-iris-deep: #110f1d;
     --color-gradient-iris-base: #19162e;
     --color-gradient-iris-light: #352c78;
+    --color-gradient-lagoon-deep: #0d1416;
+    --color-gradient-lagoon-base: #122024;
+    --color-gradient-lagoon-light: #1d4652;
+    --color-gradient-fuchsia-deep: #160f17;
+    --color-gradient-fuchsia-base: #221624;
+    --color-gradient-fuchsia-light: #4a2652;
     --color-gradient-slate-deep: #0f1215;
     --color-gradient-slate-base: #161b21;
     --color-gradient-slate-light: #2c3a4b;
@@ -478,6 +490,12 @@
   --color-gradient-iris-deep: #110f1d;
   --color-gradient-iris-base: #19162e;
   --color-gradient-iris-light: #352c78;
+  --color-gradient-lagoon-deep: #0d1416;
+  --color-gradient-lagoon-base: #122024;
+  --color-gradient-lagoon-light: #1d4652;
+  --color-gradient-fuchsia-deep: #160f17;
+  --color-gradient-fuchsia-base: #221624;
+  --color-gradient-fuchsia-light: #4a2652;
   --color-gradient-slate-deep: #0f1215;
   --color-gradient-slate-base: #161b21;
   --color-gradient-slate-light: #2c3a4b;
