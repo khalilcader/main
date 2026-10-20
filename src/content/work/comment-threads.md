@@ -3,7 +3,7 @@ title: Comment Threads
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2023"
-order: 13
+order: 11
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
