@@ -144,7 +144,8 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
 }`;
 
-const MAX_DPR = 1.5;  // the cover is large; this keeps the shader light
+const MAX_DPR = 1;    // soft gradients don't need more; a dozen of these at
+                      // 1.5x ran the GPU short of memory and tiles went blank
 const FPS = 30;       // the motion is slow, so 30fps is plenty
 const SPEED = 2.5;    // how fast the folds and colour waves drift
 
