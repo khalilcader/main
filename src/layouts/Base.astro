@@ -5,7 +5,11 @@ interface Props {
   title?: string;
   description?: string;
 }
-const { title = 'Khalil Cader', description = 'Khalil Cader, product designer.' } = Astro.props;
+const { title = 'Khalil Cader', description = 'Khalil Cader is a product designer at Anthropic, designing tools that shape how people think, collaborate, and create.' } = Astro.props;
+const base = import.meta.env.BASE_URL;
+// Absolute, for link previews (set SITE to the live domain when deploying).
+const ogImage = new URL(`${base}og.png`, Astro.site).href;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 ---
 <!doctype html>
 <html lang="en">
@@ -14,6 +18,18 @@ const { title = 'Khalil Cader', description = 'Khalil Cader, product designer.' 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={pageUrl} />
+    <link rel="icon" type="image/png" href={`${base}favicon.png`} />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+    <!-- Link previews (iMessage, Slack, LinkedIn, X). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <!-- Before first paint: mark JS as available, and apply a pinned theme so it never flashes. -->
     <script is:inline>
       document.documentElement.classList.add('js');
