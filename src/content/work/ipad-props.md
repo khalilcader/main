@@ -8,7 +8,7 @@ cover:
   aspect: 1.25   # 771 × 617: wide, for landscape footage
   shader: gradient
   angle: 60
-  palette: slate
+  palette: caramel
   alt: A prototype on a real iPad, tuning a floating properties panel's colors, materials and size by hand, in light and dark
   video:
     webm: images/work/ipad-props.webm
