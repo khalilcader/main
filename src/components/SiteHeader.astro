@@ -216,12 +216,12 @@ const { tools = true } = Astro.props;
     height: calc(var(--close-height) - 2 * (var(--tools-inset) + var(--button-border-width)));
     border-radius: calc(var(--label-radius) - var(--tools-inset) - var(--button-border-width));
   }
-  /* The year, after the title: lighter, like under the cards. */
-  .close-group .focus-title :global(.label-year) { display: inline; margin: 0 0 0 var(--focus-year-gap); color: var(--color-label-year); font-size: inherit; font-weight: 400; }
+  /* The year under the title, left-aligned: smaller and lighter, like under the cards. */
+  .close-group .focus-title :global(.label-year) { display: block; margin-top: var(--focus-year-gap); color: var(--color-label-year); font-size: var(--focus-year-size); font-weight: 400; letter-spacing: 0; }
   .focus-title {
     font-size: var(--focus-title-size); font-weight: var(--text-name-weight);
     letter-spacing: var(--text-name-tracking); line-height: 1;
-    white-space: nowrap; color: var(--color-fg);
+    white-space: nowrap; color: var(--color-fg); text-align: left;
   }
   .tool {
     width: var(--tool-size); height: var(--tool-size); padding: 0;
