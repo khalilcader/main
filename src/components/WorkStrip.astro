@@ -154,6 +154,16 @@ const base = import.meta.env.BASE_URL;
   :global(html.mobile) .label > :global(.smooth-layer),
   :global(html.mobile) .label > :global(.smooth-border),
   :global(html.mobile) .label::before { display: none; }
+  /* The title under each cover on phones is plain text, always shown. Forced,
+     so none of the desktop pill's states (hidden until hovered, popped in,
+     counter-scaled; set by script there) can hide it: Chrome and Safari on
+     iPhone showed nothing. */
+  :global(html.mobile) .label {
+    position: static !important; transform: none !important; opacity: 1 !important; visibility: visible !important;
+    color: var(--color-fg) !important; isolation: auto !important; filter: none !important;
+  }
+  :global(html.mobile) .label-text { display: block; opacity: 1 !important; }
+  :global(html.mobile) .label-year { display: block !important; margin-top: var(--label-year-gap); opacity: 1 !important; color: var(--color-label-year) !important; }
   /* No focus ring: a focused cover lifts and shows its title, like hover (script). */
   .card:focus-visible { outline: none; }
 
