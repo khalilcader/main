@@ -8,7 +8,7 @@ cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
   angle: 200
-  palette: lilac
+  palette: sand
   alt: Figma on iPhone, swiping a comment thread for quick actions, then paging between threads in a sheet over the canvas
   video:
     webm: images/work/comment-threads.webm
