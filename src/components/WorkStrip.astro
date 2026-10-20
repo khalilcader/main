@@ -105,10 +105,28 @@ const base = import.meta.env.BASE_URL;
   /* Tapped: the cover lifts out of the list to fill the screen and plays
      (work-strip.ts), over the page faded out; a placeholder keeps its spot. */
   :global(html.mobile) .card :global(.cover.viewing) { position: fixed; z-index: 71; aspect-ratio: auto; }
-  :global(.viewer-scrim) { position: fixed; inset: 0; z-index: 70; background: var(--color-bg); touch-action: none; }
+  :global(.viewer-scrim) {
+    position: fixed; inset: 0; z-index: 70; touch-action: none;
+    background: var(--color-scrim);   /* the list stays faintly visible, blurred, behind the open cover */
+    -webkit-backdrop-filter: blur(var(--viewer-blur)); backdrop-filter: blur(var(--viewer-blur));
+  }
   :global(.viewer-scrim[hidden]) { display: none; }
+  :global(.viewer-bar) {
+    position: fixed; left: 0; top: 0; z-index: 72; transform-origin: 0 0;
+    display: flex; align-items: center; gap: var(--focus-title-gap);
+    padding: calc(env(safe-area-inset-top, 0px) + var(--page-pad)) var(--page-pad) 0;
+  }
+  :global(.viewer-bar[hidden]) { display: none; }
+  :global(.viewer-title) {
+    font-size: var(--focus-title-size); font-weight: var(--text-name-weight); letter-spacing: var(--text-name-tracking);
+    line-height: 1; color: var(--color-fg); white-space: nowrap;
+  }
+  :global(.viewer-title .label-year) {
+    display: block; margin-top: var(--focus-year-gap);
+    color: var(--color-label-year); font-size: var(--focus-year-size); font-weight: 400; letter-spacing: 0;
+  }
   :global(.viewer-close) {
-    position: absolute; left: var(--page-pad); top: calc(env(safe-area-inset-top, 0px) + var(--page-pad));
+    flex: none;
     width: var(--button-size); height: var(--button-size); padding: 0; display: grid; place-items: center;
     border: var(--button-border-width) solid var(--color-button-border); border-radius: var(--button-radius);
     background: var(--color-button-bg); color: var(--color-fg); box-shadow: var(--button-shadow);
