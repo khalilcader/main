@@ -17,7 +17,7 @@
   --color-button-bg: rgba(255, 255, 255, 0.35);  /* glass: the blurred page shows through */
   --color-button-border: rgba(0, 0, 0, 0.11);
   --color-divider: rgba(0, 0, 0, 0.1);
-  --color-top-bar: color-mix(in srgb, var(--color-bg) 88%, transparent);   /* frosted bar behind the header (grid, scrolled) */
+  --color-top-bar: color-mix(in srgb, var(--color-bg) 96%, transparent);   /* frosted bar behind the header (grid, scrolled) */
   --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
   --color-cursor-halo: rgba(0, 0, 0, 0.07);
   --color-cursor-ring: rgba(0, 0, 0, 0.1);    /* hairline round the glass bubble, so it reads on white */
