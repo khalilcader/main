@@ -27,6 +27,10 @@ const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (n
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
 const HV_K = 600, HV_C = 44;         // hover lift: quick and smooth (ζ ≈ 0.9, no visible overshoot)
 const FOCUS_FADE = 2.2;
+// Safari redraws blurs and blended layers far more slowly than Chrome; it
+// gets a lighter version of the same look (html.safari, WorkStrip.astro).
+const SAFARI = /^((?!chrome|chromium|crios|fxios|android).)*safari/i.test(navigator.userAgent);
+if (SAFARI) document.documentElement.classList.add('safari');
 const GRID_FOCUS_FADE = 4.5;         // the grid lightbox clears the header sooner: gone a fifth of the way in
 // Focus-mode spacing (experiment):
 //   'row'       a zoomed-in row: the row's gap scaled up with the covers, so
@@ -1154,6 +1158,7 @@ function init(stage: HTMLElement) {
         if (key !== c.labelLast) {
           c.labelLast = key;
           c.label.style.setProperty('--show', show < 0.005 ? '0' : show.toFixed(3));
+          c.label.toggleAttribute('data-off', show < 0.005);   // fully hidden: its glass isn't drawn at all
           c.label.style.setProperty('--pop', pop.toFixed(3));
           c.label.style.setProperty('--unscale', (c.W / tw).toFixed(4));
         }
@@ -1210,8 +1215,10 @@ function init(stage: HTMLElement) {
         // smoothed corners, border and background stay crisp. Either way the
         // grain in the veil above stays sharp.
         const whole = focusBlur >= rowBlur;
-        c.cover.style.filter = whole && blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : '';
-        c.content.style.filter = !whole && blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : '';
+        // Safari: the blur in whole-pixel steps of 3, so a cover isn't re-blurred every frame.
+        const bq = SAFARI ? Math.round(blur / 3) * 3 : blur;
+        c.cover.style.filter = whole && bq > 0.05 ? `blur(${bq.toFixed(2)}px)` : '';
+        c.content.style.filter = !whole && bq > 0.05 ? `blur(${bq.toFixed(2)}px)` : '';
         // In focus, a heavy blur would be cut hard by the squircle clip, so a
         // round corner a little larger stands in. The row's light blur keeps the
         // clip, so its corners stay smoothed.

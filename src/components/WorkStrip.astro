@@ -195,6 +195,7 @@ const base = import.meta.env.BASE_URL;
      opacity below 1 on the label would cut its glass off from the page behind,
      so the blur would drop out mid-fade and snap back on as it settled. */
   .label > :global(.smooth-layer), .label > :global(.smooth-border), .label-text, .label::before { opacity: var(--show, 0); }
+  .label[data-off] > :global(.smooth-layer) { display: none; }   /* a hidden pill's glass costs a blur pass per frame otherwise */
   .label::before {
     content: ""; position: absolute; inset: calc(-1 * var(--button-border-width)); z-index: -2;
     border-radius: inherit; box-shadow: var(--label-shadow);
@@ -285,6 +286,9 @@ const base = import.meta.env.BASE_URL;
     width: var(--edge-w, 8vw); will-change: transform;
   }
   :global(.js) .edge { display: block; }
+  /* Safari (html.safari, work-strip.ts) redraws backdrop blurs slowly: the
+     edge keeps only its two strongest bands, which carry most of the look. */
+  :global(html.safari) .edge i:nth-child(-n+6) { display: none; }
   .edge.l { left: 0; }
   .edge.r { right: 0; transform: scaleX(-1); }
   /* Each band covers only its own strip of the edge (where its mask is
