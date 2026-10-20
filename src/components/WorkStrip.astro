@@ -117,7 +117,11 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     content: ""; position: absolute; inset: calc(-1 * var(--button-border-width)); z-index: -2;
     border-radius: inherit; box-shadow: var(--label-shadow);
   }
-  .label:not(:global(.smooth-host)) { opacity: 0; }   /* until its glass layer is set up */
+  .label:not(:global(.smooth-host)) { opacity: 0; }
+  /* The pill animates (it pops and scales on hover); a clip-path on a
+     backdrop-filtered layer that's animating flickered between rounded and
+     square in Chrome, so its glass is rounded by border-radius alone. */
+  .label > :global(.smooth-layer) { clip-path: none !important; }   /* until its glass layer is set up */
   /* In the row, the title is plain text under the cover, no glass; the pill
      stays for the grid, where there's no room beneath. */
   :global(html:not([data-grid])) .label {
