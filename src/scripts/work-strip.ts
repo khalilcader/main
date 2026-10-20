@@ -1028,10 +1028,12 @@ function init(stage: HTMLElement) {
     // Grid lightbox: every other card blurs as a whole, shape and all, so the
     // blur is as strong at its edges as in its middle (one backdrop blur over
     // the page went sharper toward each cover's edge). In the card's own px,
-    // since it's scaled.
+    // since it's scaled. It comes in three steps under the fading tint rather
+    // than eased: re-blurring every card each frame flickered.
     const lbBlur = token('--backdrop-blur');
+    const lbStep = bo > 0.7 ? 1 : bo > 0.4 ? 0.66 : bo > 0.12 ? 0.33 : 0;
     for (const c of cards) {
-      const b = c.i === gridActive ? 0 : Math.round(bo * lbBlur * 2) / 2;
+      const b = c.i === gridActive ? 0 : Math.round(lbBlur * lbStep * 2) / 2;
       if (b === c.gBlur) continue;
       c.gBlur = b;
       c.el.style.filter = b > 0 ? `blur(${(b / c.gk).toFixed(2)}px)` : '';
