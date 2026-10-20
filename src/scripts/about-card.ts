@@ -181,6 +181,19 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
   // The sheet follows a finger dragging it down, and goes when let go far or
   // fast enough; otherwise it springs back up. Dragging up resists.
   if (sheet) {
+    // The sheet's top corners in the same smoothed squircle as everything
+    // else; the bottom ones fall outside it (a shape taller than the sheet),
+    // so they're square against the bottom of the screen.
+    const surface = faces[0];
+    const shape = () => {
+      const w = surface.offsetWidth, h = surface.offsetHeight;
+      if (!w || !h) return;
+      const css = getComputedStyle(document.documentElement);
+      const r = parseFloat(css.getPropertyValue('--sheet-radius')) || 28;
+      const sm = parseFloat(css.getPropertyValue('--corner-smoothing')) || 0.6;
+      surface.style.setProperty('clip-path', `path("${squirclePath(w, h + r * 4, r, sm)}")`, 'important');
+    };
+    new ResizeObserver(shape).observe(surface);
     let y0 = 0, dy = 0, t0 = 0, dragging = false;
     const scrimFull = () => 1;
     card.addEventListener('pointerdown', (e) => {

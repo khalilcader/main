@@ -129,7 +129,9 @@ const jobs = [
      the content keeps clear of the home indicator. */
   :global(html.mobile) .about-card { border-radius: var(--sheet-radius) var(--sheet-radius) 0 0; }
   :global(html.mobile) .about-front .about-surface {
-    clip-path: none !important; border-radius: var(--sheet-radius) var(--sheet-radius) 0 0 !important;
+    /* A clip, not just overflow + radius (iOS doesn't round composited content
+       like the light canvas with those); about-card.ts sets the smoothed one. */
+    clip-path: inset(0 round var(--sheet-radius) var(--sheet-radius) 0 0); border-radius: var(--sheet-radius) var(--sheet-radius) 0 0 !important;
     border-bottom: 0; border-left: 0; border-right: 0; overflow: hidden !important;   /* .smooth-clip forces visible */
   }
   :global(html.mobile) .about-front .about-surface > :global(.smooth-border) { display: none; }
