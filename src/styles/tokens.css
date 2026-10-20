@@ -158,8 +158,8 @@
   --top-scrim-grain: 0.12;
   --top-scrim-grain-filter: none;
   --close-height: 46px;                     /* focus mode's close + title bar: as tall as the card labels */
-  --focus-title-size: 18px;                 /* project title beside the close button in focus mode */
-  --focus-title-pad: 12px;
+  --focus-title-size: 16px;                 /* project title beside the close button in focus mode */
+  --focus-title-gap: 12px;                  /* close button to the title */
 
   /* Covers */
   --cover-radius: 48px;                     /* at row height */
