@@ -59,6 +59,15 @@ if (stage) (document.documentElement.classList.contains('mobile') ? initMobile :
 // playing. Tapping one plays its recording in the system's own player (which
 // zooms out of the cover, and swipes away to close).
 function initMobile(stage: HTMLElement) {
+  // Scrolled: the header tucks up over its frosted bar and hairline
+  // (WorkStrip.astro, SiteHeader.astro), the same as the desktop grid.
+  let scrolled = false;
+  const onScroll = () => {
+    const s = scrollY > 2;
+    if (s !== scrolled) { scrolled = s; document.documentElement.toggleAttribute('data-grid-scrolled', s); }
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
   shapeGlassFrames(stage);
   mountCameras(stage);
   for (const cv of stage.querySelectorAll<HTMLCanvasElement>('canvas[data-shader]')) {

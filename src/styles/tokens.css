@@ -274,6 +274,8 @@
   --color-gradient-orchid-base: #f0dbf2;
   --color-gradient-orchid-light: #d696e0;   /* bottom: a playful orchid glow, like FigJam's pink marker */
   --color-desktop-border: rgba(0, 0, 0, 0.16);
+  --color-sheet-grabber: rgba(0, 0, 0, 0.2);    /* phones: the About sheet's grab handle */
+  --color-sheet-scrim: rgba(0, 0, 0, 0.4);       /* phones: the page dimmed behind the About sheet */
 
   /* Effects */
   --grain-amount: 1;
@@ -296,7 +298,17 @@
 @media (max-width: 639px) {
   :root {
     --mobile-card-gap: 40px;                /* phones: between covers in the list (title included) */
+    --sheet-inset: 8px;                     /* phones: the About sheet, off the screen's edges */
+    --sheet-height: 640px;
+    --sheet-text-size: 17px;
+    --sheet-scene-height: 180px;
+    --sheet-pad: 28px;                      /* copy inset from the sheet's sides */
+    --sheet-top-gap: 64px;                  /* at least this much page shows above it */
+    --sheet-grabber-top: 8px;
+    --sheet-grabber-width: 36px;
+    --sheet-grabber-height: 5px;
     --mobile-bottom-pad: 64px;
+    --mobile-col-gap: 12px;
     --header-top: 16px;
     --row-gap-below-header: 32px;
     --row-gap: 12px;
@@ -423,6 +435,8 @@
     --color-gradient-orchid-base: #221726;
     --color-gradient-orchid-light: #4a2852;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
+    --color-sheet-grabber: rgba(255, 255, 255, 0.28);
+    --color-sheet-scrim: rgba(0, 0, 0, 0.6);
     --about-scene-day: 0;
     --about-scene-opacity: 0.8;
     --about-scene-blend: screen;
@@ -550,6 +564,8 @@
   --color-gradient-orchid-base: #221726;
   --color-gradient-orchid-light: #4a2852;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
+  --color-sheet-grabber: rgba(255, 255, 255, 0.28);
+  --color-sheet-scrim: rgba(0, 0, 0, 0.6);
   --about-scene-day: 0;
   --about-scene-opacity: 0.8;
   --about-scene-blend: screen;
