@@ -12,6 +12,8 @@ const { shortcut, below = false } = Astro.props;
 
 <style>
   :global(.has-tip) { position: relative; }
+  /* Phones have no hover or keyboard; a tip only showed when a sheet focused its button. */
+  :global(html.mobile) .tip { display: none; }
   .tip {
     position: absolute; left: 50%; bottom: calc(100% + var(--tip-gap));
     z-index: 50; pointer-events: none;
