@@ -328,8 +328,8 @@ const base = import.meta.env.BASE_URL;
     border-bottom: 1px solid var(--color-divider);
     opacity: 0; transition: opacity 0.3s ease-out;
   }
-  /* Safari: a near-solid tint instead (it redraws live blurs slowly). */
-  :global(html.safari:not(.mobile)) .top-scrim { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--color-bg) 96%, transparent); }
+  /* Safari: solid, the page colour (it redraws live blurs slowly). */
+  :global(html.safari) .top-scrim { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--color-bg); }
   :global(.js) .top-scrim { display: block; }
   :global(html[data-grid-scrolled]) .top-scrim { opacity: calc(1 - var(--lb, 0)); }   /* fades out as a cover opens */
   :global(html[data-focus]) .top-scrim { transition: none; }   /* following the cover, not lagging behind it */
