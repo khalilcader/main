@@ -10,6 +10,9 @@ const work = defineCollection({
     role: z.string(),
     year: z.string(),
     order: z.number().default(99),
+    // Shelved: kept with its video and stills, but left off the site. Set
+    // back to false (or delete the line) to bring it back.
+    hidden: z.boolean().default(false),
     // The cover shown in the work strip on the home page.
     cover: z.object({
       // Width / height. Figma's row covers are 422 × 617 (portrait) and 771 × 617 (wide).

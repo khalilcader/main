@@ -7,7 +7,7 @@ import stills from '../data/blur-stills.json';
 // large focus strip, or switch to a grid. The motion lives in
 // src/scripts/work-strip.ts; without JavaScript the covers sit in a plain
 // scrolling row.
-const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const work = (await getCollection('work', (w) => !w.data.hidden)).sort((a, b) => a.data.order - b.data.order);
 // Grid lightbox: each cover's blurred still (made by the project-video
 // skill's blur-stills scripts), placed as a share of the card's box.
 const still = (id: string) => (stills as Record<string, { l: number; t: number; w: number; h: number }>)[id];
