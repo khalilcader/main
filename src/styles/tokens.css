@@ -297,10 +297,10 @@
 
 @media (max-width: 639px) {
   :root {
-    --mobile-card-gap: 40px;                /* phones: between covers in the list (title included) */
+    --mobile-card-gap: 28px;                /* phones: between covers in the list (title included) */
     --sheet-inset: 8px;                     /* phones: the About sheet, off the screen's edges */
     --sheet-height: 640px;
-    --sheet-text-size: 17px;
+    --sheet-text-size: clamp(16px, 2.45dvh, 20px);   /* as big as the sheet's height allows */
     --sheet-scene-height: 180px;
     --sheet-pad: 28px;                      /* copy inset from the sheet's sides */
     --sheet-top-gap: 64px;                  /* at least this much page shows above it */
@@ -309,7 +309,8 @@
     --sheet-grabber-height: 5px;
     --mobile-bottom-pad: 64px;
     --mobile-col-gap: 12px;
-    --cover-radius-share: 0.07;             /* phones: a cover's corner, as a share of its height (about desktop's) */
+    --page-pad: 12px;                       /* phones: the same as between the columns, so covers stay as big as they can */
+    --cover-radius-share: 0.1;              /* phones: a cover's corner, as a share of its height (about desktop's) */
     --header-top: 16px;
     --row-gap-below-header: 32px;
     --row-gap: 12px;
