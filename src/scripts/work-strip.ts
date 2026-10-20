@@ -95,6 +95,40 @@ function init(stage: HTMLElement) {
   // ---- cards ----
   // The header's frosted bar (grid view, scrolled).
   const topScrim = document.querySelector<HTMLElement>('.top-scrim');
+  // Grid lightbox stills: loaded (and decoded) once the grid is first shown,
+  // placed over their covers when one opens.
+  const stills = document.getElementById('stills')!;
+  let stillsLoaded = false, stillsFor = -1, stillsLast = -1;
+  function loadStills() {
+    if (stillsLoaded) return;
+    stillsLoaded = true;
+    for (const c of cards) {
+      const box = c.el.dataset.still?.split(',').map(Number);
+      if (!box) continue;
+      const imgs = ['light', 'dark'].map((t) => {
+        const img = new Image();
+        img.className = t === 'light' ? 'day' : 'night';
+        img.alt = ''; img.decoding = 'async';
+        img.src = `${stills.dataset.base}${c.el.dataset.slug}-${t}.webp`;
+        stills.appendChild(img);
+        return img;
+      });
+      c.still = { box, imgs };
+      Promise.all(imgs.map((i) => i.decode())).then(() => { c.stillReady = true; }).catch(() => {});
+    }
+  }
+  function placeStills() {
+    stillsFor = gridActive;
+    for (const c of cards) {
+      if (!c.still) continue;
+      const r = c.el.getBoundingClientRect(), [l, t, w, h] = c.still.box;
+      for (const img of c.still.imgs) {
+        img.style.left = `${r.left + (l / 100) * r.width}px`; img.style.top = `${r.top + (t / 100) * r.height}px`;
+        img.style.width = `${(w / 100) * r.width}px`; img.style.height = `${(h / 100) * r.height}px`;
+        img.classList.toggle('out', c.i === gridActive);
+      }
+    }
+  }
   const cards = [...stage.querySelectorAll<HTMLElement>('.card')].map((el, i) => ({
     i, el, a: parseFloat(el.dataset.aspect || '1'),
     cover: el.querySelector<HTMLElement>('.cover')!,
@@ -107,6 +141,7 @@ function init(stage: HTMLElement) {
     labelLast: '',
     video: el.querySelector<HTMLVideoElement>('video'),
     playing: false, dimmed: false, vt: 0, posterBehind: false,
+    still: null as null | { box: number[]; imgs: HTMLImageElement[] }, stillReady: false, stillOp: '',
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
     gm: 0, rLast: -1,    // corners: 0 sized for the row, 1 for the grid (shapeCorners); last radius drawn
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
@@ -173,7 +208,7 @@ function init(stage: HTMLElement) {
       const open = mode === 'row' ? c.i === centred : c.i === gridOpen;
       const hover = c.i === hovered && !reduce && !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const want = open || hover;
-      c.shader?.setPaused(!want || c.dimmed || (mode === 'grid' && gridActive >= 0 && c.i !== gridActive));
+      c.shader?.setPaused(!want || c.dimmed);
       if (!c.video || want === c.playing) continue;
       c.playing = want;
       const v = c.video;
@@ -221,6 +256,7 @@ function init(stage: HTMLElement) {
   const rubberDim = (s: Scroll) => Math.min(P.rubberD, dimOf(s) * 0.5);
 
   function layout() {
+    stillsFor = -1;   // re-placed over the covers' new spots
     vw = stage.clientWidth; vh = stage.clientHeight;
     pad = parseFloat(getComputedStyle(header).left) || 16;
     rowGap = token('--row-gap');
@@ -1044,10 +1080,22 @@ function init(stage: HTMLElement) {
       // Its grain fades with it, up to the theme's grain strength.
       if (backdropGrain) backdropGrain.style.opacity = (bo * (parseFloat(getComputedStyle(backdropGrain).getPropertyValue('--scrim-grain')) || 0)).toFixed(3);
     }
-    // Grid lightbox: one backdrop blur over the page (.backdrop) blurs the
-    // other covers. Nothing on the covers themselves changes: blurring them
-    // directly made Chrome redraw them as the blur came off, their images
-    // blank for a frame while they decoded again.
+    // Grid lightbox: the other covers cross-fade to stills of themselves,
+    // blurred ahead of time (WorkStrip.astro). Only opacities change, which
+    // Chrome composites without redrawing the covers (a live blur on them
+    // made it redraw them, blank for a frame, as it came off).
+    if (mode === 'grid') loadStills();
+    const lbOn = mode === 'grid' && gridActive >= 0;
+    if (lbOn && stillsFor !== gridActive) placeStills();
+    if (!lbOn) stillsFor = -1;
+    if (bo !== stillsLast) {
+      stillsLast = bo;
+      stills.style.opacity = bo > 0 ? String(bo) : '';
+      for (const c of cards) {
+        const op = lbOn && c.i !== gridActive && c.stillReady && bo > 0 ? (1 - bo).toFixed(3) : '';
+        if (op !== c.stillOp) { c.stillOp = op; c.el.style.opacity = op; }
+      }
+    }
     // The header's frosted bar fades out as the lightbox comes in.
     topScrim?.style.setProperty('--lb', String(bo));
     // The focus view is near full screen, so the name steps aside for it.

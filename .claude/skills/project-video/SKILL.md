@@ -66,3 +66,16 @@ of them more than once.
 
 ## Labels
 - Title in full text colour with the year under it, smaller and lighter.
+
+## Grid lightbox stills (after any cover change)
+- Behind an open cover in grid view, the other covers cross-fade to blurred
+  stills of themselves (`public/images/work/blur/<slug>-light|dark.webp`,
+  placed by `src/data/blur-stills.json`). No live blur: a backdrop blur left
+  zoomed device bezels sharp, and blurring the covers themselves made Chrome
+  redraw them blank for a frame (Khalil saw it as flicker).
+- Whenever a cover is added or its look changes (thumbnail, rest framing,
+  palette, angle, device), regenerate them: `npm run build`, start the
+  preview, then
+  `node .claude/skills/project-video/scripts/blur-stills.mjs <tmp dir>` and
+  `python3 .claude/skills/project-video/scripts/blur-stills.py <tmp dir> .`
+  A cover without a still just stays sharp under the tint.

@@ -1,14 +1,21 @@
 ---
 import Cover from './Cover.astro';
 import { getCollection } from 'astro:content';
+import stills from '../data/blur-stills.json';
 
 // The work strip (Figma 53:324): a row of covers you can drag, pull up into a
 // large focus strip, or switch to a grid. The motion lives in
 // src/scripts/work-strip.ts; without JavaScript the covers sit in a plain
 // scrolling row.
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+// Grid lightbox: each cover's blurred still (made by the project-video
+// skill's blur-stills scripts), placed as a share of the card's box.
+const still = (id: string) => (stills as Record<string, { l: number; t: number; w: number; h: number }>)[id];
+const base = import.meta.env.BASE_URL;
 ---
 <div class="stage" id="stage" aria-label="Selected work">
+  <!-- Grid lightbox: the other covers' blurred stills (work-strip.ts fills it). -->
+  <div class="stills" id="stills" data-base={`${base}images/work/blur/`} aria-hidden="true"></div>
   <div class="backdrop" id="backdrop"></div>
   <!-- Grain on its own layer above the blur, so its blend reaches the page. -->
   <div class="backdrop-grain" id="backdrop-grain"></div>
@@ -18,6 +25,8 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       type="button"
       data-cursor-grow
       data-i={i}
+      data-slug={item.id}
+      data-still={still(item.id) ? [still(item.id).l, still(item.id).t, still(item.id).w, still(item.id).h].join(',') : undefined}
       data-aspect={item.data.cover.aspect}
       aria-label={`${item.data.title}. ${item.data.cover.alt}`}
       style={`--aspect: ${item.data.cover.aspect}`}
@@ -165,11 +174,24 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     mix-blend-mode: var(--grain-blend); opacity: min(1, calc(var(--grain-amount) * var(--grain-strength)));
   }
 
+  /* Grid lightbox: each other cover cross-fades to a still of itself, blurred
+     ahead of time (a live blur either missed parts of some covers or, on the
+     covers themselves, made Chrome redraw them blank as it came off). Over
+     the covers, under the tint and the open cover. */
+  .stills { position: absolute; inset: 0; z-index: 15; pointer-events: none; opacity: 0; }
+  .stills :global(img) { position: absolute; left: 0; top: 0; max-width: none; }
+  .stills :global(.night) { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-scheme="light"])) .stills :global(.day) { display: none; }
+    :global(html:not([data-scheme="light"])) .stills :global(.night) { display: block; }
+  }
+  :global(html[data-scheme="dark"]) .stills :global(.day) { display: none; }
+  :global(html[data-scheme="dark"]) .stills :global(.night) { display: block; }
+  .stills :global(img.out) { visibility: hidden; }   /* the open cover's own */
   /* Grid lightbox: everything else fades to the page. */
   .backdrop {
     position: absolute; inset: 0; z-index: 16; pointer-events: none;
     background: var(--color-scrim);
-    -webkit-backdrop-filter: blur(var(--backdrop-blur)); backdrop-filter: blur(var(--backdrop-blur));
     opacity: 0;
   }
   /* Same grain as the About overlay: overlay in light mode; in dark, plain
