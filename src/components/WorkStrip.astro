@@ -116,7 +116,7 @@ const base = import.meta.env.BASE_URL;
   :global(.viewer-close svg) { width: var(--icon-size); height: var(--icon-size); }
   :global(html.mobile) .card :global(.cover) {
     position: relative; inset: auto; width: 100%; aspect-ratio: var(--aspect);
-    border: 0; border-radius: calc(var(--cover-radius-share) * 100cqw / var(--aspect));   /* until the script's smoothed clip (and outline) take over */
+    border: 0; border-radius: calc(var(--cover-radius-share) * 100cqw);   /* until the script's smoothed clip (and outline) take over */
   }
   :global(html.mobile) .card :global(.outline) { stroke-width: var(--cover-border-width); }
   /* Window and film corners in proportion to the cover, as on desktop (where
