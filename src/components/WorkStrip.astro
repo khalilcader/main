@@ -102,11 +102,23 @@ const base = import.meta.env.BASE_URL;
      each placed in whichever column is shorter (work-strip.ts). */
   :global(html.mobile) .stage { flex-direction: row; align-items: flex-start; gap: var(--mobile-col-gap); }
   :global(html.mobile) .stage > :global(.col) { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: var(--mobile-card-gap); }
+  /* Tapped: the cover lifts out of the list to fill the screen and plays
+     (work-strip.ts), over the page faded out; a placeholder keeps its spot. */
+  :global(html.mobile) .card :global(.cover.viewing) { position: fixed; z-index: 71; aspect-ratio: auto; }
+  :global(.viewer-scrim) { position: fixed; inset: 0; z-index: 70; background: var(--color-bg); touch-action: none; }
+  :global(.viewer-scrim[hidden]) { display: none; }
+  :global(.viewer-close) {
+    position: absolute; left: var(--page-pad); top: calc(env(safe-area-inset-top, 0px) + var(--page-pad));
+    width: var(--button-size); height: var(--button-size); padding: 0; display: grid; place-items: center;
+    border: var(--button-border-width) solid var(--color-button-border); border-radius: var(--button-radius);
+    background: var(--color-button-bg); color: var(--color-fg); box-shadow: var(--button-shadow);
+  }
+  :global(.viewer-close svg) { width: var(--icon-size); height: var(--icon-size); }
   :global(html.mobile) .card :global(.cover) {
     position: relative; inset: auto; width: 100%; aspect-ratio: var(--aspect);
     border: 0; border-radius: calc(var(--cover-radius-share) * 100cqw / var(--aspect));   /* until the script's smoothed clip (and outline) take over */
   }
-  :global(html.mobile) .card :global(.outline) { stroke-width: calc(var(--cover-border-width) * 2); }   /* half falls outside the clip */
+  :global(html.mobile) .card :global(.outline) { stroke-width: var(--cover-border-width); }
   :global(html.mobile) .shadow, :global(html.mobile) .veil,
   :global(html.mobile) .stills, :global(html.mobile) .backdrop, :global(html.mobile) .backdrop-grain,
   :global(html.mobile) .edge { display: none; }
