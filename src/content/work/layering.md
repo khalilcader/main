@@ -8,7 +8,7 @@ cover:
   aspect: 1.25   # 771 × 617: wide, for the iPad
   shader: gradient
   angle: 160
-  palette: clay
+  palette: olive
   alt: Figma on iPad, reordering two stacked cards from the layers panel and the context menu
   video:
     webm: images/work/layering.webm
