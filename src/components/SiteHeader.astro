@@ -20,6 +20,7 @@ const { tools = true } = Astro.props;
           {photo && <img src={photo} alt="Khalil Cader" width="50" height="56" />}
         </span></span>
         <span class="face back" aria-hidden="true"><span class="surface" data-smooth="clip">
+          <span class="tint" data-smooth="surface"></span>
           <svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M7.75 2.75V2C5.67893 2 4 3.67893 4 5.75H4.75H5.5C5.5 4.50736 6.50736 3.5 7.75 3.5V2.75ZM7.75 2.75V3.5H16.25V2.75V2H7.75V2.75ZM16.25 2.75V3.5C17.4926 3.5 18.5 4.50736 18.5 5.75H19.25H20C20 3.67893 18.3211 2 16.25 2V2.75ZM19.25 5.75H18.5V18.25H19.25H20V5.75H19.25ZM19.25 18.25H18.5C18.5 19.4926 17.4926 20.5 16.25 20.5V21.25V22C18.3211 22 20 20.3211 20 18.25H19.25ZM16.25 21.25V20.5H7.75V21.25V22H16.25V21.25ZM7.75 21.25V20.5C6.50736 20.5 5.5 19.4926 5.5 18.25H4.75H4C4 20.3211 5.67893 22 7.75 22V21.25ZM4.75 18.25H5.5V5.75H4.75H4V18.25H4.75Z" fill="currentColor" stroke="none" />
             <path d="M8.75 6.75H15.25M8.75 10.75H15.25M8.75 14.75H11.25" />
@@ -162,15 +163,22 @@ const { tools = true } = Astro.props;
      background shows inside the smoothed clip; the border is drawn over it. */
   .face img { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); max-width: none; object-fit: cover; }
   .back { transform: rotateY(180deg); color: var(--color-fg); }
-  .back .icon { opacity: var(--photo-back-icon-opacity); }
+  /* Hover tile on the About side: inset and concentric, like the header buttons' tiles. */
+  .tint {
+    position: absolute; inset: var(--tools-inset);
+    --surface-bg: transparent; background: var(--surface-bg);
+    border-radius: calc(var(--photo-radius) - var(--tools-inset) - var(--button-border-width));
+    transition: background-color 0.12s ease-out;
+  }
+  .back .icon { position: relative; opacity: var(--photo-back-icon-opacity); }
   /* Flip on hover (mouse) or keyboard focus. */
   .who:focus-visible:not([data-noflip]) .flip, .photo.peek .flip { transform: rotateY(180deg); }
   @media (hover: hover) {
     /* Hover: flips, grows a little and lifts onto a stronger shadow. */
     .photo:hover { scale: var(--photo-hover-scale); }
     .photo:hover .flip { transform: rotateY(180deg); box-shadow: var(--photo-shadow-hover); }
-    /* ...and its About side takes the buttons' hover tint, inside its shape. */
-    .photo:hover .back .surface { background: linear-gradient(var(--color-tool-hover-bg), var(--color-tool-hover-bg)), var(--color-cover-bg); }
+    /* ...and its About side shows the buttons' hover tile, inset like theirs. */
+    .photo:hover .tint { --surface-bg: var(--color-tool-hover-bg); }
   }
   @media (prefers-reduced-motion: reduce) {
     .flip { transition: none; }
