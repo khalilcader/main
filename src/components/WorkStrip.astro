@@ -142,7 +142,7 @@ const base = import.meta.env.BASE_URL;
   /* Window and film corners in proportion to the cover, as on desktop (where
      the window is about 660px wide), not a fixed size that grows relatively
      rounder on a small cover and cuts into the window's content. */
-  :global(html.mobile) .card { --desktop-radius: 1.5cqw; --film-radius: 3.6cqw; }
+  :global(html.mobile) .card { --desktop-radius: 1.5cqw; --desktop-radius-share: 0.015; --film-radius: 3.6cqw; }
   :global(html.mobile) .shadow, :global(html.mobile) .veil,
   :global(html.mobile) .stills, :global(html.mobile) .backdrop, :global(html.mobile) .backdrop-grain,
   :global(html.mobile) .edge { display: none; }

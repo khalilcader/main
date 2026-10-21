@@ -92,9 +92,13 @@ function setup(el: HTMLElement) {
   // the shadow stays inside the smoothed outline (no sliver at the corners).
   // The clip keeps the CSS radius, read once before that.
   const radius = parseFloat(cs.borderTopLeftRadius) || 0;
+  // Or a share of its width (--smooth-radius-share), for shapes that scale:
+  // a fixed radius came out smaller than a recording's own corners when the
+  // cover was laid out bigger, and those peeked inside it.
+  const share = parseFloat(cs.getPropertyValue('--smooth-radius-share')) || 0;
   const update = () => {
     if (!w || !h) return;
-    const r = Math.min(radius, Math.min(w, h) / 2);
+    const r = Math.min(share ? share * w : radius, Math.min(w, h) / 2);
     const d = squirclePath(w, h, r, smoothing());
     target.style.clipPath = `path("${d}")`;
     path.setAttribute('d', d);
