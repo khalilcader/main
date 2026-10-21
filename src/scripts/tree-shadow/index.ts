@@ -6,8 +6,8 @@ import { buildTree, VERT, FRAG } from './engine.js';
 
 // Shared settings from Khalil's Tree Shadow artifact (Flip X, no falling
 // leaves), plus a light preset per theme, picked by --daylight-preset:
-// daylight with sun beams and a lens flare in light mode, softer beams and a
-// faint flare at night. Colours come from tokens.
+// daylight with sun beams and a lens flare in light mode, faint beams and no
+// flare at night. Colours come from tokens.
 const SETTINGS = {
   type: 'broadleaf', seed: 12, posX: 0.5, posY: -0.6, angle: -38, rotY: 0, rotX: 0, flipX: true,
   blinds: 0, blindAngle: 0, blindSize: 1, blindSoft: 1, leaves: 0,
@@ -21,8 +21,8 @@ const PRESETS: Record<'light' | 'dark', Light> = {
     gradient: 0.12, rays: 1.6, streak: 1, rayAngle: 26, flare: 1.2, beams: 3,
     vignette: 0.25, grain: 0.6 },   // airy: barely any falloff, fine grain
   dark: { zoom: 4, softness: 6, blurFalloff: 3, depthBlur: 3, strength: 1,
-    gradient: 0.29, rays: 1.1, streak: 1, rayAngle: 20, flare: 0.5, beams: 1.5,
-    vignette: 0.6, grain: 1.5 },   // night: softer beams and a faint flare
+    gradient: 0.29, rays: 0.8, streak: 1, rayAngle: 20, flare: 0, beams: 0.6,
+    vignette: 0.8, grain: 1.5 },   // night: faint beams, no flare
 };
 const MAX_DPR = 1.5;   // the card is large; this keeps the shader light
 
