@@ -37,7 +37,7 @@
   /* Saans, served from src/assets/fonts (see global.css): 400 and 500. */
   --font-sans: "Saans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --text-name-size: 16px;
+  --text-name-size: 18px;
   --text-name-weight: 500;
   --text-name-tracking: 0.16px;
   --text-name-gap: 3px;                     /* name to role; title to year under covers and in focus mode */
@@ -305,6 +305,7 @@
     --sheet-grabber-height: 5px;
     --mobile-bottom-pad: 64px;
     --mobile-col-gap: 12px;
+    --text-name-size: 16px;                 /* phones: the name beside the avatar stays as it was */
     --label-below-size: 15px;               /* phones: card titles, and the year under them (nothing under 13) */
     --label-year-size: 13px;
     --label-year-gap: 2px;
