@@ -11,9 +11,9 @@ cover:
   palette: teal
   alt: Claude on iPhone searching Slack, Calendar, Gmail and Google Drive, then summarising the week's most important items
   video:
-    webm: images/work/research-8.webm
-    mp4: images/work/research-8.mp4
-    poster: images/work/research-8.jpg
+    webm: images/work/research-9.webm
+    mp4: images/work/research-9.mp4
+    poster: images/work/research-9.jpg
     start: 29
     rest: [0.38, 0.3, 1.6]   # thumbnail: at 0:29, the phone's top-left corner with teal around it and the Slack tool call; its right side runs off the cover
     # [seconds, x, y, zoom]: held shots on each step (typing the request, the
