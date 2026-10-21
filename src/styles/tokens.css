@@ -437,8 +437,8 @@
     --about-scene-opacity: 0.8;
     --about-scene-blend: screen;
     --about-scene-grain: 0.25;
-    --color-daylight-paper: #1e2330;
-    --color-daylight-shadow: #080a10;
+    --color-daylight-paper: #22252b;   /* graphite, a touch cool */
+    --color-daylight-shadow: #0a0b0e;
     --daylight-preset: dark;
     color-scheme: dark;
   }
@@ -563,8 +563,8 @@
   --about-scene-opacity: 0.8;
   --about-scene-blend: screen;
   --about-scene-grain: 0.25;
-  --color-daylight-paper: #1e2330;
-  --color-daylight-shadow: #080a10;
+  --color-daylight-paper: #22252b;   /* graphite, a touch cool */
+  --color-daylight-shadow: #0a0b0e;
   --daylight-preset: dark;
   color-scheme: dark;
 }
