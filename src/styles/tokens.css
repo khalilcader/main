@@ -17,10 +17,6 @@
   --color-button-bg: rgba(255, 255, 255, 0.35);  /* glass: the blurred page shows through */
   --color-button-border: rgba(0, 0, 0, 0.11);
   --color-divider: rgba(0, 0, 0, 0.1);
-  --color-cursor: rgba(255, 255, 255, 0.04);   /* the bubble's faint body */
-  --color-cursor-safari: rgba(255, 255, 255, 0.45);   /* Safari: a milky frosted bubble */
-  --color-cursor-halo: rgba(0, 0, 0, 0.07);
-  --color-cursor-ring: rgba(0, 0, 0, 0.1);    /* hairline round the glass bubble, so it reads on white */
   --color-button-shadow: rgba(0, 0, 0, 0.07);
   --color-label-shadow: rgba(0, 0, 0, 0.08);
   --color-label-bg: rgba(255, 255, 255, 0.85);   /* more solid than the controls: it sits on busy covers */
@@ -122,13 +118,6 @@
 
   /* Tooltips */
   --tip-gap: 8px;
-  --cursor-size: 44px;                      /* custom cursor: the glass bubble */
-  --cursor-safari-blur: 10px;               /* Safari: the bubble's frosted blur, in place of the lens */
-  --cursor-size-grow: 60px;                 /* ...over a card: a bigger lens on the work */
-  --cursor-shadow: 0 0 0 1px var(--color-cursor-ring), 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 0 12px rgba(255, 255, 255, 0.12);
-  --cursor-halo: 6px;                       /* over a control: how far the halo reaches past it */
-  --cursor-pull: 0.12;                      /* magnetic: share of the pointer's offset the control follows */
-  --cursor-pull-max: 4px;                   /* ...up to this far */
   --tip-delay: 0.1s;                        /* hover pause before a tooltip shows */
   --tip-pad-y: 8px;                         /* around cap height to baseline */
   --tip-pad-x: 10px;
@@ -340,10 +329,6 @@
     --color-button-bg: rgba(40, 40, 38, 0.4);
     --color-button-border: rgba(255, 255, 255, 0.07);
     --color-divider: rgba(255, 255, 255, 0.12);
-    --color-cursor: rgba(255, 255, 255, 0.03);
-    --color-cursor-safari: rgba(255, 255, 255, 0.16);
-    --color-cursor-halo: rgba(255, 255, 255, 0.09);
-  --color-cursor-ring: rgba(255, 255, 255, 0.12);
     --color-button-shadow: rgba(0, 0, 0, 0.3);
     --color-label-shadow: rgba(0, 0, 0, 0.35);
     --color-label-bg: rgba(20, 20, 19, 0.82);
@@ -470,10 +455,6 @@
   --color-button-bg: rgba(40, 40, 38, 0.4);
   --color-button-border: rgba(255, 255, 255, 0.07);
   --color-divider: rgba(255, 255, 255, 0.12);
-  --color-cursor: rgba(255, 255, 255, 0.03);
-  --color-cursor-safari: rgba(255, 255, 255, 0.16);
-  --color-cursor-halo: rgba(255, 255, 255, 0.09);
-  --color-cursor-ring: rgba(255, 255, 255, 0.12);
   --color-button-shadow: rgba(0, 0, 0, 0.3);
   --color-label-shadow: rgba(0, 0, 0, 0.35);
   --color-label-bg: rgba(20, 20, 19, 0.82);

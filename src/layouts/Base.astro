@@ -53,11 +53,8 @@ const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
   </head>
   <body>
     <slot />
-    <!-- Custom cursor (mouse and trackpad only; see scripts/cursor.ts). -->
-    <div class="cursor" id="cursor" aria-hidden="true"></div>
     <script>
       import '../scripts/smooth-corners';
-      import '../scripts/cursor';
     </script>
   </body>
 </html>
