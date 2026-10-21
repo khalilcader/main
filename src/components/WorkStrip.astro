@@ -83,6 +83,8 @@ const base = import.meta.env.BASE_URL;
     cursor: pointer;
   }
   :global(.js) .stage.dragging .card { cursor: grabbing; }
+  /* Focus mode (a cover open): the covers swipe, so the open hand. */
+  :global(html.js[data-focus]) .stage:not(.dragging), :global(html.js[data-focus]) .stage:not(.dragging) .card { cursor: grab; }
   :global(.js) .card :global(.cover) { border: 0; }
   /* Phones (html.mobile, see Base.astro): a plain vertical list, each cover
      full width at rest with its title and year under it. No shadows, no
