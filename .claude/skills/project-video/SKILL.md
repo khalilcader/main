@@ -34,10 +34,13 @@ of them more than once.
   the UI itself or add a band at the top over content.
 - Status bar: never cramped against the top; it sits beside the notch / island.
 - Fill the recording's own rounded corners so nothing black peeks out.
-- If the recording already shows a device, use it (`iphone-recorded`) instead
-  of adding a frame.
+- If the recording already shows a device, use it (`iphone-recorded`, or
+  `iphone-simulator` for the iOS Simulator's slimmer phone) instead of adding
+  a frame. Crop to the phone's own edge, measured on a full-resolution frame.
 
 ## Touch
+- iOS Simulator recordings (Tool Use, Oct 2026): keep the Simulator's own
+  grey pointer as it is. Khalil: "no need to remove the pointer from the demo".
 - Replace a Mac pointer or iOS touch indicator with the touch circle: a plain
   grey fill (the background blurred and darkened ~20%), no outline, ~62px on
   an ~800px-wide screen, shrinking a little while pressed. Erase every trace of
