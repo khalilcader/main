@@ -70,6 +70,7 @@ const shape = [
   .glass-frame[data-device="desktop"] .screen, .glass-frame[data-device="desktop-wide"] .screen, .glass-frame[data-device="desktop-mac"] .screen {
     inset: 0; background: var(--color-cover-bg);
     border-radius: var(--desktop-radius);   /* smoothed by the clip (smooth-corners.ts) */
+    --smooth-radius-share: var(--desktop-radius-share);   /* ...which scales it with the window */
   }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
@@ -80,6 +81,7 @@ const shape = [
     position: absolute; inset: 0; pointer-events: none;
     --surface-bg: transparent; --surface-border: var(--color-desktop-border); --surface-blur: none;
     border: 1px solid var(--surface-border); border-radius: var(--desktop-radius);
+    --smooth-radius-share: var(--desktop-radius-share);
   }
   /* The opening, in shares of the image, grown by --device-bleed under the frame. */
   .screen {
