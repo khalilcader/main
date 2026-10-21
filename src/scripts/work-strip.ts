@@ -22,6 +22,7 @@ const TUNING = {
   edgeW: 8, edgeBlur: 7, edgeCurve: 5, edgeFade: 0.25,
 };
 const EDGE_K = 420, EDGE_C = 41;     // overscroll spring-back (critically damped, quick)
+const GRID_EDGE_K = 1100, GRID_EDGE_C = 66;   // the grid's, quicker still (a long page, pulled past often)
 const SNAP_K = 220, SNAP_C = 29;     // settling onto a snap point (just under critical)
 const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (no bounce)
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
@@ -905,7 +906,7 @@ function init(stage: HTMLElement) {
     // the last glide was still winding down, and scrolling stuck at the edge.
     if (!fading && Math.abs(d) > 0.5) s.coast = false;
     s.lastD = d;
-    clearTimeout(s.wt); s.wt = window.setTimeout(() => { s.wheel = false; s.coast = false; s.lastD = 0; s.fading = 0; }, 140);
+    clearTimeout(s.wt); s.wt = window.setTimeout(() => { s.wheel = false; s.coast = false; s.lastD = 0; s.fading = 0; }, out ? 70 : 140);   // past an edge, spring back sooner
     if (s.coast || (out && s.fading >= 3)) { s.coast = true; s.wheel = false; return; }
     if (!s.wheel) s.raw = unrubberClamp(s.goal ?? s.pos, s, rubberDim(s));
     // The scroll eases toward where the wheel has got to, every frame, rather
@@ -1036,7 +1037,10 @@ function init(stage: HTMLElement) {
     if (s.goal != null) {
       const k = reduce ? 1 : 1 - Math.exp(-dt * 28);   // catches up within a couple of frames
       s.pos += (s.goal - s.pos) * k;
-      if (!s.wheel && Math.abs(s.goal - s.pos) < 0.3) { s.pos = s.goal; s.goal = null; }
+      // Once the wheel stops, a goal past the edge is dropped: the spring
+      // takes it straight back rather than first easing out to it.
+      const pastEdge = s.goal < s.min || s.goal > s.max;
+      if (!s.wheel && (pastEdge || Math.abs(s.goal - s.pos) < 0.3)) { if (!pastEdge) s.pos = s.goal; s.goal = null; }
       if (s.wheel || s.goal != null) return;
     }
     if ((ptr && ptr.kind === 'scroll' && ptr.s === s) || s.wheel) return;
@@ -1061,7 +1065,7 @@ function init(stage: HTMLElement) {
       if (Math.abs(s.pos - s.to) < 0.1 && Math.abs(s.vel) < 2) { s.pos = s.to; s.vel = 0; s.to = null; }
     } else if (s.pos < s.min || s.pos > s.max) {
       const b = s.pos < s.min ? s.min : s.max;
-      const a = -EDGE_K * (s.pos - b) - EDGE_C * s.vel;
+      const a = s === S.grid ? -GRID_EDGE_K * (s.pos - b) - GRID_EDGE_C * s.vel : -EDGE_K * (s.pos - b) - EDGE_C * s.vel;
       s.vel += a * dt; s.pos += s.vel * dt;
       if (Math.abs(s.pos - b) < 0.1 && Math.abs(s.vel) < 2) { s.pos = b; s.vel = 0; }
     } else if (s.vel) {
