@@ -1321,7 +1321,7 @@ function init(stage: HTMLElement) {
     if (wo !== whoOpacity) { whoOpacity = wo; who.style.opacity = wo < 1 ? String(wo) : ''; who.style.visibility = wo < 0.01 ? 'hidden' : ''; }
     if (wo !== chromeLast) {
       chromeLast = wo;
-      // Focus mode on the page root (the custom cursor drops its halos in it).
+      // Focus mode on the page root (the frosted bar stops easing in it).
       document.documentElement.toggleAttribute('data-focus', wo < 0.99);
       if (viewTools) {
         viewTools.style.opacity = wo < 1 ? String(wo) : '';

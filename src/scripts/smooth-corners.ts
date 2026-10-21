@@ -103,7 +103,7 @@ function setup(el: HTMLElement) {
     maskAll.setAttribute('width', String(w + bw * 8)); maskAll.setAttribute('height', String(h + bw * 8));
     if (kind === 'surface') {
       el.style.borderRadius = `${Math.min(r * (1 + smoothing()), Math.min(w, h) / 2)}px`;
-      el.style.setProperty('--smooth-r', `${r}px`);   // the shape's real radius, for the cursor's halo
+      el.style.setProperty('--smooth-r', `${r}px`);   // the shape's real radius
     }
   };
   new ResizeObserver(([entry]) => {

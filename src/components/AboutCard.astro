@@ -52,7 +52,7 @@ const jobs = [
           ))}
         </ul>
       </div>
-      <button class="about-close has-tip" data-smooth="surface" data-cursor="halo" id="about-close" type="button" aria-label="Close" aria-keyshortcuts="Escape">
+      <button class="about-close has-tip" data-smooth="surface" id="about-close" type="button" aria-label="Close" aria-keyshortcuts="Escape">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
           <path d="M7 7l10 10M17 7L7 17" />
         </svg>
@@ -251,8 +251,6 @@ const jobs = [
     color: var(--color-fg); cursor: pointer;
   }
   @media (hover: hover) { .about-close:hover { --surface-bg: var(--color-tool-hover-bg); } }
-  /* The custom cursor's halo is its hover highlight: no tile as well. */
-  @media (hover: hover) { :global(html.has-cursor) .about-close:hover { --surface-bg: transparent; } }
   .about-close:focus-visible { outline: none; --surface-bg: var(--color-tool-hover-bg); }
   .about-close svg { width: var(--icon-size); height: var(--icon-size); }
 

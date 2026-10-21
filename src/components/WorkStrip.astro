@@ -23,7 +23,6 @@ const base = import.meta.env.BASE_URL;
     <button
       class="card"
       type="button"
-      data-cursor-grow
       data-i={i}
       data-slug={item.id}
       data-wide={item.data.cover.aspect > 1 ? '' : undefined}
@@ -81,8 +80,9 @@ const base = import.meta.env.BASE_URL;
   :global(.js) .card {
     position: absolute; left: 0; top: 0; height: auto; aspect-ratio: auto;
     transform-origin: 0 0; will-change: transform;
-    cursor: inherit;
+    cursor: pointer;
   }
+  :global(.js) .stage.dragging .card { cursor: grabbing; }
   :global(.js) .card :global(.cover) { border: 0; }
   /* Phones (html.mobile, see Base.astro): a plain vertical list, each cover
      full width at rest with its title and year under it. No shadows, no
