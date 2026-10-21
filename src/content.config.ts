@@ -27,7 +27,7 @@ const work = defineCollection({
         // hover or when the cover is open.
         start: z.number().min(0).default(0),
         // Which device frame it plays in.
-        device: z.enum(['iphone', 'iphone-notch', 'iphone-recorded', 'iphone-simulator', 'ipad', 'desktop', 'desktop-wide', 'desktop-mac', 'film']).default('iphone'),
+        device: z.enum(['iphone', 'iphone-notch', 'iphone-recorded', 'ipad', 'desktop', 'desktop-wide', 'desktop-mac', 'film']).default('iphone'),
         // Optional camera that follows the interaction while it plays:
         // [seconds, x, y, zoom] keyframes, x/y being the point on the device
         // (0..1 across it) brought to the middle of the cover. The device also
