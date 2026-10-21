@@ -129,9 +129,9 @@
   /* Cover title pill (on hover) */
   --label-radius: 14px;                     /* rounder than the header controls (10px) */
   --label-below-gap: 12px;                  /* row view: the title sits this far under the cover */
-  --label-below-size: 14px;                 /* and is a touch smaller than the pills */
-  --label-year-size: 12px;                  /* the year under it, smaller still */
-  --label-year-gap: 2px;
+  --label-below-size: var(--text-name-size);   /* the same as the name beside the avatar */
+  --label-year-size: var(--text-name-size);    /* the year under it, like the role under the name */
+  --label-year-gap: 0px;
   --focus-year-gap: 4px;                    /* focus mode: the year under the title */
   --focus-year-size: 13px;
   --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
@@ -306,6 +306,7 @@
     --mobile-col-gap: 12px;
     --label-below-size: 15px;               /* phones: card titles, and the year under them (nothing under 13) */
     --label-year-size: 13px;
+    --label-year-gap: 2px;
     --label-below-gap: 8px;                 /* phones: titles closer to their covers */
     --viewer-blur: 24px;                    /* phones: the list behind a cover that's open full screen */
     --page-pad: 12px;                       /* phones: the same as between the columns, so covers stay as big as they can */
