@@ -785,8 +785,9 @@ function init(stage: HTMLElement) {
         ptr.raw0 = unrubberClamp(s.pos, s, rubberDim(s));
         ptr.grabC = clamp(s.pos, s.min, s.max) + e.clientX;
         ptr.startIdx = s === S.big ? nearest(centerBig, s.pos) : null;
-        stage.classList.add('dragging');
       }
+      // Any drag (a scroll, the row's pull down or up, a cover picked up) shows the closed hand.
+      if (ptr.kind !== 'none') stage.classList.add('dragging');
       if (ptr.kind === 'vert') ptr.p0 = p.v;
       if (ptr.kind === 'scroll' || ptr.kind === 'vert' || ptr.kind === 'fling') { ptr.x0 = e.clientX; ptr.y0 = e.clientY; dx = dy = 0; }
     }
