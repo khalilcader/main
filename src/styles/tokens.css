@@ -57,6 +57,7 @@
   --header-pad: 16px;
   --row-gap-below-header: 72px;             /* header ends at 152, covers start at 224 */
   --row-height: 617px;                      /* cover height in the row at Figma's 1440 × 1024 */
+  --row-height-max: 720px;                  /* big monitors: the row grows to this, then centres */
   --row-gap: 24px;
   --gutter: 16px;
 

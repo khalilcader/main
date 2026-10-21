@@ -34,9 +34,11 @@ of them more than once.
   the UI itself or add a band at the top over content.
 - Status bar: never cramped against the top; it sits beside the notch / island.
 - Fill the recording's own rounded corners so nothing black peeks out.
-- If the recording already shows a device, use it (`iphone-recorded`, or
-  `iphone-simulator` for the iOS Simulator's slimmer phone) instead of adding
-  a frame. Crop to the phone's own edge, measured on a full-resolution frame.
+- If the recording already shows a device, use it (`iphone-recorded`) instead
+  of adding a frame. Exception: an iOS Simulator recording (its phone looks
+  flat) goes in our `iphone` frame: crop to the screen, paint out the
+  Simulator's own Dynamic Island (the frame draws one) and fill the screen's
+  rounded corners with the screen colour.
 
 ## Touch
 - iOS Simulator recordings (Tool Use, Oct 2026): keep the Simulator's own

@@ -436,20 +436,23 @@ function init(stage: HTMLElement) {
     const headerBottom = header.getBoundingClientRect().bottom;
     const mobile = vw < 640;
 
-    // Row (Figma 53:324): every cover the same height, top-aligned under the
-    // header. 617px tall at 1440 × 1024; other windows keep Figma's share of
-    // the height (so it grows on big monitors), and on narrow screens the
-    // narrowest cover leaves room for the next one to peek in.
+    // Row (Figma 53:324): every cover the same height, under the header.
+    // 617px tall at 1440 × 1024; other windows keep Figma's share of the
+    // height, growing on big monitors up to --row-height-max, and on narrow
+    // screens the narrowest cover leaves room for the next one to peek in.
     const top = headerBottom + token('--row-gap-below-header');
     const minA = Math.min(...cards.map((c) => c.a));
     const H = Math.max(160, Math.min(
-      vh * (FIGMA_ROW_H / FIGMA_VH),
+      vh * (FIGMA_ROW_H / FIGMA_VH), token('--row-height-max'),
       vh - top - vh * (FIGMA_BELOW / FIGMA_VH),
       (vw - 2 * pad - 40) / minA,
     ));
+    // Once capped, the row sits centred in the space Figma gives it (between
+    // the header's gap and the room below), rather than riding up.
+    const rowY = top + Math.max(0, (vh - top - vh * (FIGMA_BELOW / FIGMA_VH) - H) / 2);
     let x = pad;
     for (const c of cards) {
-      c.row = { x, y: top, w: H * c.a, h: H };
+      c.row = { x, y: rowY, w: H * c.a, h: H };
       x += H * c.a + rowGap;
     }
     S.row.min = 0; S.row.max = Math.max(0, x - rowGap + pad - vw);
