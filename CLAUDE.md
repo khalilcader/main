@@ -22,3 +22,6 @@ Personal portfolio site for Khalil Cader, a product designer. The design is done
 
 ## Project videos
 - Adding or adjusting a project cover video: follow `.claude/skills/project-video/SKILL.md` (cropping, bottom room, touch circle, camera, thumbnail, background). Show options before committing judgement calls.
+
+## Shelved: glass cursor
+- The custom glass cursor (magnifying lens, halos over controls, magnetic lean) was removed in commit 8428e35. To bring it back, restore `src/scripts/cursor.ts` and the cursor bits that commit took out of `Base.astro`, `global.css`, `tokens.css`, `SiteHeader.astro`, `AboutCard.astro` and `WorkStrip.astro` (`git show 8428e35` lists them all).
