@@ -40,6 +40,7 @@
   --text-name-size: 16px;
   --text-name-weight: 500;
   --text-name-tracking: 0.16px;
+  --text-name-gap: 3px;                     /* name to role; title to year under covers and in focus mode */
   --text-secondary-opacity: 0.4;
 
   /* Spacing */
@@ -131,8 +132,8 @@
   --label-below-gap: 12px;                  /* row view: the title sits this far under the cover */
   --label-below-size: var(--text-name-size);   /* the same as the name beside the avatar */
   --label-year-size: var(--text-name-size);    /* the year under it, like the role under the name */
-  --label-year-gap: 0px;
-  --focus-year-gap: 0px;                    /* focus mode: the year under the title */
+  --label-year-gap: var(--text-name-gap);
+  --focus-year-gap: var(--text-name-gap);                   /* focus mode: the year under the title */
   --focus-year-size: var(--text-name-size);
   --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
   --label-pad-y: 12px;                      /* chunky pill */
