@@ -34,6 +34,10 @@ of them more than once.
   the UI itself or add a band at the top over content.
 - Status bar: never cramped against the top; it sits beside the notch / island.
 - Fill the recording's own rounded corners so nothing black peeks out.
+  Check on a big monitor too (Studio Display): covers render larger there,
+  and a leftover bezel, rim or wallpaper sliver shows that a laptop hides.
+  Fill everything outside the screen's curve with the screen colour beside it,
+  frame by frame (Oct 2026: Voice Settings, Change Icon, Dictation, Instagram).
 - If the recording already shows a device, use it (`iphone-recorded`) instead
   of adding a frame. Exception: an iOS Simulator recording (its phone looks
   flat) goes in our `iphone` frame: crop to the screen, paint out the
