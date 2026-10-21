@@ -27,6 +27,7 @@ const SQ_K = 900, SQ_C = 60;         // grabbed cover returning from a squish (n
 const NB_K = 700, NB_C = 53;         // neighbors catching up to the ripple
 const HV_K = 600, HV_C = 44;         // hover lift: quick and smooth (ζ ≈ 0.9, no visible overshoot)
 const FOCUS_FADE = 2.2;
+const CORNER_STEPS = 4;             // steps a cover's corners take between row and grid
 const HOVER_PLAY_DELAY = 180;       // ms the cursor rests on a cover before it plays
 // Safari redraws blurs and blended layers far more slowly than Chrome; it
 // gets a lighter version of the same look (html.safari, WorkStrip.astro).
@@ -523,7 +524,11 @@ function init(stage: HTMLElement) {
   function shapeCorners(c: Card) {
     const rowR = cornerBase * c.W * c.row.h / c.row.w;   // radius * W / row width
     const gridR = cornerBase * c.W / refAspect;           // as the portrait cover's, by width
-    const r = rowR + (gridR - rowR) * c.gm;
+    // In a few steps rather than every frame: a new corner redraws the whole
+    // cover, and all 21 redrawing every frame of a row <-> grid switch was
+    // more than Chrome could keep up with (flicker). The steps land while
+    // the covers are still flying, where they don't show.
+    const r = rowR + (gridR - rowR) * Math.round(c.gm * CORNER_STEPS) / CORNER_STEPS;
     if (Math.abs(r - c.rLast) < 0.3) return;
     c.rLast = r;
     const h = c.W / c.a;
@@ -1063,13 +1068,16 @@ function init(stage: HTMLElement) {
   // transform. With will-change: transform, Chrome keeps each one's texture at
   // the biggest scale it has been drawn at, so once covers had been open, all
   // 21 held full-size textures even as small grid tiles, and Chrome ran out of
-  // graphics memory and dropped tiles (flicker). Once things come to rest in a
-  // new arrangement, each cover's layer is rebuilt at the size it now shows.
-  let rasterKey = '';
+  // graphics memory and dropped tiles (flicker). Once things come to rest after
+  // a cover has been open (or a resize), each cover's layer is rebuilt at the
+  // size it now shows. Not after a plain row <-> grid switch: rebuilding all
+  // 21 at once is itself a flash, and neither arrangement holds big textures.
+  let grown = false, rasterSize = '';
   function rerasterAtRest() {
-    const key = `${mode}|${gridActive}|${p.t >= 0.5 ? 1 : 0}|${vw}x${vh}`;
-    if (key === rasterKey) return;
-    rasterKey = key;
+    if (p.t >= 0.5 || gridActive >= 0) return;
+    const size = `${vw}x${vh}`;
+    if (!grown && size === rasterSize) return;
+    grown = false; rasterSize = size;
     for (const c of cards) c.el.style.willChange = 'auto';
     requestAnimationFrame(() => { for (const c of cards) c.el.style.willChange = ''; });
   }
@@ -1100,6 +1108,7 @@ function init(stage: HTMLElement) {
   function tick(now: number) {
     const dt = Math.min((now - last) / 1000, 1 / 15);
     last = now;
+    if (p.t >= 0.5 || gridActive >= 0) grown = true;
 
     for (const c of cards) {
       c.ovR.t = stretchWeight(c, 'row', S.row);
@@ -1153,6 +1162,7 @@ function init(stage: HTMLElement) {
     const gridScrolled = mode === 'grid' && S.grid.pos > 2;
     if (gridScrolled !== lastGridScrolled) { lastGridScrolled = gridScrolled; document.documentElement.toggleAttribute('data-grid-scrolled', gridScrolled); }
     const gmK = reduce ? 1 : 1 - Math.exp(-dt * 6);
+    const scrolling = now - lastScrollAt < HOVER_PLAY_DELAY;
     for (const c of cards) {
       c.gm += ((mode === 'grid' ? 1 : 0) - c.gm) * gmK;
       shapeCorners(c);
@@ -1165,7 +1175,9 @@ function init(stage: HTMLElement) {
       const st = c.el.style, L = c.last;
       // Hover: a slight lift about the cover's centre, in the row and the grid
       // (not while dragging, or once a cover is open).
-      const resting = !ptr && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
+      // Not while scrolling either: covers sliding under a still cursor each
+      // lifted and popped their title in turn, which read as flicker.
+      const resting = !ptr && !scrolling && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const pointed = c.i === hovered || c.i === keyFocused;
       c.hv.t = c.lb.t = pointed && resting ? 1 : 0;
       const hs = 1 + (HOVER_SCALE - 1) * (reduce ? 0 : c.hv.v);
