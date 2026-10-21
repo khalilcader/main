@@ -899,14 +899,17 @@ function init(stage: HTMLElement) {
     // times in a row, it's momentum: drop the rest of that glide so the edge
     // springs straight back, as native scrolling does.
     const out = s.pos < s.min || s.pos > s.max;
-    const fading = Math.abs(d) < Math.abs(s.lastD) && Math.sign(d) === Math.sign(s.lastD);
-    s.fading = fading ? s.fading + 1 : 0;
-    // A new swipe (the other way, or pushing harder) ends the dropped glide at
+    const same = Math.sign(d) === Math.sign(s.lastD);
+    // Shrinking steps are a glide; so are tiny repeated ones (its tail repeats
+    // a step), but not a steady pull, which repeats bigger ones.
+    const ad = Math.abs(d), al = Math.abs(s.lastD);
+    s.fading = same && (ad < al || (ad === al && ad <= 3)) ? s.fading + 1 : 0;
+    // A new swipe (the other way, or clearly harder) ends the dropped glide at
     // once. Waiting for a pause in the events instead missed swipes made while
     // the last glide was still winding down, and scrolling stuck at the edge.
-    if (!fading && Math.abs(d) > 0.5) s.coast = false;
+    if ((s.lastD && !same) || Math.abs(d) > Math.abs(s.lastD) * 1.5 + 2) s.coast = false;
     s.lastD = d;
-    clearTimeout(s.wt); s.wt = window.setTimeout(() => { s.wheel = false; s.coast = false; s.lastD = 0; s.fading = 0; }, out ? 70 : 140);   // past an edge, spring back sooner
+    clearTimeout(s.wt); s.wt = window.setTimeout(() => { s.wheel = false; s.coast = false; s.lastD = 0; s.fading = 0; }, 140);
     if (s.coast || (out && s.fading >= 3)) { s.coast = true; s.wheel = false; return; }
     if (!s.wheel) s.raw = unrubberClamp(s.goal ?? s.pos, s, rubberDim(s));
     // The scroll eases toward where the wheel has got to, every frame, rather
