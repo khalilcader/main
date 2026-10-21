@@ -11,29 +11,27 @@ cover:
   palette: teal
   alt: Claude on iPhone searching Slack, Calendar, Gmail and Google Drive, then summarising the week's most important items
   video:
-    webm: images/work/research-4.webm
-    mp4: images/work/research-4.mp4
-    poster: images/work/research-4.jpg
-    start: 9
-    rest: [0.5, 0.612, 1.25]   # thumbnail (framing A): searching Slack at 0:28, backdrop below the phone
-    # [seconds, x, y, zoom]: always the lower phone with teal around and below
-    # it (no edge-to-edge screen: the tool cards span the screen, so a closer
-    # shot cuts them at the cover's edges). Motion comes from gentle drifts
-    # between two safe framings; each zoom's height keeps the app's top bar
-    # out of frame.
+    webm: images/work/research-5.webm
+    mp4: images/work/research-5.mp4
+    poster: images/work/research-5.jpg
+    start: 29
+    device: iphone-simulator
+    rest: [0.5, 0.42, 1.25]   # thumbnail: searching Slack at 0:29
+    # [seconds, x, y, zoom]: held shots on each step (typing the request, the
+    # reply, each tool call, the summary), with the whole phone at the start
+    # and end so the loop is seamless.
     camera:
-      - [0, 0.5, 0.612, 1.25]
-      - [3.5, 0.5, 0.612, 1.25]
-      - [6.0, 0.49, 0.6, 1.29]     # Slack
-      - [12.0, 0.49, 0.6, 1.29]
-      - [14.5, 0.51, 0.622, 1.22]  # Calendar
-      - [19.5, 0.51, 0.622, 1.22]
-      - [22.0, 0.49, 0.6, 1.29]    # Gmail
-      - [27.5, 0.49, 0.6, 1.29]
-      - [30.0, 0.51, 0.622, 1.22]  # Drive
-      - [34.0, 0.51, 0.622, 1.22]
-      - [36.5, 0.5, 0.612, 1.25]   # the summary, and the tap that opens its steps
-      - [43.4, 0.5, 0.612, 1.25]
+      - [0, 0.5, 0.5, 1]
+      - [1.5, 0.5, 0.5, 1]
+      - [3.0, 0.5, 0.62, 1.3]      # typing the request
+      - [15.0, 0.5, 0.62, 1.3]
+      - [17.0, 0.5, 0.3, 1.3]      # sent, and the reply
+      - [23.0, 0.5, 0.3, 1.3]
+      - [25.0, 0.5, 0.42, 1.25]    # Slack, Calendar, Gmail, Drive
+      - [51.5, 0.5, 0.42, 1.25]
+      - [53.5, 0.5, 0.6, 1.25]     # the summary
+      - [55.5, 0.5, 0.6, 1.25]
+      - [57.0, 0.5, 0.5, 1]
 ---
 
 Placeholder case study.
