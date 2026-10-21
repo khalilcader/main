@@ -437,13 +437,12 @@ function init(stage: HTMLElement) {
     const mobile = vw < 640;
 
     // Row (Figma 53:324): every cover the same height, top-aligned under the
-    // header. 617px tall at 1440 × 1024; shorter windows keep Figma's share of
-    // the height, and on narrow screens the narrowest cover leaves room for the
-    // next one to peek in.
+    // header. 617px tall at 1440 × 1024; other windows keep Figma's share of
+    // the height (so it grows on big monitors), and on narrow screens the
+    // narrowest cover leaves room for the next one to peek in.
     const top = headerBottom + token('--row-gap-below-header');
     const minA = Math.min(...cards.map((c) => c.a));
     const H = Math.max(160, Math.min(
-      token('--row-height'),
       vh * (FIGMA_ROW_H / FIGMA_VH),
       vh - top - vh * (FIGMA_BELOW / FIGMA_VH),
       (vw - 2 * pad - 40) / minA,

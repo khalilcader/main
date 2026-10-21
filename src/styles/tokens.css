@@ -56,7 +56,7 @@
   --top-bar-blur: 50px;                     /* the frosted bar behind the sticky header (grid scrolled, and phones) */
   --header-pad: 16px;
   --row-gap-below-header: 72px;             /* header ends at 152, covers start at 224 */
-  --row-height: 617px;                      /* max cover height in the row */
+  --row-height: 617px;                      /* cover height in the row at Figma's 1440 × 1024 */
   --row-gap: 24px;
   --gutter: 16px;
 
