@@ -163,12 +163,11 @@ const { tools = true } = Astro.props;
      background shows inside the smoothed clip; the border is drawn over it. */
   .face img { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); max-width: none; object-fit: cover; }
   .back { transform: rotateY(180deg); color: var(--color-fg); }
-  /* The About side is glass, like the theme and view switcher. */
+  /* The About side looks like the switcher's glass: its tint over the page,
+     made solid. See-through, it showed the flip's rounder shadow behind it. */
   .back .surface {
     --surface-border: var(--color-button-border);
-    background: var(--color-button-bg);
-    -webkit-backdrop-filter: blur(var(--button-blur)) saturate(var(--glass-saturate));
-    backdrop-filter: blur(var(--button-blur)) saturate(var(--glass-saturate));
+    background: linear-gradient(var(--color-button-bg), var(--color-button-bg)), var(--color-bg);
   }
   /* Hover tile on the About side: inset and concentric, like the header buttons' tiles. */
   .tint {
