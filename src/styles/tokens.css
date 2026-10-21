@@ -132,8 +132,8 @@
   --label-below-size: var(--text-name-size);   /* the same as the name beside the avatar */
   --label-year-size: var(--text-name-size);    /* the year under it, like the role under the name */
   --label-year-gap: 0px;
-  --focus-year-gap: 4px;                    /* focus mode: the year under the title */
-  --focus-year-size: 13px;
+  --focus-year-gap: 0px;                    /* focus mode: the year under the title */
+  --focus-year-size: var(--text-name-size);
   --label-offset: 16px;                     /* from the cover's bottom edge; clears the device on backdrop covers */
   --label-pad-y: 12px;                      /* chunky pill */
   --label-pad-x: 20px;
@@ -150,7 +150,7 @@
   --top-scrim-grain: 0.12;
   --top-scrim-grain-filter: none;
   --close-height: 46px;                     /* focus mode's close + title bar: as tall as the card labels */
-  --focus-title-size: 16px;                 /* project title beside the close button in focus mode */
+  --focus-title-size: var(--text-name-size);   /* project title beside the close button in focus mode */
   --focus-title-gap: 16px;                  /* close button to the title */
 
   /* Covers */
