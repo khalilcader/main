@@ -15,7 +15,7 @@ cover:
     mp4: images/work/research-7.mp4
     poster: images/work/research-7.jpg
     start: 29
-    rest: [0.5, 0.42, 1.25]   # thumbnail: searching Slack at 0:29
+    rest: [0.5, 0.3, 1.4]   # thumbnail: searching Slack at 0:29, the phone low with teal above it
     # [seconds, x, y, zoom]: held shots on each step (typing the request, the
     # reply, each tool call, the summary), with the whole phone at the start
     # and end so the loop is seamless.
