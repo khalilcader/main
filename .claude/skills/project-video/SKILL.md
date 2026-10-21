@@ -32,7 +32,9 @@ of them more than once.
   of the height). Khalil tried 16 / 10 and preferred these. Fill
   the recording's rounded corners with the screen colour first. Never stretch
   the UI itself or add a band at the top over content.
-- Status bar: never cramped against the top; it sits beside the notch / island.
+- Status bar: never cramped against the top; it sits beside the notch / island,
+  centred on it. In our frame the island sits lower than a Simulator's own, so
+  a Simulator recording's status bar moves down to match (Tool Use: 10px).
 - Fill the recording's own rounded corners so nothing black peeks out.
   Check on a big monitor too (Studio Display): covers render larger there,
   and a leftover bezel, rim or wallpaper sliver shows that a laptop hides.
