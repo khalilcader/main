@@ -165,7 +165,7 @@ const base = import.meta.env.BASE_URL;
     color: var(--color-fg) !important; isolation: auto !important; filter: none !important;
   }
   :global(html.mobile) .label-text { display: block; opacity: 1 !important; }
-  :global(html.mobile) .label-year { display: block !important; margin-top: var(--label-year-gap); opacity: 1 !important; color: var(--color-label-year) !important; }
+  :global(html.mobile) .label-year { display: block !important; margin-top: var(--label-year-gap); opacity: 1 !important; color: var(--color-label-year) !important; font-weight: 400; letter-spacing: 0; }
   /* No focus ring: a focused cover lifts and shows its title, like hover (script). */
   .card:focus-visible { outline: none; }
 
@@ -227,11 +227,14 @@ const base = import.meta.env.BASE_URL;
     padding: 0;
     font-size: var(--label-below-size); text-align: center;
   }
-  /* The year: on its own line under the title, smaller and lighter; row view only. */
+  /* The year: on its own line under the title, set like the role under the
+     name beside the avatar (same size and weight, lighter); row view only. */
   .label-year { display: none; }
+  :global(html:not(.mobile):not([data-grid])) .label { line-height: normal; }   /* like the name block */
   :global(html:not([data-grid])) .label-year {
     display: block; margin-top: var(--label-year-gap);
-    color: var(--color-label-year); font-size: var(--label-year-size); font-weight: 400; letter-spacing: 0;
+    color: var(--color-fg); opacity: var(--text-secondary-opacity);
+    font-size: var(--label-year-size); font-weight: var(--text-name-weight); letter-spacing: var(--text-name-tracking);
   }
   :global(html:not([data-grid])) .label > :global(.smooth-layer),
   :global(html:not([data-grid])) .label > :global(.smooth-border),
