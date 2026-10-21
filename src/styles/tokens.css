@@ -34,12 +34,13 @@
   --color-scrim: color-mix(in srgb, var(--color-bg) 72%, transparent);
 
   /* Type */
-  /* Saans, served from src/assets/fonts (see global.css): 400 and 500. */
-  --font-sans: "Saans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Matter, served from src/assets/fonts (see global.css): 400 and 500.
+     Saans is declared there too: "Saans" here switches back. */
+  --font-sans: "Matter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --text-name-size: 18px;
   --text-name-weight: 500;
-  --text-name-tracking: 0.16px;
+  --text-name-tracking: -0.16px;            /* Matter, a touch tight (Saans was +0.16px) */
   --text-name-gap: 3px;                     /* name to role; title to year under covers and in focus mode */
   --text-secondary-opacity: 0.4;
 

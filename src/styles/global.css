@@ -13,6 +13,19 @@
   font-weight: 500; font-style: normal; font-display: swap;
 }
 
+/* Matter, the site's typeface (tokens.css --font-sans); same setup as Saans
+   above, which stays declared so switching back is a one-line change. */
+@font-face {
+  font-family: 'Matter';
+  src: url('../assets/fonts/Matter-Regular.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Matter';
+  src: url('../assets/fonts/Matter-Medium.woff2') format('woff2');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
