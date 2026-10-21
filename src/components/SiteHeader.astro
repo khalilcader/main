@@ -238,10 +238,11 @@ const { tools = true } = Astro.props;
     border-radius: calc(var(--label-radius) - var(--tools-inset) - var(--button-border-width));
   }
   /* The year under the title, left-aligned: smaller and lighter, like under the cards. */
-  .close-group .focus-title :global(.label-year) { display: block; margin-top: var(--focus-year-gap); color: var(--color-label-year); font-size: var(--focus-year-size); font-weight: 400; letter-spacing: 0; }
+  /* Title and year set like the name and role beside the avatar. */
+  .close-group .focus-title :global(.label-year) { display: block; margin-top: var(--focus-year-gap); color: var(--color-fg); opacity: var(--text-secondary-opacity); font-size: var(--focus-year-size); font-weight: var(--text-name-weight); letter-spacing: var(--text-name-tracking); }
   .focus-title {
     font-size: var(--focus-title-size); font-weight: var(--text-name-weight);
-    letter-spacing: var(--text-name-tracking); line-height: 1;
+    letter-spacing: var(--text-name-tracking); line-height: normal;
     white-space: nowrap; color: var(--color-fg); text-align: left;
   }
   .tool {
