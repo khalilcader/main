@@ -100,8 +100,10 @@ function initMobile(stage: HTMLElement) {
     o?.setAttribute('d', squirclePath(w - 1, h - 1, r - 0.5, smooth));
     o?.setAttribute('transform', 'translate(0.5 0.5)');
   };
-  // Two staggered columns: each cover goes in the shorter one so far.
-  const cols = [0, 1].map(() => { const c = document.createElement('div'); c.className = 'col'; stage.appendChild(c); return c; });
+  // Two staggered columns: each cover goes in the shorter one so far. Usually
+  // already built by the inline script after the covers (WorkStrip.astro).
+  const built = [...stage.querySelectorAll<HTMLElement>(':scope > .col')];
+  const cols = built.length ? built : [0, 1].map(() => { const c = document.createElement('div'); c.className = 'col'; stage.appendChild(c); return c; });
   const heights = [0, 0];
   for (const card of stage.querySelectorAll<HTMLElement>(':scope > .card')) {
     const k = heights[0] <= heights[1] ? 0 : 1;
