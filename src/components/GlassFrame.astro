@@ -48,7 +48,7 @@ const shape = [
 const restStyle = rest ? (() => {
   const [x, y, s] = rest;
   const t = (v: number) => (((0.5 - v) * s + (s - 1) / 2) * 100).toFixed(3);
-  return `; scale: ${s}; translate: ${t(x)}% ${t(y)}%`;
+  return `; transform: translate(${t(x)}%, ${t(y)}%) scale(${s}) translate(-50%, -50%)`;
 })() : '';
 ---
 <div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
