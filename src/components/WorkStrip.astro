@@ -189,7 +189,10 @@ const base = import.meta.env.BASE_URL;
      turn (--in, set where the columns are built). */
   @keyframes mobile-in { from { opacity: 0; translate: 0 var(--mobile-in-rise); } }
   @media (prefers-reduced-motion: no-preference) {
-    :global(html.mobile) .card { animation: mobile-in var(--mobile-in-duration) var(--mobile-in-ease) both; animation-delay: calc(var(--in, 0) * var(--mobile-in-stagger)); }
+    /* backwards, not both: once it ends nothing stays applied. A held translate
+       made each card the containing block for the tapped cover's fixed
+       full-screen view, which then opened inside the card's own tile. */
+    :global(html.mobile) .card { animation: mobile-in var(--mobile-in-duration) var(--mobile-in-ease) backwards; animation-delay: calc(var(--in, 0) * var(--mobile-in-stagger)); }
   }
   /* No focus ring: a focused cover lifts and shows its title, like hover (script). */
   .card:focus-visible { outline: none; }
