@@ -63,15 +63,12 @@ export function mountCameras(root: ParentNode = document) {
       // cover resizes (switching views) without waiting a frame to catch up.
       const tx = ((0.5 - cur.x) * s * on + (s - 1) / 2) * 100;
       const ty = ((0.5 - cur.y) * s * on + (s - 1) / 2) * 100;
-      // One transform, not the separate scale and translate properties: iPhone
-      // Safari didn't carry those to a playing video's own layer, so the
-      // video drifted inside the frame. Equivalent to them, then the
-      // centring translate (GlassFrame.astro).
-      frame.style.transform = `translate(${tx.toFixed(3)}%, ${ty.toFixed(3)}%) scale(${s.toFixed(4)}) translate(-50%, -50%)`;
+      frame.style.scale = s.toFixed(4);
+      frame.style.translate = `${tx.toFixed(3)}% ${ty.toFixed(3)}%`;
 
       const settled = Math.abs(kx - cur.x) < 1e-4 && Math.abs(ky - cur.y) < 1e-4 && Math.abs(ks - cur.s) < 1e-4 && Math.abs(on - 1) < 1e-3;
       if (playing || (rest ? !settled : on > 0.002)) raf = requestAnimationFrame(step);
-      else { raf = 0; if (!rest) frame.style.transform = ''; }
+      else { raf = 0; if (!rest) { frame.style.scale = ''; frame.style.translate = ''; } }
     };
     const start = () => { if (!raf) { last = 0; raf = requestAnimationFrame(step); } };
     video.addEventListener('playing', start);
