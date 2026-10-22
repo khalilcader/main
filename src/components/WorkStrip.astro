@@ -42,6 +42,24 @@ const base = import.meta.env.BASE_URL;
     </button>
   ))}
 </div>
+<!-- Phones: the two staggered columns are built here, as soon as the covers
+     are in the page, rather than when the script arrives (on a slow
+     connection the page showed one big cover first, then jumped). The same
+     rule as work-strip.ts, which reuses these columns. -->
+<script is:inline>
+  (function () {
+    var st = document.getElementById('stage');
+    if (!st || !document.documentElement.classList.contains('mobile')) return;
+    var cols = [0, 1].map(function () { var c = document.createElement('div'); c.className = 'col'; st.appendChild(c); return c; });
+    var h = [0, 0];
+    st.querySelectorAll(':scope > .card').forEach(function (card, i) {
+      var k = h[0] <= h[1] ? 0 : 1;
+      cols[k].appendChild(card);
+      h[k] += 1 / (parseFloat(card.dataset.aspect || '1') || 1) + 0.35;
+      card.style.setProperty('--in', String(Math.min(i, 6)));   // entrance stagger (WorkStrip.astro styles)
+    });
+  })();
+</script>
 
 <!-- Grid view: protects the header once the covers scroll under it. Outside
      the stage: inside it, Chrome stopped blurring what's behind it. It fades
@@ -97,7 +115,8 @@ const base = import.meta.env.BASE_URL;
   :global(html.mobile) .card {
     container-type: inline-size;
     position: relative; width: 100%; height: auto; aspect-ratio: auto;
-    transform: none !important; opacity: 1 !important; filter: none !important; visibility: visible !important;
+    transform: none !important; opacity: 1; filter: none !important; visibility: visible !important;
+    /* (opacity not forced: the entrance below animates it; nothing else sets it on phones) */
     will-change: auto; cursor: pointer;
   }
   /* Two staggered columns, like the desktop grid: every cover half width,
@@ -166,6 +185,12 @@ const base = import.meta.env.BASE_URL;
   }
   :global(html.mobile) .label-text { display: block; opacity: 1 !important; }
   :global(html.mobile) .label-year { display: block !important; margin-top: var(--label-year-gap); opacity: 1 !important; color: var(--color-label-year) !important; font-weight: 400; letter-spacing: 0; }
+  /* Phones: the covers rise and fade in as the page appears, the first few in
+     turn (--in, set where the columns are built). */
+  @keyframes mobile-in { from { opacity: 0; translate: 0 var(--mobile-in-rise); } }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.mobile) .card { animation: mobile-in var(--mobile-in-duration) var(--mobile-in-ease) both; animation-delay: calc(var(--in, 0) * var(--mobile-in-stagger)); }
+  }
   /* No focus ring: a focused cover lifts and shows its title, like hover (script). */
   .card:focus-visible { outline: none; }
 

@@ -306,6 +306,10 @@
     --sheet-grabber-height: 5px;
     --mobile-bottom-pad: 64px;
     --mobile-col-gap: 12px;
+    --mobile-in-rise: 16px;                 /* phones: covers rise this far as the page appears */
+    --mobile-in-duration: 600ms;
+    --mobile-in-stagger: 60ms;
+    --mobile-in-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --text-name-size: 16px;                 /* phones: the name beside the avatar stays as it was */
     --label-below-size: 15px;               /* phones: card titles, and the year under them (nothing under 13) */
     --label-year-size: 13px;
