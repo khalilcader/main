@@ -6,6 +6,8 @@ Personal portfolio site for Khalil Cader, a product designer. The design is done
 - Astro (static site), plain CSS. No CSS framework, no UI library.
 - Case studies are markdown files in `src/content/work/` (schema in `src/content.config.ts`).
 - Deploys to Vercel (khalilcader.com, DNS at GoDaddy) on every push to `main`; nothing to configure there.
+- Vercel's Hobby plan allows 100 deployments a day; refused deploys don't show in the dashboard and aren't retried. Batch changes into fewer merges. Only `main` deploys (`vercel.json` skips the `claude/*` branches).
+- After an Instant Rollback in Vercel, new deploys don't go live on their own: promote the newest one (⋯ → Promote to Production).
 - Case-study pages are shelved: `src/pages/work/_[slug].astro` (the underscore keeps Astro from building it). Rename it back to `[slug].astro` once the write-ups are real.
 
 ## Working from Figma
