@@ -32,6 +32,9 @@ of them more than once.
   of the height). Khalil tried 16 / 10 and preferred these. Fill
   the recording's rounded corners with the screen colour first. Never stretch
   the UI itself or add a band at the top over content.
+- A recording with its own Dynamic Island drawn in (a mockup, a Simulator)
+  shows two islands in our frame: paint the recording's out (inpaint it from
+  the wallpaper around it). Check the top of every phone cover up close.
 - Status bar: never cramped against the top; it sits beside the notch / island,
   centred on it. In our frame the island sits lower than a Simulator's own, so
   a Simulator recording's status bar moves down to match (Tool Use: 10px).
