@@ -51,11 +51,7 @@ const restStyle = rest ? (() => {
   return `; transform: translate(${t(x)}%, ${t(y)}%) scale(${s}) translate(-50%, -50%)`;
 })() : '';
 ---
-<div class="glass-frame" data-device={device} data-framed={d.src ? '' : undefined} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
-  <!-- The frame's shadow, from a copy of the frame behind the screen, so
-       nothing holding the video carries a filter: iPhone Safari drew a video
-       inside a filtered, zoomed frame out of place. -->
-  {d.src && <img class="device device-shadow" src={frame} alt="" aria-hidden="true" width={d.w} height={d.h} draggable="false" />}
+<div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
   <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
@@ -76,9 +72,6 @@ const restStyle = rest ? (() => {
     height: var(--device-height); aspect-ratio: var(--device-ar);
     filter: drop-shadow(var(--device-shadow));
   }
-  /* With a frame image, the shadow comes from its copy behind the screen instead. */
-  .glass-frame[data-framed] { filter: none; }
-  .device-shadow { filter: drop-shadow(var(--device-shadow)); }
   /* Landscape devices are sized by width instead. */
   .glass-frame[data-device="ipad"], .glass-frame[data-device="desktop"], .glass-frame[data-device="desktop-wide"], .glass-frame[data-device="desktop-mac"], .glass-frame[data-device="film"] { height: auto; width: var(--device-width-landscape); }
   /* Desktop: the recording itself as a window, with smoothed corners, a

@@ -126,11 +126,6 @@ const base = import.meta.env.BASE_URL;
   /* Tapped: the cover lifts out of the list to fill the screen and plays
      (work-strip.ts), over the page faded out; a placeholder keeps its spot. */
   :global(html.mobile) .card :global(.cover.viewing) { position: fixed; z-index: 71; aspect-ratio: auto; }
-  /* At rest a phone cover is its still (the poster, painted under the video by
-     GlassFrame); the video only shows once it's opened. iPhone Safari drew an
-     idle video on its own layer, which slipped out of place in the frame when
-     the cover was zoomed to its thumbnail framing. */
-  :global(html.mobile) .card :global(.cover:not(.viewing) video) { visibility: hidden; }
   :global(.viewer-scrim) {
     position: fixed; inset: 0; z-index: 70; touch-action: none;
     background: var(--color-scrim);   /* the list stays faintly visible, blurred, behind the open cover */
