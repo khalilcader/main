@@ -43,8 +43,15 @@ const shape = [
   `--open-top: ${pct(d.y0, d.h)}`, `--open-bottom: ${pct(d.h - d.y1, d.h)}`,
   `--open-radius: ${pct(d.r, d.x1 - d.x0)} / ${pct(d.r, d.y1 - d.y0)}`,
 ].join('; ');
+// The rest framing (the thumbnail) in the markup too, as camera.ts sets it, so
+// a cover shows it from the first paint rather than snapping to it later.
+const restStyle = rest ? (() => {
+  const [x, y, s] = rest;
+  const t = (v: number) => (((0.5 - v) * s + (s - 1) / 2) * 100).toFixed(3);
+  return `; scale: ${s}; translate: ${t(x)}% ${t(y)}%`;
+})() : '';
 ---
-<div class="glass-frame" data-device={device} style={shape} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
+<div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
   <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
