@@ -134,7 +134,7 @@ const jobs = [
      after (no gap that grows with the screen). */
   :global(html.mobile) .about-front, :global(html.mobile) .about-front .about-surface { height: auto; }
   :global(html.mobile) .about-front .about-surface { container-type: inline-size; }
-  :global(html.mobile) .about-scene { position: relative; top: auto; left: auto; translate: none; margin: var(--sheet-scene-top) auto 0; width: var(--about-scene-width); }
+  :global(html.mobile) .about-scene { position: relative; top: auto; left: auto; translate: none; margin: var(--sheet-scene-top) auto 0; }
   :global(html.mobile) .about-body { position: relative; inset: auto; padding: var(--sheet-body-top) var(--about-pad) var(--about-pad); gap: var(--sheet-body-gap); }
   :global(html.mobile) .about-jobs { margin-top: 0; }
   :global(html.mobile) .about-card { --about-text-size: var(--sheet-text-size); --about-scene-height: var(--sheet-scene-height); --about-pad: var(--sheet-pad); --job-text-size: var(--sheet-job-size); }
@@ -178,7 +178,7 @@ const jobs = [
      dark mode screens it, so the shader's glow sits over it. */
   .about-scene {
     position: absolute; top: var(--about-scene-top); left: 50%; translate: -50% 0;
-    width: calc(var(--about-scene-height) * var(--about-scene-aspect)); height: var(--about-scene-height);
+    width: var(--about-scene-width); height: var(--about-scene-height);
     opacity: var(--about-scene-opacity);   /* a hazy, washed-out print */
     pointer-events: none;
     mix-blend-mode: var(--about-scene-blend);
