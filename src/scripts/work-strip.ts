@@ -167,6 +167,8 @@ function initMobile(stage: HTMLElement) {
     if (v) { v.currentTime = 0; v.play().catch(() => {}); }
     document.documentElement.toggleAttribute('data-viewing', true);
   }
+  // The name in the header: back to the top of the list.
+  addEventListener('work:home', () => { hide(); scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
   function hide() {
     if (!open) return;
     const { cover, ph, v } = open; open = null;
@@ -921,6 +923,14 @@ function init(stage: HTMLElement) {
     s.raw += d; s.goal = rubberClamp(s.raw, s, rubberDim(s));
     s.vel = 0; s.to = null; s.from = null; s.wheel = true;
   }, { passive: false });
+
+  // The name in the header: back to the beginning (the row's first cover, or
+  // the top of the grid), closing whatever is open.
+  window.addEventListener('work:home', () => {
+    if (mode === 'grid') { closeGrid(); S.grid.to = S.grid.min; S.grid.goal = null; }
+    else { if (p.t >= 0.5) closeRow(); S.row.to = S.row.min; S.row.goal = null; }
+    wake();
+  });
 
   window.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;

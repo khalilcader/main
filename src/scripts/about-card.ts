@@ -216,7 +216,13 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     card.addEventListener('pointercancel', release);
   }
 
-  who.addEventListener('click', (e) => { e.preventDefault(); open(); });
+  // The avatar opens About; the name goes back to the start of the work
+  // (work-strip.ts listens for work:home).
+  who.addEventListener('click', (e) => {
+    e.preventDefault();
+    if ((e.target as Element).closest('.name')) { window.dispatchEvent(new Event('work:home')); return; }
+    open();
+  });
   closeBtn.addEventListener('click', close);
   scrim.addEventListener('click', close);
   // While open, the card owns the keyboard: Esc closes, Tab stays inside, and
