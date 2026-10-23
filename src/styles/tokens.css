@@ -93,10 +93,9 @@
   --about-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
   --about-pad: 56px;                        /* copy inset from the card's sides */
   --about-text-size: 3.16cqh;               /* 24px on the full-size card (Khalil's mock) */
-  --about-scene-height: 42cqh;              /* the illustration's height at the top of the card */
-  --about-scene-aspect: 1.41;               /* desktop: its box's width to height, the same crop the phone sheet shows */
+  --about-scene-height: 38cqh;              /* the illustration's height at the top of the card */
   --about-scene-top: 2.5cqh;                  /* below the close button */
-  --about-scene-width: calc(100% - 48px);   /* phones: nearly the sheet's full width */
+  --about-scene-width: calc(100% - 48px);   /* nearly the card's full width */
   --about-scene-opacity: 0.55;              /* light mode: an airy, washed-out print */
   --about-scene-overlap: -1.5cqh;              /* negative: a gap between its fade and the bio */
   --about-scene-day: 1;                     /* the About card's Brooklyn scene: day (1) or night (0) */
