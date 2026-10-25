@@ -1,0 +1,46 @@
+---
+// Temporary: the Claude Desktop thumbnail with one thing changed in each, to
+// find what draws the window a hair below its edge on iOS. Not linked; delete
+// when done.
+import Base from '../layouts/Base.astro';
+import Cover from '../components/Cover.astro';
+import { getEntry } from 'astro:content';
+const entry = await getEntry('work', 'claude-desktop');
+const variants = [
+  ['1', 'as it is now'],
+  ['2', 'video taken out of the layout'],
+  ['3', 'no video on the page at all'],
+  ['4', 'window nudged up a hair'],
+  ['5', 'no shadow'],
+  ['6', 'thicker (1px) line'],
+];
+---
+<Base title="Edge test">
+  <main class="edge-test">
+    {variants.map(([v, what]) => (
+      <section class={`v-${v}`}>
+        <p><b>{v}</b> {what}</p>
+        <div class="box" style={`--aspect: ${entry!.data.cover.aspect}`}><Cover cover={entry!.data.cover} /></div>
+      </section>
+    ))}
+  </main>
+  <script is:inline>
+    // 3: no video element at all, only the still under it.
+    document.querySelectorAll('.v-3 video').forEach((v) => v.remove());
+  </script>
+</Base>
+
+<style is:global>
+  .edge-test { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 12px; padding: 24px 12px; font: 15px/1.3 system-ui, sans-serif; }
+  .edge-test p { margin: 0 0 6px; min-height: 2.6em; }
+  .edge-test b { font-size: 22px; margin-right: 4px; }
+  .edge-test .box {
+    position: relative; width: 100%; aspect-ratio: var(--aspect); container-type: inline-size;
+    border-radius: calc(0.11 * 100cqw); overflow: hidden;
+    --desktop-radius: 1.5cqw; --desktop-radius-share: 0.015;
+  }
+  .v-2 video { display: none !important; }
+  .v-4 .glass-frame .screen { top: -0.25px !important; }
+  .v-5 .glass-frame { filter: none !important; }
+  .v-6 .window-edge { --desktop-edge-width: 1px; }
+</style>
