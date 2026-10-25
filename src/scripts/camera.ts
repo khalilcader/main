@@ -64,11 +64,12 @@ export function mountCameras(root: ParentNode = document) {
       const tx = ((0.5 - cur.x) * s * on + (s - 1) / 2) * 100;
       const ty = ((0.5 - cur.y) * s * on + (s - 1) / 2) * 100;
       frame.style.scale = s.toFixed(4);
+      frame.style.setProperty('--cam-s', s.toFixed(4));   // keeps the window's hairline edge a hairline
       frame.style.translate = `${tx.toFixed(3)}% ${ty.toFixed(3)}%`;
 
       const settled = Math.abs(kx - cur.x) < 1e-4 && Math.abs(ky - cur.y) < 1e-4 && Math.abs(ks - cur.s) < 1e-4 && Math.abs(on - 1) < 1e-3;
       if (playing || (rest ? !settled : on > 0.002)) raf = requestAnimationFrame(step);
-      else { raf = 0; if (!rest) { frame.style.scale = ''; frame.style.translate = ''; } }
+      else { raf = 0; if (!rest) { frame.style.scale = ''; frame.style.translate = ''; frame.style.removeProperty('--cam-s'); } }
     };
     const start = () => { if (!raf) { last = 0; raf = requestAnimationFrame(step); } };
     video.addEventListener('playing', start);

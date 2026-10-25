@@ -50,7 +50,7 @@ const shape = [
 const restStyle = rest ? (() => {
   const [x, y, s] = rest;
   const t = (v: number) => (((0.5 - v) * s + (s - 1) / 2) * 100).toFixed(3);
-  return `; scale: ${s}; translate: ${t(x)}% ${t(y)}%`;
+  return `; scale: ${s}; --cam-s: ${s}; translate: ${t(x)}% ${t(y)}%`;
 })() : '';
 ---
 <div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
@@ -95,6 +95,9 @@ const restStyle = rest ? (() => {
     border: 1px solid var(--surface-border); border-radius: var(--desktop-radius);
     --smooth-radius-share: var(--desktop-radius-share);
   }
+  /* A hairline at any camera zoom: thinned by the camera's scale (--cam-s, set
+     with it), which would otherwise thicken it with the shot. */
+  .window-edge :global(.smooth-border path) { stroke-width: calc(2px / var(--cam-s, 1)); }
   /* The opening, in shares of the image, grown by --device-bleed under the frame. */
   .screen {
     position: absolute; overflow: hidden; background: #000;
