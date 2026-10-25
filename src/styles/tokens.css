@@ -174,7 +174,9 @@
   --desktop-app-radius-share: 0.02;         /* app windows trimmed from a recording (desktop-app): rounder */
   --film-radius: 24px;                      /* filmed footage: soft, round corners */
   --device-bleed: 2px;                      /* the screen reaches this far under the frame */
-  --device-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  --device-shadow-y: 8px;                   /* the device's soft shadow */
+  --device-shadow-blur: 20px;
+  --device-shadow-color: rgba(0, 0, 0, 0.18);
   --glass-height: 84%;                      /* of the cover's height; leaves some backdrop above and below */
   --glass-radius-x: 15.6%;                  /* 61px of 390 */
   --glass-radius-y: 7.5%;                   /* 61px of 816 */

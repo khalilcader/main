@@ -47,13 +47,16 @@ const shape = [
 ].join('; ');
 // The rest framing (the thumbnail) in the markup too, as camera.ts sets it, so
 // a cover shows it from the first paint rather than snapping to it later.
+// Trimmed app windows rest laid out at the zoom instead (restLayout): see camera.ts.
+const restLayout = device === 'desktop-app';
 const restStyle = rest ? (() => {
   const [x, y, s] = rest;
+  if (restLayout) return `; width: calc(var(--device-width-landscape) * ${s}); --shadow-k: ${s}; translate: ${((0.5 - x) * 100).toFixed(3)}% ${((0.5 - y) * 100).toFixed(3)}%`;
   const t = (v: number) => (((0.5 - v) * s + (s - 1) / 2) * 100).toFixed(3);
   return `; scale: ${s}; --cam-s: ${s}; translate: ${t(x)}% ${t(y)}%`;
 })() : '';
 ---
-<div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
+<div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)} data-rest-layout={restLayout && rest ? '' : undefined}>
   <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
@@ -72,7 +75,7 @@ const restStyle = rest ? (() => {
   .glass-frame {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
     height: var(--device-height); aspect-ratio: var(--device-ar);
-    filter: drop-shadow(var(--device-shadow));
+    filter: drop-shadow(0 calc(var(--device-shadow-y) * var(--shadow-k, 1)) calc(var(--device-shadow-blur) * var(--shadow-k, 1)) var(--device-shadow-color));   /* --shadow-k: a frame laid out at a zoom (camera.ts) */
   }
   /* Landscape devices are sized by width instead. */
   .glass-frame[data-device="ipad"], .glass-frame[data-device="desktop"], .glass-frame[data-device="desktop-wide"], .glass-frame[data-device="desktop-mac"], .glass-frame[data-device="desktop-app"], .glass-frame[data-device="film"] { height: auto; width: var(--device-width-landscape); }
@@ -93,6 +96,9 @@ const restStyle = rest ? (() => {
      below its edge, and the thumbnail's zoom made that a visible gap. Taken out,
      it sat tight on an iPhone (test page, variant 2). */
   .glass-frame[data-device="desktop-app"]:not(.live) video { visibility: hidden; display: none !important; }
+  /* Its edge straddles the window's own edge (half over it), so a rounding of
+     a fraction of a pixel either way can't open a gap between them. */
+  .glass-frame[data-device="desktop-app"] .window-edge :global(.smooth-border path) { mask: none; stroke-width: calc(var(--desktop-edge-width) / var(--cam-s, 1)); }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
