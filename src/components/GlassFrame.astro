@@ -99,6 +99,10 @@ const restStyle = rest ? (() => {
      with it), which would otherwise thicken it with the shot. */
   .window-edge { border-width: calc(var(--desktop-edge-width) / var(--cam-s, 1)); }
   .window-edge :global(.smooth-border path) { stroke-width: calc(2 * var(--desktop-edge-width) / var(--cam-s, 1)); }
+  /* iOS draws the video on its own layer, snapped to whole pixels, and the
+     thumbnail's zoom made the gap to this edge show. Its own layer too (one
+     cover, so cheap), with the same box, so the two snap together. */
+  .glass-frame[data-device="desktop-app"] .window-edge { will-change: transform; }
   /* The opening, in shares of the image, grown by --device-bleed under the frame. */
   .screen {
     position: absolute; overflow: hidden; background: #000;
