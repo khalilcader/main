@@ -22,9 +22,9 @@ cover:
     # the summary, pulling back to the whole window between them and at the
     # loop.
     camera:
-      - [0, 0.5, 0.5, 1]
-      - [6.5, 0.5, 0.5, 1.15]      # the icon set, slowly closer
-      - [8, 0.5, 0.5, 1]
+      - [0, 0.5, 0.5, 1.5]         # the icon set and the slide into the sidebar fill the cover
+      - [8.45, 0.5, 0.5, 1.5]
+      - [9.9, 0.5, 0.5, 1]         # out to the window as the film's own zoom-out lands
       - [11.5, 0.5, 0.5, 1]        # the whole window
       - [12.8, 0.13, 0.16, 2.1]    # the sidebar, down to the pinned items
       - [15.5, 0.13, 0.18, 2.1]

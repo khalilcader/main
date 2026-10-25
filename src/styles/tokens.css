@@ -170,6 +170,7 @@
   --device-width-landscape: 86%;            /* iPad frame: share of the cover's width */
   --desktop-radius: 10px;                   /* desktop recordings: the window's corners (before scripts run) */
   --desktop-radius-share: 0.011;            /* ...then a share of the window's width, so they cover the recording's own */
+  --desktop-app-radius-share: 0.02;         /* app windows trimmed from a recording (desktop-app): rounder */
   --film-radius: 24px;                      /* filmed footage: soft, round corners */
   --device-bleed: 2px;                      /* the screen reaches this far under the frame */
   --device-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
