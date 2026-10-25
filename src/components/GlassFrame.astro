@@ -83,6 +83,7 @@ const restStyle = rest ? (() => {
     border-radius: var(--desktop-radius);   /* smoothed by the clip (smooth-corners.ts) */
     --smooth-radius-share: var(--desktop-radius-share);   /* ...which scales it with the window */
   }
+  .glass-frame[data-device="desktop-app"] .screen, .glass-frame[data-device="desktop-app"] .window-edge { --smooth-radius-share: var(--desktop-app-radius-share); }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
