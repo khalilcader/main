@@ -88,6 +88,11 @@ const restStyle = rest ? (() => {
      off its box (it snaps it to whole pixels, and the cover's zoom shows it),
      the sliver at the edge is the same picture, not white. */
   .glass-frame[data-device="desktop-app"] .screen { background: var(--poster) 0 0 / 100% 100% no-repeat, var(--color-cover-bg); }
+  /* At rest it shows that frame alone, the video hidden until it plays: iOS
+     draws a video on its own layer, a hair off where the page draws the
+     window's edge, and the thumbnail's zoom showed the gap. A still sits with
+     the edge. (The video fades in over it, the same frame, when it plays.) */
+  .glass-frame[data-device="desktop-app"]:not(.live) video { opacity: 0 !important; }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
@@ -123,3 +128,14 @@ const restStyle = rest ? (() => {
   .glass-frame[data-device="iphone-recorded"] .screen { inset: 0; background: none; }
   .device { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; pointer-events: none; user-select: none; }
 </style>
+
+<script>
+  // Trimmed app windows show their still at rest (see the styles): the video
+  // only while it plays.
+  for (const frame of document.querySelectorAll<HTMLElement>('.glass-frame[data-device="desktop-app"]')) {
+    const video = frame.querySelector('video');
+    if (!video) continue;
+    video.addEventListener('playing', () => frame.classList.add('live'));
+    for (const e of ['pause', 'emptied', 'ended']) video.addEventListener(e, () => frame.classList.remove('live'));
+  }
+</script>
