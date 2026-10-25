@@ -97,7 +97,6 @@ const restStyle = rest ? (() => {
   }
   /* A hairline at any camera zoom: thinned by the camera's scale (--cam-s, set
      with it), which would otherwise thicken it with the shot. */
-  .window-edge { border-width: calc(var(--desktop-edge-width) / var(--cam-s, 1)); }
   .window-edge :global(.smooth-border path) { stroke-width: calc(2 * var(--desktop-edge-width) / var(--cam-s, 1)); }
   /* The opening, in shares of the image, grown by --device-bleed under the frame. */
   .screen {
