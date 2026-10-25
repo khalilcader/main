@@ -54,7 +54,7 @@ const restStyle = rest ? (() => {
 })() : '';
 ---
 <div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
-  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
+  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
          video decoder and its frames in GPU memory. -->
@@ -88,18 +88,23 @@ const restStyle = rest ? (() => {
      off its box (it snaps it to whole pixels, and the cover's zoom shows it),
      the sliver at the edge is the same picture, not white. */
   .glass-frame[data-device="desktop-app"] .screen { background: var(--poster) 0 0 / 100% 100% no-repeat, var(--color-cover-bg); }
-  /* At rest it shows that frame alone, the video hidden until it plays: iOS
-     draws a video on its own layer, a hair off where the page draws the
-     window's edge, and the thumbnail's zoom showed the gap. A still sits with
-     the edge. (The video fades in over it, the same frame, when it plays.) */
+  /* At rest it shows that frame alone, the video hidden until it plays (it
+     fades in over it, the same frame), so the thumbnail is drawn with the page
+     rather than on the video's own layer. */
   .glass-frame[data-device="desktop-app"]:not(.live) video { opacity: 0 !important; }
-  /* Its edge drawn by the window itself, along the inside of its own clip, not
-     a separate outline over it: iOS placed that outline's drawing on a whole
-     pixel and the window between them, and the thumbnail's zoom showed the gap.
-     It sits on the window's own pixels, so a touch darker than an outline on the backdrop. */
+  /* Its corners from the browser's own rounding, not the smoothed clip-path:
+     iOS placed that clip a hair low, shaving the window's top (which read as a
+     gap under its edge once the thumbnail's zoom enlarged it). The same radius,
+     2% of the window's width. */
+  .glass-frame[data-device="desktop-app"] .screen {
+    border-radius: calc(var(--desktop-app-radius-share) * 100%) / calc(var(--desktop-app-radius-share) * 100% * 1600 / 1030);
+  }
+  /* Its edge drawn by the window itself, an inset hairline on the same rounded
+     box, not a separate outline over it. It sits on the window's own pixels,
+     so a touch darker than an outline on the backdrop. */
   .glass-frame[data-device="desktop-app"] .screen::after {
     content: ""; position: absolute; inset: 0; pointer-events: none;
-    border-radius: calc(var(--desktop-app-radius-share) * 100%) / calc(var(--desktop-app-radius-share) * 100% * 1600 / 1030);
+    border-radius: inherit;
     box-shadow: inset 0 0 0 calc(var(--desktop-edge-width) / var(--cam-s, 1)) var(--color-desktop-edge-inside);
   }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
