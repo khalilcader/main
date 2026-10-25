@@ -11,12 +11,12 @@ cover:
   palette: fog
   alt: Claude Desktop on a Mac, from its icon set to the sidebar's projects and artifacts, then asking for a summary of a survey and getting back a one-page document
   video:
-    webm: images/work/claude-desktop-4.webm
-    mp4: images/work/claude-desktop-4.mp4
-    poster: images/work/claude-desktop-4.jpg
+    webm: images/work/claude-desktop-5.webm
+    mp4: images/work/claude-desktop-5.mp4
+    poster: images/work/claude-desktop-5.jpg
     start: 12
     device: desktop-app   # trimmed to the app window (still from 0:10.5), smoothed corners
-    rest: [0.12, 0.08, 2.8]   # thumbnail: the window's top-left corner, the sidebar's top tabs (New to Customize, before Pinned), fog padding above and beside it
+    rest: [0.12, 0.14, 2.25]   # thumbnail: the window's top-left corner, the sidebar from New down to the first two pinned items, fog padding above and beside it
     # [seconds, x, y, zoom]: the icon set, then held shots on each step: the
     # sidebar, the artifacts, typing the request, the reply, the answer and
     # the summary, pulling back to the whole window between them and at the
@@ -26,8 +26,8 @@ cover:
       - [6.5, 0.5, 0.5, 1.15]      # the icon set, slowly closer
       - [8, 0.5, 0.5, 1]
       - [11.5, 0.5, 0.5, 1]        # the whole window
-      - [12.8, 0.16, 0.2, 2]       # the sidebar's top tabs
-      - [15.5, 0.16, 0.22, 2]
+      - [12.8, 0.13, 0.16, 2.1]    # the sidebar, down to the pinned items
+      - [15.5, 0.13, 0.18, 2.1]
       - [17, 0.42, 0.38, 1.55]     # Artifacts
       - [22, 0.4, 0.36, 1.55]
       - [23.5, 0.5, 0.5, 1]        # back to New
