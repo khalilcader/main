@@ -3,7 +3,7 @@ title: Instagram Explore
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2021"
-order: 14
+order: 20
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
