@@ -54,7 +54,7 @@ const restStyle = rest ? (() => {
 })() : '';
 ---
 <div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
-  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
+  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
          video decoder and its frames in GPU memory. -->
@@ -65,7 +65,7 @@ const restStyle = rest ? (() => {
   </div>
   {d.src && <img class="device" src={frame} alt="" width={d.w} height={d.h} draggable="false" />}
   <!-- Desktop: the window's outer border, the same smoothed outer border as the controls. -->
-  {(device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac') && <div class="window-edge" data-smooth="surface" aria-hidden="true"></div>}
+  {(device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app') && <div class="window-edge" data-smooth="surface" aria-hidden="true"></div>}
 </div>
 
 <style>
@@ -88,25 +88,11 @@ const restStyle = rest ? (() => {
      off its box (it snaps it to whole pixels, and the cover's zoom shows it),
      the sliver at the edge is the same picture, not white. */
   .glass-frame[data-device="desktop-app"] .screen { background: var(--poster) 0 0 / 100% 100% no-repeat, var(--color-cover-bg); }
-  /* At rest it shows that frame alone, the video hidden until it plays (it
-     fades in over it, the same frame), so the thumbnail is drawn with the page
-     rather than on the video's own layer. */
-  .glass-frame[data-device="desktop-app"]:not(.live) video { opacity: 0 !important; }
-  /* Its corners from the browser's own rounding, not the smoothed clip-path:
-     iOS placed that clip a hair low, shaving the window's top (which read as a
-     gap under its edge once the thumbnail's zoom enlarged it). The same radius,
-     2% of the window's width. */
-  .glass-frame[data-device="desktop-app"] .screen {
-    border-radius: calc(var(--desktop-app-radius-share) * 100%) / calc(var(--desktop-app-radius-share) * 100% * 1600 / 1030);
-  }
-  /* Its edge drawn by the window itself, an inset hairline on the same rounded
-     box, not a separate outline over it. It sits on the window's own pixels,
-     so a touch darker than an outline on the backdrop. */
-  .glass-frame[data-device="desktop-app"] .screen::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    border-radius: inherit;
-    box-shadow: inset 0 0 0 calc(var(--desktop-edge-width) / var(--cam-s, 1)) var(--color-desktop-edge-inside);
-  }
+  /* At rest it shows that frame alone, the video hidden (not just transparent)
+     until it plays: iOS keeps even a transparent video on its own layer, which
+     shaved the window's top under its edge once the thumbnail's zoom enlarged
+     it. Hidden, the still is drawn with the page and the edge sits on it. */
+  .glass-frame[data-device="desktop-app"]:not(.live) video { visibility: hidden; }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
@@ -149,7 +135,7 @@ const restStyle = rest ? (() => {
   for (const frame of document.querySelectorAll<HTMLElement>('.glass-frame[data-device="desktop-app"]')) {
     const video = frame.querySelector('video');
     if (!video) continue;
-    video.addEventListener('playing', () => frame.classList.add('live'));
+    video.addEventListener('play', () => frame.classList.add('live'));   // on the request, so it's never asked to play while hidden
     for (const e of ['pause', 'emptied', 'ended']) video.addEventListener(e, () => frame.classList.remove('live'));
   }
 </script>

@@ -273,7 +273,6 @@
   --color-gradient-orchid-base: #f0dbf2;
   --color-gradient-orchid-light: #d696e0;   /* bottom: a playful orchid glow, like FigJam's pink marker */
   --color-desktop-border: rgba(0, 0, 0, 0.16);
-  --color-desktop-edge-inside: rgba(0, 0, 0, 0.26);   /* the same edge drawn on the window itself (desktop-app) */
   --color-sheet-grabber: rgba(0, 0, 0, 0.2);    /* phones: the About sheet's grab handle */
   --color-sheet-scrim: rgba(0, 0, 0, 0.4);       /* phones: the page dimmed behind the About sheet */
 
@@ -452,7 +451,6 @@
     --color-gradient-orchid-base: #221726;
     --color-gradient-orchid-light: #4a2852;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
-    --color-desktop-edge-inside: rgba(0, 0, 0, 0.26);   /* the recording's window is light in both modes */
     --color-sheet-grabber: rgba(255, 255, 255, 0.28);
     --color-sheet-scrim: rgba(0, 0, 0, 0.6);
     --about-scene-day: 0;
@@ -582,7 +580,6 @@
   --color-gradient-orchid-base: #221726;
   --color-gradient-orchid-light: #4a2852;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
-  --color-desktop-edge-inside: rgba(0, 0, 0, 0.26);   /* the recording's window is light in both modes */
   --color-sheet-grabber: rgba(255, 255, 255, 0.28);
   --color-sheet-scrim: rgba(0, 0, 0, 0.6);
   --about-scene-day: 0;
