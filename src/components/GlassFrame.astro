@@ -65,7 +65,7 @@ const restStyle = rest ? (() => {
   </div>
   {d.src && <img class="device" src={frame} alt="" width={d.w} height={d.h} draggable="false" />}
   <!-- Desktop: the window's outer border, the same smoothed outer border as the controls. -->
-  {(device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app') && <div class="window-edge" data-smooth="surface" aria-hidden="true"></div>}
+  {(device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac') && <div class="window-edge" data-smooth="surface" aria-hidden="true"></div>}
 </div>
 
 <style>
@@ -93,6 +93,15 @@ const restStyle = rest ? (() => {
      window's edge, and the thumbnail's zoom showed the gap. A still sits with
      the edge. (The video fades in over it, the same frame, when it plays.) */
   .glass-frame[data-device="desktop-app"]:not(.live) video { opacity: 0 !important; }
+  /* Its edge drawn by the window itself, along the inside of its own clip, not
+     a separate outline over it: iOS placed that outline's drawing on a whole
+     pixel and the window between them, and the thumbnail's zoom showed the gap.
+     It sits on the window's own pixels, so a touch darker than an outline on the backdrop. */
+  .glass-frame[data-device="desktop-app"] .screen::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    border-radius: calc(var(--desktop-app-radius-share) * 100%) / calc(var(--desktop-app-radius-share) * 100% * 1600 / 1030);
+    box-shadow: inset 0 0 0 calc(var(--desktop-edge-width) / var(--cam-s, 1)) var(--color-desktop-edge-inside);
+  }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
