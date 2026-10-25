@@ -41,6 +41,20 @@ export function mountCameras(root: ParentNode = document) {
     } catch { continue; }
     if (!video || (!keys.length && !rest)) continue;
 
+    // At rest, a trimmed app window (data-rest-layout) is laid out at the
+    // zoom rather than scaled to it: iOS rounded the scaled window's position
+    // to whole pixels before the zoom, and the zoom showed that as a gap under
+    // its edge. Laid out, any rounding is at the final size. While the camera
+    // moves it scales, as the others do (the two look the same).
+    const restLayout = frame.dataset.restLayout !== undefined && !!rest;
+    const layOut = (x: number, y: number, s: number) => {
+      frame.style.scale = '';
+      frame.style.removeProperty('--cam-s');
+      frame.style.width = `calc(var(--device-width-landscape) * ${s.toFixed(4)})`;
+      frame.style.setProperty('--shadow-k', s.toFixed(4));
+      frame.style.translate = `${((0.5 - x) * 100).toFixed(3)}% ${((0.5 - y) * 100).toFixed(3)}%`;
+    };
+
     // The shot eases in when the video starts and back out when it stops.
     let on = 0, raf = 0, last = 0;
     const cur = { x: 0.5, y: 0.5, s: 1 };
@@ -63,13 +77,14 @@ export function mountCameras(root: ParentNode = document) {
       // cover resizes (switching views) without waiting a frame to catch up.
       const tx = ((0.5 - cur.x) * s * on + (s - 1) / 2) * 100;
       const ty = ((0.5 - cur.y) * s * on + (s - 1) / 2) * 100;
+      if (restLayout) { frame.style.width = ''; frame.style.removeProperty('--shadow-k'); }
       frame.style.scale = s.toFixed(4);
       frame.style.setProperty('--cam-s', s.toFixed(4));   // keeps the window's hairline edge a hairline
       frame.style.translate = `${tx.toFixed(3)}% ${ty.toFixed(3)}%`;
 
       const settled = Math.abs(kx - cur.x) < 1e-4 && Math.abs(ky - cur.y) < 1e-4 && Math.abs(ks - cur.s) < 1e-4 && Math.abs(on - 1) < 1e-3;
       if (playing || (rest ? !settled : on > 0.002)) raf = requestAnimationFrame(step);
-      else { raf = 0; if (!rest) { frame.style.scale = ''; frame.style.translate = ''; frame.style.removeProperty('--cam-s'); } }
+      else { raf = 0; if (!rest) { frame.style.scale = ''; frame.style.translate = ''; frame.style.removeProperty('--cam-s'); } else if (restLayout) layOut(rest[0], rest[1], rest[2]); }
     };
     const start = () => { if (!raf) { last = 0; raf = requestAnimationFrame(step); } };
     video.addEventListener('playing', start);
