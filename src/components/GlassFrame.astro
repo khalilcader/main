@@ -88,16 +88,11 @@ const restStyle = rest ? (() => {
      off its box (it snaps it to whole pixels, and the cover's zoom shows it),
      the sliver at the edge is the same picture, not white. */
   .glass-frame[data-device="desktop-app"] .screen { background: var(--poster) 0 0 / 100% 100% no-repeat, var(--color-cover-bg); }
-  /* At rest it shows that frame alone, the video hidden (not just transparent)
-     until it plays: iOS keeps even a transparent video on its own layer, which
-     shaved the window's top under its edge once the thumbnail's zoom enlarged
-     it. Hidden, the still is drawn with the page and the edge sits on it. */
-  .glass-frame[data-device="desktop-app"]:not(.live) video { visibility: hidden; }
-  /* iOS draws the window's top a quarter pixel short of its edge (with or
-     without the video, shadow or a thicker line, as a test page showed on an
-     iPhone), and the thumbnail's zoom made that a visible gap. Its top reaches
-     up that much there. */
-  :global(html.ios) .glass-frame[data-device="desktop-app"] .screen { top: -0.25px; }
+  /* At rest it shows that frame alone, the video out of the layout until it
+     plays: with the video in it (even hidden), iOS drew the window's top a hair
+     below its edge, and the thumbnail's zoom made that a visible gap. Taken out,
+     it sat tight on an iPhone (test page, variant 2). */
+  .glass-frame[data-device="desktop-app"]:not(.live) video { visibility: hidden; display: none !important; }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
