@@ -84,6 +84,10 @@ const restStyle = rest ? (() => {
     --smooth-radius-share: var(--desktop-radius-share);   /* ...which scales it with the window */
   }
   .glass-frame[data-device="desktop-app"] .screen, .glass-frame[data-device="desktop-app"] .window-edge { --smooth-radius-share: var(--desktop-app-radius-share); }
+  /* The thumbnail frame under the video too, so if iOS lands the video a hair
+     off its box (it snaps it to whole pixels, and the cover's zoom shows it),
+     the sliver at the edge is the same picture, not white. */
+  .glass-frame[data-device="desktop-app"] .screen { background: var(--poster) 0 0 / 100% 100% no-repeat, var(--color-cover-bg); }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
