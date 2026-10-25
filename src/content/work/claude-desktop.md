@@ -3,7 +3,7 @@ title: Claude Desktop
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2026"
-order: 3
+order: 8
 cover:
   aspect: 1.25   # 771 × 617: wide, for landscape footage
   shader: gradient

@@ -170,7 +170,7 @@
   --device-width-landscape: 86%;            /* iPad frame: share of the cover's width */
   --desktop-radius: 10px;                   /* desktop recordings: the window's corners (before scripts run) */
   --desktop-radius-share: 0.011;            /* ...then a share of the window's width, so they cover the recording's own */
-  --desktop-app-edge-opacity: 1;            /* the trimmed app window's (desktop-app) edge, full strength */
+  --desktop-edge-width: 1px;               /* desktop recordings: the window's hairline edge, at any camera zoom */
   --desktop-app-radius-share: 0.02;         /* app windows trimmed from a recording (desktop-app): rounder */
   --film-radius: 24px;                      /* filmed footage: soft, round corners */
   --device-bleed: 2px;                      /* the screen reaches this far under the frame */
@@ -324,7 +324,7 @@
     --viewer-blur: 24px;                    /* phones: the list behind a cover that's open full screen */
     --page-pad: 12px;                       /* phones: the same as between the columns, so covers stay as big as they can */
     --cover-radius-share: 0.11;             /* phones: a cover's corner, as a share of its width (the same on every cover) */
-    --desktop-app-edge-opacity: 0.55;       /* phones: the trimmed app window's edge lighter, so the zoomed-in hairline reads finer */
+    --desktop-edge-width: 0.5px;            /* phones: a true hairline on the small covers */
     --header-top: 16px;
     --row-gap-below-header: 32px;
     --row-gap: 12px;
