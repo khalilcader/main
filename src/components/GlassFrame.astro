@@ -97,6 +97,9 @@ const restStyle = rest ? (() => {
      thumbnail's zoom made that a visible gap. Its top reaches up that much
      there (test page, variant 4, the one that sat tight on an iPhone). */
   :global(html.ios) .glass-frame[data-device="desktop-app"] .screen { top: -0.25px; }
+  /* Its shadow all the way round, softer: the usual one falls below the
+     window, and the thumbnail crops the window's bottom off, so it didn't show. */
+  .glass-frame[data-device="desktop-app"] { filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.22)); }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
