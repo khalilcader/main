@@ -10,7 +10,7 @@ interface Props {
   poster: string;
   start?: number;   // seconds; the frame the cover rests on
   camera?: [number, number, number, number][];   // see scripts/camera.ts
-  device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop' | 'desktop-wide' | 'desktop-mac' | 'film';
+  device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop' | 'desktop-wide' | 'desktop-mac' | 'desktop-app' | 'film';
   rest?: [number, number, number];   // see scripts/camera.ts
 }
 const DEVICES = {
@@ -30,6 +30,8 @@ const DEVICES = {
   'desktop-wide': { src: '', w: 1600, h: 900, x0: 0, y0: 0, x1: 1600, y1: 900, r: 0 },
   // And a Mac app window recorded whole, title bar included (about 3:2).
   'desktop-mac': { src: '', w: 1600, h: 1050, x0: 0, y0: 0, x1: 1600, y1: 1050, r: 0 },
+  // And an app window trimmed from an edited film (Claude Desktop), in its own proportions.
+  'desktop-app': { src: '', w: 1600, h: 1030, x0: 0, y0: 0, x1: 1600, y1: 1030, r: 0 },
   // No frame: filmed footage (16:9), a plain picture with soft round corners.
   film: { src: '', w: 1600, h: 900, x0: 0, y0: 0, x1: 1600, y1: 900, r: 0 },
 };
@@ -52,7 +54,7 @@ const restStyle = rest ? (() => {
 })() : '';
 ---
 <div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
-  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
+  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
          video decoder and its frames in GPU memory. -->
@@ -63,7 +65,7 @@ const restStyle = rest ? (() => {
   </div>
   {d.src && <img class="device" src={frame} alt="" width={d.w} height={d.h} draggable="false" />}
   <!-- Desktop: the window's outer border, the same smoothed outer border as the controls. -->
-  {(device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac') && <div class="window-edge" data-smooth="surface" aria-hidden="true"></div>}
+  {(device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app') && <div class="window-edge" data-smooth="surface" aria-hidden="true"></div>}
 </div>
 
 <style>
@@ -73,10 +75,10 @@ const restStyle = rest ? (() => {
     filter: drop-shadow(var(--device-shadow));
   }
   /* Landscape devices are sized by width instead. */
-  .glass-frame[data-device="ipad"], .glass-frame[data-device="desktop"], .glass-frame[data-device="desktop-wide"], .glass-frame[data-device="desktop-mac"], .glass-frame[data-device="film"] { height: auto; width: var(--device-width-landscape); }
+  .glass-frame[data-device="ipad"], .glass-frame[data-device="desktop"], .glass-frame[data-device="desktop-wide"], .glass-frame[data-device="desktop-mac"], .glass-frame[data-device="desktop-app"], .glass-frame[data-device="film"] { height: auto; width: var(--device-width-landscape); }
   /* Desktop: the recording itself as a window, with smoothed corners, a
      hairline border and the device's soft shadow (on the frame, outside the clip). */
-  .glass-frame[data-device="desktop"] .screen, .glass-frame[data-device="desktop-wide"] .screen, .glass-frame[data-device="desktop-mac"] .screen {
+  .glass-frame[data-device="desktop"] .screen, .glass-frame[data-device="desktop-wide"] .screen, .glass-frame[data-device="desktop-mac"] .screen, .glass-frame[data-device="desktop-app"] .screen {
     inset: 0; background: var(--color-cover-bg);
     border-radius: var(--desktop-radius);   /* smoothed by the clip (smooth-corners.ts) */
     --smooth-radius-share: var(--desktop-radius-share);   /* ...which scales it with the window */
