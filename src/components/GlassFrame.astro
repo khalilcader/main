@@ -54,7 +54,7 @@ const restStyle = rest ? (() => {
 })() : '';
 ---
 <div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
-  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
+  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
          video decoder and its frames in GPU memory. -->
@@ -88,13 +88,6 @@ const restStyle = rest ? (() => {
      off its box (it snaps it to whole pixels, and the cover's zoom shows it),
      the sliver at the edge is the same picture, not white. */
   .glass-frame[data-device="desktop-app"] .screen { background: var(--poster) 0 0 / 100% 100% no-repeat, var(--color-cover-bg); }
-  /* Its corners cut by the browser's own rounding, not the smoothed clip-path:
-     iOS rasterises a clip-path on a video at the frame's unzoomed size, and the
-     thumbnail's 2.25x zoom then showed its soft edge as a gap under the window's
-     edge. The same radius, as a share of the window (2% of its width). */
-  .glass-frame[data-device="desktop-app"] .screen {
-    border-radius: calc(var(--desktop-app-radius-share) * 100%) / calc(var(--desktop-app-radius-share) * 100% * 1600 / 1030);
-  }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
