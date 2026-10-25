@@ -84,19 +84,6 @@ const restStyle = rest ? (() => {
     --smooth-radius-share: var(--desktop-radius-share);   /* ...which scales it with the window */
   }
   .glass-frame[data-device="desktop-app"] .screen, .glass-frame[data-device="desktop-app"] .window-edge { --smooth-radius-share: var(--desktop-app-radius-share); }
-  /* The thumbnail frame under the video too, so if iOS lands the video a hair
-     off its box (it snaps it to whole pixels, and the cover's zoom shows it),
-     the sliver at the edge is the same picture, not white. */
-  .glass-frame[data-device="desktop-app"] .screen { background: var(--poster) 0 0 / 100% 100% no-repeat, var(--color-cover-bg); }
-  /* At rest it shows that frame alone, the video hidden (not just transparent)
-     until it plays: iOS keeps even a transparent video on its own layer, which
-     shaved the window's top under its edge once the thumbnail's zoom enlarged
-     it. Hidden, the still is drawn with the page and the edge sits on it. */
-  .glass-frame[data-device="desktop-app"]:not(.live) video { visibility: hidden; }
-  /* iOS draws the window's top a quarter pixel short of its edge, and the
-     thumbnail's zoom made that a visible gap. Its top reaches up that much
-     there (test page, variant 4, the one that sat tight on an iPhone). */
-  :global(html.ios) .glass-frame[data-device="desktop-app"] .screen { top: -0.25px; }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
@@ -110,7 +97,9 @@ const restStyle = rest ? (() => {
   }
   /* A hairline at any camera zoom: thinned by the camera's scale (--cam-s, set
      with it), which would otherwise thicken it with the shot. */
-  .window-edge :global(.smooth-border path) { stroke-width: calc(2 * var(--desktop-edge-width) / var(--cam-s, 1)); }
+  .window-edge :global(.smooth-border path) { stroke-width: calc(2px / var(--cam-s, 1)); }
+  /* Lighter, not thinner, so it stays exactly where it is. */
+  .glass-frame[data-device="desktop-app"] .window-edge :global(.smooth-border) { opacity: var(--desktop-app-edge-opacity); }
   /* The opening, in shares of the image, grown by --device-bleed under the frame. */
   .screen {
     position: absolute; overflow: hidden; background: #000;
@@ -132,14 +121,3 @@ const restStyle = rest ? (() => {
   .glass-frame[data-device="iphone-recorded"] .screen { inset: 0; background: none; }
   .device { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; pointer-events: none; user-select: none; }
 </style>
-
-<script>
-  // Trimmed app windows show their still at rest (see the styles): the video
-  // only while it plays.
-  for (const frame of document.querySelectorAll<HTMLElement>('.glass-frame[data-device="desktop-app"]')) {
-    const video = frame.querySelector('video');
-    if (!video) continue;
-    video.addEventListener('play', () => frame.classList.add('live'));   // on the request, so it's never asked to play while hidden
-    for (const e of ['pause', 'emptied', 'ended']) video.addEventListener(e, () => frame.classList.remove('live'));
-  }
-</script>
