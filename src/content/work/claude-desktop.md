@@ -16,7 +16,7 @@ cover:
     poster: images/work/claude-desktop-3.jpg
     start: 10.2
     device: desktop-app   # trimmed to the app window frame by frame, in its own proportions, smoothed corners
-    rest: [0.14, 0.12, 3.5]   # thumbnail: the window's top-left corner close up, the sidebar's top tabs (New to Customize, before Pinned), fog above and beside it
+    rest: [0.12, 0.08, 2.8]   # thumbnail: the window's top-left corner, the sidebar's top tabs (New to Customize, before Pinned), fog padding above and beside it
     # [seconds, x, y, zoom]: the trim follows the film's own zooms; on top,
     # the cover leans gently into each step and pulls back to the whole
     # window at the loop.
