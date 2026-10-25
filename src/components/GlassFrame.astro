@@ -93,9 +93,10 @@ const restStyle = rest ? (() => {
      shaved the window's top under its edge once the thumbnail's zoom enlarged
      it. Hidden, the still is drawn with the page and the edge sits on it. */
   .glass-frame[data-device="desktop-app"]:not(.live) video { visibility: hidden; }
-  /* No shadow under it: with one, iOS showed a gap between the window and its
-     edge; without, it sat tight on an iPhone (test page, variant 5). */
-  .glass-frame[data-device="desktop-app"] { filter: none; }
+  /* iOS draws the window's top a quarter pixel short of its edge, and the
+     thumbnail's zoom made that a visible gap. Its top reaches up that much
+     there (test page, variant 4, the one that sat tight on an iPhone). */
+  :global(html.ios) .glass-frame[data-device="desktop-app"] .screen { top: -0.25px; }
   /* Film: filmed footage, full bleed in its frame, rounder corners, no edge. */
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
