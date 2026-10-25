@@ -324,7 +324,6 @@
     --viewer-blur: 24px;                    /* phones: the list behind a cover that's open full screen */
     --page-pad: 12px;                       /* phones: the same as between the columns, so covers stay as big as they can */
     --cover-radius-share: 0.11;             /* phones: a cover's corner, as a share of its width (the same on every cover) */
-    --desktop-edge-width: 0.5px;            /* phones: a true hairline on the small covers */
     --header-top: 16px;
     --row-gap-below-header: 32px;
     --row-gap: 12px;
