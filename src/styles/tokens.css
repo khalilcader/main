@@ -80,6 +80,7 @@
   /* Avatar flip (to its About side, on hover) */
   --photo-perspective: 400px;
   --photo-flip-duration: 0.6s;
+  --photo-flip-edge-on: calc(var(--photo-flip-duration) * 0.13);   /* when the flip's ease has turned it 90deg: the faces swap there */
   --photo-flip-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --photo-back-icon-opacity: 0.6;
   --photo-hover-scale: 1.06;                /* grows a little on hover */
