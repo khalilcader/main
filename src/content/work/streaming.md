@@ -3,7 +3,7 @@ title: Streaming
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2026"
-order: 3
+order: 7
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
