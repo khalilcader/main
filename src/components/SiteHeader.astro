@@ -151,7 +151,12 @@ const { tools = true } = Astro.props;
   .face {
     position: absolute; inset: 0; display: block;
     -webkit-backface-visibility: hidden; backface-visibility: hidden;
+    /* ...and the side turned away is hidden outright, swapped as the turn goes
+       edge-on: Safari sometimes drew the avatar flat (toggling the grid did
+       it), and flat, the back face showed over the photo. */
+    transition: visibility 0s linear var(--photo-flip-edge-on);
   }
+  .back { visibility: hidden; }
   .surface {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     --surface-border: var(--color-photo-border);
@@ -179,15 +184,19 @@ const { tools = true } = Astro.props;
   .back .icon { position: relative; opacity: var(--photo-back-icon-opacity); }
   /* Flip on hover (mouse) or keyboard focus. */
   .who:focus-visible:not([data-noflip]) .flip, .photo.peek .flip { transform: rotateY(180deg); }
+  .who:focus-visible:not([data-noflip]) .front, .photo.peek .front { visibility: hidden; }
+  .who:focus-visible:not([data-noflip]) .back, .photo.peek .back { visibility: visible; }
   @media (hover: hover) {
     /* Hover: flips, grows a little and lifts onto a stronger shadow. */
     .photo:hover { scale: var(--photo-hover-scale); }
     .photo:hover .flip { transform: rotateY(180deg); box-shadow: var(--photo-shadow-hover); }
+    .photo:hover .front { visibility: hidden; }
+    .photo:hover .back { visibility: visible; }
     /* ...and its About side shows the buttons' hover tile, inset like theirs. */
     .photo:hover .tint { --surface-bg: var(--color-tool-hover-bg); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .flip { transition: none; }
+    .flip, .face { transition: none; }
     .photo:hover { scale: none; }
   }
   .name {
