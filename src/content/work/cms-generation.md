@@ -3,7 +3,7 @@ title: CMS Generation
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2025"
-order: 6
+order: 3
 cover:
   aspect: 1.25   # 771 × 617: wide, for desktop
   shader: gradient
