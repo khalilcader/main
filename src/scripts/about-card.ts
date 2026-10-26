@@ -216,6 +216,12 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     card.addEventListener('pointercancel', release);
   }
 
+  // Focused by a click or tap, it isn't keyboard focus, but a key pressed
+  // afterwards (G for the grid) made it count as one and flipped the avatar.
+  who.addEventListener('pointerdown', () => {
+    who.dataset.noflip = '';
+    who.addEventListener('blur', () => delete who.dataset.noflip, { once: true });
+  });
   // The avatar opens About; the name goes back to the start of the work
   // (work-strip.ts listens for work:home).
   who.addEventListener('click', (e) => {
