@@ -8,7 +8,7 @@ cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   shader: gradient
   angle: 140
-  palette: clay
+  palette: lemon
   alt: An iPhone app streaming formatted text in word by word, with sliders that tune how the text reveals itself
   video:
     webm: images/work/streaming-1.webm

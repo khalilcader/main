@@ -3,7 +3,7 @@ title: Layer Reordering
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2023"
-order: 14
+order: 15
 cover:
   aspect: 1.25   # 771 × 617: wide, for the iPad
   shader: gradient
