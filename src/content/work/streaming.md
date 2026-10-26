@@ -13,10 +13,10 @@ cover:
   video:
     webm: images/work/streaming-1.webm
     mp4: images/work/streaming-1.mp4
-    poster: images/work/streaming-1.jpg
-    start: 4
+    poster: images/work/streaming-2.jpg
+    start: 7.4
     device: iphone
-    rest: [0.38, 0.3, 1.6]   # thumbnail: mid-stream, the phone's top-left corner with the text arriving
+    rest: [0.5, 0.5, 1]   # thumbnail: the whole phone, the text fully streamed in
     # [seconds, x, y, zoom]: the text streaming in, the sliders being tuned,
     # then streaming again, with the whole phone at the start and end so the
     # loop is seamless.
