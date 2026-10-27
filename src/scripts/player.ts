@@ -17,6 +17,8 @@ const fill = player?.querySelector<HTMLElement>('.player-fill');
 
 if (player && toggle && track && fill) {
   const HIDE_AFTER = 2000;   // ms of stillness while playing
+  // PREVIEW ONLY (remove before merging): ?gap=20 tries a fixed gap.
+  const TRY_GAP = parseFloat(new URLSearchParams(location.search).get('gap') ?? '') || null;
   const root = document.documentElement;
   const css = getComputedStyle(root);
   const px = (name: string) => parseFloat(css.getPropertyValue(name)) || 0;
@@ -62,7 +64,7 @@ if (player && toggle && track && fill) {
       // radius less its own), never under --player-gap.
       const r = cover.getBoundingClientRect();
       const h = px('--player-height');
-      const gap = Math.max(px('--player-gap'), cornerOf(cover, r) - h / 2);
+      const gap = TRY_GAP ?? Math.max(px('--player-gap'), cornerOf(cover, r) - h / 2);
       const w = r.width - 2 * gap;
       player!.style.width = `${w}px`;
       player!.style.transform = `translate(${(r.left + gap).toFixed(1)}px, ${(r.bottom - gap - h).toFixed(1)}px)`;
