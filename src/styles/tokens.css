@@ -27,6 +27,7 @@
   --color-toggle-on-bg: #dbe9fc;            /* pressed tile, from Khalil's mockup */
   --color-toggle-on-fg: #3b88f5;
   --color-tool-hover-bg: rgba(0, 0, 0, 0.08);   /* from Khalil's hover mockup */
+  --color-player-track: rgba(0, 0, 0, 0.12);   /* the scrubber pill; its progress is --color-fg */
   --color-toggle-on-hover-bg: #cde0fb;
   --color-glass-bg: rgba(255, 255, 255, 0.5);
   --color-glass-border: rgba(255, 255, 255, 0.8);
@@ -146,6 +147,17 @@
   --tools-inset: 4px;                       /* padding around the header buttons (no gap between them) */
   --close-inset: 40px;                      /* focus-mode close button, from the top-left corner */
   --tool-size: 30px;                        /* 40 tall: 4 + 30 + 4 + 1px border each side; tiles touch */
+  /* Video controls (focused cover): one glass bar, play/pause and a pill scrubber */
+  --player-height: 52px;
+  --player-inset: 6px;                      /* around the button tile, like --tools-inset */
+  --player-radius: 26px;                    /* a pill: half its height (the tile inside is round), its ends concentric with the cover's corners */
+  --player-gap: 12px;                       /* at least: it's the cover's corner radius less its own, so even all round (about 38px on a focused cover) */
+  --player-blur: 40px;                      /* the page behind it, more frosted than the header's glass */
+  --player-icon: 20px;
+  --player-track-height: 4px;               /* the scrubber: a slim pill, its progress a pill inside it */
+  --player-track-height-hover: 12px;        /* ...grown while hovered or dragged */
+  --player-grow-duration: var(--photo-hover-duration);   /* ...and how: the same as the avatar's grow on hover */
+  --player-grow-ease: var(--photo-flip-ease);
   --divider-height: 22px;                   /* between the close button and the focus title */
   --top-bar-height: 88px;                   /* grid view, scrolled: the header tucked up, 16px above and below its contents */
   --header-collapse-duration: 0.35s;
@@ -365,6 +377,7 @@
     --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
     --color-toggle-on-fg: #7fb2ff;
   --color-tool-hover-bg: rgba(255, 255, 255, 0.1);
+  --color-player-track: rgba(255, 255, 255, 0.16);
   --color-toggle-on-hover-bg: rgba(59, 136, 245, 0.32);
     --color-glass-bg: rgba(255, 255, 255, 0.07);
     --color-glass-border: rgba(255, 255, 255, 0.16);
@@ -494,6 +507,7 @@
   --color-toggle-on-bg: rgba(59, 136, 245, 0.24);
   --color-toggle-on-fg: #7fb2ff;
   --color-tool-hover-bg: rgba(255, 255, 255, 0.1);
+  --color-player-track: rgba(255, 255, 255, 0.16);
   --color-toggle-on-hover-bg: rgba(59, 136, 245, 0.32);
   --color-glass-bg: rgba(255, 255, 255, 0.07);
   --color-glass-border: rgba(255, 255, 255, 0.16);
