@@ -2,7 +2,7 @@
 // scrubber, floating over the bottom of the cover that's open, in the focus
 // strip or the grid lightbox (desktop) or the full-screen viewer (phones).
 //
-// Shows when a cover opens, and while the pointer moves; hides 2s after the
+// Shows when a cover opens, and while the pointer moves over it; hides 2s after the
 // last movement while the video plays. Stays while paused, while the pointer
 // is on it and while scrubbing. On phones a tap on the cover shows or hides
 // it (hidden by a tap, it stays hidden, paused or not, until the next).
@@ -89,11 +89,19 @@ if (player && toggle && track && fill) {
   new MutationObserver(wake).observe(root, { attributes: true, attributeFilter: ['data-focus', 'data-viewing'] });
   wake();
 
-  // Movement shows it again. Not a touch in the phone viewer: there taps
-  // toggle it (below), and a swipe is closing it.
+  // Movement over the open cover shows it again (not anywhere on the page).
+  // Not a touch in the phone viewer: there taps toggle it (below), and a
+  // swipe is closing it.
+  const overCover = (e: MouseEvent) => {
+    const cover = openCover();
+    if (!cover) return false;
+    const r = cover.getBoundingClientRect();
+    return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  };
   for (const type of ['pointermove', 'pointerdown', 'wheel', 'keydown'] as const)
     addEventListener(type, (e) => {
       if ((e as PointerEvent).pointerType === 'touch' && root.hasAttribute('data-viewing')) return;
+      if (e instanceof MouseEvent && !overCover(e)) return;
       lastMove = performance.now(); dismissed = false; wake();
     }, { passive: true });
   // A tap on the cover in the phone viewer (work-strip.ts): showing, it hides;
