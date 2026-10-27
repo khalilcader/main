@@ -33,15 +33,6 @@ if (player && toggle && track && fill) {
     return document.querySelector<HTMLElement>('.stage .card[data-open] .cover');
   }
 
-  // The cover's corner radius on screen: on phones a share of its width; on
-  // desktop the work strip's radius for it (--shadow-r, in the card's own
-  // pixels), scaled to how big it's drawn.
-  function cornerOf(cover: HTMLElement, r: DOMRect) {
-    if (root.classList.contains('mobile')) return px('--cover-radius-share') * r.width;
-    const own = parseFloat(cover.closest<HTMLElement>('.card')?.style.getPropertyValue('--shadow-r') || '') || 0;
-    return own * (r.width / (cover.offsetWidth || r.width));
-  }
-
   // Paused by hand, not just stopped: a cover that's still loading counts as
   // playing (its icon stays Pause, and the bar still hides).
   const held = (v: HTMLVideoElement) => v.dataset.held !== undefined;
@@ -57,15 +48,13 @@ if (player && toggle && track && fill) {
     if (Math.abs(show - (want ? 1 : 0)) < 0.01) show = want ? 1 : 0;
 
     if (cover && v) {
-      // Over the bottom of the cover, its gap below; at the sides it comes in
-      // until its round end clears the cover's corner (the corner's radius,
-      // less its own), never closer than the gap.
+      // Over the bottom of the cover, edge to edge: the same gap at its sides
+      // as below it (its round ends clear the cover's corners).
       const r = cover.getBoundingClientRect();
       const gap = px('--player-gap'), h = px('--player-height');
-      const side = Math.max(gap, cornerOf(cover, r) - px('--player-radius'));
-      const w = r.width - 2 * side;
+      const w = r.width - 2 * gap;
       player!.style.width = `${w}px`;
-      player!.style.transform = `translate(${(r.left + (r.width - w) / 2).toFixed(1)}px, ${(r.bottom - gap - h).toFixed(1)}px)`;
+      player!.style.transform = `translate(${(r.left + gap).toFixed(1)}px, ${(r.bottom - gap - h).toFixed(1)}px)`;
       const d = v.duration;
       const t = d ? v.currentTime / d : 0;
       fill!.style.setProperty('--p', t.toFixed(4));
