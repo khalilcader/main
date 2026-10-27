@@ -546,7 +546,12 @@ function init(stage: HTMLElement) {
     // cover, and all 21 redrawing every frame of a row <-> grid switch was
     // more than Chrome could keep up with (flicker). The steps land while
     // the covers are still flying, where they don't show.
-    const r = rowR + (gridR - rowR) * Math.round(c.gm * CORNER_STEPS) / CORNER_STEPS;
+    let k = Math.round(c.gm * CORNER_STEPS) / CORNER_STEPS;
+    // Opened from the grid (the lightbox): back to the row's corners as it
+    // grows, so an open cover has the same corners however it was opened (and
+    // the player over it sits the same, player.ts).
+    if (c.i === gridActive) k *= 1 - Math.round(clamp(gp.v, 0, 1) * 12) / 12;
+    const r = rowR + (gridR - rowR) * k;
     if (Math.abs(r - c.rLast) < 0.3) return;
     c.rLast = r;
     const h = c.W / c.a;
