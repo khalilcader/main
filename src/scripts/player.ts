@@ -2,10 +2,11 @@
 // scrubber, floating over the bottom of the cover that's open, in the focus
 // strip or the grid lightbox (desktop) or the full-screen viewer (phones).
 //
-// Shows when a cover opens, and while the pointer moves; hides 2s after the
-// last movement while the video plays. Stays while paused, while the pointer
-// is on it and while scrubbing. On phones a tap on the cover shows or hides
-// it (hidden by a tap, it stays hidden, paused or not, until the next).
+// A cover opens without it: it shows when the pointer moves, and hides 2s
+// after the last movement while the video plays. Stays while paused, while
+// the pointer is on it, while it has keyboard focus and while scrubbing. On
+// phones a tap on the cover shows or hides it (hidden by a tap, it stays
+// hidden, paused or not, until the next).
 //
 // Paused by hand, a video is marked data-held, so the camera (camera.ts)
 // holds its shot instead of easing back to the thumbnail; the work strip
@@ -53,8 +54,9 @@ if (player && toggle && track && fill) {
     last = now;
     const cover = openCover();
     const v = cover?.querySelector('video') ?? null;
-    if (v !== video) { video = v; lastMove = now; dismissed = false; }   // a new cover: show it
-    want = !!(v && !dismissed && (held(v) || over || scrub || now - lastMove < HIDE_AFTER));
+    if (v !== video) { video = v; lastMove = -Infinity; dismissed = false; }   // a new cover: hidden till the pointer moves
+    const focused = !!player!.querySelector(':focus-visible');   // tabbed to, not clicked
+    want = !!(v && !dismissed && (held(v) || over || focused || scrub || now - lastMove < HIDE_AFTER));
     show += ((want ? 1 : 0) - show) * (1 - Math.exp(-dt * 14));
     if (Math.abs(show - (want ? 1 : 0)) < 0.01) show = want ? 1 : 0;
 
@@ -89,9 +91,10 @@ if (player && toggle && track && fill) {
   new MutationObserver(wake).observe(root, { attributes: true, attributeFilter: ['data-focus', 'data-viewing'] });
   wake();
 
-  // Movement shows it again. Not a touch in the phone viewer: there taps
-  // toggle it (below), and a swipe is closing it.
-  for (const type of ['pointermove', 'pointerdown', 'wheel', 'keydown'] as const)
+  // Pointer movement shows it. Not the wheel or keys, which move between
+  // covers (Tab onto its buttons shows it by focus). Not a touch in the phone
+  // viewer: there taps toggle it (below), and a swipe is closing it.
+  for (const type of ['pointermove', 'pointerdown'] as const)
     addEventListener(type, (e) => {
       if ((e as PointerEvent).pointerType === 'touch' && root.hasAttribute('data-viewing')) return;
       lastMove = performance.now(); dismissed = false; wake();
@@ -106,6 +109,7 @@ if (player && toggle && track && fill) {
 
   player.addEventListener('pointerenter', () => { over = true; });
   player.addEventListener('pointerleave', () => { over = false; });
+  player.addEventListener('focusin', wake);
   // Its own: presses here never reach the strip, the viewer or the page.
   for (const type of ['pointerdown', 'click', 'touchstart'] as const)
     player.addEventListener(type, (e) => e.stopPropagation());
