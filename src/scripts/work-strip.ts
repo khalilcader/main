@@ -689,8 +689,34 @@ function init(stage: HTMLElement) {
     });
   }
 
+  // Safari: row <-> grid as a quick crossfade instead of the covers flying:
+  // the strip fades out, everything lands in its new place at once (unseen),
+  // and it fades back in. Safari flickered with 23 covers moving and resizing.
+  let fading: Animation | null = null, fadeTo: 'row' | 'grid' | null = null, queued: 'row' | 'grid' | null = null;
+  // G and the grid button: the other view from the one it's in, or heading to.
+  const toggleMode = () => setMode((queued ?? fadeTo ?? mode) === 'row' ? 'grid' : 'row');
   function setMode(m: 'row' | 'grid') {
+    if (!SAFARI || reduce) { if (m !== mode) switchMode(m); return; }
+    if (fading) { queued = m === fadeTo ? null : m; return; }   // mid-fade: runs once this one's done
     if (m === mode) return;
+    fadeTo = m;
+    const out = stage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease-in', fill: 'forwards' });
+    fading = out;
+    out.finished.then(() => {
+      switchMode(m);
+      for (const c of cards) { c.anim?.cancel(); c.anim = null; c.follow = true; c.delay = 0; c.gm = m === 'grid' ? 1 : 0; }
+      wake();
+      // Two frames for the new layout to be drawn, then back in.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        stage.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+        out.cancel();
+        fading = null; fadeTo = null;
+        const q = queued; queued = null;
+        if (q && q !== mode) setMode(q);
+      }));
+    }, () => { fading = null; fadeTo = null; });
+  }
+  function switchMode(m: 'row' | 'grid') {
     closeGrid();
     const now = performance.now();
     // Into the grid, release covers by where they are now; back to the row,
@@ -704,7 +730,6 @@ function init(stage: HTMLElement) {
     if (p.t >= 0.5) S.row.pos = rowSnap(nearest(centerBig, S.big.pos));
     p.snap(0);
     mode = m;
-    if (SAFARI && SWITCH && !reduce) animateSwitch(order);
     document.documentElement.toggleAttribute('data-grid', m === 'grid');   // labels change style (WorkStrip.astro)
     gridBtn.setAttribute('aria-pressed', String(m === 'grid'));
     gridBtn.setAttribute('aria-label', m === 'grid' ? 'Show as row' : 'Show as grid');
@@ -986,7 +1011,7 @@ function init(stage: HTMLElement) {
   window.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === 'Escape') { if (mode === 'grid') closeGrid(); else if (p.t >= 0.5) closeRow(); return; }
-    if (e.key === 'g' || e.key === 'G') { setMode(mode === 'row' ? 'grid' : 'row'); return; }
+    if (e.key === 'g' || e.key === 'G') { toggleMode(); return; }
     if (e.key === 't' || e.key === 'T') { toggleTheme(); return; }
     if (mode === 'grid' && gridOpen >= 0) return;
     const fwd = mode === 'row' ? 'ArrowRight' : 'ArrowDown', back = mode === 'row' ? 'ArrowLeft' : 'ArrowUp';
@@ -997,7 +1022,7 @@ function init(stage: HTMLElement) {
     else { s.vel += dir * 1400; s.to = null; }
   });
 
-  gridBtn.addEventListener('click', () => setMode(mode === 'row' ? 'grid' : 'row'));
+  gridBtn.addEventListener('click', () => toggleMode());
   document.getElementById('close-button')?.addEventListener('click', () => {
     if (mode === 'grid') closeGrid(); else closeRow();
   });
