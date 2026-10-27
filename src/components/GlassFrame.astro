@@ -144,7 +144,7 @@ const restStyle = rest ? (() => {
      exactly rather than crop, so the status bar doesn't slip under the corner. */
   .glass-frame[data-device="ipad"] video { object-fit: fill; border-radius: var(--open-radius); }
   /* A recording with its own phone in it: the clip is the phone's outline, no bleed. */
-  .glass-frame[data-device="iphone-recorded"] .screen { inset: 0; background: none; }
+  .glass-frame[data-device="iphone-recorded"] .screen { inset: 0; background: var(--poster) center / cover no-repeat; }   /* its poster only (no black), cropped as the video is */
   .device { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; pointer-events: none; user-select: none; }
 </style>
 
