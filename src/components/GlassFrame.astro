@@ -95,6 +95,11 @@ const restStyle = rest ? (() => {
      Paused by hand in the player (data-held), it stays: that frame is the
      one to show, and scrubbing moves it. */
   .glass-frame[data-device="desktop-app"]:not(.live) video:not([data-held]) { visibility: hidden; }
+  /* Safari (html.safari, work-strip.ts) does the same for every device: an
+     idle video only shows its poster, which the screen already draws, and
+     each one is a layer of its own that it redraws while covers move (into
+     the grid, about a third of the frame rate). */
+  :global(html.safari) .glass-frame:not(.live) video:not([data-held]) { visibility: hidden; }
   /* iOS draws the window's top a quarter pixel short of its edge, and the
      thumbnail's zoom made that a visible gap. Its top reaches up that much
      there (test page, variant 4, the one that sat tight on an iPhone). */
@@ -106,6 +111,11 @@ const restStyle = rest ? (() => {
   .glass-frame[data-device="film"] .screen {
     inset: 0; background: var(--color-cover-bg);
     border-radius: var(--film-radius);   /* smoothed by the clip (smooth-corners.ts) */
+  }
+  /* Their poster under the video too, cropped as the video is (object-fit:
+     cover), so Safari can hide an idle video (below) and show the same frame. */
+  .glass-frame:is([data-device="desktop"], [data-device="desktop-wide"], [data-device="desktop-mac"], [data-device="film"]) .screen {
+    background: var(--poster) center / cover no-repeat, var(--color-cover-bg);
   }
   .window-edge {
     position: absolute; inset: 0; pointer-events: none;
@@ -139,9 +149,9 @@ const restStyle = rest ? (() => {
 </style>
 
 <script>
-  // Trimmed app windows show their still at rest (see the styles): the video
-  // only while it plays.
-  for (const frame of document.querySelectorAll<HTMLElement>('.glass-frame[data-device="desktop-app"]')) {
+  // Trimmed app windows, and every frame in Safari, show their still at rest
+  // (see the styles): the video only while it plays.
+  for (const frame of document.querySelectorAll<HTMLElement>('.glass-frame')) {
     const video = frame.querySelector('video');
     if (!video) continue;
     video.addEventListener('play', () => frame.classList.add('live'));   // on the request, so it's never asked to play while hidden
