@@ -214,9 +214,10 @@ function initMobile(stage: HTMLElement) {
     if (dragY > 100 || (dragY > 20 && v > 0.5)) { scrim.style.opacity = ''; hide(); return; }
     if (Math.abs(dragY) < 6) {
       dragY = 0; open.cover.style.transform = ''; scrim.style.opacity = '';
-      // A tap outside closes; one on the cover brings its controls back (player.ts).
+      // A tap outside closes; one on the cover shows or hides its controls (player.ts).
       const r = open.cover.getBoundingClientRect();
       if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) hide();
+      else dispatchEvent(new Event('cover-tap'));
       return;
     }
     open.cover.animate([{ transform: `translateY(${dragY}px)` }, { transform: 'none' }], { duration: 300, easing: EASE });
