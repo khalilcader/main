@@ -205,12 +205,30 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
   const angle = (parseFloat(canvas.dataset.angle || '0') || 0) * Math.PI / 180;
   let colors = { deep: [0, 0, 0], base: [0, 0, 0], light: [0, 0, 0] };
 
+  // Reduced motion, and Safari (html.safari, work-strip.ts), which drops
+  // frames copying a moving gradient in: one still frame. Otherwise animate
+  // only while on screen.
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches
+    || document.documentElement.classList.contains('safari');
+  // Still, the frame is shown as an image in the canvas's place: to Safari
+  // each canvas is a layer of its own, and moving 23 of them at once (into
+  // the grid, along the row) dropped it to a few frames a second.
+  let img: HTMLImageElement | null = null;
+  if (still) {
+    img = document.createElement('img');
+    for (const a of canvas.attributes) img.setAttribute(a.name, a.value);
+    img.alt = '';
+    canvas.after(img);
+    canvas.style.display = 'none';
+  }
+  const box = img ? canvas.parentElement! : canvas;   // what it fills
+
   let running = false, raf = 0, time = 40, last = 0, lastDraw = 0;
   const draw = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
     // offsetWidth ignores transforms: the canvas renders at the cover's full size.
-    const w = Math.max(1, Math.round(canvas.offsetWidth * dpr));
-    const h = Math.max(1, Math.round(canvas.offsetHeight * dpr));
+    const w = Math.max(1, Math.round(box.offsetWidth * dpr));
+    const h = Math.max(1, Math.round(box.offsetHeight * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
     const sc = sh.canvas;
     if (sc.width < w || sc.height < h) { sc.width = Math.max(sc.width, w); sc.height = Math.max(sc.height, h); }
@@ -228,6 +246,12 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     // The viewport sits at the bottom left of the shared canvas (GL's origin).
     ctx.drawImage(sc, 0, sc.height - h, w, h, 0, 0, w, h);
+    if (img) canvas.toBlob((b) => {   // JPEG: quicker to encode than PNG, the same soft gradient
+      if (!b || !img) return;
+      const old = img.src;
+      img.src = URL.createObjectURL(b);
+      if (old.startsWith('blob:')) URL.revokeObjectURL(old);
+    }, 'image/jpeg', 0.92);
   };
   const applyColors = () => {
     const cs = getComputedStyle(canvas);
@@ -251,13 +275,8 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
     if (on) { last = performance.now(); raf = requestAnimationFrame(frame); }
   };
 
-  // Reduced motion, and Safari (html.safari, work-strip.ts), which drops
-  // frames copying a moving gradient in: one still frame. Otherwise animate
-  // only while on screen.
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches
-    || document.documentElement.classList.contains('safari');
   applyColors();
-  new ResizeObserver(() => { if (!running) draw(); }).observe(canvas);
+  new ResizeObserver(() => { if (!running) draw(); }).observe(box);
   // Runs while on screen and not paused by the page (e.g. while blurred).
   let visible = false, paused = false;
   const update = () => setRunning(visible && !paused && !still);
