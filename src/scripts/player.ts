@@ -4,7 +4,8 @@
 //
 // Shows when a cover opens, and while the pointer moves; hides 2s after the
 // last movement while the video plays. Stays while paused, while the pointer
-// is on it and while scrubbing. On phones a tap brings it back.
+// is on it and while scrubbing. On phones a tap on the cover shows or hides
+// it (hidden by a tap, it stays hidden, paused or not, until the next).
 //
 // Paused by hand, a video is marked data-held, so the camera (camera.ts)
 // holds its shot instead of easing back to the thumbnail; the work strip
@@ -24,6 +25,7 @@ if (player && toggle && track && fill) {
   let video: HTMLVideoElement | null = null;
   let lastMove = 0, show = 0, raf = 0, last = 0;
   let over = false, scrub: { id: number; wasPlaying: boolean } | null = null;
+  let dismissed = false, want = false;   // hidden by a tap (phones)
 
   // The open cover: on phones the one in the viewer; on desktop the one the
   // work strip marks open (the focus strip's centre, or the grid lightbox).
@@ -51,8 +53,8 @@ if (player && toggle && track && fill) {
     last = now;
     const cover = openCover();
     const v = cover?.querySelector('video') ?? null;
-    if (v !== video) { video = v; lastMove = now; }   // a new cover: show it
-    const want = !!(v && (held(v) || over || scrub || now - lastMove < HIDE_AFTER));
+    if (v !== video) { video = v; lastMove = now; dismissed = false; }   // a new cover: show it
+    want = !!(v && !dismissed && (held(v) || over || scrub || now - lastMove < HIDE_AFTER));
     show += ((want ? 1 : 0) - show) * (1 - Math.exp(-dt * 14));
     if (Math.abs(show - (want ? 1 : 0)) < 0.01) show = want ? 1 : 0;
 
@@ -87,9 +89,20 @@ if (player && toggle && track && fill) {
   new MutationObserver(wake).observe(root, { attributes: true, attributeFilter: ['data-focus', 'data-viewing'] });
   wake();
 
-  // Movement (or a tap, on phones) shows it again.
+  // Movement shows it again. Not a touch in the phone viewer: there taps
+  // toggle it (below), and a swipe is closing it.
   for (const type of ['pointermove', 'pointerdown', 'wheel', 'keydown'] as const)
-    addEventListener(type, () => { lastMove = performance.now(); wake(); }, { passive: true });
+    addEventListener(type, (e) => {
+      if ((e as PointerEvent).pointerType === 'touch' && root.hasAttribute('data-viewing')) return;
+      lastMove = performance.now(); dismissed = false; wake();
+    }, { passive: true });
+  // A tap on the cover in the phone viewer (work-strip.ts): showing, it hides;
+  // hidden, it shows.
+  addEventListener('cover-tap', () => {
+    if (want) dismissed = true;
+    else { dismissed = false; lastMove = performance.now(); }
+    wake();
+  });
 
   player.addEventListener('pointerenter', () => { over = true; });
   player.addEventListener('pointerleave', () => { over = false; });
@@ -100,6 +113,7 @@ if (player && toggle && track && fill) {
   toggle.addEventListener('click', () => {
     const v = video;
     if (!v) return;
+    lastMove = performance.now();   // the full 2s after a press, touch included
     if (held(v)) { delete v.dataset.held; v.play().catch(() => {}); }
     else { v.dataset.held = ''; v.pause(); }
   });
@@ -135,6 +149,7 @@ if (player && toggle && track && fill) {
     const v = video;
     if (v && scrub.wasPlaying) { delete v.dataset.held; v.play().catch(() => {}); }
     scrub = null;
+    lastMove = performance.now();
     track!.classList.remove('scrubbing');
     if (track!.hasPointerCapture(e.pointerId)) track!.releasePointerCapture(e.pointerId);
   }
