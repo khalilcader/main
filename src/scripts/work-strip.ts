@@ -172,6 +172,7 @@ function initMobile(stage: HTMLElement) {
   function hide() {
     if (!open) return;
     const { cover, ph, v } = open; open = null;
+    if (v) delete v.dataset.held;   // paused by hand in the player: let go of it
     v?.pause();
     const from = rectOf(cover), to = rectOf(ph);
     bar.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-out' }).finished.then(() => { if (!open) bar.hidden = true; });
@@ -206,12 +207,18 @@ function initMobile(stage: HTMLElement) {
     scrim.getAnimations().forEach((x) => x.cancel());
     scrim.style.opacity = String(Math.max(0, 1 - Math.max(0, dragY) / (innerHeight * 0.6)));
   });
-  const release = () => {
+  const release = (e: PointerEvent) => {
     if (!dragging || !open) return;
     dragging = false;
     const v = dragY / Math.max(1, performance.now() - t0);
     if (dragY > 100 || (dragY > 20 && v > 0.5)) { scrim.style.opacity = ''; hide(); return; }
-    if (Math.abs(dragY) < 6) { dragY = 0; open.cover.style.transform = ''; scrim.style.opacity = ''; hide(); return; }   // a tap outside closes
+    if (Math.abs(dragY) < 6) {
+      dragY = 0; open.cover.style.transform = ''; scrim.style.opacity = '';
+      // A tap outside closes; one on the cover brings its controls back (player.ts).
+      const r = open.cover.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) hide();
+      return;
+    }
     open.cover.animate([{ transform: `translateY(${dragY}px)` }, { transform: 'none' }], { duration: 300, easing: EASE });
     open.cover.style.transform = ''; scrim.style.opacity = ''; dragY = 0;
   };
@@ -386,6 +393,7 @@ function init(stage: HTMLElement) {
       const hover = c.i === hovered && !reduce && !ptr && (c.playing || rested)
         && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const want = open || hover;
+      if (c.el.hasAttribute('data-open') !== open) c.el.toggleAttribute('data-open', open);   // the cover the player controls (player.ts)
       c.shader?.setPaused(!want || c.dimmed);
       if (!c.video || want === c.playing) continue;
       c.playing = want;
@@ -407,6 +415,7 @@ function init(stage: HTMLElement) {
         // Fade to the poster behind it (the thumbnail frame), then let go of
         // the video; without a poster behind it, stop at once.
         const fade = c.posterBehind && !reduce;
+        delete v.dataset.held;   // paused by hand in the player: let go of it
         if (fade) v.style.opacity = '0';
         c.vt = window.setTimeout(() => { v.pause(); unloadVideo(v); v.style.opacity = ''; }, fade ? 260 : 0);
       }

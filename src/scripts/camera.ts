@@ -47,7 +47,8 @@ export function mountCameras(root: ParentNode = document) {
     const step = (now: number) => {
       const dt = Math.min(0.05, last ? (now - last) / 1000 : 1 / 60);
       last = now;
-      const playing = !video.paused && !video.ended;
+      // Paused by hand (the player's data-held), it holds its shot.
+      const playing = (!video.paused || video.dataset.held !== undefined) && !video.ended;
       const framed = playing || !!rest;   // a rest framing keeps the camera on while idle
       on += ((framed ? 1 : 0) - on) * (1 - Math.exp(-dt * 3));
 
