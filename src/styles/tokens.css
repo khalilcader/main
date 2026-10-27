@@ -150,8 +150,8 @@
   /* Video controls (focused cover): one glass bar, play/pause and a pill scrubber */
   --player-height: 52px;
   --player-inset: 6px;                      /* around the button tile, like --tools-inset */
-  --player-radius: 26px;                    /* a pill: half its height (the tile inside is round) */
-  --player-gap: 20px;                       /* from the cover's bottom edge, and its sides (edge to edge) */
+  --player-radius: 26px;                    /* a pill: half its height (the tile inside is round), its ends concentric with the cover's corners */
+  --player-gap: 12px;                       /* at least: it's the cover's corner radius less its own, so even all round (about 38px on a focused cover) */
   --player-blur: 40px;                      /* the page behind it, more frosted than the header's glass */
   --player-icon: 20px;
   --player-track-height: 12px;              /* the scrubber: a pill, its progress a pill inside it */
