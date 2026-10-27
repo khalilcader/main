@@ -91,8 +91,10 @@ const restStyle = rest ? (() => {
   /* At rest it shows that frame alone, the video hidden (not just transparent)
      until it plays: iOS keeps even a transparent video on its own layer, which
      shaved the window's top under its edge once the thumbnail's zoom enlarged
-     it. Hidden, the still is drawn with the page and the edge sits on it. */
-  .glass-frame[data-device="desktop-app"]:not(.live) video { visibility: hidden; }
+     it. Hidden, the still is drawn with the page and the edge sits on it.
+     Paused by hand in the player (data-held), it stays: that frame is the
+     one to show, and scrubbing moves it. */
+  .glass-frame[data-device="desktop-app"]:not(.live) video:not([data-held]) { visibility: hidden; }
   /* iOS draws the window's top a quarter pixel short of its edge, and the
      thumbnail's zoom made that a visible gap. Its top reaches up that much
      there (test page, variant 4, the one that sat tight on an iPhone). */
