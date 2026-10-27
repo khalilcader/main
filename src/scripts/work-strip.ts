@@ -323,6 +323,7 @@ function init(stage: HTMLElement) {
     still: null as null | { box: number[]; imgs: HTMLImageElement[] }, stillReady: false, stillOp: '',
     W: 1, kRow: 1, clip: '', rBlur: 0, blurred: false,
     gm: 0, rLast: -1,    // corners: 0 sized for the row, 1 for the grid (shapeCorners); last radius drawn
+    anim: null as Animation | null,   // Safari: its row <-> grid flight, run by the browser (animateSwitch)
     last: {} as { dim?: number; edge?: number; z?: number; ti?: number },
     x: new Spring(0), y: new Spring(0), w: new Spring(10), h: new Spring(10),
     sq: new Spring(0),
@@ -657,6 +658,37 @@ function init(stage: HTMLElement) {
     if (vel) { c.x.vel = vel.x; c.y.vel = vel.y; }
   }
 
+  // Safari: the switch between row and grid runs as one animation per cover,
+  // the layout spring itself as a linear() curve, instead of a transform
+  // written every frame. A scale set from script makes Safari redraw a cover
+  // at each new size, all 23 every frame, and they flickered; an animation it
+  // runs itself is drawn once and only moved. The springs still run alongside
+  // (the covers land where the animation ends), and take over if a scroll or
+  // a press interrupts it.
+  const SWITCH = (() => {
+    if (!CSS.supports('transition-timing-function', 'linear(0, 1)')) return null;
+    const h = 1 / 240;
+    let x = 0, v = 0, t = 0;
+    const pts: number[] = [];
+    while (t < 3) {
+      for (let i = 0; i < 4; i++) { const f = -P.k * (x - 1) - P.c * v; v += f * h; x += v * h; t += h; }
+      pts.push(x);
+      if (Math.abs(x - 1) < 5e-4 && Math.abs(v) < 0.01) break;
+    }
+    pts[pts.length - 1] = 1;
+    return { ms: t * 1000, ease: `linear(0, ${pts.map((q) => q.toFixed(4)).join(', ')})` };
+  })();
+  function animateSwitch(order: Card[]) {
+    order.forEach((c, k) => {
+      const from = getComputedStyle(c.el).transform;   // where it is now, mid-flight included
+      c.anim?.cancel();
+      const r = targetRect(c);
+      const to = `translate3d(${r.x}px, ${r.y}px, 0) scale(${r.w / c.W})`;
+      c.anim = c.el.animate([{ transform: from === 'none' ? to : from }, { transform: to }],
+        { duration: SWITCH!.ms, delay: k * 16, easing: SWITCH!.ease, fill: 'both' });
+    });
+  }
+
   function setMode(m: 'row' | 'grid') {
     if (m === mode) return;
     closeGrid();
@@ -672,6 +704,7 @@ function init(stage: HTMLElement) {
     if (p.t >= 0.5) S.row.pos = rowSnap(nearest(centerBig, S.big.pos));
     p.snap(0);
     mode = m;
+    if (SAFARI && SWITCH && !reduce) animateSwitch(order);
     document.documentElement.toggleAttribute('data-grid', m === 'grid');   // labels change style (WorkStrip.astro)
     gridBtn.setAttribute('aria-pressed', String(m === 'grid'));
     gridBtn.setAttribute('aria-label', m === 'grid' ? 'Show as row' : 'Show as grid');
@@ -1144,6 +1177,7 @@ function init(stage: HTMLElement) {
     for (const s of [S.row, S.big, S.grid]) if (s.wheel || s.goal != null || s.to != null || s.vel || s.pos < s.min || s.pos > s.max) return false;
     if (!still(p, 1e-4) || !still(gp, 1e-4)) return false;   // these scale whole covers
     for (const c of cards) {
+      if (c.anim) return false;   // Safari's switch animation still running
       if (now < c.delay || !c.follow && !c.held) return false;
       if (!still(c.hv, 1e-3) || !still(c.lb, 1e-3) || !still(c.sq, 1e-3) || !still(c.ovR, 1e-3) || !still(c.ovB, 1e-3)) return false;
       if (!still(c.ox, 0.05) || !still(c.oy, 0.05) || !still(c.os, 1e-3)) return false;
@@ -1208,6 +1242,8 @@ function init(stage: HTMLElement) {
     if (gridScrolled !== lastGridScrolled) { lastGridScrolled = gridScrolled; document.documentElement.toggleAttribute('data-grid-scrolled', gridScrolled); }
     const gmK = reduce ? 1 : 1 - Math.exp(-dt * 6);
     const scrolling = now - lastScrollAt < HOVER_PLAY_DELAY;
+    const sl = mode === 'grid' ? S.grid : S.row;
+    const stopAnims = !!ptr || sl.wheel || sl.goal != null || sl.to != null || Math.abs(sl.vel) > 5;
     for (const c of cards) {
       c.gm += ((mode === 'grid' ? 1 : 0) - c.gm) * gmK;
       shapeCorners(c);
@@ -1228,7 +1264,21 @@ function init(stage: HTMLElement) {
       c.lb.t = pointed && resting && !perfOff('pill') ? 1 : 0;
       const hs = 1 + (HOVER_SCALE - 1) * (reduce ? 0 : c.hv.v);
       const tw = w2 * hs;
-      st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;
+      // Safari's switch animation (animateSwitch) moves it meanwhile: handed
+      // back once it ends, or as soon as a scroll or press takes over.
+      let landed = '';
+      if (c.anim && (stopAnims || c.anim.playState === 'finished')) {
+        // Ended on its own: it stays where the animation left it, its landing
+        // spot, and its springs pick up from there.
+        if (!stopAnims) {
+          const r = targetRect(c);
+          c.x.snap(r.x); c.y.snap(r.y); c.w.snap(r.w); c.h.snap(r.h); c.follow = true;
+          landed = `translate3d(${r.x}px, ${r.y}px, 0) scale(${r.w / c.W})`;
+        }
+        c.anim.cancel(); c.anim = null;
+      }
+      if (landed) st.transform = landed;
+      else if (!c.anim) st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;
       // The shadow deepens and softens with the lift.
       const sh = Math.round(clamp(c.hv.v, 0, 1) * 100) / 100;
       if (sh !== c.shLast) { c.shLast = sh; c.liftShadow.style.opacity = sh > 0 ? String(sh) : ''; }
