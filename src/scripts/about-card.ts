@@ -147,7 +147,7 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
       state = 'closed';
       dialog!.hidden = true; scrim!.hidden = true; grain!.hidden = true;
       scrim!.style.opacity = ''; grain!.style.opacity = '';
-      avatar!.style.visibility = '';
+      avatar!.style.opacity = '';
       // Focus goes back to the avatar, but it shouldn't flip to its book side
       // for that (after Esc it would count as keyboard focus and stay flipped).
       who!.dataset.noflip = '';
@@ -164,7 +164,10 @@ if (dialog && card && scrim && grain && closeBtn && who && avatar) {
     card!.dataset.small = flipped ? 'book' : 'photo';
     if (state === 'closed') {
       dialog!.hidden = false; scrim!.hidden = false; grain!.hidden = false;
-      if (!sheet) avatar!.style.visibility = 'hidden';   // the card takes its place
+      // The card takes its place. Hidden by opacity, not visibility: its faces
+      // swap visibility on a delay (the flip, SiteHeader.astro), so shown again
+      // they stayed hidden a few frames and the empty tile flashed.
+      if (!sheet) avatar!.style.opacity = '0';
     }
     scrim!.style.opacity = ''; grain!.style.opacity = '';
     animateTo('big');
