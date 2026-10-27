@@ -42,7 +42,8 @@ const GRID_FOCUS_FADE = 4.5;         // the grid lightbox clears the header soon
 //   'offscreen' neighbours just past the screen edges (the original)
 // Neighbours are dimmed by PEEK_DIM and blurred PEEK_BLUR px; further ones fade.
 const FOCUS_SPACING: 'row' | 'peek' | 'offscreen' = 'row';
-const FOCUS_PEEK = 72, FOCUS_GAP = 24, PEEK_DIM = 0.45, PEEK_BLUR = 0;
+const FOCUS_PEEK = 72, FOCUS_GAP = 24, PEEK_BLUR = 0;
+const PEEK_DIM = SAFARI ? 0.8 : 0.45;   // Safari: neighbours aren't blurred (below), so they fade further
 // In focus mode the progressive edge blur slides back in, widened to the space
 // beside the open cover, so neighbours blur, dim and pick up grain gradually
 // toward the screen edge instead of all at once.
