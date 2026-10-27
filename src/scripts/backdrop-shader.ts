@@ -251,8 +251,11 @@ export function mountBackdrop(canvas: HTMLCanvasElement) {
     if (on) { last = performance.now(); raf = requestAnimationFrame(frame); }
   };
 
-  // Reduced motion: one still frame. Otherwise animate only while on screen.
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Reduced motion, and Safari (html.safari, work-strip.ts), which drops
+  // frames copying a moving gradient in: one still frame. Otherwise animate
+  // only while on screen.
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches
+    || document.documentElement.classList.contains('safari');
   applyColors();
   new ResizeObserver(() => { if (!running) draw(); }).observe(canvas);
   // Runs while on screen and not paused by the page (e.g. while blurred).
