@@ -48,10 +48,11 @@ if (player && toggle && track && fill) {
     if (Math.abs(show - (want ? 1 : 0)) < 0.01) show = want ? 1 : 0;
 
     if (cover && v) {
-      // Over the bottom of the cover, centred, never wider than it allows.
+      // Over the bottom of the cover, edge to edge: the same gap at its sides
+      // as below it.
       const r = cover.getBoundingClientRect();
       const gap = px('--player-gap'), h = px('--player-height');
-      const w = Math.min(px('--player-width'), r.width - 2 * gap);
+      const w = r.width - 2 * gap;
       player!.style.width = `${w}px`;
       player!.style.transform = `translate(${(r.left + (r.width - w) / 2).toFixed(1)}px, ${(r.bottom - gap - h).toFixed(1)}px)`;
       const d = v.duration;
@@ -110,15 +111,23 @@ if (player && toggle && track && fill) {
     track.setPointerCapture(e.pointerId);
     seekTo(e.clientX);
   });
-  track.addEventListener('pointermove', (e) => { if (scrub && e.pointerId === scrub.id) seekTo(e.clientX); });
-  const endScrub = (e: PointerEvent) => {
+  // Only while pressed: a mouse moving with no button held ends it (the
+  // release was missed), so hovering never seeks.
+  track.addEventListener('pointermove', (e) => {
+    if (!scrub || e.pointerId !== scrub.id) return;
+    if (e.pointerType === 'mouse' && !(e.buttons & 1)) { endScrub(e); return; }
+    seekTo(e.clientX);
+  });
+  function endScrub(e: PointerEvent) {
     if (!scrub || e.pointerId !== scrub.id) return;
     const v = video;
     if (v && scrub.wasPlaying) { delete v.dataset.held; v.play().catch(() => {}); }
     scrub = null;
-  };
+    if (track!.hasPointerCapture(e.pointerId)) track!.releasePointerCapture(e.pointerId);
+  }
   track.addEventListener('pointerup', endScrub);
   track.addEventListener('pointercancel', endScrub);
+  track.addEventListener('lostpointercapture', endScrub);
   // Keyboard on the scrubber: arrows step 5%.
   track.addEventListener('keydown', (e) => {
     const v = video;
