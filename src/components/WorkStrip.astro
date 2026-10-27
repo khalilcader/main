@@ -91,7 +91,7 @@ const base = import.meta.env.BASE_URL;
     position: fixed; z-index: 72; left: 0; top: 0;   /* placed by player.ts (above the phone viewer's cover too) */
     display: flex; align-items: center; gap: var(--player-inset);
     box-sizing: border-box; height: var(--player-height); padding: var(--player-inset);
-    padding-right: calc(var(--player-inset) + var(--player-track-height));
+    padding-right: calc(var(--player-inset) + var(--player-track-height-hover));
     --surface-bg: var(--color-button-bg);
     --surface-border: var(--color-button-border);
     --surface-blur: blur(var(--player-blur)) saturate(var(--glass-saturate));
@@ -123,14 +123,20 @@ const base = import.meta.env.BASE_URL;
   .player.paused .player-play { display: block; }
   /* The scrubber: a pill, its progress a pill inside it (never narrower than round). */
   .player-track {
-    position: relative; flex: 1; height: var(--player-track-height); cursor: pointer;
-    border-radius: calc(var(--player-track-height) / 2); background: var(--color-player-track);
+    --h: var(--player-track-height);
+    position: relative; flex: 1; height: var(--h); cursor: pointer;
+    border-radius: calc(var(--h) / 2); background: var(--color-player-track);
     outline: none;
+    transition: height var(--player-grow-duration) var(--player-grow-ease), border-radius var(--player-grow-duration) var(--player-grow-ease);
   }
-  .player-track::before { content: ""; position: absolute; inset: calc(-1 * var(--player-inset)) 0; }   /* a taller hit area */
+  /* Grows while hovered (mouse) or dragged (any pointer, player.ts). */
+  @media (hover: hover) { .player-track:hover { --h: var(--player-track-height-hover); } }
+  .player-track.scrubbing, .player-track:focus-visible { --h: var(--player-track-height-hover); }
+  /* A hit area as tall as the grown pill and its inset, however slim it is now. */
+  .player-track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: calc(var(--player-track-height-hover) + 2 * var(--player-inset)); transform: translateY(-50%); }
   .player-fill {
     position: absolute; left: 0; top: 0; bottom: 0; border-radius: inherit; background: var(--color-fg);
-    width: max(var(--player-track-height), calc(var(--p, 0) * 100%));
+    width: max(var(--h), calc(var(--p, 0) * 100%));
   }
 
   /* No JavaScript: a plain horizontal row under the header. */

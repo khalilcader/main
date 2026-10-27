@@ -120,6 +120,7 @@ if (player && toggle && track && fill) {
     const v = video;
     if (!v || e.button !== 0) return;
     scrub = { id: e.pointerId, wasPlaying: !held(v) };
+    track.classList.add('scrubbing');
     v.dataset.held = ''; v.pause();
     track.setPointerCapture(e.pointerId);
     seekTo(e.clientX);
@@ -136,6 +137,7 @@ if (player && toggle && track && fill) {
     const v = video;
     if (v && scrub.wasPlaying) { delete v.dataset.held; v.play().catch(() => {}); }
     scrub = null;
+    track!.classList.remove('scrubbing');
     if (track!.hasPointerCapture(e.pointerId)) track!.releasePointerCapture(e.pointerId);
   }
   track.addEventListener('pointerup', endScrub);

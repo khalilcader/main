@@ -154,7 +154,10 @@
   --player-gap: 12px;                       /* at least: it's the cover's corner radius less its own, so even all round (about 38px on a focused cover) */
   --player-blur: 40px;                      /* the page behind it, more frosted than the header's glass */
   --player-icon: 20px;
-  --player-track-height: 12px;              /* the scrubber: a pill, its progress a pill inside it */
+  --player-track-height: 4px;               /* the scrubber: a slim pill, its progress a pill inside it */
+  --player-track-height-hover: 12px;        /* ...grown while hovered or dragged */
+  --player-grow-duration: 0.18s;            /* ...and how: quick off the mark, settling softly */
+  --player-grow-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --divider-height: 22px;                   /* between the close button and the focus title */
   --top-bar-height: 88px;                   /* grid view, scrolled: the header tucked up, 16px above and below its contents */
   --header-collapse-duration: 0.35s;
