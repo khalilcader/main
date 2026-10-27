@@ -34,6 +34,8 @@ const HOVER_PLAY_DELAY = 180;       // ms the cursor rests on a cover before it 
 // gets a lighter version of the same look (html.safari, WorkStrip.astro).
 const SAFARI = /^((?!chrome|chromium|crios|fxios|android).)*safari/i.test(navigator.userAgent);
 if (SAFARI) document.documentElement.classList.add('safari');
+// Preview only: switches in the ?perf panel (perf-panel.ts) turn hover parts off.
+const perfOff = (k: string) => document.documentElement.hasAttribute(`data-perf-off-${k}`);
 const GRID_FOCUS_FADE = 4.5;         // the grid lightbox clears the header sooner: gone a fifth of the way in
 // Focus-mode spacing (experiment):
 //   'row'       a zoomed-in row: the row's gap scaled up with the covers, so
@@ -392,7 +394,7 @@ function init(stage: HTMLElement) {
       // scrolling: scrolling slid covers under a still cursor, starting and
       // tearing down a video each, dozens a second, and Chrome dropped frames.
       // One already playing carries on while it stays under the cursor.
-      const hover = c.i === hovered && !reduce && !ptr && (c.playing || rested)
+      const hover = c.i === hovered && !reduce && !ptr && (c.playing || rested) && !perfOff('hoverplay')
         && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const want = open || hover;
       if (c.el.hasAttribute('data-open') !== open) c.el.toggleAttribute('data-open', open);   // the cover the player controls (player.ts)
@@ -1217,7 +1219,8 @@ function init(stage: HTMLElement) {
       // lifted and popped their title in turn, which read as flicker.
       const resting = !ptr && !scrolling && (mode === 'row' ? p.t < 0.5 : gridOpen < 0);
       const pointed = c.i === hovered || c.i === keyFocused;
-      c.hv.t = c.lb.t = pointed && resting ? 1 : 0;
+      c.hv.t = pointed && resting && !perfOff('lift') ? 1 : 0;
+      c.lb.t = pointed && resting && !perfOff('pill') ? 1 : 0;
       const hs = 1 + (HOVER_SCALE - 1) * (reduce ? 0 : c.hv.v);
       const tw = w2 * hs;
       st.transform = `translate3d(${x - (tw - w2) / 2}px, ${y - (h2 * hs - h2) / 2}px, 0) scale(${tw / c.W})`;

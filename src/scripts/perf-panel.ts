@@ -18,6 +18,10 @@ if (new URLSearchParams(location.search).has('perf')) {
     ['grain', 'Grain', '*, *::before, *::after { mix-blend-mode: normal !important; } .backdrop-grain, .top-scrim::before { display: none !important; }'],
     ['corners', 'Smooth corners', '*, *::before, *::after { clip-path: none !important; }'],
     ['video', 'Videos', 'video { visibility: hidden !important; }'],
+    // Hover parts (work-strip.ts reads these): '@name' toggles an attribute.
+    ['lift', 'Hover lift', '@lift'],
+    ['pill', 'Title pill', '@pill'],
+    ['hoverplay', 'Hover video', '@hoverplay'],
   ];
 
   const panel = document.createElement('div');
@@ -34,7 +38,8 @@ if (new URLSearchParams(location.search).has('perf')) {
     const style = document.createElement('style');
     style.dataset.perf = id;
     box.addEventListener('change', () => {
-      if (box.checked) style.remove(); else { style.textContent = css; document.head.append(style); }
+      if (css.startsWith('@')) document.documentElement.toggleAttribute(`data-perf-off-${css.slice(1)}`, !box.checked);
+      else if (box.checked) style.remove(); else { style.textContent = css; document.head.append(style); }
     });
     row.append(box, label);
     panel.append(row);
