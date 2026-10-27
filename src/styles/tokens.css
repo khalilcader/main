@@ -150,7 +150,7 @@
   /* Video controls (focused cover): one glass bar, play/pause and a pill scrubber */
   --player-height: 52px;
   --player-inset: 6px;                      /* around the button tile, like --tools-inset */
-  --player-radius: 20px;                    /* smoothed (smooth-corners.ts), concentric with the tile */
+  --player-radius: 26px;                    /* a pill: half its height (the tile inside is round) */
   --player-gap: 20px;                       /* from the cover's bottom edge, and its sides (edge to edge) */
   --player-blur: 40px;                      /* the page behind it, more frosted than the header's glass */
   --player-icon: 20px;
