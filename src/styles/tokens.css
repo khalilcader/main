@@ -156,8 +156,8 @@
   --player-icon: 20px;
   --player-track-height: 4px;               /* the scrubber: a slim pill, its progress a pill inside it */
   --player-track-height-hover: 12px;        /* ...grown while hovered or dragged */
-  --player-grow-duration: 0.18s;            /* ...and how: quick off the mark, settling softly */
-  --player-grow-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --player-grow-duration: var(--photo-hover-duration);   /* ...and how: the same as the avatar's grow on hover */
+  --player-grow-ease: var(--photo-flip-ease);
   --divider-height: 22px;                   /* between the close button and the focus title */
   --top-bar-height: 88px;                   /* grid view, scrolled: the header tucked up, 16px above and below its contents */
   --header-collapse-duration: 0.35s;
