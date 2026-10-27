@@ -2,11 +2,11 @@
 // scrubber, floating over the bottom of the cover that's open, in the focus
 // strip or the grid lightbox (desktop) or the full-screen viewer (phones).
 //
-// A cover opens without it: it shows when the pointer moves, and hides 2s
-// after the last movement while the video plays. Stays while paused, while
-// the pointer is on it, while it has keyboard focus and while scrubbing. On
-// phones a tap on the cover shows or hides it (hidden by a tap, it stays
-// hidden, paused or not, until the next).
+// A cover opens without it: it shows when the pointer moves over the cover,
+// and hides 2s after the last movement while the video plays. Stays while
+// paused, while the pointer is on it, while it has keyboard focus and while
+// scrubbing. On phones a tap on the cover shows or hides it (hidden by a tap,
+// it stays hidden, paused or not, until the next).
 //
 // Paused by hand, a video is marked data-held, so the camera (camera.ts)
 // holds its shot instead of easing back to the thumbnail; the work strip
@@ -91,12 +91,20 @@ if (player && toggle && track && fill) {
   new MutationObserver(wake).observe(root, { attributes: true, attributeFilter: ['data-focus', 'data-viewing'] });
   wake();
 
-  // Pointer movement shows it. Not the wheel or keys, which move between
-  // covers (Tab onto its buttons shows it by focus). Not a touch in the phone
-  // viewer: there taps toggle it (below), and a swipe is closing it.
+  // Pointer movement over the open cover shows it (not anywhere on the page).
+  // Not the wheel or keys, which move between covers (Tab onto its buttons
+  // shows it by focus). Not a touch in the phone viewer: there taps toggle it
+  // (below), and a swipe is closing it.
+  const overCover = (e: MouseEvent) => {
+    const cover = openCover();
+    if (!cover) return false;
+    const r = cover.getBoundingClientRect();
+    return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  };
   for (const type of ['pointermove', 'pointerdown'] as const)
     addEventListener(type, (e) => {
       if ((e as PointerEvent).pointerType === 'touch' && root.hasAttribute('data-viewing')) return;
+      if (e instanceof MouseEvent && !overCover(e)) return;
       lastMove = performance.now(); dismissed = false; wake();
     }, { passive: true });
   // A tap on the cover in the phone viewer (work-strip.ts): showing, it hides;
