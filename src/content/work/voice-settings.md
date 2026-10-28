@@ -10,9 +10,9 @@ cover:
   angle: 180
   alt: Voice settings in the Claude app, choosing a voice, its speed and how to talk
   video:
-    webm: images/work/voice-settings-2.webm
-    mp4: images/work/voice-settings-2.mp4
-    poster: images/work/voice-settings-2.jpg
+    webm: images/work/voice-settings-3.webm
+    mp4: images/work/voice-settings-3.mp4
+    poster: images/work/voice-settings-3.jpg
     start: 8.2
     # [seconds, x, y, zoom]: held shots on each interaction (the voice
     # button, the gear, the carousel, speed, closing the sheet), with the full
