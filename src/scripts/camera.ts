@@ -54,7 +54,8 @@ export function mountCameras(root: ParentNode = document) {
 
       const [kx, ky, ks] = playing && keys.length ? sample(keys, video.currentTime) : rest ?? [0.5, 0.5, 1];
       // A light follow, so a jump (the loop, a seek) never snaps.
-      const f = 1 - Math.exp(-dt * 5);   // smooths the moves without arriving late
+      // Scrubbed (the player's data-scrubbing), it snaps to each spot instead.
+      const f = video.dataset.scrubbing !== undefined ? 1 : 1 - Math.exp(-dt * 5);   // smooths the moves without arriving late
       cur.x += (kx - cur.x) * f; cur.y += (ky - cur.y) * f; cur.s += (ks - cur.s) * f;
 
       const s = 1 + (cur.s - 1) * on;
