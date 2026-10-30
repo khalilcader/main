@@ -25,6 +25,8 @@ if (player && toggle && track && fill) {
   let video: HTMLVideoElement | null = null;
   let lastMove = 0, show = 0, raf = 0, last = 0;
   let over = false, scrub: { id: number; wasPlaying: boolean } | null = null;
+  let scrubP: number | null = null;   // while scrubbing: where the pointer is (0..1)
+  let nextSeek: number | null = null;   // a seek waiting for the one in progress (seek, below)
   let dismissed = false, want = false;   // hidden by a tap (phones)
 
   // The open cover: on phones the one in the viewer; on desktop the one the
@@ -53,7 +55,7 @@ if (player && toggle && track && fill) {
     last = now;
     const cover = openCover();
     const v = cover?.querySelector('video') ?? null;
-    if (v !== video) { video = v; lastMove = now; dismissed = false; }   // a new cover: show it
+    if (v !== video) { video = v; nextSeek = null; lastMove = now; dismissed = false; }   // a new cover: show it
     want = !!(v && !dismissed && (held(v) || over || scrub || now - lastMove < HIDE_AFTER));
     show += ((want ? 1 : 0) - show) * (1 - Math.exp(-dt * 14));
     if (Math.abs(show - (want ? 1 : 0)) < 0.01) show = want ? 1 : 0;
@@ -69,7 +71,7 @@ if (player && toggle && track && fill) {
       player!.style.width = `${w}px`;
       player!.style.transform = `translate(${(r.left + gap).toFixed(1)}px, ${(r.bottom - gap - h).toFixed(1)}px)`;
       const d = v.duration;
-      const t = d ? v.currentTime / d : 0;
+      const t = scrubP ?? (d ? v.currentTime / d : 0);
       fill!.style.setProperty('--p', t.toFixed(4));
       track!.setAttribute('aria-valuenow', String(Math.round(t * 100)));
       const paused = held(v);
@@ -128,12 +130,27 @@ if (player && toggle && track && fill) {
 
   // Scrubbing: pressed and dragged along the pill, the video follows the
   // pointer (paused meanwhile, and playing on after if it was).
+  // One seek at a time, always to the latest spot: asked for while one is
+  // still decoding, it waits, and only the newest waiting one runs, so a fast
+  // drag doesn't pile up seeks the browser can't keep up with.
+  const seek = (v: HTMLVideoElement, time: number) => {
+    if (v.seeking) { nextSeek = time; return; }
+    nextSeek = null;
+    v.currentTime = time;
+  };
+  document.addEventListener('seeked', (e) => {
+    if (e.target !== video || nextSeek === null) return;
+    const time = nextSeek;
+    nextSeek = null;
+    video!.currentTime = time;
+  }, true);
   const seekTo = (x: number) => {
     const v = video;
     if (!v || !v.duration) return;
     const r = track.getBoundingClientRect();
     const t = Math.min(1, Math.max(0, (x - r.left) / r.width));
-    v.currentTime = t * v.duration;
+    scrubP = t;   // the pill follows the pointer, ahead of the frame
+    seek(v, t * v.duration);
     fill.style.setProperty('--p', t.toFixed(4));
   };
   track.addEventListener('pointerdown', (e) => {
@@ -141,6 +158,7 @@ if (player && toggle && track && fill) {
     if (!v || e.button !== 0) return;
     scrub = { id: e.pointerId, wasPlaying: !held(v) };
     track.classList.add('scrubbing');
+    v.dataset.scrubbing = '';   // the camera snaps to each spot (camera.ts)
     v.dataset.held = ''; v.pause();
     track.setPointerCapture(e.pointerId);
     seekTo(e.clientX);
@@ -155,8 +173,9 @@ if (player && toggle && track && fill) {
   function endScrub(e: PointerEvent) {
     if (!scrub || e.pointerId !== scrub.id) return;
     const v = video;
+    if (v) delete v.dataset.scrubbing;
     if (v && scrub.wasPlaying) { delete v.dataset.held; v.play().catch(() => {}); }
-    scrub = null;
+    scrub = null; scrubP = null;
     lastMove = performance.now();
     track!.classList.remove('scrubbing');
     if (track!.hasPointerCapture(e.pointerId)) track!.releasePointerCapture(e.pointerId);
