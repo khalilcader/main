@@ -29,24 +29,24 @@ cover:
       - [8.45, 0.388, 0.482, 1.5]
       - [9.9, 0.5, 0.5, 1]         # out to the window as the film's own zoom-out lands
       - [11.5, 0.5, 0.5, 1]        # the whole window
-      - [12.8, 0.13, 0.16, 2.1]    # the sidebar, down to the pinned items
-      - [15.8, 0.13, 0.18, 2.1]
-      - [17.3, 0.42, 0.38, 1.55]   # Artifacts and its new types
-      - [19, 0.42, 0.4, 1.55]
-      - [20, 0.36, 0.72, 1.6]      # pinning the October newsletter
-      - [21.4, 0.36, 0.72, 1.6]
-      - [22.6, 0.3, 0.52, 1.5]     # pinned: the page's Pinned row and the sidebar
-      - [24.6, 0.3, 0.52, 1.5]
+      - [12.8, 0.388, 0.482, 1.5]    # the sidebar, down to the pinned items
+      - [15.8, 0.388, 0.482, 1.5]
+      - [17.3, 0.42, 0.482, 1.5]   # Artifacts and its new types
+      - [19, 0.42, 0.482, 1.5]
+      - [20, 0.388, 0.518, 1.5]      # pinning the October newsletter
+      - [21.4, 0.388, 0.518, 1.5]
+      - [22.6, 0.388, 0.518, 1.5]     # pinned: the page's Pinned row and the sidebar
+      - [24.6, 0.388, 0.518, 1.5]
       - [25.8, 0.5, 0.5, 1]        # back to New
       - [28, 0.5, 0.5, 1]
-      - [29.3, 0.6, 0.48, 1.8]     # typing the request
-      - [36.6, 0.6, 0.5, 1.8]
-      - [38.2, 0.68, 0.2, 1.6]     # sent
-      - [40, 0.66, 0.24, 1.6]
-      - [41.2, 0.48, 0.42, 1.55]   # the answer and its table
-      - [43.2, 0.48, 0.44, 1.55]
-      - [44.6, 0.8, 0.36, 1.6]     # the one-page summary
-      - [48.3, 0.8, 0.4, 1.6]
+      - [29.3, 0.6, 0.482, 1.5]     # typing the request
+      - [36.6, 0.6, 0.5, 1.5]
+      - [38.2, 0.612, 0.482, 1.5]     # sent
+      - [40, 0.612, 0.482, 1.5]
+      - [41.2, 0.48, 0.482, 1.5]   # the answer and its table
+      - [43.2, 0.48, 0.482, 1.5]
+      - [44.6, 0.612, 0.482, 1.5]     # the one-page summary
+      - [48.3, 0.612, 0.482, 1.5]
       - [49.4, 0.5, 0.5, 1]        # the whole window as it fades
 ---
 
