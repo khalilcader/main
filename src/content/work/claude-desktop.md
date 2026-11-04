@@ -11,11 +11,11 @@ cover:
   palette: fog
   alt: Claude Desktop on a Mac, from its icon set to the sidebar and its artifacts, pinning one, then asking for a summary of a survey and getting back a one-page document
   video:
-    webm: images/work/claude-desktop-10.webm
-    mp4: images/work/claude-desktop-10.mp4
-    poster: images/work/claude-desktop-10.jpg
+    webm: images/work/claude-desktop-12.webm
+    mp4: images/work/claude-desktop-12.mp4
+    poster: images/work/claude-desktop-12.jpg
     start: 12
-    device: desktop-app   # trimmed to the app window (still from 0:10.5), smoothed corners
+    device: desktop-app   # only the app window, from the icons' fade on (its edges tracked from the film's zoom), smoothed corners
     rest: [0.12, 0.14, 2.25]   # thumbnail: the window's top-left corner, the sidebar from New down to the first two pinned items, fog padding above and beside it
     # [seconds, x, y, zoom], never past 1.5 (past it the 1280 px recording goes
     # soft on a Retina screen), each shot kept inside the window: the icon set,
@@ -25,13 +25,16 @@ cover:
     # summary, pulling back to the whole window between them and before the
     # closing fade.
     camera:
-      # While the film shows any desktop (the icons, the slide into the sidebar,
-      # its own zoom-out) the window frame fills the cover, so its edges never
-      # show around it (1.45: the least that does); once the film has landed on
-      # the window, out to it, the frame's edges on the window's own.
-      - [0, 0.5, 0.5, 1.45]        # the icon set, then the sidebar, New down to Customize
-      - [9.75, 0.5, 0.5, 1.45]
-      - [11.2, 0.5, 0.5, 1]        # out to the whole window
+      # Only the window is shown from the icons' fade on (the crop pushes in to
+      # it, 1.4x), and as it does the camera eases out by as much (timed to it),
+      # so the picture keeps its size while the frame closes in to the window's
+      # edges. Then one move out, the film's own zoom-out, to the whole window.
+      - [0, 0.5, 0.5, 1.45]        # the icon set fills the cover
+      - [7.2, 0.5, 0.5, 1.45]
+      - [7.5, 0.5, 0.5, 1.025]     # the frame closes in to the window
+      - [8.45, 0.5, 0.5, 1.025]
+      - [9.9, 0.5, 0.5, 1]         # the whole window, as the film's zoom-out lands
+      - [11.5, 0.5, 0.5, 1]
       - [12.8, 0.388, 0.482, 1.5]    # the sidebar, down to the pinned items
       - [15.8, 0.388, 0.482, 1.5]
       - [17.3, 0.42, 0.482, 1.5]   # Artifacts and its new types
