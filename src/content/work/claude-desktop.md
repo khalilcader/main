@@ -11,12 +11,12 @@ cover:
   palette: fog
   alt: Claude Desktop on a Mac, from its icon set to the sidebar and its artifacts, pinning one, then asking for a summary of a survey and getting back a one-page document
   video:
-    webm: images/work/claude-desktop-13.webm
-    mp4: images/work/claude-desktop-13.mp4
-    poster: images/work/claude-desktop-13.jpg
+    webm: images/work/claude-desktop-14.webm
+    mp4: images/work/claude-desktop-14.mp4
+    poster: images/work/claude-desktop-14.jpg
     start: 12
-    device: desktop-app   # trimmed to the app window (still from 0:10.5), smoothed corners
-    rest: [0.12, 0.14, 2.25]   # thumbnail: the window's top-left corner, the sidebar from New down to the first two pinned items, fog padding above and beside it
+    device: desktop-app   # trimmed to the app window, room added on its right, smoothed corners
+    rest: [0.18, 0.21, 1.5]    # thumbnail: the window's top-left corner where it was, the sidebar, fog padding above and beside it (1.5x: crisp)
     # [seconds, x, y, zoom], never past 1.5 (past it the 1280 px recording goes
     # soft on a Retina screen), each shot kept inside the window: the icon set,
     # then held shots on each step: the
