@@ -25,8 +25,8 @@ cover:
     camera:
       - [0, 0.5, 0.5, 1.5]         # the icon set fills the cover
       - [7.15, 0.5, 0.5, 1.5]
-      - [7.8, 0.388, 0.482, 1.5]   # the push-in to the window: its corner on the cover's corner
-      - [8.45, 0.388, 0.482, 1.5]
+      - [7.8, 0.485, 0.602, 1.2]   # the push-in to the window: its corner on the cover's corner, New down to Scheduled
+      - [8.45, 0.485, 0.602, 1.2]
       - [9.9, 0.5, 0.5, 1]         # out to the window as the film's own zoom-out lands
       - [11.5, 0.5, 0.5, 1]        # the whole window
       - [12.8, 0.388, 0.482, 1.5]    # the sidebar, down to the pinned items
