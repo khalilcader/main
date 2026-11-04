@@ -12,6 +12,7 @@
 type Key = [number, number, number, number];
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FADE_IN = 300;   // ms: the video's fade in over its poster (GlassFrame.astro, 0.25s) and a frame to spare
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
@@ -42,11 +43,15 @@ export function mountCameras(root: ParentNode = document) {
     if (!video || (!keys.length && !rest)) continue;
 
     // The shot eases in when the video starts and back out when it stops.
-    let on = 0, raf = 0, last = 0;
+    let on = 0, raf = 0, last = 0, holdUntil = 0;
     const cur = { x: 0.5, y: 0.5, s: 1 };
     const step = (now: number) => {
       const dt = Math.min(0.05, last ? (now - last) / 1000 : 1 / 60);
       last = now;
+      // Starting from its first frame, the video fades in over the poster (the
+      // thumbnail, work-strip.ts): the shot holds still until it's in, or the
+      // thumbnail would be seen sliding toward the opening shot under it.
+      if (now < holdUntil) { raf = requestAnimationFrame(step); return; }
       // Paused by hand (the player's data-held), it holds its shot.
       const playing = (!video.paused || video.dataset.held !== undefined) && !video.ended;
       const framed = playing || !!rest;   // a rest framing keeps the camera on while idle
@@ -74,7 +79,10 @@ export function mountCameras(root: ParentNode = document) {
       else { raf = 0; if (!rest) { frame.style.scale = ''; frame.style.translate = ''; frame.style.removeProperty('--cam-s'); } }
     };
     const start = () => { if (!raf) { last = 0; raf = requestAnimationFrame(step); } };
-    video.addEventListener('playing', start);
+    video.addEventListener('playing', () => {
+      if (video.currentTime < 0.5) holdUntil = performance.now() + FADE_IN;   // fresh from the start
+      start();
+    });
     video.addEventListener('pause', start);   // ease back out (or to the rest framing)
     if (rest) {   // start on the rest framing, without easing in on load
       on = 1; cur.x = rest[0]; cur.y = rest[1]; cur.s = rest[2];
