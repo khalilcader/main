@@ -11,9 +11,9 @@ cover:
   palette: fog
   alt: Claude Desktop on a Mac, from its icon set to the sidebar and its artifacts, pinning one, then asking for a summary of a survey and getting back a one-page document
   video:
-    webm: images/work/claude-desktop-14.webm
-    mp4: images/work/claude-desktop-14.mp4
-    poster: images/work/claude-desktop-14.jpg
+    webm: images/work/claude-desktop-15.webm
+    mp4: images/work/claude-desktop-15.mp4
+    poster: images/work/claude-desktop-15.jpg
     start: 12
     device: desktop-app   # trimmed to the app window, room added on its right, smoothed corners
     rest: [0.18, 0.21, 1.5]    # thumbnail: the window's top-left corner where it was, the sidebar, fog padding above and beside it (1.5x: crisp)
