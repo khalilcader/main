@@ -23,6 +23,9 @@ const work = defineCollection({
         webm: z.string().optional(),
         mp4: z.string(),
         poster: z.string(),
+        // Optional dark-mode take of the same recording (same timing and framing):
+        // shown when the site is dark (GlassFrame.astro).
+        dark: z.object({ webm: z.string().optional(), mp4: z.string(), poster: z.string() }).optional(),
         // Seconds into the video the cover rests on; it plays from here on
         // hover or when the cover is open.
         start: z.number().min(0).default(0),

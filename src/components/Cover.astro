@@ -24,6 +24,7 @@ const fallback = `--fallback-base: var(--color-${tokens}-base); --fallback-light
           webm={cover.video.webm && url(cover.video.webm)}
           mp4={url(cover.video.mp4)}
           poster={url(cover.video.poster)}
+          dark={cover.video.dark && { webm: cover.video.dark.webm && url(cover.video.dark.webm), mp4: url(cover.video.dark.mp4), poster: url(cover.video.dark.poster) }}
           start={cover.video.start}
           camera={cover.video.camera}
           device={cover.video.device}
