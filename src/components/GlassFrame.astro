@@ -12,6 +12,7 @@ interface Props {
   camera?: [number, number, number, number][];   // see scripts/camera.ts
   device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop' | 'desktop-wide' | 'desktop-mac' | 'desktop-app' | 'film';
   rest?: [number, number, number];   // see scripts/camera.ts
+  dark?: { webm?: string; mp4: string; poster: string };   // the dark-mode take, swapped in when the site is dark
 }
 const DEVICES = {
   // r: tighter than the frame's inner curve, so the screen reaches under its
@@ -35,7 +36,7 @@ const DEVICES = {
   // No frame: filmed footage (16:9), a plain picture with soft round corners.
   film: { src: '', w: 1600, h: 900, x0: 0, y0: 0, x1: 1600, y1: 900, r: 0 },
 };
-const { webm, mp4, poster, start = 0, camera, device = 'iphone', rest } = Astro.props;
+const { webm, mp4, poster, start = 0, camera, device = 'iphone', rest, dark } = Astro.props;
 const d = DEVICES[device];
 const frame = `${import.meta.env.BASE_URL}images/${d.src}`;
 const pct = (v: number, of: number) => `${(v / of * 100).toFixed(4)}%`;
@@ -53,14 +54,14 @@ const restStyle = rest ? (() => {
   return `; scale: ${s}; --cam-s: ${s}; translate: ${t(x)}% ${t(y)}%`;
 })() : '';
 ---
-<div class="glass-frame" data-device={device} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
-  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app' || device === 'film' ? 'clip' : undefined} style={`--poster: url("${poster}")`}>
+<div class="glass-frame" data-device={device} data-dark={dark ? '' : undefined} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
+  <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app' || device === 'film' ? 'clip' : undefined} style={dark ? `--poster-light: url("${poster}"); --poster-dark: url("${dark.poster}")` : `--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
          video decoder and its frames in GPU memory. -->
-    <video poster={poster} muted loop playsinline preload="none" data-start={start}>
-      {webm && <source src={webm} type="video/webm" />}
-      <source src={mp4} type="video/mp4" />
+    <video poster={poster} muted loop playsinline preload="none" data-start={start} data-light-poster={dark && poster} data-dark-poster={dark?.poster}>
+      {webm && <source src={webm} type="video/webm" data-light-src={dark && webm} data-dark-src={dark?.webm} />}
+      <source src={mp4} type="video/mp4" data-light-src={dark && mp4} data-dark-src={dark?.mp4} />
     </video>
   </div>
   {d.src && <img class="device" src={frame} alt="" width={d.w} height={d.h} draggable="false" />}
@@ -69,6 +70,14 @@ const restStyle = rest ? (() => {
 </div>
 
 <style>
+  /* With a dark-mode take: its poster when the site is dark (as tokens.css
+     decides it), straight from the first paint; the script below swaps the
+     video's own files to match. */
+  .glass-frame[data-dark] .screen { --poster: var(--poster-light); }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-scheme="light"])) .glass-frame[data-dark] .screen { --poster: var(--poster-dark); }
+  }
+  :global(:root[data-scheme="dark"]) .glass-frame[data-dark] .screen { --poster: var(--poster-dark); }
   .glass-frame {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
     height: var(--device-height); aspect-ratio: var(--device-ar);
@@ -157,4 +166,35 @@ const restStyle = rest ? (() => {
     video.addEventListener('play', () => frame.classList.add('live'));   // on the request, so it's never asked to play while hidden
     for (const e of ['pause', 'emptied', 'ended']) video.addEventListener(e, () => frame.classList.remove('live'));
   }
+
+  // Covers with a dark-mode take play it while the site is dark: the files and
+  // poster swapped to match, now and whenever the theme changes. One playing
+  // carries on from the same moment in the other take.
+  const root = document.documentElement;
+  const darkQuery = matchMedia('(prefers-color-scheme: dark)');
+  const isDark = () => (root.dataset.scheme ? root.dataset.scheme === 'dark' : darkQuery.matches);
+  const applyScheme = () => {
+    const scheme = isDark() ? 'dark' : 'light';
+    for (const video of document.querySelectorAll<HTMLVideoElement>('.glass-frame[data-dark] video')) {
+      if (video.dataset.scheme === scheme) continue;
+      video.dataset.scheme = scheme;
+      video.poster = video.dataset[`${scheme}Poster`] || video.poster;
+      let live = false;
+      for (const s of video.querySelectorAll('source')) {
+        const url = s.dataset[`${scheme}Src`];
+        if (!url) continue;
+        // A stopped cover keeps its file in data-src (work-strip.ts unloads it).
+        if (s.getAttribute('src')) { s.setAttribute('src', url); live = true; } else s.dataset.src = url;
+      }
+      if (!live) continue;
+      if (video.readyState > 0) {
+        const t = video.currentTime, playing = !video.paused;
+        video.load();
+        video.addEventListener('loadedmetadata', () => { video.currentTime = t; if (playing) video.play().catch(() => {}); }, { once: true });
+      } else video.load();   // not loaded yet: just pick the new file (preload none, so nothing downloads)
+    }
+  };
+  applyScheme();
+  new MutationObserver(applyScheme).observe(root, { attributes: true, attributeFilter: ['data-scheme'] });
+  darkQuery.addEventListener('change', applyScheme);
 </script>
