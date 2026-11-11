@@ -22,18 +22,15 @@ cover:
     device: desktop   # the recording trimmed 2 px top and bottom to the frame's 1600 × 1000
     rest: [0.5, 0.5, 1]   # thumbnail: the whole board, the stickers placed, no picker or selection showing
     # [seconds, x, y, zoom]. The stickies span the board, so the whole board stays
-    # in view (pushing in would cut the outer ones at the cover's edges): motion
-    # comes from gentle drifts in zoom, out to 0.94 and back: at 1 the window already
-    # fills 86% of the cover's width, and pushing in left only a thin band of backdrop.
+    # in view (pushing in would cut the outer ones at the cover's edges; at 1 the
+    # window already fills 86% of the cover's width). One slow push across the
+    # whole take, eased at both ends, instead of drifting in and out: it lands
+    # on the full board as the stickers finish, and eases back under the fade-out.
     camera:
-      - [0, 0.5, 0.5, 1]
-      - [3, 0.5, 0.5, 0.94]        # a heart
-      - [6, 0.5, 0.5, 1]           # a thumbs up
-      - [9, 0.5, 0.5, 0.94]        # a star
-      - [12, 0.5, 0.5, 1]          # coffee
-      - [15, 0.5, 0.5, 0.94]       # the star moves to the blue sticky
-      - [18, 0.5, 0.5, 1]          # a party popper
-      - [20.8, 0.5, 0.5, 1]
+      - [0, 0.5, 0.5, 0.93]
+      - [19, 0.5, 0.5, 1]
+      - [19.6, 0.5, 0.5, 1]
+      - [20.6, 0.5, 0.5, 0.93]   # back out while the board fades, so the loop picks up where it left off
 ---
 
 Placeholder case study.
