@@ -288,9 +288,9 @@
   --color-gradient-lime-deep: #f5faea;      /* top: pale lime */
   --color-gradient-lime-base: #e4f2c6;
   --color-gradient-lime-light: #a6d64a;     /* bottom: a fresh lime glow */
-  --color-gradient-cyan-deep: #eaf8fb;      /* top: pale cyan */
-  --color-gradient-cyan-base: #c8eef6;
-  --color-gradient-cyan-light: #3fc3de;     /* bottom: a clear cyan glow */
+  --color-gradient-aqua-deep: #ebf6fd;      /* top: pale aqua sky */
+  --color-gradient-aqua-base: #cde8f9;
+  --color-gradient-aqua-light: #4fb3ee;     /* bottom: a clear aqua-blue glow */
   --color-desktop-border: rgba(0, 0, 0, 0.16);
   --color-sheet-grabber: rgba(0, 0, 0, 0.2);    /* phones: the About sheet's grab handle */
   --color-sheet-scrim: rgba(0, 0, 0, 0.4);       /* phones: the page dimmed behind the About sheet */
@@ -473,9 +473,9 @@
     --color-gradient-lime-deep: #12160d;
     --color-gradient-lime-base: #1a2211;
     --color-gradient-lime-light: #3c5418;
-    --color-gradient-cyan-deep: #0c1619;
-    --color-gradient-cyan-base: #0f232a;
-    --color-gradient-cyan-light: #145867;
+    --color-gradient-aqua-deep: #0c1520;
+    --color-gradient-aqua-base: #0f2131;
+    --color-gradient-aqua-light: #16507a;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
     --color-sheet-grabber: rgba(255, 255, 255, 0.28);
     --color-sheet-scrim: rgba(0, 0, 0, 0.6);
@@ -609,9 +609,9 @@
   --color-gradient-lime-deep: #12160d;
   --color-gradient-lime-base: #1a2211;
   --color-gradient-lime-light: #3c5418;
-  --color-gradient-cyan-deep: #0c1619;
-  --color-gradient-cyan-base: #0f232a;
-  --color-gradient-cyan-light: #145867;
+  --color-gradient-aqua-deep: #0c1520;
+  --color-gradient-aqua-base: #0f2131;
+  --color-gradient-aqua-light: #16507a;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
   --color-sheet-grabber: rgba(255, 255, 255, 0.28);
   --color-sheet-scrim: rgba(0, 0, 0, 0.6);
