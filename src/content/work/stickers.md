@@ -8,7 +8,7 @@ cover:
   aspect: 1.25   # 771 × 617: wide, for desktop
   shader: gradient
   angle: 50
-  palette: caramel
+  palette: aqua
   alt: A whiteboard of sticky notes, searching the sticker picker for a heart, a thumbs up, a star, coffee and a party popper and placing each on a note
   video:
     webm: images/work/stickers.webm

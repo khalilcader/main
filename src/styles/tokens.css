@@ -285,6 +285,12 @@
   --color-gradient-orchid-deep: #f8eff9;    /* top: pale orchid */
   --color-gradient-orchid-base: #f0dbf2;
   --color-gradient-orchid-light: #d696e0;   /* bottom: a playful orchid glow, like FigJam's pink marker */
+  --color-gradient-lime-deep: #f5faea;      /* top: pale lime */
+  --color-gradient-lime-base: #e4f2c6;
+  --color-gradient-lime-light: #a6d64a;     /* bottom: a fresh lime glow */
+  --color-gradient-aqua-deep: #ebf6fd;      /* top: pale aqua sky */
+  --color-gradient-aqua-base: #cde8f9;
+  --color-gradient-aqua-light: #4fb3ee;     /* bottom: a clear aqua-blue glow */
   --color-desktop-border: rgba(0, 0, 0, 0.16);
   --color-sheet-grabber: rgba(0, 0, 0, 0.2);    /* phones: the About sheet's grab handle */
   --color-sheet-scrim: rgba(0, 0, 0, 0.4);       /* phones: the page dimmed behind the About sheet */
@@ -464,6 +470,12 @@
     --color-gradient-orchid-deep: #171219;
     --color-gradient-orchid-base: #221726;
     --color-gradient-orchid-light: #4a2852;
+    --color-gradient-lime-deep: #12160d;
+    --color-gradient-lime-base: #1a2211;
+    --color-gradient-lime-light: #3c5418;
+    --color-gradient-aqua-deep: #0c1520;
+    --color-gradient-aqua-base: #0f2131;
+    --color-gradient-aqua-light: #16507a;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
     --color-sheet-grabber: rgba(255, 255, 255, 0.28);
     --color-sheet-scrim: rgba(0, 0, 0, 0.6);
@@ -594,6 +606,12 @@
   --color-gradient-orchid-deep: #171219;
   --color-gradient-orchid-base: #221726;
   --color-gradient-orchid-light: #4a2852;
+  --color-gradient-lime-deep: #12160d;
+  --color-gradient-lime-base: #1a2211;
+  --color-gradient-lime-light: #3c5418;
+  --color-gradient-aqua-deep: #0c1520;
+  --color-gradient-aqua-base: #0f2131;
+  --color-gradient-aqua-light: #16507a;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
   --color-sheet-grabber: rgba(255, 255, 255, 0.28);
   --color-sheet-scrim: rgba(0, 0, 0, 0.6);
