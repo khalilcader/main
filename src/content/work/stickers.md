@@ -20,9 +20,9 @@ cover:
       poster: images/work/stickers-2-dark.jpg
     start: 2.4
     device: desktop   # the recording trimmed 2 px top and bottom to the frame's 1600 × 1000
-    rest: [0.275, 0.45, 2.2]   # thumbnail: in close on the heart mid-drag over the yellow note, its WebGL
-                               # peel and shine, the picker's "heart" search beside it (2.2 in the row: as
-                               # sharp as the 1.5 shots in the open view; x just inside the window's left edge)
+    rest: [0.24, 0.36, 1.7]   # thumbnail: in close on the heart mid-drag over the yellow note, its WebGL peel
+                              # and shine, with the window's top-left corner and the aqua backdrop above and
+                              # beside it; the picker's "heart" search to the right
     # [seconds, x, y, zoom]. Pushed-in shots at 1.5 (the sharpness limit; below
     # ~1.45 the board no longer fills the cover's height), x between 0.388 and 0.612,
     # y at 0.518 (the lowest it goes) to keep the board's toolbar clear of the bottom edge,
