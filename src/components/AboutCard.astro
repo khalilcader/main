@@ -19,8 +19,6 @@ const jobs = [
 <div class="about-grain" id="about-grain" aria-hidden="true" hidden></div>
 <div class="about" id="about" role="dialog" aria-modal="true" aria-label="About" hidden>
   <div class="about-card" id="about-card">
-    <!-- Phones: the sheet's grab handle. -->
-    <div class="about-grabber" aria-hidden="true"></div>
     <!-- Each face is a plane in the 3D turn; the surface inside carries the
          smoothed shape (Chrome ignores clip-path inside a 3D scene). -->
     <div class="about-face about-front"><div class="about-surface" data-smooth="clip">
@@ -121,7 +119,6 @@ const jobs = [
     border-radius: calc(var(--about-radius) * (1 + var(--corner-smoothing)));   /* inside the smoothed outline */
     pointer-events: auto;
   }
-  .about-grabber { display: none; }
   /* Phones: a bottom sheet, full width with a small inset, dragged down to
      close (about-card.ts). */
   :global(html.mobile) .about { align-items: flex-end; padding: var(--sheet-inset); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--sheet-inset)); }
@@ -138,11 +135,6 @@ const jobs = [
   :global(html.mobile) .about-body { position: relative; inset: auto; padding: var(--sheet-body-top) var(--about-pad) var(--about-pad); gap: var(--sheet-body-gap); }
   :global(html.mobile) .about-jobs { margin-top: 0; }
   :global(html.mobile) .about-card { --about-text-size: var(--sheet-text-size); --about-scene-height: var(--sheet-scene-height); --about-pad: var(--sheet-pad); --job-text-size: var(--sheet-job-size); }
-  :global(html.mobile) .about-grabber {
-    display: block; position: absolute; z-index: 3; left: 50%; top: var(--sheet-grabber-top);
-    width: var(--sheet-grabber-width); height: var(--sheet-grabber-height); margin-left: calc(var(--sheet-grabber-width) / -2);
-    border-radius: 999px; background: var(--color-sheet-grabber); pointer-events: none;
-  }
   .about-face {
     -webkit-backface-visibility: hidden; backface-visibility: hidden;
   }
