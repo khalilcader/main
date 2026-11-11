@@ -21,16 +21,23 @@ cover:
     start: 13.4
     device: desktop   # the recording trimmed 2 px top and bottom to the frame's 1600 × 1000
     rest: [0.5, 0.5, 1]   # thumbnail: the whole board, the stickers placed, no picker or selection showing
-    # [seconds, x, y, zoom]. The stickies span the board, so the whole board stays
-    # in view (pushing in would cut the outer ones at the cover's edges; at 1 the
-    # window already fills 86% of the cover's width). One slow push across the
-    # whole take, eased at both ends, instead of drifting in and out: it lands
-    # on the full board as the stickers finish, and eases back under the fade-out.
+    # [seconds, x, y, zoom]. Pushed-in shots at 1.5 (the sharpness limit; below
+    # ~1.45 the board no longer fills the cover's height), x between 0.388 and 0.612,
+    # y at 0.518 (the lowest it goes) to keep the board's toolbar clear of the bottom edge,
+    # so the board's edges never come inside the cover: the shot slides to the note
+    # being stickered, then pulls back to the whole board as the last one lands,
+    # matching the opening so the loop is seamless.
     camera:
-      - [0, 0.5, 0.5, 0.93]
-      - [19, 0.5, 0.5, 1]
-      - [19.6, 0.5, 0.5, 1]
-      - [20.6, 0.5, 0.5, 0.93]   # back out while the board fades, so the loop picks up where it left off
+      - [0, 0.5, 0.5, 1]           # the whole board
+      - [1, 0.5, 0.5, 1]
+      - [2.2, 0.388, 0.518, 1.5]     # the yellow note and the picker: a heart, a thumbs up
+      - [6, 0.388, 0.518, 1.5]
+      - [7.2, 0.612, 0.518, 1.5]     # over to the green note: a star, coffee
+      - [13, 0.612, 0.518, 1.5]
+      - [14.2, 0.5, 0.518, 1.5]      # the star moves to the blue note; a party popper
+      - [18.6, 0.5, 0.518, 1.5]
+      - [19.6, 0.5, 0.5, 1]        # back to the whole board
+      - [20.85, 0.5, 0.5, 1]
 ---
 
 Placeholder case study.
