@@ -292,7 +292,6 @@
   --color-gradient-aqua-base: #cde8f9;
   --color-gradient-aqua-light: #4fb3ee;     /* bottom: a clear aqua-blue glow */
   --color-desktop-border: rgba(0, 0, 0, 0.16);
-  --color-sheet-grabber: rgba(0, 0, 0, 0.2);    /* phones: the About sheet's grab handle */
   --color-sheet-scrim: rgba(0, 0, 0, 0.4);       /* phones: the page dimmed behind the About sheet */
 
   /* Effects */
@@ -325,9 +324,6 @@
     --sheet-body-gap: 32px;                 /* bio to jobs */
     --sheet-pad: 28px;                      /* copy inset from the sheet's sides */
     --sheet-top-gap: 48px;                  /* at least this much page shows above it */
-    --sheet-grabber-top: 8px;
-    --sheet-grabber-width: 36px;
-    --sheet-grabber-height: 5px;
     --mobile-bottom-pad: 64px;
     --mobile-col-gap: 12px;
     --mobile-in-rise: 16px;                 /* phones: covers rise this far as the page appears */
@@ -477,7 +473,6 @@
     --color-gradient-aqua-base: #0f2131;
     --color-gradient-aqua-light: #16507a;
     --color-desktop-border: rgba(255, 255, 255, 0.16);
-    --color-sheet-grabber: rgba(255, 255, 255, 0.28);
     --color-sheet-scrim: rgba(0, 0, 0, 0.6);
     --about-scene-day: 0;
     --about-scene-opacity: 0.8;
@@ -613,7 +608,6 @@
   --color-gradient-aqua-base: #0f2131;
   --color-gradient-aqua-light: #16507a;
   --color-desktop-border: rgba(255, 255, 255, 0.16);
-  --color-sheet-grabber: rgba(255, 255, 255, 0.28);
   --color-sheet-scrim: rgba(0, 0, 0, 0.6);
   --about-scene-day: 0;
   --about-scene-opacity: 0.8;
