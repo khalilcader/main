@@ -16,7 +16,7 @@ cover:
       mp4: images/work/attach-menu-dark.mp4
       poster: images/work/attach-menu-dark.jpg
     start: 6
-    rest: [0.4459, 0.6224, 1.35]   # thumbnail: in on the attach menu, the phone's bottom-left corner with the same width of blue beside and below it; its right side runs off the cover
+    rest: [0.388, 0.6803, 1.6]   # thumbnail: in on the attach menu, the phone's bottom-left corner with the same width of blue beside and below it; its right side runs off the cover
     device: full   # a finished film (phone, background, camera and touches all in it), edge to edge
 ---
 
