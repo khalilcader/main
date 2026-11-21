@@ -125,9 +125,10 @@ const restStyle = rest ? (() => {
     border-radius: var(--film-radius);   /* smoothed by the clip (smooth-corners.ts) */
   }
   /* Full: the film is the whole cover (its rounded clip is the cover's own),
-     so no frame, shadow or camera; the poster under it, cropped the same way. */
+     so no frame or shadow; the poster under it, cropped the same way. Only a
+     rest framing (the thumbnail) moves it: playing, it's the whole film. */
   .glass-frame[data-device="full"] {
-    left: 0; top: 0; transform: none; width: 100%; height: 100%; aspect-ratio: auto; filter: none;
+    width: 100%; height: 100%; aspect-ratio: auto; filter: none;   /* centred like the others, which the camera's maths expects */
   }
   .glass-frame[data-device="full"] .screen { inset: 0; border-radius: 0; background: var(--poster) center / cover no-repeat, var(--color-cover-bg); }
   /* Their poster under the video too, cropped as the video is (object-fit:

@@ -57,7 +57,9 @@ export function mountCameras(root: ParentNode = document) {
       const framed = playing || !!rest;   // a rest framing keeps the camera on while idle
       on += ((framed ? 1 : 0) - on) * (1 - Math.exp(-dt * 3));
 
-      const [kx, ky, ks] = playing && keys.length ? sample(keys, video.currentTime) : rest ?? [0.5, 0.5, 1];
+      // A finished film (no keyframes, only a rest framing for its thumbnail)
+      // plays whole: the shot eases out to the full view.
+      const [kx, ky, ks] = playing ? (keys.length ? sample(keys, video.currentTime) : [0.5, 0.5, 1]) : rest ?? [0.5, 0.5, 1];
       // A light follow, so a jump (the loop, a seek) never snaps.
       // Scrubbed (the player's data-scrubbing), it snaps to each spot instead.
       const f = video.dataset.scrubbing !== undefined ? 1 : 1 - Math.exp(-dt * 5);   // smooths the moves without arriving late
