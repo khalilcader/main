@@ -23,9 +23,13 @@ const work = defineCollection({
         webm: z.string().optional(),
         mp4: z.string(),
         poster: z.string(),
+        // A full-device film's background extended past its edges (its poster,
+        // padded by --extend of its width/height): behind the film, so a rest
+        // framing can show more background than the film has.
+        backdrop: z.string().optional(),
         // Optional dark-mode take of the same recording (same timing and framing):
         // shown when the site is dark (GlassFrame.astro).
-        dark: z.object({ webm: z.string().optional(), mp4: z.string(), poster: z.string() }).optional(),
+        dark: z.object({ webm: z.string().optional(), mp4: z.string(), poster: z.string(), backdrop: z.string().optional() }).optional(),
         // Seconds into the video the cover rests on; it plays from here on
         // hover or when the cover is open.
         start: z.number().min(0).default(0),
