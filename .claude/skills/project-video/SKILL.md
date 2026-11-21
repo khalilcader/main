@@ -49,6 +49,11 @@ of them more than once.
   Simulator's own Dynamic Island (the frame draws one) and fill the screen's
   rounded corners with the screen colour.
 
+- A finished film (device, background, camera and touches already edited in,
+  e.g. Attach Menu, Nov 2026): `device: full`. It fills the whole cover edge
+  to edge (cropped to it), with no shader, frame or camera. Khalil: "I don't
+  think you need to do anything with this one other than create it."
+
 ## Touch
 - iOS Simulator recordings (Tool Use, Oct 2026): keep the Simulator's own
   grey pointer as it is. Khalil: "no need to remove the pointer from the demo".
