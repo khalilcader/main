@@ -12,7 +12,8 @@ interface Props {
   camera?: [number, number, number, number][];   // see scripts/camera.ts
   device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop' | 'desktop-wide' | 'desktop-mac' | 'desktop-app' | 'film' | 'full';
   rest?: [number, number, number];   // see scripts/camera.ts
-  dark?: { webm?: string; mp4: string; poster: string };   // the dark-mode take, swapped in when the site is dark
+  dark?: { webm?: string; mp4: string; poster: string; backdrop?: string };   // the dark-mode take, swapped in when the site is dark
+  backdrop?: string;   // full device: the film's background extended past its edges
 }
 const DEVICES = {
   // r: tighter than the frame's inner curve, so the screen reaches under its
@@ -39,7 +40,7 @@ const DEVICES = {
   // footage), filling the whole cover edge to edge, cropped to it.
   full: { src: '', w: 1440, h: 1800, x0: 0, y0: 0, x1: 1440, y1: 1800, r: 0 },
 };
-const { webm, mp4, poster, start = 0, camera, device = 'iphone', rest, dark } = Astro.props;
+const { webm, mp4, poster, start = 0, camera, device = 'iphone', rest, dark, backdrop } = Astro.props;
 const d = DEVICES[device];
 const frame = `${import.meta.env.BASE_URL}images/${d.src}`;
 const pct = (v: number, of: number) => `${(v / of * 100).toFixed(4)}%`;
@@ -58,6 +59,7 @@ const restStyle = rest ? (() => {
 })() : '';
 ---
 <div class="glass-frame" data-device={device} data-dark={dark ? '' : undefined} style={shape + restStyle} data-camera={camera && JSON.stringify(camera)} data-rest={rest && JSON.stringify(rest)}>
+  {backdrop && <div class="extend" aria-hidden="true" style={dark?.backdrop ? `--extend-light: url("${backdrop}"); --extend-dark: url("${dark.backdrop}")` : `--extend-img: url("${backdrop}")`}></div>}
   <div class="screen" data-smooth={device === 'desktop' || device === 'desktop-wide' || device === 'desktop-mac' || device === 'desktop-app' || device === 'film' ? 'clip' : undefined} style={dark ? `--poster-light: url("${poster}"); --poster-dark: url("${dark.poster}")` : `--poster: url("${poster}")`}>
     <!-- Shows its poster (the `start` frame) until the cover is hovered or opened
          (work-strip.ts); preload none, so a dozen idle covers don't each hold a
@@ -131,6 +133,12 @@ const restStyle = rest ? (() => {
     width: 100%; height: 100%; aspect-ratio: auto; filter: none;   /* centred like the others, which the camera's maths expects */
   }
   .glass-frame[data-device="full"] .screen { inset: 0; border-radius: 0; background: var(--poster) center / cover no-repeat, var(--color-cover-bg); }
+  /* Behind the film, its background carried on past its edges (200px of the
+     poster's 1231 x 1800 crop each side), so a thumbnail can show more of it. */
+  .extend { position: absolute; inset: calc(-200 / 1800 * 100%) calc(-200 / 1231 * 100%); background: var(--extend-img) center / 100% 100% no-repeat; }
+  .extend { --extend-img: var(--extend-light); }
+  @media (prefers-color-scheme: dark) { :global(:root:not([data-scheme="light"])) .extend { --extend-img: var(--extend-dark); } }
+  :global(:root[data-scheme="dark"]) .extend { --extend-img: var(--extend-dark); }
   /* Their poster under the video too, cropped as the video is (object-fit:
      cover), so Safari can hide an idle video (below) and show the same frame. */
   .glass-frame:is([data-device="desktop"], [data-device="desktop-wide"], [data-device="desktop-mac"], [data-device="film"]) .screen {
