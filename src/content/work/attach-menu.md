@@ -15,7 +15,8 @@ cover:
       webm: images/work/attach-menu-dark.webm
       mp4: images/work/attach-menu-dark.mp4
       poster: images/work/attach-menu-dark.jpg
-    start: 6   # thumbnail: the attach menu open
+    start: 6
+    rest: [0.37, 0.63, 1.35]   # thumbnail: in on the attach menu, the phone's bottom-left corner with blue beside and below it; its right side runs off the cover
     device: full   # a finished film (phone, background, camera and touches all in it), edge to edge
 ---
 
