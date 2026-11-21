@@ -16,6 +16,7 @@ cover:
       mp4: images/work/claude-icons-dark.mp4
       poster: images/work/claude-icons-dark.jpg
     start: 11   # thumbnail: a clean grid of icons, large enough to read
+    rest: [0.5167, 0.4692, 1.1]   # the grid centred: four columns and five whole rows, the same space either side and top and bottom
     device: full   # a finished film, edge to edge
 ---
 
