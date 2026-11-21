@@ -3,7 +3,7 @@ title: Tab Bar
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2026"
-order: 2.5
+order: 5
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   alt: Claude on iPhone, switching between Chat, Code, Projects and Artifacts from the tab bar, and holding the Projects tab to open a menu of projects above it
