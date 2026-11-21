@@ -10,7 +10,7 @@ interface Props {
   poster: string;
   start?: number;   // seconds; the frame the cover rests on
   camera?: [number, number, number, number][];   // see scripts/camera.ts
-  device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop' | 'desktop-wide' | 'desktop-mac' | 'desktop-app' | 'film';
+  device?: 'iphone' | 'iphone-notch' | 'iphone-recorded' | 'ipad' | 'desktop' | 'desktop-wide' | 'desktop-mac' | 'desktop-app' | 'film' | 'full';
   rest?: [number, number, number];   // see scripts/camera.ts
   dark?: { webm?: string; mp4: string; poster: string };   // the dark-mode take, swapped in when the site is dark
 }
@@ -35,6 +35,9 @@ const DEVICES = {
   'desktop-app': { src: '', w: 1600, h: 1030, x0: 0, y0: 0, x1: 1600, y1: 1030, r: 0 },
   // No frame: filmed footage (16:9), a plain picture with soft round corners.
   film: { src: '', w: 1600, h: 900, x0: 0, y0: 0, x1: 1600, y1: 900, r: 0 },
+  // No frame: a finished film (device, background and camera all in the
+  // footage), filling the whole cover edge to edge, cropped to it.
+  full: { src: '', w: 1440, h: 1800, x0: 0, y0: 0, x1: 1440, y1: 1800, r: 0 },
 };
 const { webm, mp4, poster, start = 0, camera, device = 'iphone', rest, dark } = Astro.props;
 const d = DEVICES[device];
@@ -121,6 +124,12 @@ const restStyle = rest ? (() => {
     inset: 0; background: var(--color-cover-bg);
     border-radius: var(--film-radius);   /* smoothed by the clip (smooth-corners.ts) */
   }
+  /* Full: the film is the whole cover (its rounded clip is the cover's own),
+     so no frame, shadow or camera; the poster under it, cropped the same way. */
+  .glass-frame[data-device="full"] {
+    left: 0; top: 0; transform: none; width: 100%; height: 100%; aspect-ratio: auto; filter: none;
+  }
+  .glass-frame[data-device="full"] .screen { inset: 0; border-radius: 0; background: var(--poster) center / cover no-repeat, var(--color-cover-bg); }
   /* Their poster under the video too, cropped as the video is (object-fit:
      cover), so Safari can hide an idle video (below) and show the same frame. */
   .glass-frame:is([data-device="desktop"], [data-device="desktop-wide"], [data-device="desktop-mac"], [data-device="film"]) .screen {
