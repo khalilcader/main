@@ -16,7 +16,7 @@ cover:
       mp4: images/work/tab-bar-dark.mp4
       poster: images/work/tab-bar-dark.jpg
     start: 22.5
-    rest: [0.4, 0.64, 1.4]   # thumbnail: in on the Projects tab's menu over the tab bar, the phone's bottom-left corner with yellow beside and below it
+    rest: [0.537, 0.537, 1.08]   # thumbnail: the Projects tab's menu over the tab bar, the phone's bottom-right corner in with yellow beside and below it (Attach Menu's runs the other way)
     device: full   # a finished film (phone, background, camera and touches all in it), edge to edge
 ---
 
