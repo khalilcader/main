@@ -25,8 +25,12 @@ cover:
     # sections stay in view), x at most 0.485-0.515 so the window stays inside
     # the cover, pulling back to the whole window between steps and at the end.
     camera:
-      - [0, 0.5, 0.5, 1.5]         # the icon set and the slide into the sidebar fill the cover
-      - [8.9, 0.5, 0.5, 1.5]       # held through the close-up, so the frame's edges stay hidden
+      - [0, 0.5, 0.5, 1.5]         # the icon set fills the cover
+      - [6, 0.5, 0.5, 1.5]
+      - [7, 0.4, 0.5, 1.5]         # eased left as the icons gather into a column at the video's left
+                                   # (9% in), so it slides into the sidebar in view; at 0.4 the frame's
+                                   # own left edge still sits just outside the cover
+      - [8.9, 0.4, 0.5, 1.5]       # held through the close-up
       - [10.2, 0.5, 0.5, 1]        # out to the window as the video's pull-back lands (9.9 s)
       - [12.4, 0.5, 0.5, 1]
       - [13.6, 0.5, 0.52, 1.2]     # Hello, Khalil: the prompt and recent artifacts
