@@ -11,25 +11,23 @@ cover:
   palette: fog
   alt: Claude Desktop on a Mac, from its icon set to the sidebar, Artifacts and Projects, then asking for a summary of a survey and getting back a one-page document
   video:
-    webm: images/work/claude-desktop-25.webm
-    mp4: images/work/claude-desktop-25.mp4
-    poster: images/work/claude-desktop-25.jpg
+    webm: images/work/claude-desktop-26.webm
+    mp4: images/work/claude-desktop-26.mp4
+    poster: images/work/claude-desktop-26.jpg
     dark:   # the same film in dark mode, shown when the site is dark
-      webm: images/work/claude-desktop-25-dark.webm
-      mp4: images/work/claude-desktop-25-dark.mp4
-      poster: images/work/claude-desktop-25-dark.jpg
+      webm: images/work/claude-desktop-26-dark.webm
+      mp4: images/work/claude-desktop-26-dark.mp4
+      poster: images/work/claude-desktop-26-dark.jpg
     start: 12
-    device: desktop-app   # the film cropped to its window (the window's corner held from the first icon through the sidebar close-up; the film's fast, motion-blurred pull-back (8.4-9.9 s) rebuilt as one eased zoom from its sharp close-up and whole-window frames; then the window, tracked), room added on its right and below as before, smoothed corners
+    device: desktop-app   # the film cropped to its window (the full frame through the icons and the sidebar close-up, as the original; the film's fast, motion-blurred pull-back (8.4-9.9 s) rebuilt as one eased zoom from its sharp close-up and whole-window frames; then the window, tracked), room added on its right and below as before, smoothed corners
     rest: [0.18, 0.21, 1.5]    # thumbnail: the window's top-left corner, the sidebar, fog padding above and beside it (1.5x: crisp)
     # [seconds, x, y, zoom]: the icons at 1.5, then held push-ins at 1.2 (whole
     # sections stay in view), x at most 0.485-0.515 so the window stays inside
     # the cover, pulling back to the whole window between steps and at the end.
     camera:
-      - [0, 0.5, 0.5, 1.5]         # the icons fill the cover
-      - [6.4, 0.5, 0.5, 1.5]
-      - [7.3, 0.5, 0.5, 1]         # out to the window's frame as the icons dissolve and its sidebar
-                                   # fades in (the video holds one framing throughout), then the
-                                   # video pulls back to the whole window (8.4-9.9 s)
+      - [0, 0.5, 0.5, 1.5]         # the icon set and the slide into the sidebar fill the cover
+      - [8.9, 0.5, 0.5, 1.5]       # held through the close-up, so the frame's edges stay hidden
+      - [10.2, 0.5, 0.5, 1]        # out to the window as the video's pull-back lands (9.9 s)
       - [12.4, 0.5, 0.5, 1]
       - [13.6, 0.5, 0.52, 1.2]     # Hello, Khalil: the prompt and recent artifacts
       - [18.4, 0.5, 0.52, 1.2]
