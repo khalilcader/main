@@ -11,15 +11,15 @@ cover:
   palette: fog
   alt: Claude Desktop on a Mac, from its icon set to the sidebar, Artifacts and Projects, then asking for a summary of a survey and getting back a one-page document
   video:
-    webm: images/work/claude-desktop-19.webm
-    mp4: images/work/claude-desktop-19.mp4
-    poster: images/work/claude-desktop-19.jpg
+    webm: images/work/claude-desktop-20.webm
+    mp4: images/work/claude-desktop-20.mp4
+    poster: images/work/claude-desktop-20.jpg
     dark:   # the same film in dark mode, shown when the site is dark
-      webm: images/work/claude-desktop-19-dark.webm
-      mp4: images/work/claude-desktop-19-dark.mp4
-      poster: images/work/claude-desktop-19-dark.jpg
+      webm: images/work/claude-desktop-20-dark.webm
+      mp4: images/work/claude-desktop-20-dark.mp4
+      poster: images/work/claude-desktop-20-dark.jpg
     start: 12
-    device: desktop-app   # the film cropped to its window (tracked frame by frame from 9.6 s; the full frame for the icons before it), smoothed corners
+    device: desktop-app   # the film cropped to its window (tracked from 9.6 s, its true size, 3px in; the full frame for the icons before), room added on its right and below as before, smoothed corners
     rest: [0.18, 0.21, 1.5]    # thumbnail: the window's top-left corner, the sidebar, fog padding above and beside it (1.5x: crisp)
     # [seconds, x, y, zoom]: the icons at 1.5, then held push-ins at 1.2 (whole
     # sections stay in view), x at most 0.485-0.515 so the window stays inside
