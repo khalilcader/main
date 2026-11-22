@@ -11,13 +11,13 @@ cover:
   palette: fog
   alt: Claude Desktop on a Mac, from its icon set to the sidebar, Artifacts and Projects, then asking for a summary of a survey and getting back a one-page document
   video:
-    webm: images/work/claude-desktop-21.webm
-    mp4: images/work/claude-desktop-21.mp4
-    poster: images/work/claude-desktop-21.jpg
+    webm: images/work/claude-desktop-22.webm
+    mp4: images/work/claude-desktop-22.mp4
+    poster: images/work/claude-desktop-22.jpg
     dark:   # the same film in dark mode, shown when the site is dark
-      webm: images/work/claude-desktop-21-dark.webm
-      mp4: images/work/claude-desktop-21-dark.mp4
-      poster: images/work/claude-desktop-21-dark.jpg
+      webm: images/work/claude-desktop-22-dark.webm
+      mp4: images/work/claude-desktop-22-dark.mp4
+      poster: images/work/claude-desktop-22-dark.jpg
     start: 12
     device: desktop-app   # the film cropped to its window (tracked; through the film's pull-back from the sidebar, 7.6-10 s, it follows the window by the film's measured zoom; the full frame for the icons before), room added on its right and below as before, smoothed corners
     rest: [0.18, 0.21, 1.5]    # thumbnail: the window's top-left corner, the sidebar, fog padding above and beside it (1.5x: crisp)
@@ -26,9 +26,10 @@ cover:
     # the cover, pulling back to the whole window between steps and at the end.
     camera:
       - [0, 0.5, 0.5, 1.5]         # the icons fill the cover
-      - [7, 0.5, 0.5, 1.5]
-      - [7.6, 0.5, 0.5, 1]         # out as they fade into the sidebar: the film is already in close
-                                   # there, and pulls back to the whole window itself (to 9.7 s)
+      - [6.4, 0.5, 0.5, 1.5]
+      - [7.3, 0.5, 0.5, 1]         # out as the icons fade, before the sidebar comes in (the video
+                                   # crossfades its crop in the blank between, 7.25-7.6 s); the film
+                                   # then pulls back from the sidebar to the whole window itself (to 9.7 s)
       - [12.4, 0.5, 0.5, 1]
       - [13.6, 0.5, 0.52, 1.2]     # Hello, Khalil: the prompt and recent artifacts
       - [18.4, 0.5, 0.52, 1.2]
