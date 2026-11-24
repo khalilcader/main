@@ -11,11 +11,14 @@ cover:
     webm: images/work/settings.webm
     mp4: images/work/settings.mp4
     poster: images/work/settings.jpg
+    backdrop: images/work/settings-backdrop.jpg   # the film's background carried on past its edges, so the thumbnail can sit the phone in the middle
     dark:   # the same film in dark mode, shown when the site is dark
       webm: images/work/settings-dark.webm
       mp4: images/work/settings-dark.mp4
       poster: images/work/settings-dark.jpg
+      backdrop: images/work/settings-dark-backdrop.jpg
     start: 4.5   # thumbnail: the theme menu open (Light ticked in the light film, Dark in the dark one)
+    rest: [0.5, 0.47, 0.9]   # the phone centred: the film has it high (touching the top), so the shot eases down and out a little
     device: full   # a finished film (phone, background, camera and touches all in it), edge to edge
 ---
 
