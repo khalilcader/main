@@ -3,7 +3,7 @@ title: Sidebar
 summary: Placeholder summary. Replace with a one-line description of the project.
 role: Product designer
 year: "2026"
-order: 27
+order: 25.5
 cover:
   aspect: 0.684   # 422 × 617, like the other phone covers
   alt: Claude on iPhone, opening the sidebar of pinned chats and recents, scrolling the list, then searching it for plan and opening a chat
