@@ -162,7 +162,7 @@ export interface Phone { group: THREE.Group; screen: THREE.Mesh; setScreen(tex: 
 
 export function buildIPhone18Pro(finish: keyof typeof FINISHES = 'silver'): Phone {
   const group = new THREE.Group(); group.name = 'iPhone 18 Pro';
-  const metal = new THREE.MeshPhysicalMaterial({ color: FINISHES[finish].metal, metalness: 1, roughness: 0.32, clearcoat: 0.3, clearcoatRoughness: 0.4 });
+  const metal = new THREE.MeshPhysicalMaterial({ color: FINISHES[finish].metal, metalness: 1, roughness: 0.28, clearcoat: 0.25, clearcoatRoughness: 0.3, envMapIntensity: 1.1 });   // bead-blasted aluminium: soft, broad highlights
   const backGlass = new THREE.MeshPhysicalMaterial({ color: FINISHES[finish].back, metalness: 0, roughness: 0.55, clearcoat: 0.6, clearcoatRoughness: 0.5 });
   const frontGlass = new THREE.MeshPhysicalMaterial({ color: '#050506', metalness: 0, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.03 });
   const black = new THREE.MeshBasicMaterial({ color: '#000' });
@@ -183,6 +183,38 @@ export function buildIPhone18Pro(finish: keyof typeof FINISHES = 'silver'): Phon
   // Display: a rounded rectangle just under the glass's surface, the screen texture on it.
   const screenMat = new THREE.MeshBasicMaterial({ color: '#000', toneMapped: false });
   const screen = add(flat(roundRect(DISPLAY_W, DISPLAY_H, DISPLAY_R, 0.6, 20), HT + 0.02, 1), screenMat, 'screen') as THREE.Mesh;
+  // The cover glass's reflection over the screen, drawn additively so it only
+  // ever adds light: each point reflects the view direction about the glass's
+  // normal (in world space, so it moves as the phone turns) and picks up a large
+  // softbox fixed above-left of the scene and a long strip light to the right,
+  // with Fresnel making the glass brighter toward grazing angles.
+  const glare = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+    uniforms: {
+      uKey: { value: new THREE.Vector3(-0.30, 0.36, 0.88).normalize() },
+      uStrip: { value: new THREE.Vector3(0.47, 0.0, 0.88).normalize() },
+      uStrength: { value: 1 },
+    },
+    vertexShader: `varying vec3 vN; varying vec3 vP;
+      void main() { vec4 w = modelMatrix * vec4(position, 1.0); vP = w.xyz; vN = normalize(mat3(modelMatrix) * normal);
+        gl_Position = projectionMatrix * viewMatrix * w; }`,
+    fragmentShader: `uniform vec3 uKey; uniform vec3 uStrip; uniform float uStrength; varying vec3 vN; varying vec3 vP;
+      void main() {
+        vec3 V = normalize(cameraPosition - vP); vec3 N = normalize(vN);
+        float ndv = clamp(dot(N, V), 0.0, 1.0);
+        vec3 R = reflect(-V, N);
+        float fres = 0.04 + 0.96 * pow(1.0 - ndv, 5.0);
+        // softbox: a soft-edged patch around its direction; strip: long vertically
+        float key = smoothstep(0.978, 0.996, dot(R, uKey));
+        float broad = smoothstep(0.55, 1.0, dot(R, uKey));
+        vec3 s = R - uStrip * dot(R, uStrip);
+        float strip = smoothstep(0.93, 0.985, dot(R, uStrip)) + 0.0 * s.x;
+        float stripLong = smoothstep(0.988, 0.998, dot(normalize(vec3(R.x, 0.0, R.z)), normalize(vec3(uStrip.x, 0.0, uStrip.z)))) * smoothstep(0.6, 0.25, abs(R.y));
+        float l = (key * 0.42 + stripLong * 0.30 + broad * 0.025) * (0.6 + fres * 2.0) + fres * 0.10;
+        gl_FragColor = vec4(vec3(l * uStrength), 1.0);
+      }`,
+  });
+  add(flat(offset(BASE, 2.61), HT + 0.06, 1), glare, 'cover-glass-reflection').renderOrder = 2;
   // Dynamic Island, over the screen.
   const isl = add(flat(roundRect(ISLAND.w, ISLAND.h, ISLAND.h / 2 - 0.001, 0, 16), HT + 0.04, 1), black, 'dynamic-island');
   isl.position.y = L / 2 - ISLAND.y;
