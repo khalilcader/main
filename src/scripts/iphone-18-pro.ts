@@ -150,17 +150,20 @@ const capsule = (len: number, w: number) => roundRect(w, len, w / 2 - 0.001, 0, 
 
 // --- Materials ----------------------------------------------------------------
 export interface Finish { name: string; metal: string; back: string }
-// Apple's four finishes (names per launch coverage; tones matched by eye).
+// Apple's four finishes (Apple Newsroom, Sept 9 2026: Deep Black, Silver,
+// Glacier Blue, Burgundy). Apple gives no colour values: these are the
+// anodised aluminium (metal) and matching Ceramic Shield back, read from
+// Apple's product photography.
 export const FINISHES: Record<string, Finish> = {
-  silver: { name: 'Silver', metal: '#d9dadc', back: '#e4e5e7' },
-  black: { name: 'Black', metal: '#3a3b3e', back: '#2e2f32' },
-  cherry: { name: 'Cherry', metal: '#5b1d26', back: '#5a1f28' },
-  glacier: { name: 'Glacier', metal: '#b9cad9', back: '#c4d3e0' },
+  black: { name: 'Deep Black', metal: '#2a2b2e', back: '#222326' },
+  silver: { name: 'Silver', metal: '#d9dadc', back: '#e3e4e6' },
+  glacier: { name: 'Glacier Blue', metal: '#a9bccd', back: '#b8c8d6' },
+  burgundy: { name: 'Burgundy', metal: '#4e1a22', back: '#4a1b23' },
 };
 
 export interface Phone { group: THREE.Group; screen: THREE.Mesh; setScreen(tex: THREE.Texture | null): void; setFinish(f: keyof typeof FINISHES): void }
 
-export function buildIPhone18Pro(finish: keyof typeof FINISHES = 'silver'): Phone {
+export function buildIPhone18Pro(finish: keyof typeof FINISHES = 'black'): Phone {
   const group = new THREE.Group(); group.name = 'iPhone 18 Pro';
   const metal = new THREE.MeshPhysicalMaterial({ color: FINISHES[finish].metal, metalness: 1, roughness: 0.28, clearcoat: 0.25, clearcoatRoughness: 0.3, envMapIntensity: 1.1 });   // bead-blasted aluminium: soft, broad highlights
   const backGlass = new THREE.MeshPhysicalMaterial({ color: FINISHES[finish].back, metalness: 0, roughness: 0.55, clearcoat: 0.6, clearcoatRoughness: 0.5 });
